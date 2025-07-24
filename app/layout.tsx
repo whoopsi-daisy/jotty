@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { getCurrentUser } from "@/server/actions/users/current";
+import "@/app/_styles/globals.css";
+import { ThemeProvider } from "@/app/_components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,25 +15,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                const theme = JSON.parse(localStorage.getItem('checklist-settings'))?.state?.theme || 'light';
-                document.documentElement.classList.remove('light', 'dark', 'sunset', 'ocean', 'forest');
-                document.documentElement.classList.add(theme);
-              } catch (e) {
-                document.documentElement.classList.add('light');
-              }
-            `,
-          }}
-        />
-      </head>
       <body className={inter.className}>
         <ThemeProvider>
           <div className="min-h-screen bg-background text-foreground transition-colors">
