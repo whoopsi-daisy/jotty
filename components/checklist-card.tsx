@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Trash2, Plus } from "lucide-react"
-import { deleteList, createItem, updateItemAction, deleteItemAction } from "@/app/actions"
+import { deleteListAction, createItemAction, updateItemAction, deleteItemAction } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { ChecklistItem } from "./checklist-item"
 
@@ -16,6 +16,7 @@ interface Item {
 interface List {
   id: string
   title: string
+  category?: string
   items: Item[]
 }
 
@@ -33,7 +34,10 @@ export function ChecklistCard({ list, onUpdate }: ChecklistCardProps) {
     if (!newItemText.trim()) return
 
     setIsLoading(true)
-    const result = await createItem(list.id, newItemText.trim())
+    const formData = new FormData()
+    formData.append('listId', list.id)
+    formData.append('text', newItemText.trim())
+    const result = await createItemAction(formData)
     setIsLoading(false)
 
     if (result.success) {
@@ -44,18 +48,28 @@ export function ChecklistCard({ list, onUpdate }: ChecklistCardProps) {
 
   const handleDeleteList = async () => {
     if (confirm("Are you sure you want to delete this list?")) {
-      await deleteList(list.id)
+      const formData = new FormData()
+      formData.append('id', list.id)
+      formData.append('category', list.category || 'Uncategorized')
+      await deleteListAction(formData)
       onUpdate?.()
     }
   }
 
   const handleToggleItem = async (itemId: string, completed: boolean) => {
-    await updateItemAction(list.id, itemId, { completed })
+    const formData = new FormData()
+    formData.append('listId', list.id)
+    formData.append('itemId', itemId)
+    formData.append('completed', String(completed))
+    await updateItemAction(formData)
     onUpdate?.()
   }
 
   const handleDeleteItem = async (itemId: string) => {
-    await deleteItemAction(list.id, itemId)
+    const formData = new FormData()
+    formData.append('listId', list.id)
+    formData.append('itemId', itemId)
+    await deleteItemAction(formData)
     onUpdate?.()
   }
 

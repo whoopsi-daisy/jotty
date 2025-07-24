@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Folder, ListTodo } from 'lucide-react'
-import { moveChecklistAction, updateChecklistTitleAction } from '@/app/actions'
+import { updateListAction } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { Dropdown } from '@/components/ui/dropdown'
 import { Modal } from '@/components/ui/modal'
@@ -43,27 +43,15 @@ export function EditChecklistModal({ checklist, categories, onClose, onUpdated }
     if (!title.trim()) return
 
     setIsLoading(true)
-    
-    try {
-      if (title.trim() !== checklist.title) {
-        const titleResult = await updateChecklistTitleAction(checklist.id, title.trim())
-        if (!titleResult.success) {
-          throw new Error(titleResult.error)
-        }
-      }
-      
-      if (category !== (checklist.category || '')) {
-        const categoryResult = await moveChecklistAction(checklist.id, category || undefined)
-        if (!categoryResult.success) {
-          throw new Error(categoryResult.error)
-        }
-      }
-      
+    const formData = new FormData()
+    formData.append('id', checklist.id)
+    formData.append('title', title.trim())
+    formData.append('category', category || '')
+    const result = await updateListAction(formData)
+    setIsLoading(false)
+
+    if (result.success) {
       onUpdated()
-    } catch (error) {
-      console.error('Error updating checklist:', error)
-    } finally {
-      setIsLoading(false)
     }
   }
 

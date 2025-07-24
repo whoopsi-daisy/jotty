@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X, Folder, ListTodo } from 'lucide-react'
-import { createList } from '@/app/actions'
+import { createListAction } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { Dropdown } from '@/components/ui/dropdown'
 import { Modal } from '@/components/ui/modal'
@@ -38,7 +38,10 @@ export function CreateListModal({ onClose, onCreated, categories }: CreateListMo
     if (!title.trim()) return
 
     setIsLoading(true)
-    const result = await createList(title.trim(), category || undefined)
+    const formData = new FormData()
+    formData.append('title', title.trim())
+    formData.append('category', category || '')
+    const result = await createListAction(formData)
     setIsLoading(false)
 
     if (result.success) {

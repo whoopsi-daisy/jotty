@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ArrowLeft, Plus, Trash2, Edit3, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ChecklistItem } from './checklist-item'
-import { deleteList, createItem, updateItemAction, deleteItemAction, reorderItemsAction } from '@/app/actions'
+import { deleteListAction, createItemAction, updateItemAction, deleteItemAction, reorderItemsAction } from '@/app/actions'
 import {
   DndContext,
   closestCenter,
@@ -72,7 +72,10 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
     if (!newItemText.trim()) return
 
     setIsLoading(true)
-    const result = await createItem(list.id, newItemText.trim())
+    const formData = new FormData()
+    formData.append('listId', list.id)
+    formData.append('text', newItemText.trim())
+    const result = await createItemAction(formData)
     setIsLoading(false)
 
     if (result.success) {
@@ -83,18 +86,28 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
 
   const handleDeleteList = async () => {
     if (confirm("Are you sure you want to delete this checklist?")) {
-      await deleteList(list.id)
+      const formData = new FormData()
+      formData.append('id', list.id)
+      formData.append('category', list.category || 'Uncategorized')
+      await deleteListAction(formData)
       onDelete?.()
     }
   }
 
   const handleToggleItem = async (itemId: string, completed: boolean) => {
-    await updateItemAction(list.id, itemId, { completed })
+    const formData = new FormData()
+    formData.append('listId', list.id)
+    formData.append('itemId', itemId)
+    formData.append('completed', String(completed))
+    await updateItemAction(formData)
     onUpdate()
   }
 
   const handleDeleteItem = async (itemId: string) => {
-    await deleteItemAction(list.id, itemId)
+    const formData = new FormData()
+    formData.append('listId', list.id)
+    formData.append('itemId', itemId)
+    await deleteItemAction(formData)
     onUpdate()
   }
 
@@ -108,7 +121,10 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
       if (oldIndex !== -1 && newIndex !== -1) {
         const newItems = arrayMove(list.items, oldIndex, newIndex)
         const itemIds = newItems.map(item => item.id)
-        await reorderItemsAction(list.id, itemIds)
+        const formData = new FormData()
+        formData.append('listId', list.id)
+        formData.append('itemIds', JSON.stringify(itemIds))
+        await reorderItemsAction(formData)
         onUpdate()
       }
     }

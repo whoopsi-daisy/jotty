@@ -1,24 +1,26 @@
-import { getLists, getCategoriesAction } from './actions'
-import { HomeClient } from '@/components/ui/pages/Home/HomeClient'
+import { getLists, getCategories } from "@/app/actions";
+import { HomeClient } from "@/components/ui/pages/Home/HomeClient";
+import { isAdmin, getUsername } from "@/server/actions/auth/utils";
 
 export default async function HomePage() {
   // Fetch data on the server
-  const listsResult = await getLists()
-  const categoriesResult = await getCategoriesAction()
-  
-  const lists = listsResult.success && listsResult.data ? listsResult.data : []
-  const categoryNames = categoriesResult.success && categoriesResult.data ? categoriesResult.data : []
-  
-  // Convert category names to Category objects with count
-  const categories = categoryNames.map(name => ({
-    name,
-    count: lists.filter(list => (list.category || 'Uncategorized') === name).length
-  }))
+  const listsResult = await getLists();
+  const categoriesResult = await getCategories();
+
+  const lists = listsResult.success && listsResult.data ? listsResult.data : [];
+  const categories =
+    categoriesResult.success && categoriesResult.data
+      ? categoriesResult.data
+      : [];
+  const admin = await isAdmin();
+  const username = await getUsername();
 
   return (
-    <HomeClient 
+    <HomeClient
       initialLists={lists}
       initialCategories={categories}
+      isAdmin={admin}
+      username={username}
     />
-  )
-} 
+  );
+}

@@ -1,6 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import path from 'path'
 import { List, Category } from '@/types'
 import { 
@@ -77,7 +76,7 @@ export async function getLists() {
       }
     }
 
-    return { success: true, data: lists }
+    return lists
   } catch (error) {
     return { error: 'Failed to fetch lists' }
   }
@@ -98,21 +97,21 @@ export async function getCategories() {
 
     // Get lists to calculate counts
     const lists = await getLists()
-    if (!lists.success) {
+    if ('error' in lists) {
       throw new Error(lists.error)
     }
 
     categories.forEach(cat => {
-      cat.count = lists.data.filter(list => list.category === cat.name).length
+      cat.count = lists.filter(list => list.category === cat.name).length
     })
 
-    return { success: true, data: categories }
+    return categories
   } catch (error) {
     return { error: 'Failed to fetch categories' }
   }
 }
 
-export async function createListAction(formData: FormData) {
+export async function createList(formData: FormData) {
   try {
     const title = formData.get('title') as string
     const category = formData.get('category') as string || 'Uncategorized'
@@ -132,25 +131,24 @@ export async function createListAction(formData: FormData) {
     }
 
     await writeFile(filePath, listToMarkdown(newList))
-    revalidatePath('/')
     return { success: true, data: newList }
   } catch (error) {
     return { error: 'Failed to create list' }
   }
 }
 
-export async function updateListAction(formData: FormData) {
+export async function updateList(formData: FormData) {
   try {
     const id = formData.get('id') as string
     const title = formData.get('title') as string
     const category = formData.get('category') as string || 'Uncategorized'
 
     const lists = await getLists()
-    if (!lists.success) {
+    if ('error' in lists) {
       throw new Error(lists.error)
     }
 
-    const currentList = lists.data.find(list => list.id === id)
+    const currentList = lists.find(list => list.id === id)
     if (!currentList) {
       throw new Error('List not found')
     }
@@ -172,14 +170,13 @@ export async function updateListAction(formData: FormData) {
       await deleteFile(oldFilePath)
     }
 
-    revalidatePath('/')
     return { success: true, data: updatedList }
   } catch (error) {
     return { error: 'Failed to update list' }
   }
 }
 
-export async function deleteListAction(formData: FormData) {
+export async function deleteList(formData: FormData) {
   try {
     const id = formData.get('id') as string
     const category = formData.get('category') as string || 'Uncategorized'
@@ -188,14 +185,13 @@ export async function deleteListAction(formData: FormData) {
     const filePath = path.join(userDir, category, `${id}.md`)
     await deleteFile(filePath)
 
-    revalidatePath('/')
     return { success: true }
   } catch (error) {
     return { error: 'Failed to delete list' }
   }
 }
 
-export async function createCategoryAction(formData: FormData) {
+export async function createCategory(formData: FormData) {
   try {
     const name = formData.get('name') as string
 
@@ -203,14 +199,13 @@ export async function createCategoryAction(formData: FormData) {
     const categoryDir = path.join(userDir, name)
     await ensureDir(categoryDir)
 
-    revalidatePath('/')
     return { success: true, data: { name, count: 0 } }
   } catch (error) {
     return { error: 'Failed to create category' }
   }
 }
 
-export async function deleteCategoryAction(formData: FormData) {
+export async function deleteCategory(formData: FormData) {
   try {
     const name = formData.get('name') as string
 
@@ -218,159 +213,8 @@ export async function deleteCategoryAction(formData: FormData) {
     const categoryDir = path.join(userDir, name)
     await deleteDir(categoryDir)
 
-    revalidatePath('/')
     return { success: true }
   } catch (error) {
     return { error: 'Failed to delete category' }
-  }
-}
-
-export async function updateItemAction(formData: FormData) {
-  try {
-    const listId = formData.get('listId') as string
-    const itemId = formData.get('itemId') as string
-    const completed = formData.get('completed') === 'true'
-
-    const lists = await getLists()
-    if (!lists.success) {
-      throw new Error(lists.error)
-    }
-
-    const list = lists.data.find(l => l.id === listId)
-    if (!list) {
-      throw new Error('List not found')
-    }
-
-    const updatedList = {
-      ...list,
-      items: list.items.map(item => 
-        item.id === itemId 
-          ? { ...item, completed }
-          : item
-      ),
-      updatedAt: new Date().toISOString()
-    }
-
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
-
-    revalidatePath('/')
-    return { success: true }
-  } catch (error) {
-    return { error: 'Failed to update item' }
-  }
-}
-
-export async function createItemAction(formData: FormData) {
-  try {
-    const listId = formData.get('listId') as string
-    const text = formData.get('text') as string
-
-    const lists = await getLists()
-    if (!lists.success) {
-      throw new Error(lists.error)
-    }
-
-    const list = lists.data.find(l => l.id === listId)
-    if (!list) {
-      throw new Error('List not found')
-    }
-
-    const newItem = {
-      id: `${listId}-${Date.now()}`,
-      text,
-      completed: false,
-      order: list.items.length
-    }
-
-    const updatedList = {
-      ...list,
-      items: [...list.items, newItem],
-      updatedAt: new Date().toISOString()
-    }
-
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
-
-    revalidatePath('/')
-    return { success: true, data: newItem }
-  } catch (error) {
-    return { error: 'Failed to create item' }
-  }
-}
-
-export async function deleteItemAction(formData: FormData) {
-  try {
-    const listId = formData.get('listId') as string
-    const itemId = formData.get('itemId') as string
-
-    const lists = await getLists()
-    if (!lists.success) {
-      throw new Error(lists.error)
-    }
-
-    const list = lists.data.find(l => l.id === listId)
-    if (!list) {
-      throw new Error('List not found')
-    }
-
-    const updatedList = {
-      ...list,
-      items: list.items.filter(item => item.id !== itemId),
-      updatedAt: new Date().toISOString()
-    }
-
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
-
-    revalidatePath('/')
-    return { success: true }
-  } catch (error) {
-    return { error: 'Failed to delete item' }
-  }
-}
-
-export async function reorderItemsAction(formData: FormData) {
-  try {
-    const listId = formData.get('listId') as string
-    const itemIds = JSON.parse(formData.get('itemIds') as string) as string[]
-
-    const lists = await getLists()
-    if (!lists.success) {
-      throw new Error(lists.error)
-    }
-
-    const list = lists.data.find(l => l.id === listId)
-    if (!list) {
-      throw new Error('List not found')
-    }
-
-    // Create a map of items by ID for quick lookup
-    const itemMap = new Map(list.items.map(item => [item.id, item]))
-
-    // Create new items array with updated order
-    const updatedItems = itemIds.map((id, index) => {
-      const item = itemMap.get(id)
-      if (!item) throw new Error(`Item ${id} not found`)
-      return { ...item, order: index }
-    })
-
-    const updatedList = {
-      ...list,
-      items: updatedItems,
-      updatedAt: new Date().toISOString()
-    }
-
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
-
-    revalidatePath('/')
-    return { success: true }
-  } catch (error) {
-    return { error: 'Failed to reorder items' }
   }
 } 

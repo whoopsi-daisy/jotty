@@ -1,27 +1,34 @@
-"use client"
+"use client";
 
-import { Menu, RefreshCw, Settings } from 'lucide-react'
-import { Button } from './button'
+import { LogOut, Menu, RefreshCw, Settings, Users } from "lucide-react";
+import { Button } from "./button";
+import { useRouter } from "next/navigation";
+import { logout } from "@/server/actions/auth/logout";
 
 interface HeaderProps {
-  title: string
-  subtitle?: string
-  showSidebarToggle?: boolean
-  onSidebarToggle?: () => void
-  onRefresh?: () => void
-  isRefreshing?: boolean
-  onOpenSettings?: () => void
+  showSidebarToggle?: boolean;
+  onSidebarToggle?: () => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+  onOpenSettings?: () => void;
+  isAdmin: boolean;
 }
 
-export function Header({
-  title,
-  subtitle,
+export function QuickNav({
   showSidebarToggle = false,
   onSidebarToggle,
   onRefresh,
   isRefreshing = false,
-  onOpenSettings
+  onOpenSettings,
+  isAdmin,
 }: HeaderProps) {
+  const router = useRouter();
+
+  async function handleLogout() {
+    await logout();
+    router.push("/login");
+  }
+
   return (
     <header className="bg-background border-b border-border px-4 py-3 lg:px-6 lg:py-4">
       <div className="flex items-center justify-between">
@@ -36,18 +43,20 @@ export function Header({
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-foreground">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {subtitle}
-              </p>
-            )}
-          </div>
         </div>
         <div className="flex items-center gap-2">
+          {isAdmin && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.push("/settings/users")}
+                className="h-9 w-9 p-0"
+              >
+                <Users className="h-5 w-5" />
+              </Button>
+            </>
+          )}
           {onRefresh && (
             <Button
               variant="ghost"
@@ -56,7 +65,9 @@ export function Header({
               disabled={isRefreshing}
               className="h-10 w-10 p-0 text-muted-foreground hover:text-foreground"
             >
-              <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
+              />
             </Button>
           )}
           {onOpenSettings && (
@@ -69,8 +80,16 @@ export function Header({
               <Settings className="h-5 w-5" />
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleLogout}
+            className="h-9 w-9 p-0"
+          >
+            <LogOut className="h-5 w-5 text-destructive hover:text-destructive/80" />
+          </Button>
         </div>
       </div>
     </header>
-  )
-} 
+  );
+}

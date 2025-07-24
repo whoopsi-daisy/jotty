@@ -1,15 +1,18 @@
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-interface DropdownProps<T> {
+interface DropdownOption<T extends string> {
+  id: T
+  name: string
+  icon?: React.ComponentType<{ className?: string }>
+}
+
+interface DropdownProps<T extends string> {
   value: T
-  options: {
-    id: T
-    name: string
-    icon?: React.ElementType
-  }[]
+  options: DropdownOption<T>[]
   onChange: (value: T) => void
   className?: string
 }
@@ -36,10 +39,21 @@ export function Dropdown<T extends string>({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const handleSelect = (e: React.MouseEvent, optionId: T) => {
+    e.preventDefault() // Prevent form submission
+    e.stopPropagation() // Stop event bubbling
+    onChange(optionId)
+    setIsOpen(false)
+  }
+
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button" // Prevent form submission
+        onClick={(e) => {
+          e.preventDefault() // Prevent form submission
+          setIsOpen(!isOpen)
+        }}
         className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center gap-2">
@@ -50,22 +64,23 @@ export function Dropdown<T extends string>({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 w-full mt-1 bg-background border border-border rounded-lg shadow-lg z-50 max-h-[240px] overflow-y-auto">
-          {options.map(option => (
-            <button
-              key={option.id}
-              onClick={() => {
-                onChange(option.id)
-                setIsOpen(false)
-              }}
-              className={`w-full flex items-center gap-2 p-3 text-left hover:bg-muted/50 transition-colors ${
-                option.id === value ? 'bg-primary/10 text-primary' : ''
-              }`}
-            >
-              {option.icon && <option.icon className="h-4 w-4" />}
-              <span className="text-sm font-medium">{option.name}</span>
-            </button>
-          ))}
+        <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg">
+          <div className="py-1">
+            {options.map((option) => (
+              <button
+                key={option.id}
+                type="button" // Prevent form submission
+                onClick={(e) => handleSelect(e, option.id)}
+                className={cn(
+                  "w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground",
+                  option.id === value && "bg-accent text-accent-foreground"
+                )}
+              >
+                {option.icon && <option.icon className="h-4 w-4" />}
+                <span>{option.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

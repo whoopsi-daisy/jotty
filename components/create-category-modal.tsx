@@ -11,16 +11,16 @@ interface CreateCategoryModalProps {
 }
 
 export function CreateCategoryModal({ onClose, onCreated }: CreateCategoryModalProps) {
-  const [name, setName] = useState('')
+  const [categoryName, setCategoryName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) return
+    if (!categoryName.trim()) return
 
-    setIsLoading(true)
-    const result = await createCategoryAction(name.trim())
-    setIsLoading(false)
+    const formData = new FormData()
+    formData.append('name', categoryName.trim())
+    const result = await createCategoryAction(formData)
 
     if (result.success) {
       onCreated()
@@ -40,8 +40,8 @@ export function CreateCategoryModal({ onClose, onCreated }: CreateCategoryModalP
           </label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
             placeholder="Enter category name..."
             className="w-full px-4 py-2.5 bg-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             required
@@ -61,7 +61,7 @@ export function CreateCategoryModal({ onClose, onCreated }: CreateCategoryModalP
           </Button>
           <Button
             type="submit"
-            disabled={isLoading || !name.trim()}
+            disabled={isLoading || !categoryName.trim()}
             className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isLoading ? 'Creating...' : 'Create Category'}

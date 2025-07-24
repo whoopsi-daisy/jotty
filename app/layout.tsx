@@ -1,20 +1,23 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { getCurrentUser } from "@/server/actions/users/current";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Checklist App',
-  description: 'A simple checklist app',
-}
+  title: "Checklist App",
+  description: "A simple checklist app",
+};
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -40,5 +43,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  )
-} 
+  );
+}

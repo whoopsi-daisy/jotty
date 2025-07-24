@@ -1,22 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { Header } from './header'
-import { Sidebar } from '@/components/sidebar'
-import { List, Category } from '@/types'
+import { useState } from "react";
+import { QuickNav } from "./QuickNav";
+import { Sidebar } from "@/components/sidebar";
+import { List, Category } from "@/types";
 
 interface LayoutProps {
-  lists: List[]
-  categories: Category[]
-  selectedChecklist: string | null
-  onSelectChecklist: (id: string | null) => void
-  onRefresh: () => void
-  isRefreshing: boolean
-  onOpenSettings: () => void
-  onOpenCreateModal: () => void
-  onOpenCategoryModal: () => void
-  onOpenEditModal: (list: List) => void
-  children: React.ReactNode
+  lists: List[];
+  categories: Category[];
+  selectedChecklist: string | null;
+  onSelectChecklist: (id: string | null) => void;
+  onRefresh: () => void;
+  isRefreshing: boolean;
+  onOpenSettings: () => void;
+  onOpenCreateModal: () => void;
+  onOpenCategoryModal: () => void;
+  onOpenEditModal: (list: List) => void;
+  children: React.ReactNode;
+  isAdmin: boolean;
+  username: string;
 }
 
 export function Layout({
@@ -30,14 +32,16 @@ export function Layout({
   onOpenCreateModal,
   onOpenCategoryModal,
   onOpenEditModal,
-  children
+  isAdmin,
+  username,
+  children,
 }: LayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const selectedList = lists.find(list => list.id === selectedChecklist)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const selectedList = lists.find((list) => list.id === selectedChecklist);
 
   return (
     <div className="flex h-screen bg-background w-full">
-      <Sidebar 
+      <Sidebar
         selectedChecklist={selectedChecklist}
         onSelectChecklist={onSelectChecklist}
         onUpdate={onRefresh}
@@ -48,23 +52,22 @@ export function Layout({
         onOpenEditModal={onOpenEditModal}
         categories={categories}
         checklists={lists}
+        username={username}
+        isAdmin={isAdmin}
       />
-      
+
       <main className="flex-1 flex flex-col overflow-hidden">
-        <Header
-          title={selectedList ? selectedList.title : 'Checklist App'}
-          subtitle={selectedList?.category}
+        <QuickNav
           showSidebarToggle
           onSidebarToggle={() => setSidebarOpen(true)}
           onRefresh={onRefresh}
           isRefreshing={isRefreshing}
           onOpenSettings={onOpenSettings}
+          isAdmin={isAdmin}
         />
 
-        <div className="flex-1 overflow-hidden">
-          {children}
-        </div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </main>
     </div>
-  )
-} 
+  );
+}
