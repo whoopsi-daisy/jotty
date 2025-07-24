@@ -1,9 +1,9 @@
 "use client"
 
 import { Settings, Moon, Sun, Sunset, Waves, Trees, CloudMoon, Palette, Terminal, Github, Monitor, Coffee, Flower2, Flame, Palmtree } from 'lucide-react'
-import { Button } from '@/app/_components/ui/elements/button'
-import { Dropdown } from '@/app/_components/ui/elements/dropdown'
-import { Modal } from '@/app/_components/ui/elements/modal'
+import { Button } from '@/app/_components/UI/Elements/button'
+import { Dropdown } from '@/app/_components/UI/Elements/dropdown'
+import { Modal } from '@/app/_components/UI/Elements/modal'
 import { useSettings } from '@/app/_utils/settings-store'
 import { useRef } from 'react'
 

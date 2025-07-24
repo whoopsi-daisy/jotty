@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Trash2, Plus } from "lucide-react"
 import { deleteListAction, createItemAction, updateItemAction, deleteItemAction } from "@/app/_server/actions/data/actions"
-import { Button } from "@/app/_components/ui/elements/button"
-import { ChecklistItem } from "@/app/_components/checklist/checklist-item"
+import { Button } from "@/app/_components/UI/Elements/button"
+import { ChecklistItem } from "@/app/_components/Checklist/Item"
 
 interface Item {
   id: string

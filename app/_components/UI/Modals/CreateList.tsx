@@ -1,34 +1,28 @@
 "use client"
 
 import { useState } from 'react'
-import { Folder, ListTodo } from 'lucide-react'
-import { updateListAction } from '@/app/_server/actions/data/actions'
-import { Button } from '@/app/_components/ui/elements/button'
-import { Dropdown } from '@/app/_components/ui/elements/dropdown'
-import { Modal } from '@/app/_components/ui/elements/modal'
+import { X, Folder, ListTodo } from 'lucide-react'
+import { createListAction } from '@/app/_server/actions/data/actions'
+import { Button } from '@/app/_components/UI/Elements/button'
+import { Dropdown } from '@/app/_components/UI/Elements/dropdown'
+import { Modal } from '@/app/_components/UI/Elements/modal'
 
 interface Category {
   name: string
   count: number
 }
 
-interface EditChecklistModalProps {
-  checklist: {
-    id: string
-    title: string
-    category?: string
-  }
-  categories: Category[]
+interface CreateListModalProps {
   onClose: () => void
-  onUpdated: () => void
+  onCreated: () => void
+  categories: Category[]
 }
 
-export function EditChecklistModal({ checklist, categories, onClose, onUpdated }: EditChecklistModalProps) {
-  const [title, setTitle] = useState(checklist.title)
-  const [category, setCategory] = useState(checklist.category || '')
+export function CreateListModal({ onClose, onCreated, categories }: CreateListModalProps) {
+  const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  // Format categories for the dropdown
   const categoryOptions = [
     { id: '', name: 'Uncategorized', icon: ListTodo },
     ...categories.map(cat => ({
@@ -44,14 +38,13 @@ export function EditChecklistModal({ checklist, categories, onClose, onUpdated }
 
     setIsLoading(true)
     const formData = new FormData()
-    formData.append('id', checklist.id)
     formData.append('title', title.trim())
     formData.append('category', category || '')
-    const result = await updateListAction(formData)
+    const result = await createListAction(formData)
     setIsLoading(false)
 
     if (result.success) {
-      onUpdated()
+      onCreated()
     }
   }
 
@@ -59,7 +52,7 @@ export function EditChecklistModal({ checklist, categories, onClose, onUpdated }
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Edit Checklist"
+      title="Create New Checklist"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -104,7 +97,7 @@ export function EditChecklistModal({ checklist, categories, onClose, onUpdated }
             disabled={isLoading || !title.trim()}
             className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            {isLoading ? 'Updating...' : 'Update Checklist'}
+            {isLoading ? 'Creating...' : 'Create Checklist'}
           </Button>
         </div>
       </form>

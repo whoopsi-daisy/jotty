@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Plus, Trash2, Edit3, CheckCircle } from 'lucide-react'
-import { Button } from '@/app/_components/ui/elements/button'
-import { ChecklistItem } from './checklist-item'
+import { Button } from '@/app/_components/UI/Elements/button'
+import { ChecklistItem } from '@/app/_components/Checklist/Item'
 import { deleteListAction, createItemAction, updateItemAction, deleteItemAction, reorderItemsAction } from '@/app/_server/actions/data/actions'
 import {
   DndContext,
@@ -164,7 +164,6 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
         </div>
       </div>
 
-      {/* Progress - Fixed on mobile, normal on desktop */}
       {totalCount > 0 && (
         <div className="fixed lg:static bottom-0 left-0 right-0 z-10 bg-background border-t lg:border-t-0 lg:border-b border-border px-3 py-2 lg:px-6 lg:py-4">
           <div className="flex items-center justify-between mb-2 lg:mb-3">
@@ -185,10 +184,8 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
         </div>
       )}
 
-      {/* Content - Add padding bottom on mobile for fixed progress bar */}
       <div className="flex-1 overflow-y-auto p-3 lg:p-6 bg-background-secondary">
         <div className="max-w-4xl mx-auto space-y-4 lg:space-y-6 pb-20 lg:pb-0">
-          {/* Add Item Form */}
           <div className="bg-background rounded-lg border border-border p-4">
             <form onSubmit={handleCreateItem} className="flex gap-3">
               <input
@@ -210,7 +207,6 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
             </form>
           </div>
 
-          {/* Incomplete Items */}
           {incompleteItems.length > 0 && (
             <div className="bg-background rounded-lg border border-border p-4">
               <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -240,7 +236,6 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
             </div>
           )}
 
-          {/* Completed Items */}
           {completedItems.length > 0 && (
             <div className="bg-background rounded-lg border border-border p-4">
               <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -271,7 +266,6 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
             </div>
           )}
 
-          {/* Empty State */}
           {list.items.length === 0 && (
             <div className="bg-background rounded-lg border border-border p-8 text-center">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">

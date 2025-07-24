@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { createCategoryAction } from '@/app/_server/actions/data/actions'
-import { Button } from '@/app/_components/ui/elements/button'
-import { Modal } from '@/app/_components/ui/elements/modal'
+import { Button } from '@/app/_components/UI/Elements/button'
+import { Modal } from '@/app/_components/UI/Elements/modal'
 
 interface CreateCategoryModalProps {
   onClose: () => void
@@ -16,6 +16,7 @@ export function CreateCategoryModal({ onClose, onCreated }: CreateCategoryModalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
     if (!categoryName.trim()) return
 
     const formData = new FormData()
@@ -24,6 +25,7 @@ export function CreateCategoryModal({ onClose, onCreated }: CreateCategoryModalP
 
     if (result.success) {
       onCreated()
+      setIsLoading(false)
     }
   }
 

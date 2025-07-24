@@ -1,7 +1,7 @@
 "use client";
 
 import { LogOut, Menu, RefreshCw, Settings, Users } from "lucide-react";
-import { Button } from "@/app/_components/ui/elements/button";
+import { Button } from "@/app/_components/UI/Elements/button";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/_server/actions/auth/logout";
 

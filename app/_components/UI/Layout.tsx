@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { QuickNav } from "./QuickNav";
+import { QuickNav } from "@/app/_components/_FeatureComponents/Header/QuickNav";
 import { Sidebar } from "@/app/_components/sidebar";
 import { List, Category } from "@/app/_types";
 

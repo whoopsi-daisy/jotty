@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { getUsers } from "@/app/_server/actions/users/manage";
 import { switchUser } from "@/app/_server/actions/users/switch";
 import { useRouter } from "next/navigation";
-import { Button } from "./ui/elements/button";
+import { Button } from "./UI/Elements/button";
 import { cn } from "@/app/_utils/utils";
 
 interface Props {

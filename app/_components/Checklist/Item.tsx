@@ -1,7 +1,7 @@
 "use client"
 
 import { Trash2, GripVertical } from 'lucide-react'
-import { Button } from '@/app/_components/ui/elements/button'
+import { Button } from '@/app/_components/UI/Elements/button'
 import { cn } from '@/app/_utils/utils'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'

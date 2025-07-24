@@ -1,32 +1,17 @@
 "use client"
 
 import { Calendar, CheckCircle, Folder, Plus, TrendingUp } from 'lucide-react'
-import { Button } from '@/app/_components/ui/elements/button'
-
-interface Item {
-  id: string
-  text: string
-  completed: boolean
-  order: number
-}
-
-interface List {
-  id: string
-  title: string
-  category?: string
-  items: Item[]
-  createdAt: string
-  updatedAt: string
-}
+import { Button } from '@/app/_components/UI/Elements/button'
+import { List, Item } from '@/app/_types'
+import { StatsCard } from '../../../UI/Elements/statsCard'
 
 interface HomeViewProps {
   lists: List[]
-  onUpdate: () => void
   onSelectChecklist: (id: string) => void
   onCreateModal: () => void
 }
 
-export function HomeView({ lists, onUpdate, onSelectChecklist, onCreateModal }: HomeViewProps) {
+export function HomeView({ lists, onSelectChecklist, onCreateModal }: HomeViewProps) {
   const totalItems = lists.reduce((sum, list) => sum + list.items.length, 0)
   const completedItems = lists.reduce((sum, list) => sum + list.items.filter(item => item.completed).length, 0)
   const completionRate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
@@ -38,7 +23,6 @@ export function HomeView({ lists, onUpdate, onSelectChecklist, onCreateModal }: 
     return Math.round((completed / total) * 100);
   };
 
-  // Group lists by category
   const groupedLists = lists.reduce<Record<string, List[]>>((acc, list) => {
     const category = list.category || 'Uncategorized';
     if (!acc[category]) {
@@ -50,7 +34,6 @@ export function HomeView({ lists, onUpdate, onSelectChecklist, onCreateModal }: 
 
   return (
     <div className="h-full overflow-y-auto bg-background-secondary">
-      {/* Empty State */}
       {lists.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center p-4">
           <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
@@ -76,7 +59,7 @@ export function HomeView({ lists, onUpdate, onSelectChecklist, onCreateModal }: 
                 Welcome Back
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Here's an overview of your checklists and progress.
+                Here&apos;s an overview of your checklists and progress.
               </p>
             </div>
             <Button
@@ -88,58 +71,13 @@ export function HomeView({ lists, onUpdate, onSelectChecklist, onCreateModal }: 
             </Button>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Folder className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Lists</p>
-                  <p className="text-2xl font-bold text-foreground">{lists.length}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <CheckCircle className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Completed</p>
-                  <p className="text-2xl font-bold text-foreground">{completedItems}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Calendar className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Items</p>
-                  <p className="text-2xl font-bold text-foreground">{totalItems}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Progress</p>
-                  <p className="text-2xl font-bold text-foreground">{completionRate}%</p>
-                </div>
-              </div>
-            </div>
+            <StatsCard icon={<Folder className="h-6 w-6 text-primary" />} header="Total Lists" value={lists.length} />
+            <StatsCard icon={<CheckCircle className="h-6 w-6 text-primary" />} header="Completed" value={completedItems} />
+            <StatsCard icon={<Calendar className="h-6 w-6 text-primary" />} header="Total Items" value={totalItems} />
+            <StatsCard icon={<TrendingUp className="h-6 w-6 text-primary" />} header="Progress" value={completionRate} />
           </div>
 
-          {/* Categories */}
           {Object.entries(groupedLists).map(([category, categoryLists]) => (
             <div key={category} className="mb-8">
               <div className="flex items-center gap-2 mb-4">

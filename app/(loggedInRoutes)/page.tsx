@@ -1,5 +1,5 @@
 import { getLists, getCategories } from "@/app/_server/actions/data/actions";
-import { HomeClient } from "@/app/_components/ui/pages/Home/HomeClient";
+import { HomeClient } from "@/app/_components/_FeatureComponents/HomePage/HomeClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 
 export default async function HomePage() {

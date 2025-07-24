@@ -1,8 +1,8 @@
 "use client"
 
 import { Trash2, Folder, AlertTriangle } from 'lucide-react'
-import { Button } from '@/app/_components/ui/elements/button'
-import { Modal } from '@/app/_components/ui/elements/modal'
+import { Button } from '@/app/_components/UI/Elements/button'
+import { Modal } from '@/app/_components/UI/Elements/modal'
 
 interface DeleteCategoryModalProps {
   isOpen: boolean

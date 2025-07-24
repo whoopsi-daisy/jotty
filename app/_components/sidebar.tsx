@@ -10,18 +10,16 @@ import {
   X,
   Edit3,
   Trash2,
-  Settings,
-  LogOut,
 } from "lucide-react";
-import { Button } from "@/app/_components/ui/elements/button";
+import { Button } from "@/app/_components/UI/Elements/button";
 import { cn } from "@/app/_utils/utils";
 import { deleteCategoryAction } from "@/app/_server/actions/data/actions";
-import { DeleteCategoryModal } from "./modals/delete-category-modal";
-import { Logo } from "./ui/icons/logo";
-import UserSwitcher from "./UserSwitcher";
+import { DeleteCategoryModal } from "@/app/_components/UI/Modals/DeleteCategory";
+import { Logo } from "@/app/_components/UI/Icons/logo";
+import UserSwitcher from "@/app/_components/UserSwitcher";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/_server/actions/auth/logout";
-import { SettingsModal } from "./modals/settings-modal";
+import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
 
 interface Checklist {
   id: string;

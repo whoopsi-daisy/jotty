@@ -7,7 +7,7 @@ import {
   getUsers,
 } from "@/app/_server/actions/users/manage";
 import { Users, UserPlus, Shield, ShieldOff, Crown } from "lucide-react";
-import { Button } from "@/app/_components/ui/elements/button";
+import { Button } from "@/app/_components/UI/Elements/button";
 
 interface User {
   username: string;

@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChecklistView } from "@/app/_components/checklist/checklist-view";
-import { HomeView } from "@/app/_components/home-view";
-import { CreateListModal } from "@/app/_components/modals/create-list-modal";
-import { CreateCategoryModal } from "@/app/_components/modals/create-category-modal";
-import { EditChecklistModal } from "@/app/_components/modals/edit-checklist-modal";
-import { SettingsModal } from "@/app/_components/modals/settings-modal";
-import { Layout } from "@/app/_components/ui/layout";
+import { ChecklistView } from "@/app/_components/_FeatureComponents/HomePage/ActiveViews/Checklist";
+import { HomeView } from "@/app/_components/_FeatureComponents/HomePage/ActiveViews/Home";
+import { CreateListModal } from "@/app/_components/UI/Modals/CreateList";
+import { CreateCategoryModal } from "@/app/_components/UI/Modals/CreateCategory";
+import { EditChecklistModal } from "@/app/_components/UI/Modals/edit-checklist-modal";
+import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
+import { Layout } from "@/app/_components/UI/Layout";
 import { getLists, getCategories } from "@/app/_server/actions/data/actions";
 import { getHashFromUrl, setHashInUrl } from "@/app/_utils/url-utils";
 import { List, Category } from "@/app/_types";
@@ -34,15 +34,12 @@ export function HomeClient({
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingChecklist, setEditingChecklist] = useState<List | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-  // Sync with URL hash on mount
   useEffect(() => {
     const hash = getHashFromUrl();
     if (hash) {
@@ -51,14 +48,12 @@ export function HomeClient({
     setIsInitialized(true);
   }, []);
 
-  // Update URL when selectedChecklist changes
   useEffect(() => {
     if (isInitialized && !isRefreshing) {
       setHashInUrl(selectedChecklist);
     }
   }, [selectedChecklist, isInitialized, isRefreshing]);
 
-  // Refresh data function
   const refreshData = async () => {
     setIsRefreshing(true);
     try {
@@ -89,7 +84,6 @@ export function HomeClient({
   const handleModalClose = async () => {
     await refreshData();
 
-    // If we were editing the currently selected checklist, clear the selection
     if (
       selectedChecklist &&
       editingChecklist &&
@@ -109,7 +103,6 @@ export function HomeClient({
 
   const selectedList = lists.find((list) => list.id === selectedChecklist);
 
-  // Show loading state until we've initialized
   if (!isInitialized) {
     return (
       <div className="flex h-screen bg-background w-full items-center justify-center">
@@ -147,13 +140,11 @@ export function HomeClient({
       ) : (
         <HomeView
           lists={lists}
-          onUpdate={refreshData}
           onSelectChecklist={setSelectedChecklist}
           onCreateModal={() => setShowCreateModal(true)}
         />
       )}
 
-      {/* Modals */}
       {showCreateModal && (
         <CreateListModal
           onClose={() => setShowCreateModal(false)}
