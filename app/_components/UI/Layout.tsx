@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { QuickNav } from "@/app/_components/_FeatureComponents/Header/QuickNav";
-import { Sidebar } from "@/app/_components/sidebar";
+import { Sidebar } from "@/app/_components/Sidebar";
 import { List, Category } from "@/app/_types";
 
 interface LayoutProps {
@@ -37,7 +37,6 @@ export function Layout({
   children,
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const selectedList = lists.find((list) => list.id === selectedChecklist);
 
   return (
     <div className="flex h-screen bg-background w-full">

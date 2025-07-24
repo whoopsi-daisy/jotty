@@ -20,20 +20,8 @@ import UserSwitcher from "@/app/_components/UserSwitcher";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/_server/actions/auth/logout";
 import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
-
-interface Checklist {
-  id: string;
-  title: string;
-  category?: string;
-  items: any[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Category {
-  name: string;
-  count: number;
-}
+import { Checklist, Category } from "@/app/_types";
+import Link from "next/link";
 
 interface SidebarProps {
   selectedChecklist: string | null;
@@ -109,14 +97,12 @@ export function Sidebar({
     });
   };
 
-  // Filter checklists based on search term
   const filteredChecklists = searchTerm
     ? checklists.filter((list) =>
       list.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
     : checklists;
 
-  // Group checklists by category
   const checklistsByCategory = filteredChecklists.reduce((acc, list) => {
     const category = list.category || "Uncategorized";
     if (!acc[category]) {
@@ -126,7 +112,6 @@ export function Sidebar({
     return acc;
   }, {} as Record<string, Checklist[]>);
 
-  // Get all unique categories including those without checklists
   const allCategories = Array.from(
     new Set([
       ...categories.map((c) => c.name),
@@ -136,7 +121,6 @@ export function Sidebar({
 
   return (
     <>
-      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden"
@@ -144,7 +128,6 @@ export function Sidebar({
         />
       )}
 
-      {/* Sidebar */}
       <div
         className={cn(
           "fixed lg:relative inset-y-0 left-0 z-30 w-80 bg-background border-r border-border transform transition-transform duration-300 ease-in-out",
@@ -154,9 +137,9 @@ export function Sidebar({
         <div className="flex flex-col h-full">
           <div className="border-b border-border">
             <div className="flex items-center justify-between p-4">
-              <a href="/" className="flex items-center gap-3">
+              <button onClick={() => { router.push('/'); router.refresh() }} className="flex items-center gap-3">
                 <Logo className="h-8 w-8 text-primary" />
-              </a>
+              </button>
               <Button
                 variant="ghost"
                 size="sm"
@@ -167,13 +150,11 @@ export function Sidebar({
               </Button>
             </div>
 
-            {/* User Controls */}
             <div className="px-4 pb-4 flex items-center gap-2 w-full justify-end">
               {isAdmin && <UserSwitcher currentUsername={username} />}
             </div>
           </div>
 
-          {/* Search and Create */}
           <div className="p-4 border-b border-border">
             <div className="flex items-center gap-2 mb-4">
               <div className="relative flex-1">
@@ -197,11 +178,8 @@ export function Sidebar({
             </div>
           </div>
 
-          {/* Content */}
           <div className="flex-1 overflow-y-auto p-2">
-            {/* Categories and their checklists */}
             <div className="space-y-4">
-              {/* Add Category Button */}
               <div className="flex items-center justify-between px-3">
                 <h2 className="text-sm font-medium text-muted-foreground">
                   Categories
@@ -223,7 +201,6 @@ export function Sidebar({
 
                 return (
                   <div key={categoryName} className="space-y-1">
-                    {/* Category Header */}
                     <div className="group flex items-center justify-between px-3 py-2 rounded-md hover:bg-accent">
                       <button
                         onClick={() => toggleCategory(categoryName)}
@@ -253,7 +230,6 @@ export function Sidebar({
                       )}
                     </div>
 
-                    {/* Category Checklists */}
                     {!isCollapsed && categoryChecklists.length > 0 && (
                       <div className="ml-4 space-y-1">
                         {categoryChecklists.map((checklist) => (

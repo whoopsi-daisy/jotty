@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/app/_styles/globals.css";
-import { ThemeProvider } from "@/app/_components/theme-provider";
+import { ThemeProvider } from "@/app/_providers/theme-provider";
+import { ChecklistProvider } from "@/app/_providers/checklist-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,9 +20,11 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
-          <div className="min-h-screen bg-background text-foreground transition-colors">
-            {children}
-          </div>
+          <ChecklistProvider>
+            <div className="min-h-screen bg-background text-foreground transition-colors">
+              {children}
+            </div>
+          </ChecklistProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -14,6 +14,15 @@ export interface List {
   updatedAt: string;
 }
 
+export interface Checklist {
+  id: string;
+  title: string;
+  category?: string;
+  items: Item[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Category {
   name: string;
   count: number;
