@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { ChecklistView } from "@/app/_components/_FeatureComponents/HomePage/ActiveViews/Checklist";
 import { HomeView } from "@/app/_components/_FeatureComponents/HomePage/ActiveViews/Home";
@@ -12,6 +12,7 @@ import { Layout } from "@/app/_components/UI/Layout";
 import { getLists, getCategories } from "@/app/_server/actions/data/actions";
 import { getHashFromUrl, setHashInUrl } from "@/app/_utils/url-utils";
 import { List, Category } from "@/app/_types";
+import { ChecklistContext } from "@/app/_providers/checklist-provider";
 
 interface HomeClientProps {
   initialLists: List[];
@@ -29,9 +30,6 @@ export function HomeClient({
   const router = useRouter();
   const [lists, setLists] = useState<List[]>(initialLists);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [selectedChecklist, setSelectedChecklist] = useState<string | null>(
-    null
-  );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -39,6 +37,7 @@ export function HomeClient({
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingChecklist, setEditingChecklist] = useState<List | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const { selectedChecklist, setSelectedChecklist } = useContext(ChecklistContext);
 
   useEffect(() => {
     const hash = getHashFromUrl();
@@ -118,8 +117,6 @@ export function HomeClient({
     <Layout
       lists={lists}
       categories={categories}
-      selectedChecklist={selectedChecklist}
-      onSelectChecklist={setSelectedChecklist}
       onRefresh={refreshData}
       isRefreshing={isRefreshing}
       onOpenSettings={() => setShowSettingsModal(true)}
@@ -140,7 +137,6 @@ export function HomeClient({
       ) : (
         <HomeView
           lists={lists}
-          onSelectChecklist={setSelectedChecklist}
           onCreateModal={() => setShowCreateModal(true)}
         />
       )}

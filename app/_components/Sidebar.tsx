@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Search,
   Plus,
@@ -22,10 +22,9 @@ import { logout } from "@/app/_server/actions/auth/logout";
 import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
 import { Checklist, Category } from "@/app/_types";
 import Link from "next/link";
+import { ChecklistContext } from "../_providers/checklist-provider";
 
 interface SidebarProps {
-  selectedChecklist: string | null;
-  onSelectChecklist: (id: string | null) => void;
   onUpdate?: () => void;
   isOpen: boolean;
   onClose: () => void;
@@ -39,8 +38,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({
-  selectedChecklist,
-  onSelectChecklist,
   onUpdate,
   isOpen,
   onClose,
@@ -61,10 +58,7 @@ export function Sidebar({
   );
   const [showSettings, setShowSettings] = useState(false);
 
-  const handleLogout = async () => {
-    await logout();
-    router.refresh();
-  };
+  const { selectedChecklist, setSelectedChecklist } = useContext(ChecklistContext);
 
   const handleDeleteCategory = (categoryName: string) => {
     setCategoryToDelete(categoryName);
@@ -136,27 +130,15 @@ export function Sidebar({
       >
         <div className="flex flex-col h-full">
           <div className="border-b border-border">
-            <div className="flex items-center justify-between p-4">
+            <div className="flex items-center justify-between p-4 lg:hidden">
               <button onClick={() => { router.push('/'); router.refresh() }} className="flex items-center gap-3">
                 <Logo className="h-8 w-8 text-primary" />
               </button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground lg:hidden"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="px-4 pb-4 flex items-center gap-2 w-full justify-end">
-              {isAdmin && <UserSwitcher currentUsername={username} />}
             </div>
           </div>
 
-          <div className="p-4 border-b border-border">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
@@ -179,8 +161,8 @@ export function Sidebar({
           </div>
 
           <div className="flex-1 overflow-y-auto p-2">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between px-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3">
                 <h2 className="text-sm font-medium text-muted-foreground">
                   Categories
                 </h2>
@@ -243,7 +225,7 @@ export function Sidebar({
                             )}
                           >
                             <button
-                              onClick={() => onSelectChecklist(checklist.id)}
+                              onClick={() => setSelectedChecklist(checklist.id)}
                               className="flex-1 text-left"
                             >
                               <span className="text-sm truncate">

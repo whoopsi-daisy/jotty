@@ -165,8 +165,8 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
       </div>
 
       {totalCount > 0 && (
-        <div className="fixed lg:static bottom-0 left-0 right-0 z-10 bg-background border-t lg:border-t-0 lg:border-b border-border px-3 py-2 lg:px-6 lg:py-4">
-          <div className="flex items-center justify-between mb-2 lg:mb-3">
+        <div className="fixed lg:static bottom-0 left-0 right-0 z-10 bg-background border-t lg:border-t-0 lg:border-b border-border px-3 py-4 lg:px-6 lg:py-6">
+          <div className="max-w-4xl mx-auto flex items-center justify-between mb-2 lg:mb-3">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
               <span className="text-sm font-medium text-foreground">Progress</span>
@@ -175,7 +175,7 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
               {completedCount} of {totalCount} completed
             </span>
           </div>
-          <div className="w-full bg-muted rounded-full h-2.5">
+          <div className="w-full bg-muted rounded-full h-2.5 max-w-4xl mx-auto">
             <div
               className="h-2.5 rounded-full transition-all duration-300 bg-gradient-to-r from-primary/80 to-primary"
               style={{ width: `${progress}%` }}

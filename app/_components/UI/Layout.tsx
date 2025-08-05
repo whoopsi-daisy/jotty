@@ -8,8 +8,6 @@ import { List, Category } from "@/app/_types";
 interface LayoutProps {
   lists: List[];
   categories: Category[];
-  selectedChecklist: string | null;
-  onSelectChecklist: (id: string | null) => void;
   onRefresh: () => void;
   isRefreshing: boolean;
   onOpenSettings: () => void;
@@ -24,8 +22,6 @@ interface LayoutProps {
 export function Layout({
   lists,
   categories,
-  selectedChecklist,
-  onSelectChecklist,
   onRefresh,
   isRefreshing,
   onOpenSettings,
@@ -41,8 +37,6 @@ export function Layout({
   return (
     <div className="flex h-screen bg-background w-full">
       <Sidebar
-        selectedChecklist={selectedChecklist}
-        onSelectChecklist={onSelectChecklist}
         onUpdate={onRefresh}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}

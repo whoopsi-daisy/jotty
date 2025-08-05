@@ -4,14 +4,16 @@ import { Calendar, CheckCircle, Folder, Plus, TrendingUp } from 'lucide-react'
 import { Button } from '@/app/_components/UI/Elements/button'
 import { List, Item } from '@/app/_types'
 import { StatsCard } from '../../../UI/Elements/statsCard'
+import { ChecklistContext } from '@/app/_providers/checklist-provider'
+import { useContext } from 'react'
 
 interface HomeViewProps {
   lists: List[]
-  onSelectChecklist: (id: string) => void
   onCreateModal: () => void
 }
 
-export function HomeView({ lists, onSelectChecklist, onCreateModal }: HomeViewProps) {
+export function HomeView({ lists, onCreateModal }: HomeViewProps) {
+  const { setSelectedChecklist } = useContext(ChecklistContext);
   const totalItems = lists.reduce((sum, list) => sum + list.items.length, 0)
   const completedItems = lists.reduce((sum, list) => sum + list.items.filter(item => item.completed).length, 0)
   const completionRate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
@@ -94,7 +96,7 @@ export function HomeView({ lists, onSelectChecklist, onCreateModal }: HomeViewPr
                 {categoryLists.map((list) => (
                   <div
                     key={list.id}
-                    onClick={() => onSelectChecklist(list.id)}
+                    onClick={() => setSelectedChecklist(list.id)}
                     className="bg-card border border-border rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 group"
                   >
                     <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
