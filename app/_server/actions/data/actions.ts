@@ -1,8 +1,8 @@
-'use server'
+"use server";
 
-import { revalidatePath } from 'next/cache'
-import path from 'path'
-import { List } from '@/app/_types'
+import { revalidatePath } from "next/cache";
+import path from "path";
+import { List } from "@/app/_types";
 import {
   getUserDir,
   ensureDir,
@@ -10,25 +10,26 @@ import {
   writeFile,
   deleteFile,
   readDir,
-  deleteDir
-} from '@/app/_server/utils/files'
+  deleteDir,
+} from "@/app/_server/utils/files";
+import fs from "fs/promises";
 
 const parseMarkdown = (content: string, id: string, category: string): List => {
-  const lines = content.split('\n')
-  const title = lines[0]?.replace(/^#\s*/, '') || 'Untitled'
+  const lines = content.split("\n");
+  const title = lines[0]?.replace(/^#\s*/, "") || "Untitled";
   const items = lines
     .slice(1)
-    .filter(line => line.trim().startsWith('- ['))
+    .filter((line) => line.trim().startsWith("- ["))
     .map((line, index) => {
-      const completed = line.includes('- [x]')
-      const text = line.replace(/^-\s*\[[x ]\]\s*/, '')
+      const completed = line.includes("- [x]");
+      const text = line.replace(/^-\s*\[[x ]\]\s*/, "");
       return {
         id: `${id}-${index}`,
         text,
         completed,
-        order: index
-      }
-    })
+        order: index,
+      };
+    });
 
   return {
     id,
@@ -36,87 +37,89 @@ const parseMarkdown = (content: string, id: string, category: string): List => {
     category,
     items,
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-}
+    updatedAt: new Date().toISOString(),
+  };
+};
 
 const listToMarkdown = (list: List): string => {
-  const header = `# ${list.title}\n`
+  const header = `# ${list.title}\n`;
   const items = list.items
-    .map(item => `- [${item.completed ? 'x' : ' '}] ${item.text}`)
-    .join('\n')
-  return `${header}\n${items}`
-}
+    .map((item) => `- [${item.completed ? "x" : " "}] ${item.text}`)
+    .join("\n");
+  return `${header}\n${items}`;
+};
 
 export const getLists = async () => {
   try {
-    const userDir = await getUserDir()
-    await ensureDir(userDir)
+    const userDir = await getUserDir();
+    await ensureDir(userDir);
 
-    const categories = await readDir(userDir)
-    const lists: List[] = []
+    const categories = await readDir(userDir);
+    const lists: List[] = [];
 
     for (const category of categories) {
-      if (!category.isDirectory()) continue
+      if (!category.isDirectory()) continue;
 
-      const categoryDir = path.join(userDir, category.name)
+      const categoryDir = path.join(userDir, category.name);
       try {
-        const files = await readDir(categoryDir)
+        const files = await readDir(categoryDir);
         for (const file of files) {
-          if (file.isFile() && file.name.endsWith('.md')) {
-            const id = path.basename(file.name, '.md')
-            const content = await readFile(path.join(categoryDir, file.name))
-            lists.push(parseMarkdown(content, id, category.name))
+          if (file.isFile() && file.name.endsWith(".md")) {
+            const id = path.basename(file.name, ".md");
+            const content = await readFile(path.join(categoryDir, file.name));
+            lists.push(parseMarkdown(content, id, category.name));
           }
         }
       } catch (error) {
-        continue
+        continue;
       }
     }
 
-    return { success: true, data: lists }
+    return { success: true, data: lists };
   } catch (error) {
-    return { error: 'Failed to fetch lists' }
+    return { error: "Failed to fetch lists" };
   }
-}
+};
 
 export const getCategories = async () => {
   try {
-    const userDir = await getUserDir()
-    await ensureDir(userDir)
+    const userDir = await getUserDir();
+    await ensureDir(userDir);
 
-    const entries = await readDir(userDir)
+    const entries = await readDir(userDir);
     const categories = entries
-      .filter(entry => entry.isDirectory())
-      .map(entry => ({
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => ({
         name: entry.name,
-        count: 0
-      }))
+        count: 0,
+      }));
 
-    const lists = await getLists()
+    const lists = await getLists();
     if (!lists.success) {
-      throw new Error(lists.error)
+      throw new Error(lists.error);
     }
 
-    categories.forEach(cat => {
-      cat.count = lists.data.filter(list => list.category === cat.name).length
-    })
+    categories.forEach((cat) => {
+      cat.count = lists.data.filter(
+        (list) => list.category === cat.name
+      ).length;
+    });
 
-    return { success: true, data: categories }
+    return { success: true, data: categories };
   } catch (error) {
-    return { error: 'Failed to fetch categories' }
+    return { error: "Failed to fetch categories" };
   }
-}
+};
 
 export const createListAction = async (formData: FormData) => {
   try {
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string || 'Uncategorized'
+    const title = formData.get("title") as string;
+    const category = (formData.get("category") as string) || "Uncategorized";
 
-    const userDir = await getUserDir()
-    const id = Date.now().toString()
-    const categoryDir = path.join(userDir, category)
-    const filePath = path.join(categoryDir, `${id}.md`)
+    const userDir = await getUserDir();
+    const id = Date.now().toString();
+    const categoryDir = path.join(userDir, category);
+    const filePath = path.join(categoryDir, `${id}.md`);
 
     const newList: List = {
       id,
@@ -124,246 +127,320 @@ export const createListAction = async (formData: FormData) => {
       category,
       items: [],
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
 
-    await writeFile(filePath, listToMarkdown(newList))
-    revalidatePath('/')
-    return { success: true, data: newList }
+    await writeFile(filePath, listToMarkdown(newList));
+    revalidatePath("/");
+    return { success: true, data: newList };
   } catch (error) {
-    return { error: 'Failed to create list' }
+    return { error: "Failed to create list" };
   }
-}
+};
 
 export const updateListAction = async (formData: FormData) => {
   try {
-    const id = formData.get('id') as string
-    const title = formData.get('title') as string
-    const category = formData.get('category') as string || 'Uncategorized'
+    const id = formData.get("id") as string;
+    const title = formData.get("title") as string;
+    const category = (formData.get("category") as string) || "Uncategorized";
 
-    const lists = await getLists()
+    const lists = await getLists();
     if (!lists.success) {
-      throw new Error(lists.error)
+      throw new Error(lists.error);
     }
 
-    const currentList = lists.data.find(list => list.id === id)
+    const currentList = lists.data.find((list) => list.id === id);
     if (!currentList) {
-      throw new Error('List not found')
+      throw new Error("List not found");
     }
 
     const updatedList: List = {
       ...currentList,
       title,
       category,
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
 
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, category, `${id}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
+    const userDir = await getUserDir();
+    const filePath = path.join(userDir, category, `${id}.md`);
+    await writeFile(filePath, listToMarkdown(updatedList));
 
     if (category !== currentList.category) {
-      const oldFilePath = path.join(userDir, currentList.category || 'Uncategorized', `${id}.md`)
-      await deleteFile(oldFilePath)
+      const oldFilePath = path.join(
+        userDir,
+        currentList.category || "Uncategorized",
+        `${id}.md`
+      );
+      await deleteFile(oldFilePath);
     }
 
-    revalidatePath('/')
-    return { success: true, data: updatedList }
+    revalidatePath("/");
+    return { success: true, data: updatedList };
   } catch (error) {
-    return { error: 'Failed to update list' }
+    return { error: "Failed to update list" };
   }
-}
+};
 
 export const deleteListAction = async (formData: FormData) => {
   try {
-    const id = formData.get('id') as string
-    const category = formData.get('category') as string || 'Uncategorized'
+    const id = formData.get("id") as string;
+    const category = (formData.get("category") as string) || "Uncategorized";
 
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, category, `${id}.md`)
-    await deleteFile(filePath)
+    const userDir = await getUserDir();
+    const filePath = path.join(userDir, category, `${id}.md`);
+    await deleteFile(filePath);
 
-    revalidatePath('/')
-    return { success: true }
+    revalidatePath("/");
+    return { success: true };
   } catch (error) {
-    return { error: 'Failed to delete list' }
+    return { error: "Failed to delete list" };
   }
-}
+};
 
 export const createCategoryAction = async (formData: FormData) => {
   try {
-    const name = formData.get('name') as string
+    const name = formData.get("name") as string;
 
-    const userDir = await getUserDir()
-    const categoryDir = path.join(userDir, name)
-    await ensureDir(categoryDir)
+    const userDir = await getUserDir();
+    const categoryDir = path.join(userDir, name);
+    await ensureDir(categoryDir);
 
-    revalidatePath('/')
-    return { success: true, data: { name, count: 0 } }
+    revalidatePath("/");
+    return { success: true, data: { name, count: 0 } };
   } catch (error) {
-    return { error: 'Failed to create category' }
+    return { error: "Failed to create category" };
   }
-}
+};
 
 export const deleteCategoryAction = async (formData: FormData) => {
   try {
-    const name = formData.get('name') as string
+    const name = formData.get("name") as string;
 
-    const userDir = await getUserDir()
-    const categoryDir = path.join(userDir, name)
-    await deleteDir(categoryDir)
+    const userDir = await getUserDir();
+    const categoryDir = path.join(userDir, name);
+    await deleteDir(categoryDir);
 
-    revalidatePath('/')
-    return { success: true }
+    revalidatePath("/");
+    return { success: true };
   } catch (error) {
-    return { error: 'Failed to delete category' }
+    return { error: "Failed to delete category" };
   }
-}
+};
+
+export const renameCategoryAction = async (formData: FormData) => {
+  try {
+    const oldName = formData.get("oldName") as string;
+    const newName = formData.get("newName") as string;
+
+    if (!oldName || !newName) {
+      return { error: "Both old and new names are required" };
+    }
+
+    const userDir = await getUserDir();
+    const oldCategoryDir = path.join(userDir, oldName);
+    const newCategoryDir = path.join(userDir, newName);
+
+    // Check if old directory exists
+    if (
+      !(await fs
+        .access(oldCategoryDir)
+        .then(() => true)
+        .catch(() => false))
+    ) {
+      return { error: "Category not found" };
+    }
+
+    // Check if new directory already exists
+    if (
+      await fs
+        .access(newCategoryDir)
+        .then(() => true)
+        .catch(() => false)
+    ) {
+      return { error: "Category with new name already exists" };
+    }
+
+    // Rename the directory
+    await fs.rename(oldCategoryDir, newCategoryDir);
+
+    // Update all files in the category to reflect the new category name
+    const files = await readDir(newCategoryDir);
+    for (const file of files) {
+      if (file.isFile() && file.name.endsWith(".md")) {
+        const filePath = path.join(newCategoryDir, file.name);
+        const content = await readFile(filePath);
+        const list = parseMarkdown(content, "", newName);
+        list.category = newName;
+        list.updatedAt = new Date().toISOString();
+        await writeFile(filePath, listToMarkdown(list));
+      }
+    }
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to rename category" };
+  }
+};
 
 export const updateItemAction = async (formData: FormData) => {
   try {
-    const listId = formData.get('listId') as string
-    const itemId = formData.get('itemId') as string
-    const completed = formData.get('completed') === 'true'
+    const listId = formData.get("listId") as string;
+    const itemId = formData.get("itemId") as string;
+    const completed = formData.get("completed") === "true";
 
-    const lists = await getLists()
+    const lists = await getLists();
     if (!lists.success) {
-      throw new Error(lists.error)
+      throw new Error(lists.error);
     }
 
-    const list = lists.data.find(l => l.id === listId)
+    const list = lists.data.find((l) => l.id === listId);
     if (!list) {
-      throw new Error('List not found')
+      throw new Error("List not found");
     }
 
     const updatedList = {
       ...list,
-      items: list.items.map(item =>
-        item.id === itemId
-          ? { ...item, completed }
-          : item
+      items: list.items.map((item) =>
+        item.id === itemId ? { ...item, completed } : item
       ),
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
 
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
+    const userDir = await getUserDir();
+    const filePath = path.join(
+      userDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
+    await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath('/')
-    return { success: true }
+    revalidatePath("/");
+    return { success: true };
   } catch (error) {
-    return { error: 'Failed to update item' }
+    return { error: "Failed to update item" };
   }
-}
+};
 
 export const createItemAction = async (formData: FormData) => {
   try {
-    const listId = formData.get('listId') as string
-    const text = formData.get('text') as string
+    const listId = formData.get("listId") as string;
+    const text = formData.get("text") as string;
 
-    const lists = await getLists()
+    const lists = await getLists();
     if (!lists.success) {
-      throw new Error(lists.error)
+      throw new Error(lists.error);
     }
 
-    const list = lists.data.find(l => l.id === listId)
+    const list = lists.data.find((l) => l.id === listId);
     if (!list) {
-      throw new Error('List not found')
+      throw new Error("List not found");
     }
 
     const newItem = {
       id: `${listId}-${Date.now()}`,
       text,
       completed: false,
-      order: list.items.length
-    }
+      order: list.items.length,
+    };
 
     const updatedList = {
       ...list,
       items: [...list.items, newItem],
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
 
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
+    const userDir = await getUserDir();
+    const filePath = path.join(
+      userDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
+    await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath('/')
-    return { success: true, data: newItem }
+    revalidatePath("/");
+    return { success: true, data: newItem };
   } catch (error) {
-    return { error: 'Failed to create item' }
+    return { error: "Failed to create item" };
   }
-}
+};
 
 export const deleteItemAction = async (formData: FormData) => {
   try {
-    const listId = formData.get('listId') as string
-    const itemId = formData.get('itemId') as string
+    const listId = formData.get("listId") as string;
+    const itemId = formData.get("itemId") as string;
 
-    const lists = await getLists()
+    const lists = await getLists();
     if (!lists.success) {
-      throw new Error(lists.error)
+      throw new Error(lists.error);
     }
 
-    const list = lists.data.find(l => l.id === listId)
+    const list = lists.data.find((l) => l.id === listId);
     if (!list) {
-      throw new Error('List not found')
+      throw new Error("List not found");
     }
 
     const updatedList = {
       ...list,
-      items: list.items.filter(item => item.id !== itemId),
-      updatedAt: new Date().toISOString()
-    }
+      items: list.items.filter((item) => item.id !== itemId),
+      updatedAt: new Date().toISOString(),
+    };
 
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
+    const userDir = await getUserDir();
+    const filePath = path.join(
+      userDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
+    await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath('/')
-    return { success: true }
+    revalidatePath("/");
+    return { success: true };
   } catch (error) {
-    return { error: 'Failed to delete item' }
+    return { error: "Failed to delete item" };
   }
-}
+};
 
 export const reorderItemsAction = async (formData: FormData) => {
   try {
-    const listId = formData.get('listId') as string
-    const itemIds = JSON.parse(formData.get('itemIds') as string) as string[]
+    const listId = formData.get("listId") as string;
+    const itemIds = JSON.parse(formData.get("itemIds") as string) as string[];
 
-    const lists = await getLists()
+    const lists = await getLists();
     if (!lists.success) {
-      throw new Error(lists.error)
+      throw new Error(lists.error);
     }
 
-    const list = lists.data.find(l => l.id === listId)
+    const list = lists.data.find((l) => l.id === listId);
     if (!list) {
-      throw new Error('List not found')
+      throw new Error("List not found");
     }
 
-    const itemMap = new Map(list.items.map(item => [item.id, item]))
+    const itemMap = new Map(list.items.map((item) => [item.id, item]));
 
     const updatedItems = itemIds.map((id, index) => {
-      const item = itemMap.get(id)
-      if (!item) throw new Error(`Item ${id} not found`)
-      return { ...item, order: index }
-    })
+      const item = itemMap.get(id);
+      if (!item) throw new Error(`Item ${id} not found`);
+      return { ...item, order: index };
+    });
 
     const updatedList = {
       ...list,
       items: updatedItems,
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
 
-    const userDir = await getUserDir()
-    const filePath = path.join(userDir, list.category || 'Uncategorized', `${listId}.md`)
-    await writeFile(filePath, listToMarkdown(updatedList))
+    const userDir = await getUserDir();
+    const filePath = path.join(
+      userDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
+    await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath('/')
-    return { success: true }
+    revalidatePath("/");
+    return { success: true };
   } catch (error) {
-    return { error: 'Failed to reorder items' }
+    return { error: "Failed to reorder items" };
   }
-} 
+};

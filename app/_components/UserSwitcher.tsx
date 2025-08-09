@@ -70,7 +70,7 @@ export default function UserSwitcher({ currentUsername }: Props) {
                 className={cn(
                   "w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground",
                   user.username === currentUsername &&
-                  "bg-accent text-accent-foreground"
+                    "bg-accent text-accent-foreground"
                 )}
               >
                 {user.username}

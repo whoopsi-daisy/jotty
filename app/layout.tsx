@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "@/app/_styles/globals.css";
 import { ThemeProvider } from "@/app/_providers/theme-provider";
 import { ChecklistProvider } from "@/app/_providers/checklist-provider";
+import { AppModeProvider } from "@/app/_providers/app-mode-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,11 +21,13 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
-          <ChecklistProvider>
-            <div className="min-h-screen bg-background text-foreground transition-colors">
-              {children}
-            </div>
-          </ChecklistProvider>
+          <AppModeProvider>
+            <ChecklistProvider>
+              <div className="min-h-screen bg-background text-foreground transition-colors">
+                {children}
+              </div>
+            </ChecklistProvider>
+          </AppModeProvider>
         </ThemeProvider>
       </body>
     </html>

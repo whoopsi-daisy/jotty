@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { Trash2, Folder, AlertTriangle } from 'lucide-react'
-import { Button } from '@/app/_components/UI/Elements/button'
-import { Modal } from '@/app/_components/UI/Elements/modal'
+import { Trash2, Folder, AlertTriangle } from "lucide-react";
+import { Button } from "@/app/_components/UI/Elements/button";
+import { Modal } from "@/app/_components/UI/Elements/modal";
 
 interface DeleteCategoryModalProps {
-  isOpen: boolean
-  categoryName: string
-  onClose: () => void
-  onConfirm: () => void
+  isOpen: boolean;
+  categoryName: string;
+  onClose: () => void;
+  onConfirm: () => void;
 }
 
 export function DeleteCategoryModal({
   isOpen,
   categoryName,
   onClose,
-  onConfirm
+  onConfirm,
 }: DeleteCategoryModalProps) {
   return (
     <Modal
@@ -30,7 +30,13 @@ export function DeleteCategoryModal({
     >
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Are you sure you want to delete the category "{categoryName}"? This action cannot be undone.
+          Are you sure you want to delete the category &quot;{categoryName}
+          &quot;?
+          <br /> <br />
+          <span className="text-destructive">
+            This WILL delete all documents in this category and cannot be
+            undone.
+          </span>
         </p>
 
         <div className="flex justify-end gap-2">
@@ -43,5 +49,5 @@ export function DeleteCategoryModal({
         </div>
       </div>
     </Modal>
-  )
-} 
+  );
+}

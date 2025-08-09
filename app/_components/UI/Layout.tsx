@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { QuickNav } from "@/app/_components/_FeatureComponents/Header/QuickNav";
 import { Sidebar } from "@/app/_components/Sidebar";
-import { List, Category } from "@/app/_types";
+import { List, Category, Document } from "@/app/_types";
+import { ChecklistContext } from "@/app/_providers/checklist-provider";
+import { useAppMode } from "@/app/_providers/app-mode-provider";
 
 interface LayoutProps {
   lists: List[];
+  docs?: Document[];
   categories: Category[];
   onRefresh: () => void;
   isRefreshing: boolean;
   onOpenSettings: () => void;
-  onOpenCreateModal: () => void;
+  onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
   onOpenEditModal: (list: List) => void;
   children: React.ReactNode;
@@ -21,6 +24,7 @@ interface LayoutProps {
 
 export function Layout({
   lists,
+  docs,
   categories,
   onRefresh,
   isRefreshing,
@@ -33,6 +37,16 @@ export function Layout({
   children,
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { setSelectedChecklist } = useContext(ChecklistContext);
+  const { setSelectedDocument } = useAppMode();
+
+  const handleSelectChecklist = (id: string) => {
+    setSelectedChecklist(id);
+  };
+
+  const handleSelectDocument = (id: string) => {
+    setSelectedDocument(id);
+  };
 
   return (
     <div className="flex h-screen bg-background w-full">
@@ -45,6 +59,7 @@ export function Layout({
         onOpenEditModal={onOpenEditModal}
         categories={categories}
         checklists={lists}
+        docs={docs}
         username={username}
         isAdmin={isAdmin}
       />
@@ -53,10 +68,12 @@ export function Layout({
         <QuickNav
           showSidebarToggle
           onSidebarToggle={() => setSidebarOpen(true)}
-          onRefresh={onRefresh}
-          isRefreshing={isRefreshing}
           onOpenSettings={onOpenSettings}
           isAdmin={isAdmin}
+          checklists={lists}
+          docs={docs || []}
+          onSelectChecklist={handleSelectChecklist}
+          onSelectDocument={handleSelectDocument}
         />
 
         <div className="flex-1 overflow-hidden">{children}</div>

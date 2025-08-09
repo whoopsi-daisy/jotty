@@ -364,4 +364,85 @@
     .drag-over {
         @apply bg-accent bg-opacity-50;
     }
+
+    /* Minimal prose styles for markdown content - using CSS variables */
+    .prose {
+        @apply text-foreground;
+        line-height: 1.7;
+    }
+
+    .prose h1,
+    .prose h2,
+    .prose h3,
+    .prose h4,
+    .prose h5,
+    .prose h6 {
+        @apply text-foreground font-semibold;
+        line-height: 1.25;
+    }
+
+    .prose h1 {
+        font-size: 1.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .prose h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .prose h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .prose p {
+        margin-bottom: 1rem;
+    }
+
+    .prose strong {
+        @apply font-semibold text-foreground;
+    }
+
+    .prose em {
+        font-style: italic;
+    }
+
+    .prose code {
+        @apply bg-muted px-1 py-0.5 rounded text-sm;
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .prose blockquote {
+        @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
+        margin: 1rem 0;
+    }
+
+    .prose ul,
+    .prose ol {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .prose li {
+        margin-bottom: 0.5rem;
+    }
+
+    .prose a {
+        @apply text-primary underline;
+    }
+
+    .prose a:hover {
+        text-decoration: none;
+    }
+
+    /* Line clamp utility */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 }

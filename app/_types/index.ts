@@ -23,6 +23,15 @@ export interface Checklist {
   updatedAt: string;
 }
 
+export interface Document {
+  id: string;
+  title: string;
+  content: string;
+  category?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Category {
   name: string;
   count: number;
@@ -44,3 +53,6 @@ export interface User {
 export interface EmojiDictionary {
   [key: string]: string;
 }
+
+// App mode type for navigation
+export type AppMode = "checklists" | "docs";

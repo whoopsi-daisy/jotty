@@ -10,29 +10,46 @@ import {
   X,
   Edit3,
   Trash2,
+  CheckSquare,
+  FileText,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/app/_components/UI/Elements/button";
 import { cn } from "@/app/_utils/utils";
-import { deleteCategoryAction } from "@/app/_server/actions/data/actions";
+import {
+  deleteCategoryAction,
+  renameCategoryAction,
+} from "@/app/_server/actions/data/actions";
+import {
+  deleteDocsCategoryAction,
+  renameDocsCategoryAction,
+} from "@/app/_server/actions/data/docs-actions";
 import { DeleteCategoryModal } from "@/app/_components/UI/Modals/DeleteCategory";
+import { RenameCategoryModal } from "@/app/_components/UI/Modals/RenameCategory";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@/app/_components/UI/Elements/dropdown-menu";
 import { Logo } from "@/app/_components/UI/Icons/logo";
 import UserSwitcher from "@/app/_components/UserSwitcher";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/_server/actions/auth/logout";
 import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
-import { Checklist, Category } from "@/app/_types";
+import { Checklist, Category, Document, AppMode } from "@/app/_types";
 import Link from "next/link";
 import { ChecklistContext } from "../_providers/checklist-provider";
+import { useAppMode } from "../_providers/app-mode-provider";
 
 interface SidebarProps {
   onUpdate?: () => void;
   isOpen: boolean;
   onClose: () => void;
-  onOpenCreateModal: () => void;
+  onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
   onOpenEditModal: (checklist: Checklist) => void;
   categories: Category[];
   checklists: Checklist[];
+  docs?: Document[];
   username: string;
   isAdmin: boolean;
 }
@@ -46,19 +63,23 @@ export function Sidebar({
   onOpenEditModal,
   categories,
   checklists,
+  docs = [],
   username,
   isAdmin,
 }: SidebarProps) {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteCategoryModal, setShowDeleteCategoryModal] = useState(false);
+  const [showRenameCategoryModal, setShowRenameCategoryModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [categoryToRename, setCategoryToRename] = useState<string | null>(null);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
     new Set()
   );
   const [showSettings, setShowSettings] = useState(false);
 
-  const { selectedChecklist, setSelectedChecklist } = useContext(ChecklistContext);
+  const { selectedChecklist, setSelectedChecklist } =
+    useContext(ChecklistContext);
+  const { mode, setMode, selectedDocument, setSelectedDocument } = useAppMode();
 
   const handleDeleteCategory = (categoryName: string) => {
     setCategoryToDelete(categoryName);
@@ -70,13 +91,49 @@ export function Sidebar({
 
     const formData = new FormData();
     formData.append("name", categoryToDelete);
-    const result = await deleteCategoryAction(formData);
+
+    // Use the appropriate delete action based on mode
+    const result =
+      mode === "docs"
+        ? await deleteDocsCategoryAction(formData)
+        : await deleteCategoryAction(formData);
 
     if (result.success) {
       onUpdate?.();
       setShowDeleteCategoryModal(false);
       setCategoryToDelete(null);
     }
+  };
+
+  const handleRenameCategory = (categoryName: string) => {
+    setCategoryToRename(categoryName);
+    setShowRenameCategoryModal(true);
+  };
+
+  const handleConfirmRenameCategory = async (
+    oldName: string,
+    newName: string
+  ) => {
+    const formData = new FormData();
+    formData.append("oldName", oldName);
+    formData.append("newName", newName);
+
+    // Use the appropriate rename action based on mode
+    const result =
+      mode === "docs"
+        ? await renameDocsCategoryAction(formData)
+        : await renameCategoryAction(formData);
+
+    if (result.success) {
+      onUpdate?.();
+      setShowRenameCategoryModal(false);
+      setCategoryToRename(null);
+    }
+  };
+
+  const handleQuickCreate = (categoryName: string) => {
+    // Pass the category name to pre-select it in the modal
+    onOpenCreateModal(categoryName);
   };
 
   const toggleCategory = (categoryName: string) => {
@@ -91,68 +148,107 @@ export function Sidebar({
     });
   };
 
-  const filteredChecklists = searchTerm
-    ? checklists.filter((list) =>
-      list.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    : checklists;
+  const handleModeSwitch = (newMode: AppMode) => {
+    setMode(newMode);
+    // Clear selections when switching modes
+    setSelectedChecklist(null);
+    setSelectedDocument(null);
+  };
 
-  const checklistsByCategory = filteredChecklists.reduce((acc, list) => {
-    const category = list.category || "Uncategorized";
+  // Get the items to display based on mode
+  const items = mode === "docs" ? docs : checklists;
+
+  const itemsByCategory = items.reduce((acc, item) => {
+    const category = item.category || "Uncategorized";
     if (!acc[category]) {
       acc[category] = [];
     }
-    acc[category].push(list);
+    acc[category].push(item);
     return acc;
-  }, {} as Record<string, Checklist[]>);
+  }, {} as Record<string, (Checklist | Document)[]>);
 
   const allCategories = Array.from(
-    new Set([
-      ...categories.map((c) => c.name),
-      ...Object.keys(checklistsByCategory),
-    ])
-  );
+    new Set([...Object.keys(itemsByCategory), ...categories.map((c) => c.name)])
+  ).sort();
+
+  const handleItemClick = (item: Checklist | Document) => {
+    if (mode === "docs") {
+      setSelectedDocument(item.id);
+      setSelectedChecklist(null);
+    } else {
+      setSelectedChecklist(item.id);
+      setSelectedDocument(null);
+    }
+    onClose();
+  };
+
+  const isItemSelected = (item: Checklist | Document) => {
+    return mode === "docs"
+      ? selectedDocument === item.id
+      : selectedChecklist === item.id;
+  };
 
   return (
     <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={onClose}
-        />
-      )}
-
       <div
         className={cn(
-          "fixed lg:relative inset-y-0 left-0 z-30 w-80 bg-background border-r border-border transform transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          "fixed inset-0 z-40 bg-black/50 lg:hidden transition-opacity",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={onClose}
+      />
+
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 h-full w-80 bg-background border-r border-border transition-transform lg:relative lg:translate-x-0 flex flex-col",
+          isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex flex-col h-full">
-          <div className="border-b border-border">
-            <div className="flex items-center justify-between p-4 lg:hidden">
-              <button onClick={() => { router.push('/'); router.refresh() }} className="flex items-center gap-3">
-                <Logo className="h-8 w-8 text-primary" />
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-3">
+                <Logo className="h-8 w-8" />
+                <span className="text-xl font-bold text-foreground">
+                  Checklist
+                </span>
+              </Link>
+              <button
+                onClick={onClose}
+                className="lg:hidden p-2 rounded-md hover:bg-accent transition-colors"
+              >
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>
 
           <div className="p-6 border-b border-border">
             <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search checklists..."
-                  className="w-full pl-9 pr-4 py-2 text-sm bg-transparent border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                />
+              {/* Mode Toggle */}
+              <div className="flex items-center bg-muted rounded-lg p-1 flex-1">
+                <Button
+                  variant={mode === "checklists" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handleModeSwitch("checklists")}
+                  className="h-8 px-3 text-sm flex-1"
+                >
+                  <CheckSquare className="h-4 w-4 mr-2" />
+                  Lists
+                </Button>
+                <Button
+                  variant={mode === "docs" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handleModeSwitch("docs")}
+                  className="h-8 px-3 text-sm flex-1"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Docs
+                </Button>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onOpenCreateModal}
+                onClick={() => onOpenCreateModal()}
                 className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground"
               >
                 <Plus className="h-4 w-4" />
@@ -161,106 +257,153 @@ export function Sidebar({
           </div>
 
           <div className="flex-1 overflow-y-auto p-2">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3">
-                <h2 className="text-sm font-medium text-muted-foreground">
-                  Categories
-                </h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onOpenCategoryModal}
-                  className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
-                >
-                  <FolderPlus className="h-4 w-4" />
-                </Button>
-              </div>
-
+            <div className="space-y-1">
               {allCategories.map((categoryName) => {
-                const categoryChecklists =
-                  checklistsByCategory[categoryName] || [];
+                const categoryItems = itemsByCategory[categoryName] || [];
                 const isCollapsed = collapsedCategories.has(categoryName);
+                const categoryInfo = categories.find(
+                  (c) => c.name === categoryName
+                );
+                const hasItems = categoryItems.length > 0;
 
                 return (
-                  <div key={categoryName} className="space-y-1">
-                    <div className="group flex items-center justify-between px-3 py-2 rounded-md hover:bg-accent">
+                  <div key={categoryName} className="group">
+                    <div className="flex items-center gap-1 px-2 py-1">
                       <button
                         onClick={() => toggleCategory(categoryName)}
-                        className="flex-1 flex items-center gap-2 text-sm text-muted-foreground group-hover:text-accent-foreground"
+                        className="flex items-center gap-2 flex-1 text-left rounded-md px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                       >
                         <ChevronDown
                           className={cn(
                             "h-4 w-4 transition-transform",
-                            isCollapsed && "-rotate-90"
+                            isCollapsed && "rotate-180"
                           )}
                         />
                         <Folder className="h-4 w-4" />
                         <span>{categoryName}</span>
                         <span className="text-xs">
-                          ({categoryChecklists.length})
+                          ({categoryInfo?.count || 0})
                         </span>
                       </button>
-                      {categoryName !== "Uncategorized" && (
+
+                      <div className="flex items-center gap-1">
+                        {/* Quick create button */}
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteCategory(categoryName)}
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuickCreate(categoryName);
+                          }}
+                          className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                          title={`Create new ${
+                            mode === "docs" ? "document" : "checklist"
+                          } in ${categoryName}`}
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Plus className="h-3 w-3" />
                         </Button>
-                      )}
-                    </div>
 
-                    {!isCollapsed && categoryChecklists.length > 0 && (
-                      <div className="ml-4 space-y-1">
-                        {categoryChecklists.map((checklist) => (
-                          <div
-                            key={checklist.id}
-                            className={cn(
-                              "group flex items-center justify-between px-3 py-2 rounded-md",
-                              selectedChecklist === checklist.id
-                                ? "bg-accent text-accent-foreground"
-                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                            )}
-                          >
-                            <button
-                              onClick={() => setSelectedChecklist(checklist.id)}
-                              className="flex-1 text-left"
-                            >
-                              <span className="text-sm truncate">
-                                {checklist.title}
-                              </span>
-                            </button>
+                        {/* More options menu */}
+                        <DropdownMenu
+                          trigger={
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => onOpenEditModal(checklist)}
-                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="More options"
                             >
-                              <Edit3 className="h-3 w-3" />
+                              <MoreHorizontal className="h-3 w-3" />
                             </Button>
-                          </div>
+                          }
+                          align="right"
+                        >
+                          <DropdownMenuItem
+                            onClick={() => handleRenameCategory(categoryName)}
+                            icon={<Edit3 className="h-4 w-4" />}
+                          >
+                            Rename
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteCategory(categoryName)}
+                            icon={<Trash2 className="h-4 w-4" />}
+                            variant="destructive"
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+
+                    {!isCollapsed && hasItems && (
+                      <div className="ml-4 space-y-1">
+                        {categoryItems.map((item) => (
+                          <button
+                            key={item.id}
+                            onClick={() => handleItemClick(item)}
+                            className={cn(
+                              "w-full text-left rounded-md px-3 py-2 text-sm transition-colors",
+                              isItemSelected(item)
+                                ? "bg-primary text-primary-foreground"
+                                : "text-foreground hover:bg-accent"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              {mode === "docs" ? (
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              <span className="truncate">{item.title}</span>
+                            </div>
+                          </button>
                         ))}
                       </div>
                     )}
                   </div>
                 );
               })}
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onOpenCategoryModal}
+                className="w-full justify-start text-muted-foreground hover:text-foreground"
+              >
+                <FolderPlus className="h-4 w-4 mr-2" />
+                New Category
+              </Button>
             </div>
           </div>
-        </div>
-      </div>
 
-      <DeleteCategoryModal
-        isOpen={showDeleteCategoryModal}
-        onClose={() => {
-          setShowDeleteCategoryModal(false);
-          setCategoryToDelete(null);
-        }}
-        onConfirm={handleConfirmDeleteCategory}
-        categoryName={categoryToDelete || ""}
-      />
+          <div className="p-4 border-t border-border">
+            <UserSwitcher currentUsername={username} />
+          </div>
+        </div>
+      </aside>
+
+      {showDeleteCategoryModal && categoryToDelete && (
+        <DeleteCategoryModal
+          isOpen={showDeleteCategoryModal}
+          categoryName={categoryToDelete}
+          onClose={() => {
+            setShowDeleteCategoryModal(false);
+            setCategoryToDelete(null);
+          }}
+          onConfirm={handleConfirmDeleteCategory}
+        />
+      )}
+
+      {showRenameCategoryModal && categoryToRename && (
+        <RenameCategoryModal
+          isOpen={showRenameCategoryModal}
+          categoryName={categoryToRename}
+          onClose={() => {
+            setShowRenameCategoryModal(false);
+            setCategoryToRename(null);
+          }}
+          onRename={handleConfirmRenameCategory}
+        />
+      )}
 
       <SettingsModal
         isOpen={showSettings}
