@@ -68,3 +68,13 @@ export async function getUsername(): Promise<string> {
   const user = await getCurrentUser();
   return user?.username || "";
 }
+
+export async function writeUsers(users: User[]): Promise<void> {
+  try {
+    await fs.mkdir(path.dirname(USERS_FILE), { recursive: true });
+    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
+  } catch (error) {
+    console.error("Error writing users:", error);
+    throw error;
+  }
+}

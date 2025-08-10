@@ -13,6 +13,7 @@ import {
   CheckSquare,
   FileText,
   MoreHorizontal,
+  User,
 } from "lucide-react";
 import { Button } from "@/app/_components/UI/Elements/button";
 import { cn } from "@/app/_utils/utils";
@@ -369,6 +370,25 @@ export function Sidebar({
             </div>
           </div>
 
+          {/* User Profile Section */}
+          <div className="p-4 border-t border-border">
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group"
+            >
+              <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {username}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {isAdmin ? "Admin" : "User"}
+                </p>
+              </div>
+            </Link>
+          </div>
 
         </div>
       </aside>
