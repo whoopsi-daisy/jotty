@@ -349,7 +349,7 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
                         </Button>
                     </div> */}
 
-                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    {/* <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                         <div>
                             <h3 className="font-medium">Privacy Settings</h3>
                             <p className="text-sm text-muted-foreground">
@@ -362,7 +362,7 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
                         >
                             Manage Privacy
                         </Button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>
