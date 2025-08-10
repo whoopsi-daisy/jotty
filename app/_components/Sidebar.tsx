@@ -31,9 +31,8 @@ import {
   DropdownMenuItem,
 } from "@/app/_components/UI/Elements/dropdown-menu";
 import { Logo } from "@/app/_components/UI/Icons/logo";
-import UserSwitcher from "@/app/_components/UserSwitcher";
+
 import { useRouter } from "next/navigation";
-import { logout } from "@/app/_server/actions/auth/logout";
 import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
 import { Checklist, Category, Document, AppMode } from "@/app/_types";
 import Link from "next/link";
@@ -370,9 +369,7 @@ export function Sidebar({
             </div>
           </div>
 
-          <div className="p-4 border-t border-border">
-            <UserSwitcher currentUsername={username} />
-          </div>
+
         </div>
       </aside>
 

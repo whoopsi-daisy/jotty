@@ -62,6 +62,7 @@ export function QuickNav({
               onSelectChecklist={onSelectChecklist}
               onSelectDocument={onSelectDocument}
               onModeChange={onModeChange}
+              isAdmin={isAdmin}
             />
           )}
         </div>

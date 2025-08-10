@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from 'react'
-import { ArrowLeft, Plus, Trash2, Edit3, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowLeft, Plus, Trash2, Edit3, CheckCircle, Share2, Users } from 'lucide-react'
 import { Button } from '@/app/_components/UI/Elements/button'
 import { ChecklistItem } from '@/app/_components/Checklist/Item'
+import { ShareModal } from '@/app/_components/UI/Modals/ShareModal'
 import { deleteListAction, createItemAction, updateItemAction, deleteItemAction, reorderItemsAction } from '@/app/_server/actions/data/actions'
 import {
   DndContext,
@@ -34,6 +35,13 @@ interface ChecklistViewProps {
 export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: ChecklistViewProps) {
   const [newItemText, setNewItemText] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [localList, setLocalList] = useState(list)
+
+  // Update localList when prop changes
+  useEffect(() => {
+    setLocalList(list)
+  }, [list])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -58,22 +66,27 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
 
     setIsLoading(true)
     const formData = new FormData()
-    formData.append('listId', list.id)
+    formData.append('listId', localList.id)
     formData.append('text', newItemText.trim())
     const result = await createItemAction(formData)
     setIsLoading(false)
 
-    if (result.success) {
+    if (result.success && result.data) {
       setNewItemText("")
-      onUpdate()
+      // Update local state immediately
+      setLocalList(prev => ({
+        ...prev,
+        items: [...prev.items, result.data]
+      }))
     }
+    onUpdate()
   }
 
   const handleDeleteList = async () => {
     if (confirm("Are you sure you want to delete this checklist?")) {
       const formData = new FormData()
-      formData.append('id', list.id)
-      formData.append('category', list.category || 'Uncategorized')
+      formData.append('id', localList.id)
+      formData.append('category', localList.category || 'Uncategorized')
       await deleteListAction(formData)
       onDelete?.()
     }
@@ -81,18 +94,36 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
 
   const handleToggleItem = async (itemId: string, completed: boolean) => {
     const formData = new FormData()
-    formData.append('listId', list.id)
+    formData.append('listId', localList.id)
     formData.append('itemId', itemId)
     formData.append('completed', String(completed))
-    await updateItemAction(formData)
+    const result = await updateItemAction(formData)
+
+    if (result.success) {
+      // Update local state immediately
+      setLocalList(prev => ({
+        ...prev,
+        items: prev.items.map(item =>
+          item.id === itemId ? { ...item, completed } : item
+        )
+      }))
+    }
     onUpdate()
   }
 
   const handleDeleteItem = async (itemId: string) => {
     const formData = new FormData()
-    formData.append('listId', list.id)
+    formData.append('listId', localList.id)
     formData.append('itemId', itemId)
-    await deleteItemAction(formData)
+    const result = await deleteItemAction(formData)
+
+    if (result.success) {
+      // Update local state immediately
+      setLocalList(prev => ({
+        ...prev,
+        items: prev.items.filter(item => item.id !== itemId)
+      }))
+    }
     onUpdate()
   }
 
@@ -100,25 +131,33 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
     const { active, over } = event
 
     if (active.id !== over?.id) {
-      const oldIndex = list.items.findIndex(item => item.id === active.id)
-      const newIndex = list.items.findIndex(item => item.id === over?.id)
+      const oldIndex = localList.items.findIndex(item => item.id === active.id)
+      const newIndex = localList.items.findIndex(item => item.id === over?.id)
 
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newItems = arrayMove(list.items, oldIndex, newIndex)
+        const newItems = arrayMove(localList.items, oldIndex, newIndex)
         const itemIds = newItems.map(item => item.id)
         const formData = new FormData()
-        formData.append('listId', list.id)
+        formData.append('listId', localList.id)
         formData.append('itemIds', JSON.stringify(itemIds))
-        await reorderItemsAction(formData)
+        const result = await reorderItemsAction(formData)
+
+        if (result.success) {
+          // Update local state immediately
+          setLocalList(prev => ({
+            ...prev,
+            items: newItems
+          }))
+        }
         onUpdate()
       }
     }
   }
 
-  const incompleteItems = list.items.filter(item => !item.completed)
-  const completedItems = list.items.filter(item => item.completed)
+  const incompleteItems = localList.items.filter(item => !item.completed)
+  const completedItems = localList.items.filter(item => item.completed)
   const completedCount = completedItems.length
-  const totalCount = list.items.length
+  const totalCount = localList.items.length
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
   return (
@@ -136,14 +175,29 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
               <ArrowLeft className="h-4 w-4 lg:h-5 lg:w-5" />
             </Button>
             <div>
-              <h2 className="text-lg lg:text-2xl font-bold text-foreground">{list.title}</h2>
-              {list.category && (
-                <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1">{list.category}</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg lg:text-2xl font-bold text-foreground">{localList.title}</h2>
+                {localList.isShared && (
+                  <div title="Shared item">
+                    <Users className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+                  </div>
+                )}
+              </div>
+              {localList.category && (
+                <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1">{localList.category}</p>
               )}
             </div>
           </div>
 
           <div className="flex items-center gap-1 lg:gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowShareModal(true)}
+              className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              <Share2 className="h-4 w-4 lg:h-5 lg:w-5" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -266,7 +320,7 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
             </div>
           )}
 
-          {list.items.length === 0 && (
+          {localList.items.length === 0 && (
             <div className="bg-background rounded-lg border border-border p-8 text-center">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                 <Plus className="h-8 w-8 text-muted-foreground" />
@@ -279,6 +333,18 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
           )}
         </div>
       </div>
+
+      {showShareModal && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          itemId={localList.id}
+          itemTitle={localList.title}
+          itemType="checklist"
+          itemCategory={localList.category}
+          itemOwner={localList.owner || ""}
+        />
+      )}
     </div>
   )
 } 

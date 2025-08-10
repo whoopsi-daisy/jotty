@@ -12,9 +12,12 @@ import {
   readDir,
   deleteDir,
 } from "@/app/_server/utils/files";
+import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getItemsSharedWithUser } from "@/app/_server/actions/sharing/sharing-utils";
+import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 
-const parseMarkdown = (content: string, id: string, category: string): List => {
+const parseMarkdown = (content: string, id: string, category: string, owner?: string, isShared?: boolean): List => {
   const lines = content.split("\n");
   const title = lines[0]?.replace(/^#\s*/, "") || "Untitled";
   const items = lines
@@ -38,6 +41,8 @@ const parseMarkdown = (content: string, id: string, category: string): List => {
     items,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    owner,
+    isShared,
   };
 };
 
@@ -51,12 +56,18 @@ const listToMarkdown = (list: List): string => {
 
 export const getLists = async () => {
   try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return { success: false, error: "Not authenticated" };
+    }
+
     const userDir = await getUserDir();
     await ensureDir(userDir);
 
     const categories = await readDir(userDir);
     const lists: List[] = [];
 
+    // Get user's own lists
     for (const category of categories) {
       if (!category.isDirectory()) continue;
 
@@ -67,7 +78,7 @@ export const getLists = async () => {
           if (file.isFile() && file.name.endsWith(".md")) {
             const id = path.basename(file.name, ".md");
             const content = await readFile(path.join(categoryDir, file.name));
-            lists.push(parseMarkdown(content, id, category.name));
+            lists.push(parseMarkdown(content, id, category.name, currentUser.username, false));
           }
         }
       } catch (error) {
@@ -75,9 +86,32 @@ export const getLists = async () => {
       }
     }
 
+    // Get shared lists
+    const sharedItems = await getItemsSharedWithUser(currentUser.username);
+    for (const sharedItem of sharedItems.checklists) {
+      try {
+        // Construct the file path for the shared item
+        const sharedFilePath = path.join(
+          process.cwd(),
+          "data",
+          "checklists",
+          sharedItem.owner,
+          sharedItem.category || "Uncategorized",
+          `${sharedItem.id}.md`
+        );
+
+        const content = await fs.readFile(sharedFilePath, "utf-8");
+        lists.push(parseMarkdown(content, sharedItem.id, sharedItem.category || "Uncategorized", sharedItem.owner, true));
+      } catch (error) {
+        console.error(`Error reading shared checklist ${sharedItem.id}:`, error);
+        continue;
+      }
+    }
+
     return { success: true, data: lists };
   } catch (error) {
-    return { error: "Failed to fetch lists" };
+    console.error("Error in getLists:", error);
+    return { success: false, error: "Failed to fetch lists" };
   }
 };
 
@@ -95,8 +129,8 @@ export const getCategories = async () => {
       }));
 
     const lists = await getLists();
-    if (!lists.success) {
-      throw new Error(lists.error);
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
     }
 
     categories.forEach((cat) => {
@@ -107,7 +141,7 @@ export const getCategories = async () => {
 
     return { success: true, data: categories };
   } catch (error) {
-    return { error: "Failed to fetch categories" };
+    return { success: false, error: "Failed to fetch categories" };
   }
 };
 
@@ -145,8 +179,8 @@ export const updateListAction = async (formData: FormData) => {
     const category = (formData.get("category") as string) || "Uncategorized";
 
     const lists = await getLists();
-    if (!lists.success) {
-      throw new Error(lists.error);
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
     }
 
     const currentList = lists.data.find((list) => list.id === id);
@@ -290,8 +324,8 @@ export const updateItemAction = async (formData: FormData) => {
     const completed = formData.get("completed") === "true";
 
     const lists = await getLists();
-    if (!lists.success) {
-      throw new Error(lists.error);
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
     }
 
     const list = lists.data.find((l) => l.id === listId);
@@ -328,8 +362,8 @@ export const createItemAction = async (formData: FormData) => {
     const text = formData.get("text") as string;
 
     const lists = await getLists();
-    if (!lists.success) {
-      throw new Error(lists.error);
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
     }
 
     const list = lists.data.find((l) => l.id === listId);
@@ -371,8 +405,8 @@ export const deleteItemAction = async (formData: FormData) => {
     const itemId = formData.get("itemId") as string;
 
     const lists = await getLists();
-    if (!lists.success) {
-      throw new Error(lists.error);
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
     }
 
     const list = lists.data.find((l) => l.id === listId);
@@ -407,8 +441,8 @@ export const reorderItemsAction = async (formData: FormData) => {
     const itemIds = JSON.parse(formData.get("itemIds") as string) as string[];
 
     const lists = await getLists();
-    if (!lists.success) {
-      throw new Error(lists.error);
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
     }
 
     const list = lists.data.find((l) => l.id === listId);
@@ -442,5 +476,54 @@ export const reorderItemsAction = async (formData: FormData) => {
     return { success: true };
   } catch (error) {
     return { error: "Failed to reorder items" };
+  }
+};
+
+// Get all lists for search (used by admins to see all content)
+export const getAllLists = async () => {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const allLists: List[] = [];
+
+    // Get all users
+    const users = await readUsers();
+
+    for (const user of users) {
+      const userDir = path.join(process.cwd(), "data", "checklists", user.username);
+
+      try {
+        const categories = await fs.readdir(userDir, { withFileTypes: true });
+
+        for (const category of categories) {
+          if (!category.isDirectory()) continue;
+
+          const categoryDir = path.join(userDir, category.name);
+          try {
+            const files = await fs.readdir(categoryDir, { withFileTypes: true });
+            for (const file of files) {
+              if (file.isFile() && file.name.endsWith(".md")) {
+                const id = path.basename(file.name, ".md");
+                const content = await fs.readFile(path.join(categoryDir, file.name), "utf-8");
+                allLists.push(parseMarkdown(content, id, category.name, user.username, false));
+              }
+            }
+          } catch (error) {
+            continue;
+          }
+        }
+      } catch (error) {
+        // User directory doesn't exist, skip
+        continue;
+      }
+    }
+
+    return { success: true, data: allLists };
+  } catch (error) {
+    console.error("Error in getAllLists:", error);
+    return { success: false, error: "Failed to fetch all lists" };
   }
 };

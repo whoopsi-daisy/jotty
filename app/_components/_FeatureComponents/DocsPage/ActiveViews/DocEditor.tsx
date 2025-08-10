@@ -13,9 +13,12 @@ import {
   FolderOpen,
   Trash2,
   Folder,
+  Share2,
+  Users,
 } from "lucide-react";
 import { Button } from "@/app/_components/UI/Elements/button";
 import { Dropdown } from "@/app/_components/UI/Elements/dropdown";
+import { ShareModal } from "@/app/_components/UI/Modals/ShareModal";
 import { Document, Category } from "@/app/_types";
 import {
   updateDocAction,
@@ -43,6 +46,7 @@ export function DocEditor({
   const [category, setCategory] = useState(doc.category || "");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const turndownService = useMemo(() => new TurndownService(), []);
 
@@ -145,9 +149,16 @@ export function DocEditor({
                 </div>
               ) : (
                 <div>
-                  <h1 className="text-xl font-bold text-foreground truncate">
-                    {title}
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl font-bold text-foreground truncate">
+                      {title}
+                    </h1>
+                    {doc.isShared && (
+                      <div title="Shared item">
+                        <Users className="h-4 w-4 text-primary" />
+                      </div>
+                    )}
+                  </div>
                   {category && category !== "Uncategorized" && (
                     <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
                       <FolderOpen className="h-3 w-3" />
@@ -172,6 +183,14 @@ export function DocEditor({
               </>
             ) : (
               <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowShareModal(true)}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleEdit}>
                   <Edit3 className="h-4 w-4 mr-2" />
                   Edit
@@ -202,6 +221,18 @@ export function DocEditor({
           />
         )}
       </div>
+
+      {showShareModal && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          itemId={doc.id}
+          itemTitle={doc.title}
+          itemType="document"
+          itemCategory={doc.category}
+          itemOwner={doc.owner || ""}
+        />
+      )}
     </div>
   );
 }

@@ -12,6 +12,8 @@ export interface List {
   items: Item[];
   createdAt: string;
   updatedAt: string;
+  owner?: string;
+  isShared?: boolean;
 }
 
 export interface Checklist {
@@ -21,6 +23,8 @@ export interface Checklist {
   items: Item[];
   createdAt: string;
   updatedAt: string;
+  owner?: string;
+  isShared?: boolean;
 }
 
 export interface Document {
@@ -30,6 +34,8 @@ export interface Document {
   category?: string;
   createdAt: string;
   updatedAt: string;
+  owner?: string;        // NEW: Track ownership
+  isShared?: boolean;    // NEW: Indicate if shared
 }
 
 export interface Category {
@@ -48,6 +54,29 @@ export interface User {
   passwordHash: string;
   isAdmin: boolean;
   isSuperAdmin?: boolean;
+}
+
+// NEW: Sharing types
+export interface SharedItem {
+  id: string;
+  type: 'checklist' | 'document';
+  title: string;
+  owner: string;
+  sharedWith: string[];
+  sharedAt: string;
+  category?: string;
+  filePath: string;
+}
+
+export interface SharingMetadata {
+  checklists: Record<string, SharedItem>;
+  documents: Record<string, SharedItem>;
+}
+
+export interface SharingPermissions {
+  canRead: boolean;
+  canWrite: boolean;
+  canShare: boolean;
 }
 
 export interface EmojiDictionary {

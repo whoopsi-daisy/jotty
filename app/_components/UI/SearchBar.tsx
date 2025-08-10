@@ -12,6 +12,8 @@ interface SearchResult {
   type: "checklist" | "doc";
   content?: string;
   category?: string;
+  owner?: string;
+  isShared?: boolean;
 }
 
 interface SearchBarProps {
@@ -22,6 +24,7 @@ interface SearchBarProps {
   onSelectDocument: (id: string) => void;
   onModeChange?: (mode: AppMode) => void;
   className?: string;
+  isAdmin?: boolean;
 }
 
 export function SearchBar({
@@ -32,6 +35,7 @@ export function SearchBar({
   onSelectDocument,
   onModeChange,
   className,
+  isAdmin = false,
 }: SearchBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -67,6 +71,8 @@ export function SearchBar({
             type: "checklist",
             content: checklist.items.map((item) => item.text).join(" "),
             category: checklist.category,
+            owner: checklist.owner,
+            isShared: checklist.isShared,
           });
         }
       });
@@ -83,6 +89,8 @@ export function SearchBar({
             type: "doc",
             content: doc.content,
             category: doc.category,
+            owner: doc.owner,
+            isShared: doc.isShared,
           });
         }
       });
@@ -287,11 +295,23 @@ export function SearchBar({
                           {result.title}
                         </div>
 
-                        {result.category && (
-                          <div className="text-xs text-muted-foreground mt-0.5">
-                            {result.category}
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {result.category && (
+                            <div className="text-xs text-muted-foreground">
+                              {result.category}
+                            </div>
+                          )}
+                          {result.owner && (
+                            <div className="text-xs text-muted-foreground">
+                              by {result.owner}
+                            </div>
+                          )}
+                          {isAdmin && result.isShared && (
+                            <div className="text-xs text-primary">
+                              shared
+                            </div>
+                          )}
+                        </div>
 
                         {snippet && (
                           <div className="text-xs text-muted-foreground mt-1 line-clamp-2 hidden sm:block">
@@ -300,8 +320,11 @@ export function SearchBar({
                         )}
                       </div>
 
-                      <div className="text-xs text-muted-foreground capitalize flex-shrink-0">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground capitalize flex-shrink-0">
                         {result.type}
+                        {result.isShared && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary" title="Shared item" />
+                        )}
                       </div>
                     </div>
                   </button>
