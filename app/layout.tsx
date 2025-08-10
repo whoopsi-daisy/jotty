@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/app/_styles/globals.css";
-import { ThemeProvider } from "@/app/_providers/theme-provider";
-import { ChecklistProvider } from "@/app/_providers/checklist-provider";
-import { AppModeProvider } from "@/app/_providers/app-mode-provider";
+import { ThemeProvider } from "@/app/_providers/ThemeProvider";
+import { ChecklistProvider } from "@/app/_providers/ChecklistProvider";
+import { AppModeProvider } from "@/app/_providers/AppModeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { AdminClient } from "@/app/_components/_FeatureComponents/AdminPage/AdminClient";
+import { AdminClient } from "@/app/_components/features/admin/AdminClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 
 export default async function AdminPage() {

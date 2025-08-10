@@ -15,7 +15,7 @@ import {
   MoreHorizontal,
   User,
 } from "lucide-react";
-import { Button } from "@/app/_components/UI/Elements/button";
+import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 import {
   deleteCategoryAction,
@@ -25,20 +25,20 @@ import {
   deleteDocsCategoryAction,
   renameDocsCategoryAction,
 } from "@/app/_server/actions/data/docs-actions";
-import { DeleteCategoryModal } from "@/app/_components/UI/Modals/DeleteCategory";
-import { RenameCategoryModal } from "@/app/_components/UI/Modals/RenameCategory";
+import { DeleteCategoryModal } from "@/app/_components/ui/modals/category/DeleteCategory";
+import { RenameCategoryModal } from "@/app/_components/ui/modals/category/RenameCategory";
 import {
   DropdownMenu,
   DropdownMenuItem,
-} from "@/app/_components/UI/Elements/dropdown-menu";
-import { Logo } from "@/app/_components/UI/Icons/logo";
+} from "@/app/_components/ui/elements/dropdown-menu";
+import { Logo } from "@/app/_components/ui/icons/logo";
 
 import { useRouter } from "next/navigation";
-import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
+import { SettingsModal } from "@/app/_components/ui/modals/settings/Settings";
 import { Checklist, Category, Document, AppMode } from "@/app/_types";
 import Link from "next/link";
-import { ChecklistContext } from "../_providers/checklist-provider";
-import { useAppMode } from "../_providers/app-mode-provider";
+import { ChecklistContext } from "../_providers/ChecklistProvider";
+import { useAppMode } from "../_providers/AppModeProvider";
 
 interface SidebarProps {
   isOpen: boolean;

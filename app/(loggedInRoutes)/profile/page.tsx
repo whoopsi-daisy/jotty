@@ -1,4 +1,4 @@
-import { UserProfileClient } from "@/app/_components/_FeatureComponents/UserProfilePage/UserProfileClient";
+import { UserProfileClient } from "@/app/_components/features/profile/UserProfileClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 
 export default async function ProfilePage() {

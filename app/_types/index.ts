@@ -5,17 +5,6 @@ export interface Item {
   order: number;
 }
 
-export interface List {
-  id: string;
-  title: string;
-  category?: string;
-  items: Item[];
-  createdAt: string;
-  updatedAt: string;
-  owner?: string;
-  isShared?: boolean;
-}
-
 export interface Checklist {
   id: string;
   title: string;
@@ -34,8 +23,8 @@ export interface Document {
   category?: string;
   createdAt: string;
   updatedAt: string;
-  owner?: string;        // NEW: Track ownership
-  isShared?: boolean;    // NEW: Indicate if shared
+  owner?: string;
+  isShared?: boolean;
 }
 
 export interface Category {
@@ -58,7 +47,6 @@ export interface User {
   lastLogin?: string;
 }
 
-// NEW: Sharing types
 export interface SharedItem {
   id: string;
   type: 'checklist' | 'document';
@@ -85,5 +73,4 @@ export interface EmojiDictionary {
   [key: string]: string;
 }
 
-// App mode type for navigation
 export type AppMode = "checklists" | "docs";

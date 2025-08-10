@@ -1,10 +1,10 @@
-import { List, Category } from '@/app/_types'
+import { Checklist, Category } from '@/app/_types'
 
-export const calculateCategoryCount = (lists: List[], categoryName: string): number => {
+export const calculateCategoryCount = (lists: Checklist[], categoryName: string): number => {
   return lists.filter(list => (list.category || 'Uncategorized') === categoryName).length
 }
 
-export const generateCategories = (categoryNames: string[], lists: List[]): Category[] => {
+export const generateCategories = (categoryNames: string[], lists: Checklist[]): Category[] => {
   return categoryNames.map(name => ({
     name,
     count: calculateCategoryCount(lists, name)

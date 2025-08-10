@@ -3,7 +3,7 @@ import {
   getDocs,
   getDocsCategories,
 } from "@/app/_server/actions/data/docs-actions";
-import { HomeClient } from "@/app/_components/_FeatureComponents/HomePage/HomeClient";
+import { HomeClient } from "@/app/_components/features/home/HomeClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 
 export default async function HomePage() {

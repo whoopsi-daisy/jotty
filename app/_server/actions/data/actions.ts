@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import path from "path";
-import { List } from "@/app/_types";
+import { Checklist } from "@/app/_types";
 import {
   getUserDir,
   ensureDir,
@@ -17,7 +17,7 @@ import { getItemsSharedWithUser, removeSharedItem } from "@/app/_server/actions/
 import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 
-const parseMarkdown = (content: string, id: string, category: string, owner?: string, isShared?: boolean): List => {
+const parseMarkdown = (content: string, id: string, category: string, owner?: string, isShared?: boolean): Checklist => {
   const lines = content.split("\n");
   const title = lines[0]?.replace(/^#\s*/, "") || "Untitled";
   const items = lines
@@ -46,7 +46,7 @@ const parseMarkdown = (content: string, id: string, category: string, owner?: st
   };
 };
 
-const listToMarkdown = (list: List): string => {
+const listToMarkdown = (list: Checklist): string => {
   const header = `# ${list.title}\n`;
   const items = list.items
     .map((item) => `- [${item.completed ? "x" : " "}] ${item.text}`)
@@ -65,7 +65,7 @@ export const getLists = async () => {
     await ensureDir(userDir);
 
     const categories = await readDir(userDir);
-    const lists: List[] = [];
+    const lists: Checklist[] = [];
 
     // Get user's own lists
     for (const category of categories) {
@@ -155,7 +155,7 @@ export const createListAction = async (formData: FormData) => {
     const categoryDir = path.join(userDir, category);
     const filePath = path.join(categoryDir, `${id}.md`);
 
-    const newList: List = {
+    const newList: Checklist = {
       id,
       title,
       category,
@@ -188,7 +188,7 @@ export const updateListAction = async (formData: FormData) => {
       throw new Error("List not found");
     }
 
-    const updatedList: List = {
+    const updatedList: Checklist = {
       ...currentList,
       title,
       category,
@@ -493,7 +493,7 @@ export const getAllLists = async () => {
       return { success: false, error: "Not authenticated" };
     }
 
-    const allLists: List[] = [];
+    const allLists: Checklist[] = [];
 
     // Get all users
     const users = await readUsers();
