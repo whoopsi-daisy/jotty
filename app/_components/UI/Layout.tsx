@@ -11,8 +11,6 @@ interface LayoutProps {
   lists: List[];
   docs?: Document[];
   categories: Category[];
-  onRefresh: () => void;
-  isRefreshing: boolean;
   onOpenSettings: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
@@ -26,8 +24,6 @@ export function Layout({
   lists,
   docs,
   categories,
-  onRefresh,
-  isRefreshing,
   onOpenSettings,
   onOpenCreateModal,
   onOpenCategoryModal,
@@ -38,7 +34,7 @@ export function Layout({
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { setSelectedChecklist } = useContext(ChecklistContext);
-  const { setSelectedDocument } = useAppMode();
+  const { setSelectedDocument, setMode } = useAppMode();
 
   const handleSelectChecklist = (id: string) => {
     setSelectedChecklist(id);
@@ -51,7 +47,6 @@ export function Layout({
   return (
     <div className="flex h-screen bg-background w-full">
       <Sidebar
-        onUpdate={onRefresh}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onOpenCreateModal={onOpenCreateModal}
@@ -74,6 +69,7 @@ export function Layout({
           docs={docs || []}
           onSelectChecklist={handleSelectChecklist}
           onSelectDocument={handleSelectDocument}
+          onModeChange={setMode}
         />
 
         <div className="flex-1 overflow-hidden">{children}</div>

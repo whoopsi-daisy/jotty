@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { AppMode } from "@/app/_types";
 
 interface AppModeContextType {
@@ -16,11 +16,25 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<AppMode>("checklists");
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
 
+  // Load mode from localStorage on mount
+  useEffect(() => {
+    const savedMode = localStorage.getItem("app-mode");
+    if (savedMode === "checklists" || savedMode === "docs") {
+      setMode(savedMode);
+    }
+  }, []);
+
+  // Save mode to localStorage whenever it changes
+  const handleSetMode = (newMode: AppMode) => {
+    setMode(newMode);
+    localStorage.setItem("app-mode", newMode);
+  };
+
   return (
     <AppModeContext.Provider
       value={{
         mode,
-        setMode,
+        setMode: handleSetMode,
         selectedDocument,
         setSelectedDocument,
       }}

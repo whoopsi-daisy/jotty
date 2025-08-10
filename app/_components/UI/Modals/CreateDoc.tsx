@@ -12,7 +12,7 @@ import { Category } from "@/app/_types";
 
 interface CreateDocModalProps {
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (docId: string) => void;
   categories: Category[];
   initialCategory?: string;
 }
@@ -63,8 +63,8 @@ export function CreateDocModal({
 
       const result = await createDocAction(formData);
 
-      if (result.success) {
-        onCreated();
+      if (result.success && result.data) {
+        onCreated(result.data.id);
       }
     } finally {
       setIsCreating(false);

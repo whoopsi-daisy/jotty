@@ -6,7 +6,7 @@ import { SearchBar } from "@/app/_components/UI/SearchBar";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/_server/actions/auth/logout";
 import { useAppMode } from "@/app/_providers/app-mode-provider";
-import { List, Document } from "@/app/_types";
+import { List, Document, AppMode } from "@/app/_types";
 
 interface HeaderProps {
   showSidebarToggle?: boolean;
@@ -17,6 +17,7 @@ interface HeaderProps {
   docs?: Document[];
   onSelectChecklist?: (id: string) => void;
   onSelectDocument?: (id: string) => void;
+  onModeChange?: (mode: AppMode) => void;
 }
 
 export function QuickNav({
@@ -28,6 +29,7 @@ export function QuickNav({
   docs = [],
   onSelectChecklist,
   onSelectDocument,
+  onModeChange,
 }: HeaderProps) {
   const router = useRouter();
   const { mode } = useAppMode();
@@ -59,6 +61,7 @@ export function QuickNav({
               docs={docs}
               onSelectChecklist={onSelectChecklist}
               onSelectDocument={onSelectDocument}
+              onModeChange={onModeChange}
             />
           )}
         </div>

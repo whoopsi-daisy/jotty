@@ -20,6 +20,7 @@ interface SearchBarProps {
   docs: Document[];
   onSelectChecklist: (id: string) => void;
   onSelectDocument: (id: string) => void;
+  onModeChange?: (mode: AppMode) => void;
   className?: string;
 }
 
@@ -29,6 +30,7 @@ export function SearchBar({
   docs,
   onSelectChecklist,
   onSelectDocument,
+  onModeChange,
   className,
 }: SearchBarProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -142,6 +144,7 @@ export function SearchBar({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, results, selectedIndex]);
 
   // Click outside to close
@@ -161,8 +164,16 @@ export function SearchBar({
 
   const handleSelectResult = (result: SearchResult) => {
     if (result.type === "checklist") {
+      // If we're in docs mode, switch to checklists mode first
+      if (mode === "docs" && onModeChange) {
+        onModeChange("checklists");
+      }
       onSelectChecklist(result.id);
     } else {
+      // If we're in checklists mode, switch to docs mode first
+      if (mode === "checklists" && onModeChange) {
+        onModeChange("docs");
+      }
       onSelectDocument(result.id);
     }
     setIsOpen(false);
@@ -209,11 +220,10 @@ export function SearchBar({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
-            placeholder={`Search ${mode}...${
-              typeof window !== "undefined" && window.innerWidth > 768
-                ? " (⌘K)"
-                : ""
-            }`}
+            placeholder={`Search ${mode}...${typeof window !== "undefined" && window.innerWidth > 768
+              ? " (⌘K)"
+              : ""
+              }`}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           {isOpen && (

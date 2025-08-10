@@ -10,11 +10,6 @@ import { CreateCategoryModal } from "@/app/_components/UI/Modals/CreateCategory"
 import { EditChecklistModal } from "@/app/_components/UI/Modals/edit-checklist-modal";
 import { SettingsModal } from "@/app/_components/UI/Modals/Settings";
 import { Layout } from "@/app/_components/UI/Layout";
-import { getLists, getCategories } from "@/app/_server/actions/data/actions";
-import {
-  getDocs,
-  getDocsCategories,
-} from "@/app/_server/actions/data/docs-actions";
 import { getHashFromUrl, setHashInUrl } from "@/app/_utils/url-utils";
 import { List, Category, Document } from "@/app/_types";
 import { ChecklistContext } from "@/app/_providers/checklist-provider";
@@ -45,7 +40,6 @@ export function HomeClient({
   const [docsCategories, setDocsCategories] = useState<Category[]>(
     initialDocsCategories
   );
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -70,9 +64,9 @@ export function HomeClient({
     }
     setIsInitialized(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+  }, []); // Only run once on mount
 
-  // Separate effect for initial hash handling
+  // Handle URL hash navigation on mount and when data changes
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -93,60 +87,32 @@ export function HomeClient({
         setMode("checklists");
         setSelectedChecklist(hash);
         setSelectedDocument(null);
+      } else if (isDocId && mode === "docs") {
+        // We're already in docs mode, just select the document
+        setSelectedDocument(hash);
+        setSelectedChecklist(null);
+      } else if (isChecklistId && mode === "checklists") {
+        // We're already in checklists mode, just select the checklist
+        setSelectedChecklist(hash);
+        setSelectedDocument(null);
       }
     }
-  }, [
-    isInitialized,
-    docs,
-    lists,
-    mode,
-    setMode,
-    setSelectedDocument,
-    setSelectedChecklist,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInitialized, docs, lists]); // Only run when data changes, not when mode changes
 
   useEffect(() => {
-    if (isInitialized && !isRefreshing) {
+    if (isInitialized) {
       if (mode === "checklists") {
         setHashInUrl(selectedChecklist);
       } else if (mode === "docs") {
         setHashInUrl(selectedDocument);
       }
     }
-  }, [selectedChecklist, selectedDocument, isInitialized, isRefreshing, mode]);
+  }, [selectedChecklist, selectedDocument, isInitialized, mode]);
 
-  const refreshData = async () => {
-    setIsRefreshing(true);
-    try {
-      const [listsResult, categoriesResult, docsResult, docsCategoriesResult] =
-        await Promise.all([
-          getLists(),
-          getCategories(),
-          getDocs(),
-          getDocsCategories(),
-        ]);
 
-      const newLists =
-        listsResult.success && listsResult.data ? listsResult.data : [];
-      const newCategories =
-        categoriesResult.success && categoriesResult.data
-          ? categoriesResult.data
-          : [];
-      const newDocs =
-        docsResult.success && docsResult.data ? docsResult.data : [];
-      const newDocsCategories =
-        docsCategoriesResult.success && docsCategoriesResult.data
-          ? docsCategoriesResult.data
-          : [];
 
-      setLists(newLists);
-      setCategories(newCategories);
-      setDocs(newDocs);
-      setDocsCategories(newDocsCategories);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+
 
   const handleOpenEditModal = (checklist: List) => {
     setEditingChecklist(checklist);
@@ -154,8 +120,6 @@ export function HomeClient({
   };
 
   const handleModalClose = async () => {
-    await refreshData();
-
     if (
       selectedChecklist &&
       editingChecklist &&
@@ -163,14 +127,10 @@ export function HomeClient({
     ) {
       setSelectedChecklist(null);
     }
-
-    router.refresh();
   };
 
   const handleListDeleted = async () => {
-    await refreshData();
     setSelectedChecklist(null);
-    router.refresh();
   };
 
   const handleOpenCreateModal = (initialCategory?: string) => {
@@ -191,8 +151,6 @@ export function HomeClient({
     }
   };
 
-  const selectedList = lists.find((list) => list.id === selectedChecklist);
-
   if (!isInitialized) {
     return (
       <div className="flex h-screen bg-background w-full items-center justify-center">
@@ -208,20 +166,19 @@ export function HomeClient({
     if (mode === "docs") {
       return (
         <DocsClient
-          initialDocs={docs}
-          initialCategories={docsCategories}
-          username={username}
-          isAdmin={isAdmin}
+          docs={docs}
+          categories={docsCategories}
         />
       );
     }
 
     // Checklist mode
+    const selectedList = lists.find((list) => list.id === selectedChecklist);
     if (selectedList) {
       return (
         <ChecklistView
           list={selectedList}
-          onUpdate={refreshData}
+          onUpdate={() => { }}
           onBack={() => setSelectedChecklist(null)}
           onEdit={handleOpenEditModal}
           onDelete={handleListDeleted}
@@ -239,8 +196,6 @@ export function HomeClient({
       lists={lists}
       docs={docs}
       categories={mode === "docs" ? docsCategories : categories}
-      onRefresh={refreshData}
-      isRefreshing={isRefreshing}
       onOpenSettings={() => setShowSettingsModal(true)}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
@@ -255,7 +210,7 @@ export function HomeClient({
           onClose={() => setShowCreateModal(false)}
           onCreated={() => {
             setShowCreateModal(false);
-            handleModalClose();
+            router.refresh();
           }}
           categories={categories}
           initialCategory={initialCategory}
@@ -265,9 +220,9 @@ export function HomeClient({
       {mode === "docs" && showCreateDocModal && (
         <CreateDocModal
           onClose={() => setShowCreateDocModal(false)}
-          onCreated={() => {
+          onCreated={(docId) => {
             setShowCreateDocModal(false);
-            handleModalClose();
+            router.refresh();
           }}
           categories={docsCategories}
           initialCategory={initialCategory}
@@ -279,7 +234,7 @@ export function HomeClient({
           onClose={() => setShowCategoryModal(false)}
           onCreated={() => {
             setShowCategoryModal(false);
-            handleModalClose();
+            router.refresh();
           }}
         />
       )}
@@ -289,7 +244,7 @@ export function HomeClient({
           onClose={() => setShowDocsCategoryModal(false)}
           onCreated={() => {
             setShowDocsCategoryModal(false);
-            handleModalClose();
+            router.refresh();
           }}
         />
       )}

@@ -41,7 +41,6 @@ import { ChecklistContext } from "../_providers/checklist-provider";
 import { useAppMode } from "../_providers/app-mode-provider";
 
 interface SidebarProps {
-  onUpdate?: () => void;
   isOpen: boolean;
   onClose: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
@@ -55,7 +54,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({
-  onUpdate,
   isOpen,
   onClose,
   onOpenCreateModal,
@@ -99,7 +97,6 @@ export function Sidebar({
         : await deleteCategoryAction(formData);
 
     if (result.success) {
-      onUpdate?.();
       setShowDeleteCategoryModal(false);
       setCategoryToDelete(null);
     }
@@ -125,7 +122,6 @@ export function Sidebar({
         : await renameCategoryAction(formData);
 
     if (result.success) {
-      onUpdate?.();
       setShowRenameCategoryModal(false);
       setCategoryToRename(null);
     }
@@ -296,9 +292,8 @@ export function Sidebar({
                             handleQuickCreate(categoryName);
                           }}
                           className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                          title={`Create new ${
-                            mode === "docs" ? "document" : "checklist"
-                          } in ${categoryName}`}
+                          title={`Create new ${mode === "docs" ? "document" : "checklist"
+                            } in ${categoryName}`}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
