@@ -340,7 +340,7 @@
 
     /* Custom scrollbar */
     ::-webkit-scrollbar {
-        width: 6px;
+        width: 1px;
     }
 
     ::-webkit-scrollbar-track {
@@ -445,4 +445,12 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+
+    .ProseMirror {
+        height: 100%;    
+    }
+}
+
+.ProseMirror {
+    height: 100%;    
 }

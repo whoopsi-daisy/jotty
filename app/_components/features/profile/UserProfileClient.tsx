@@ -128,8 +128,8 @@ export function UserProfileClient({
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-border">
-        <nav className="flex space-x-8 overflow-x-auto pb-2">
+      <div className="bg-muted p-1 rounded-lg">
+        <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
           {[
             { id: "profile", label: "Profile", icon: User },
             { id: "sessions", label: "Sessions", icon: Monitor },
@@ -140,9 +140,9 @@ export function UserProfileClient({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap flex-shrink-0 ${activeTab === tab.id
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <Icon className="h-4 w-4" />
@@ -150,7 +150,7 @@ export function UserProfileClient({
               </button>
             );
           })}
-        </nav>
+        </div>
       </div>
 
       {/* Tab Content */}

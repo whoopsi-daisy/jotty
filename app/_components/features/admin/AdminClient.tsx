@@ -1,19 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Users,
-  FileText,
-  CheckSquare,
-  Settings,
-  Activity,
-  Shield,
-  Trash2,
-  Edit3,
-  Plus,
-  Search,
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowLeft, Plus, Search, Edit3, Trash2, CheckSquare, FileText } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { UserManagementModal } from "@/app/_components/ui/modals/user/UserManagementModal";
 import { User, Checklist, Document } from "@/app/_types";
@@ -22,6 +10,9 @@ import { getAllLists } from "@/app/_server/actions/data/actions";
 import { getAllDocs } from "@/app/_server/actions/data/docs-actions";
 import { getSharedItemsAction } from "@/app/_server/actions/sharing/get-shared-items";
 import { useRouter } from "next/navigation";
+import { AdminTabs } from "./components/AdminTabs";
+import { AdminOverview } from "./components/AdminOverview";
+import { AdminUsers } from "./components/AdminUsers";
 
 interface AdminClientProps {
   username: string;
@@ -98,119 +89,7 @@ export function AdminClient({ username }: AdminClientProps) {
     adminUsers: users.filter((u) => u.isAdmin).length,
   };
 
-  const renderOverview = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-background border border-border rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Users</p>
-              <p className="text-2xl font-bold">{stats.totalUsers}</p>
-            </div>
-          </div>
-        </div>
 
-        <div className="bg-background border border-border rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-500/10 rounded-lg">
-              <CheckSquare className="h-5 w-5 text-green-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Checklists</p>
-              <p className="text-2xl font-bold">{stats.totalChecklists}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-background border border-border rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <FileText className="h-5 w-5 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Documents</p>
-              <p className="text-2xl font-bold">{stats.totalDocuments}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-background border border-border rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-500/10 rounded-lg">
-              <Shield className="h-5 w-5 text-purple-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Admin Users</p>
-              <p className="text-2xl font-bold">{stats.adminUsers}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-background border border-border rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Recent Activity
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div>
-                <p className="font-medium">Shared Items</p>
-                <p className="text-sm text-muted-foreground">
-                  {stats.sharedChecklists + stats.sharedDocuments} items shared
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">
-                  Checklists: {stats.sharedChecklists}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Documents: {stats.sharedDocuments}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-background border border-border rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Quick Actions
-          </h3>
-          <div className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => setActiveTab("users")}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Manage Users
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => setActiveTab("content")}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              View All Content
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => setActiveTab("sharing")}
-            >
-              <Activity className="h-4 w-4 mr-2" />
-              Sharing Overview
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderUsers = () => (
     <div className="space-y-6">
@@ -278,8 +157,8 @@ export function AdminClient({ username }: AdminClientProps) {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isAdmin
-                            ? "bg-primary/10 text-primary"
-                            : "bg-muted text-muted-foreground"
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted text-muted-foreground"
                           }`}
                       >
                         {user.isAdmin ? "Admin" : "User"}
@@ -489,37 +368,26 @@ export function AdminClient({ username }: AdminClientProps) {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-border">
-        <nav className="flex space-x-8 overflow-x-auto pb-2">
-          {[
-            { id: "overview", label: "Overview", icon: Activity },
-            { id: "users", label: "Users", icon: Users },
-            { id: "content", label: "Content", icon: FileText },
-            { id: "sharing", label: "Sharing", icon: Settings },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-                  }`}
-              >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+      <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Tab Content */}
       <div className="min-h-[600px]">
-        {activeTab === "overview" && renderOverview()}
-        {activeTab === "users" && renderUsers()}
+        {activeTab === "overview" && (
+          <AdminOverview stats={stats} />
+        )}
+        {activeTab === "users" && (
+          <AdminUsers
+            users={users}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onAddUser={handleAddUser}
+            onEditUser={handleEditUser}
+            onDeleteUser={(user) => {
+              // Handle delete user
+              console.log("Delete user:", user);
+            }}
+          />
+        )}
         {activeTab === "content" && renderContent()}
         {activeTab === "sharing" && renderSharing()}
       </div>

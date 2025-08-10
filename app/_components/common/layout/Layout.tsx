@@ -2,7 +2,7 @@
 
 import { useState, useContext } from "react";
 import { QuickNav } from "@/app/_components/features/header/QuickNav";
-import { Sidebar } from "@/app/_components/Sidebar";
+import { Sidebar } from "./sidebar/Sidebar";
 import { Checklist, Category, Document } from "@/app/_types";
 import { ChecklistContext } from "@/app/_providers/ChecklistProvider";
 import { useAppMode } from "@/app/_providers/AppModeProvider";

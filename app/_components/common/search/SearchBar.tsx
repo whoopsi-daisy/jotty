@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, CheckSquare, FileText, X } from "lucide-react";
-import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 import { Checklist, Document, AppMode } from "@/app/_types";
+import { SearchInput } from "./components/SearchInput";
+import { SearchResults } from "./components/SearchResults";
 
 interface SearchResult {
   id: string;
@@ -189,149 +189,53 @@ export function SearchBar({
     inputRef.current?.blur();
   };
 
-  const getSnippet = (content: string | undefined, query: string) => {
-    if (!content || !query) return "";
 
-    const lowerContent = content.toLowerCase();
-    const lowerQuery = query.toLowerCase();
-    const index = lowerContent.indexOf(lowerQuery);
-
-    if (index === -1) return "";
-
-    const start = Math.max(0, index - 30);
-    const end = Math.min(content.length, index + query.length + 30);
-    const snippet = content.slice(start, end);
-
-    return start > 0 ? "..." + snippet : snippet;
-  };
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      {/* Search Input */}
-      <div className="relative">
-        <div
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 bg-background border border-border rounded-md transition-all",
-            isOpen
-              ? "border-primary shadow-md"
-              : "hover:border-muted-foreground/50"
-          )}
-          onClick={() => {
-            setIsOpen(true);
-            inputRef.current?.focus();
-          }}
-        >
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => setIsOpen(true)}
-            placeholder={`Search ${mode}...${typeof window !== "undefined" && window.innerWidth > 768
-              ? " (⌘K)"
-              : ""
-              }`}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-          />
-          {isOpen && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsOpen(false);
-                setQuery("");
-              }}
-              className="h-6 w-6 p-0 hover:bg-muted"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          )}
-        </div>
-
-        {/* Keyboard hint for desktop */}
-        {!isOpen && (
-          <div className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 items-center gap-1 text-xs text-muted-foreground">
-            <kbd className="px-1.5 py-0.5 bg-muted border border-border rounded text-xs">
-              ⌘K
-            </kbd>
-          </div>
+      <SearchInput
+        query={query}
+        onQueryChange={setQuery}
+        onClear={() => {
+          setIsOpen(false);
+          setQuery("");
+        }}
+        onFocus={() => setIsOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            setIsOpen(false);
+            setQuery("");
+          } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setSelectedIndex((prev) =>
+              prev < results.length - 1 ? prev + 1 : 0
+            );
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setSelectedIndex((prev) =>
+              prev > 0 ? prev - 1 : results.length - 1
+            );
+          } else if (e.key === "Enter" && results.length > 0) {
+            e.preventDefault();
+            handleSelectResult(results[selectedIndex]);
+          }
+        }}
+        placeholder={`Search ${mode}...`}
+        inputRef={inputRef}
+        className={cn(
+          "transition-all",
+          isOpen && "border-primary shadow-md"
         )}
-      </div>
+      />
 
-      {/* Search Results */}
       {isOpen && (query || results.length > 0) && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-md shadow-lg z-50 max-h-[70vh] md:max-h-80 overflow-y-auto">
-          {results.length === 0 && query ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              No results found for &quot;{query}&quot;
-            </div>
-          ) : (
-            <div className="py-2">
-              {results.map((result, index) => {
-                const snippet = getSnippet(result.content, query);
-
-                return (
-                  <button
-                    key={result.id}
-                    onClick={() => handleSelectResult(result)}
-                    className={cn(
-                      "w-full text-left px-4 py-3 hover:bg-accent transition-colors focus:bg-accent",
-                      index === selectedIndex && "bg-accent"
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex-shrink-0">
-                        {result.type === "checklist" ? (
-                          <CheckSquare className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-foreground truncate">
-                          {result.title}
-                        </div>
-
-                        <div className="flex items-center gap-2 mt-0.5">
-                          {result.category && (
-                            <div className="text-xs text-muted-foreground">
-                              {result.category}
-                            </div>
-                          )}
-                          {result.owner && (
-                            <div className="text-xs text-muted-foreground">
-                              by {result.owner}
-                            </div>
-                          )}
-                          {isAdmin && result.isShared && (
-                            <div className="text-xs text-primary">
-                              shared
-                            </div>
-                          )}
-                        </div>
-
-                        {snippet && (
-                          <div className="text-xs text-muted-foreground mt-1 line-clamp-2 hidden sm:block">
-                            {snippet}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground capitalize flex-shrink-0">
-                        {result.type}
-                        {result.isShared && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary" title="Shared item" />
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-md shadow-lg z-50 max-h-[70vh] md:max-h-80">
+          <SearchResults
+            results={results}
+            selectedIndex={selectedIndex}
+            onSelectResult={handleSelectResult}
+            query={query}
+          />
         </div>
       )}
     </div>

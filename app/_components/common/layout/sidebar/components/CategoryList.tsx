@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Folder, MoreHorizontal, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Folder, MoreHorizontal, Plus, FileText, CheckSquare } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 import {
@@ -74,8 +74,8 @@ export function CategoryList({
                 </span>
               </button>
 
-              <DropdownMenu>
-                <DropdownMenu.Trigger asChild>
+              <DropdownMenu
+                trigger={
                   <Button
                     variant="ghost"
                     size="sm"
@@ -83,22 +83,24 @@ export function CategoryList({
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="end">
-                  <DropdownMenuItem onClick={() => onQuickCreate(category.name)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Quick Create {mode === "checklists" ? "Checklist" : "Document"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onRenameCategory(category.name)}>
-                    Rename Category
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => onDeleteCategory(category.name)}
-                    className="text-destructive"
-                  >
-                    Delete Category
-                  </DropdownMenuItem>
-                </DropdownMenu.Content>
+                }
+                align="right"
+              >
+                <DropdownMenuItem
+                  onClick={() => onQuickCreate(category.name)}
+                  icon={<Plus className="h-4 w-4" />}
+                >
+                  New {mode === "checklists" ? "Checklist" : "Document"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onRenameCategory(category.name)}>
+                  Rename Category
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDeleteCategory(category.name)}
+                  variant="destructive"
+                >
+                  Delete Category
+                </DropdownMenuItem>
               </DropdownMenu>
             </div>
 
@@ -115,6 +117,11 @@ export function CategoryList({
                         : "hover:bg-muted/50 text-foreground"
                     )}
                   >
+                    {mode === "docs" ? (
+                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    ) : (
+                      <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    )}
                     <span className="truncate">{item.title}</span>
                   </button>
                 ))}

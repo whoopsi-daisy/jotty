@@ -2,8 +2,8 @@
 
 import { Plus, FolderPlus, Settings, User } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { cn } from "@/app/_utils/utils";
 import { AppMode } from "@/app/_types";
+import Link from "next/link";
 
 interface SidebarActionsProps {
   mode: AppMode;
@@ -43,7 +43,10 @@ export function SidebarActions({
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link
+          href="/profile"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
           <User className="h-4 w-4" />
           <span className="truncate">{username}</span>
           {isAdmin && (
@@ -51,7 +54,7 @@ export function SidebarActions({
               Admin
             </span>
           )}
-        </div>
+        </Link>
         <Button
           onClick={onOpenSettings}
           variant="ghost"
