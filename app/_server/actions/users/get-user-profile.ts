@@ -22,13 +22,12 @@ export async function getUserProfileAction(): Promise<Result<UserProfile>> {
             };
         }
 
-        // For now, return basic user info
-        // In a real app, you might want to store and retrieve createdAt/lastLogin
+        // Return real user profile data
         const profile: UserProfile = {
             username: user.username,
             isAdmin: user.isAdmin,
-            createdAt: new Date().toISOString(), // Mock data for now
-            lastLogin: new Date().toISOString(), // Mock data for now
+            createdAt: user.createdAt || new Date().toISOString(),
+            lastLogin: user.lastLogin || new Date().toISOString(),
         };
 
         return {

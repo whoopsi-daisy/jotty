@@ -41,6 +41,8 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
                     username: result.data.username,
                     isAdmin: result.data.isAdmin,
                     passwordHash: "", // This won't be used in the UI
+                    createdAt: result.data.createdAt,
+                    lastLogin: result.data.lastLogin,
                 };
                 setUser(profileUser);
                 setEditedUsername(result.data.username);
@@ -177,10 +179,19 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
 
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Account Status
+                            Account Created
                         </label>
                         <p className="text-sm text-muted-foreground">
-                            Active
+                            {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-2">
+                            Last Login
+                        </label>
+                        <p className="text-sm text-muted-foreground">
+                            {user?.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Unknown'}
                         </p>
                     </div>
 

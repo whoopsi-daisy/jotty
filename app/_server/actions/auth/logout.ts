@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import fs from 'fs/promises'
 import path from 'path'
+import { removeSession } from '../users/session-storage'
 
 const SESSIONS_FILE = path.join(process.cwd(), 'data', 'users', 'sessions.json')
 
@@ -25,12 +26,15 @@ async function writeSessions(sessions: Record<string, string>) {
 
 export async function logout() {
   const sessionId = cookies().get('session')?.value
-  
+
   if (sessionId) {
     // Remove session from sessions file
     const sessions = await readSessions()
     delete sessions[sessionId]
     await writeSessions(sessions)
+
+    // Remove session data
+    await removeSession(sessionId)
 
     // Remove session cookie
     cookies().delete('session')

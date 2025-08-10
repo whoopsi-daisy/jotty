@@ -3,7 +3,8 @@
     "username": "fccview",
     "passwordHash": "0d66567805897304bf53a1f79eb3c300af8512928c0ca3c3d8a99718d0fcacca",
     "isAdmin": true,
-    "isSuperAdmin": true
+    "isSuperAdmin": true,
+    "lastLogin": "2025-08-10T11:31:51.026Z"
   },
   {
     "username": "Jodi",

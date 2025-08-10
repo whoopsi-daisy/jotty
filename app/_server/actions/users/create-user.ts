@@ -55,6 +55,8 @@ export async function createUserAction(formData: FormData): Promise<Result<UserW
       username,
       passwordHash: hashedPassword,
       isAdmin,
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
     };
 
     // Add user to users array

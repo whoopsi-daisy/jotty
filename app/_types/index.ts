@@ -54,6 +54,8 @@ export interface User {
   passwordHash: string;
   isAdmin: boolean;
   isSuperAdmin?: boolean;
+  createdAt?: string;
+  lastLogin?: string;
 }
 
 // NEW: Sharing types

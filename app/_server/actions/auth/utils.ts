@@ -8,6 +8,8 @@ interface User {
   username: string;
   passwordHash: string;
   isAdmin: boolean;
+  createdAt?: string;
+  lastLogin?: string;
 }
 
 const USERS_FILE = path.join(process.cwd(), "data", "users", "users.json");

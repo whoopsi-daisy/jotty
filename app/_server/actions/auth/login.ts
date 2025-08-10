@@ -5,11 +5,14 @@ import { redirect } from 'next/navigation'
 import { createHash } from 'crypto'
 import fs from 'fs/promises'
 import path from 'path'
+import { createSession } from '../users/session-storage'
 
 interface User {
   username: string
   passwordHash: string
   isAdmin: boolean
+  createdAt?: string
+  lastLogin?: string
 }
 
 const USERS_FILE = path.join(process.cwd(), 'data', 'users', 'users.json')
@@ -61,12 +64,22 @@ export async function login(formData: FormData) {
     return { error: 'Invalid username or password' }
   }
 
+  // Update lastLogin
+  const userIndex = users.findIndex(u => u.username === username)
+  if (userIndex !== -1) {
+    users[userIndex].lastLogin = new Date().toISOString()
+    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
+  }
+
   // Create session
   const sessionId = createHash('sha256').update(Math.random().toString()).digest('hex')
   const sessions = await readSessions()
   sessions[sessionId] = username
 
   await writeSessions(sessions)
+  
+  // Create session data
+  await createSession(sessionId, username)
 
   // Set session cookie
   cookies().set('session', sessionId, {
