@@ -11,11 +11,15 @@ import { useAppMode } from "@/app/_providers/AppModeProvider";
 interface DocsClientProps {
   docs: Document[];
   categories: Category[];
+  onDocsUpdate: (newDocs: Document[]) => void;
+  onDocDelete?: (deletedId: string) => void;
 }
 
 export function DocsClient({
   docs,
   categories,
+  onDocsUpdate,
+  onDocDelete,
 }: DocsClientProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -47,6 +51,7 @@ export function DocsClient({
           categories={categories}
           onUpdate={() => { }}
           onBack={() => setSelectedDocument(null)}
+          onDelete={onDocDelete}
         />
       ) : (
         <DocsHomeView
@@ -60,10 +65,12 @@ export function DocsClient({
       {showCreateModal && (
         <CreateDocModal
           onClose={() => setShowCreateModal(false)}
-          onCreated={(docId) => {
+          onCreated={(newDoc) => {
             setShowCreateModal(false);
-            // Use router.refresh() to reload the page and get fresh data
-            window.location.reload();
+            if (newDoc) {
+              onDocsUpdate([...docs, newDoc]);
+              setSelectedDocument(newDoc.id);
+            }
           }}
           categories={categories}
         />

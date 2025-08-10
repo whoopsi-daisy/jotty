@@ -8,7 +8,7 @@ import { Folder } from "lucide-react";
 
 interface CreateCategoryModalProps {
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (category?: { name: string; count: number }) => void;
 }
 
 export function CreateCategoryModal({
@@ -28,7 +28,7 @@ export function CreateCategoryModal({
     const result = await createCategoryAction(formData);
 
     if (result.success) {
-      onCreated();
+      onCreated(result.data);
       setIsLoading(false);
     }
   };

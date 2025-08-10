@@ -8,12 +8,12 @@ import {
   createDocAction,
   createDocsCategoryAction,
 } from "@/app/_server/actions/data/docs-actions";
-import { Category } from "@/app/_types";
+import { Category, Document } from "@/app/_types";
 import { Modal } from "../../elements/modal";
 
 interface CreateDocModalProps {
   onClose: () => void;
-  onCreated: (docId: string) => void;
+  onCreated: (doc?: Document) => void;
   categories: Category[];
   initialCategory?: string;
 }
@@ -65,7 +65,7 @@ export function CreateDocModal({
       const result = await createDocAction(formData);
 
       if (result.success && result.data) {
-        onCreated(result.data.id);
+        onCreated(result.data);
       }
     } finally {
       setIsCreating(false);

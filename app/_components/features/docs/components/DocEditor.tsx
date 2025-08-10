@@ -30,6 +30,7 @@ interface DocEditorProps {
   categories: Category[];
   onUpdate: () => void;
   onBack: () => void;
+  onDelete?: (deletedId: string) => void;
 }
 
 export function DocEditor({
@@ -37,6 +38,7 @@ export function DocEditor({
   categories,
   onUpdate,
   onBack,
+  onDelete,
 }: DocEditorProps) {
   // `docContent` stores the raw Markdown from the database
   const [docContent, setDocContent] = useState(doc.content || "");
@@ -105,7 +107,7 @@ export function DocEditor({
       formData.append("id", doc.id);
       formData.append("category", doc.category || "Uncategorized");
       await deleteDocAction(formData);
-      onUpdate();
+      onDelete?.(doc.id);
       onBack(); // Go back to docs list after deletion
     }
   };

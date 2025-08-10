@@ -129,8 +129,10 @@ export function HomeClient({
     }
   };
 
-  const handleListDeleted = async () => {
+  const handleListDeleted = async (deletedId: string) => {
+    setLists(prev => prev.filter(list => list.id !== deletedId));
     setSelectedChecklist(null);
+    setHashInUrl("");
   };
 
   const handleOpenCreateModal = (initialCategory?: string) => {
@@ -168,6 +170,12 @@ export function HomeClient({
         <DocsClient
           docs={docs}
           categories={docsCategories}
+          onDocsUpdate={setDocs}
+          onDocDelete={(deletedId) => {
+            setDocs(prev => prev.filter(doc => doc.id !== deletedId));
+            setSelectedDocument(null);
+            setHashInUrl("");
+          }}
         />
       );
     }
@@ -208,9 +216,13 @@ export function HomeClient({
       {mode === "checklists" && showCreateModal && (
         <CreateListModal
           onClose={() => setShowCreateModal(false)}
-          onCreated={() => {
+          onCreated={(newChecklist) => {
             setShowCreateModal(false);
-            router.refresh();
+            if (newChecklist) {
+              setLists(prev => [...prev, newChecklist]);
+              setSelectedChecklist(newChecklist.id);
+              setHashInUrl(newChecklist.id);
+            }
           }}
           categories={categories}
           initialCategory={initialCategory}
@@ -220,9 +232,13 @@ export function HomeClient({
       {mode === "docs" && showCreateDocModal && (
         <CreateDocModal
           onClose={() => setShowCreateDocModal(false)}
-          onCreated={(docId) => {
+          onCreated={(newDoc) => {
             setShowCreateDocModal(false);
-            router.refresh();
+            if (newDoc) {
+              setDocs(prev => [...prev, newDoc]);
+              setSelectedDocument(newDoc.id);
+              setHashInUrl(newDoc.id);
+            }
           }}
           categories={docsCategories}
           initialCategory={initialCategory}
@@ -232,9 +248,11 @@ export function HomeClient({
       {mode === "checklists" && showCategoryModal && (
         <CreateCategoryModal
           onClose={() => setShowCategoryModal(false)}
-          onCreated={() => {
+          onCreated={(newCategory) => {
             setShowCategoryModal(false);
-            router.refresh();
+            if (newCategory) {
+              setCategories(prev => [...prev, newCategory]);
+            }
           }}
         />
       )}
@@ -242,9 +260,11 @@ export function HomeClient({
       {mode === "docs" && showDocsCategoryModal && (
         <CreateCategoryModal
           onClose={() => setShowDocsCategoryModal(false)}
-          onCreated={() => {
+          onCreated={(newCategory) => {
             setShowDocsCategoryModal(false);
-            router.refresh();
+            if (newCategory) {
+              setDocsCategories(prev => [...prev, newCategory]);
+            }
           }}
         />
       )}

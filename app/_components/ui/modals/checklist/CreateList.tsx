@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, Folder, ListTodo } from "lucide-react";
 import { createListAction } from "@/app/_server/actions/data/actions";
+import { Checklist } from "@/app/_types";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
 import { Modal } from "@/app/_components/ui/elements/modal";
@@ -14,7 +15,7 @@ interface Category {
 
 interface CreateListModalProps {
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (checklist?: Checklist) => void;
   categories: Category[];
   initialCategory?: string;
 }
@@ -50,7 +51,7 @@ export function CreateListModal({
     setIsLoading(false);
 
     if (result.success) {
-      onCreated();
+      onCreated(result.data);
     }
   };
 

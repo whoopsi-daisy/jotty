@@ -29,7 +29,7 @@ interface ChecklistViewProps {
   onUpdate: () => void
   onBack: () => void
   onEdit?: (checklist: Checklist) => void
-  onDelete?: () => void
+  onDelete?: (deletedId: string) => void
 }
 
 export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: ChecklistViewProps) {
@@ -88,7 +88,7 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
       formData.append('id', localList.id)
       formData.append('category', localList.category || 'Uncategorized')
       await deleteListAction(formData)
-      onDelete?.()
+      onDelete?.(localList.id)
     }
   }
 
