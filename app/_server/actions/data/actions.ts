@@ -13,7 +13,7 @@ import {
   deleteDir,
 } from "@/app/_server/utils/files";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
-import { getItemsSharedWithUser } from "@/app/_server/actions/sharing/sharing-utils";
+import { getItemsSharedWithUser, removeSharedItem } from "@/app/_server/actions/sharing/sharing-utils";
 import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 
@@ -223,6 +223,12 @@ export const deleteListAction = async (formData: FormData) => {
     const userDir = await getUserDir();
     const filePath = path.join(userDir, category, `${id}.md`);
     await deleteFile(filePath);
+
+    // Clean up sharing metadata
+    const currentUser = await getCurrentUser();
+    if (currentUser) {
+      await removeSharedItem(id, "checklist", currentUser.username);
+    }
 
     revalidatePath("/");
     return { success: true };

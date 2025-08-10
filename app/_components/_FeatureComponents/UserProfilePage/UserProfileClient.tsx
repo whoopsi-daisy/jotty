@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Settings, Clock, Monitor, Shield, LogOut, Edit3, Save, AlertCircle, Check, X, ArrowLeft } from "lucide-react";
+import { User, Settings, Clock, Monitor, Shield, LogOut, Edit3, Save, AlertCircle, Check, X, ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/app/_components/UI/Elements/button";
 import { SessionManager } from "@/app/_components/UI/SessionManager";
 import { User as UserType } from "@/app/_types";
 import { getUserProfileAction } from "@/app/_server/actions/users/get-user-profile";
 import { updateProfileAction } from "@/app/_server/actions/users/update-profile";
+import { exportUserDataAction } from "@/app/_server/actions/users/export-data";
 import { useRouter } from "next/navigation";
+import { DeleteAccountModal } from "@/app/_components/UI/Modals/DeleteAccountModal";
+import { PrivacySettingsModal } from "@/app/_components/UI/Modals/PrivacySettingsModal";
 
 interface UserProfileClientProps {
     username: string;
@@ -26,6 +29,8 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"profile" | "sessions" | "settings">("profile");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
     useEffect(() => {
         loadUserProfile();
@@ -108,6 +113,33 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
         setConfirmPassword("");
         setCurrentPassword("");
         setError(null);
+    };
+
+    const handleExportData = async () => {
+        try {
+            const result = await exportUserDataAction();
+
+            if (result.success && result.data) {
+                // Create and download JSON file
+                const dataStr = JSON.stringify(result.data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `user-data-${username}-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                setSuccess("Data exported successfully!");
+                setTimeout(() => setSuccess(null), 3000);
+            } else {
+                setError(result.error || "Failed to export data");
+            }
+        } catch (error) {
+            setError("Failed to export data");
+        }
     };
 
     const renderProfile = () => (
@@ -295,22 +327,27 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
                         <Button
                             variant="outline"
                             className="text-destructive hover:text-destructive"
+                            onClick={() => setShowDeleteModal(true)}
                         >
                             Delete Account
                         </Button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    {/* <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                         <div>
                             <h3 className="font-medium">Export Data</h3>
                             <p className="text-sm text-muted-foreground">
                                 Download all your checklists and documents
                             </p>
                         </div>
-                        <Button variant="outline">
+                        <Button
+                            variant="outline"
+                            onClick={handleExportData}
+                        >
+                            <Download className="h-4 w-4 mr-2" />
                             Export Data
                         </Button>
-                    </div>
+                    </div> */}
 
                     <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                         <div>
@@ -319,7 +356,10 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
                                 Manage your privacy and sharing preferences
                             </p>
                         </div>
-                        <Button variant="outline">
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowPrivacyModal(true)}
+                        >
                             Manage Privacy
                         </Button>
                     </div>
@@ -390,6 +430,17 @@ export function UserProfileClient({ username, isAdmin }: UserProfileClientProps)
                 {activeTab === "sessions" && renderSessions()}
                 {activeTab === "settings" && renderSettings()}
             </div>
+
+            {/* Modals */}
+            <DeleteAccountModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+            />
+
+            <PrivacySettingsModal
+                isOpen={showPrivacyModal}
+                onClose={() => setShowPrivacyModal(false)}
+            />
         </div>
     );
 }
