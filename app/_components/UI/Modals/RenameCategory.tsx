@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/app/_components/UI/Elements/button";
 import { Edit3 } from "lucide-react";
+import { Modal } from "../Elements/modal";
 
 interface RenameCategoryModalProps {
   isOpen: boolean;
@@ -43,9 +44,13 @@ export function RenameCategoryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
-      <div className="bg-background border border-border rounded-lg p-6 w-full max-w-md mx-4 relative z-10">
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Rename Category"
+      titleIcon={<Edit3 className="h-5 w-5 text-primary" />}
+    >
+      <div className="p-6 space-y-4">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-primary/10 rounded-lg">
             <Edit3 className="h-5 w-5 text-primary" />
@@ -95,6 +100,6 @@ export function RenameCategoryModal({
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   );
 }

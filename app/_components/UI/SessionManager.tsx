@@ -1,9 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Monitor, Clock, MapPin, Trash2, AlertCircle, Check } from "lucide-react";
+import {
+  Monitor,
+  Clock,
+  MapPin,
+  Trash2,
+  AlertCircle,
+  Check,
+} from "lucide-react";
 import { Button } from "@/app/_components/UI/Elements/button";
-import { getSessionsAction, terminateSessionAction, terminateAllOtherSessionsAction } from "@/app/_server/actions/users/session-management";
+import {
+  getSessionsAction,
+  terminateSessionAction,
+  terminateAllOtherSessionsAction,
+} from "@/app/_server/actions/users/session-management";
 
 interface Session {
   id: string;
@@ -60,7 +71,9 @@ export function SessionManager({ username }: SessionManagerProps) {
       const result = await terminateSessionAction(formData);
 
       if (result.success) {
-        setSessions(prev => prev.filter(session => session.id !== sessionId));
+        setSessions((prev) =>
+          prev.filter((session) => session.id !== sessionId)
+        );
         setSuccess("Session terminated successfully!");
 
         setTimeout(() => setSuccess(null), 3000);
@@ -73,7 +86,11 @@ export function SessionManager({ username }: SessionManagerProps) {
   };
 
   const handleTerminateAllOtherSessions = async () => {
-    if (!confirm("Are you sure you want to terminate all other sessions? You will be logged out from all other devices.")) {
+    if (
+      !confirm(
+        "Are you sure you want to terminate all other sessions? You will be logged out from all other devices."
+      )
+    ) {
       return;
     }
 
@@ -81,7 +98,7 @@ export function SessionManager({ username }: SessionManagerProps) {
       const result = await terminateAllOtherSessionsAction();
 
       if (result.success) {
-        setSessions(prev => prev.filter(session => session.isCurrent));
+        setSessions((prev) => prev.filter((session) => session.isCurrent));
         setSuccess("All other sessions terminated successfully!");
 
         setTimeout(() => setSuccess(null), 3000);
@@ -112,9 +129,11 @@ export function SessionManager({ username }: SessionManagerProps) {
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffMins < 60)
+      return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+    if (diffHours < 24)
+      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+    return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
   };
 
   if (isLoading) {
@@ -148,10 +167,10 @@ export function SessionManager({ username }: SessionManagerProps) {
         <div>
           <h3 className="text-lg font-semibold">Active Sessions</h3>
           <p className="text-sm text-muted-foreground">
-            {sessions.length} session{sessions.length !== 1 ? 's' : ''} active
+            {sessions.length} session{sessions.length !== 1 ? "s" : ""} active
           </p>
         </div>
-        {sessions.filter(s => !s.isCurrent).length > 0 && (
+        {sessions.filter((s) => !s.isCurrent).length > 0 && (
           <Button
             variant="outline"
             onClick={handleTerminateAllOtherSessions}
@@ -167,23 +186,24 @@ export function SessionManager({ username }: SessionManagerProps) {
         {sessions.map((session) => (
           <div
             key={session.id}
-            className={`flex items-center justify-between p-4 rounded-lg border ${session.isCurrent
-              ? "bg-primary/5 border-primary/20"
-              : "bg-background border-border"
-              }`}
+            className={`flex items-start justify-between p-4 rounded-lg border ${
+              session.isCurrent
+                ? "bg-primary/5 border-primary/20"
+                : "bg-background border-border"
+            }`}
           >
-            <div className="flex items-center gap-4">
-              <div className="p-2 bg-muted rounded-lg">
+            <div className="flex items-start gap-4 flex-1 min-w-0">
+              <div className="p-2 bg-muted rounded-lg flex-shrink-0">
                 <Monitor className="h-5 w-5" />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">
                     {getDeviceInfo(session.userAgent)}
                   </span>
                   {session.isCurrent && (
-                    <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
+                    <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full flex-shrink-0">
                       Current Session
                     </span>
                   )}
@@ -192,7 +212,12 @@ export function SessionManager({ username }: SessionManagerProps) {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
-                    {session.ipAddress}
+                    <span className="hidden sm:inline">
+                      {session.ipAddress}
+                    </span>
+                    <span className="sm:hidden">
+                      {session.ipAddress.split(".").slice(0, 2).join(".")}...
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -200,7 +225,7 @@ export function SessionManager({ username }: SessionManagerProps) {
                   </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground truncate max-w-md">
+                <p className="text-xs text-muted-foreground truncate">
                   {session.userAgent}
                 </p>
               </div>
@@ -211,7 +236,7 @@ export function SessionManager({ username }: SessionManagerProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleTerminateSession(session.id)}
-                className="text-destructive hover:text-destructive"
+                className="text-destructive hover:text-destructive flex-shrink-0 ml-2"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

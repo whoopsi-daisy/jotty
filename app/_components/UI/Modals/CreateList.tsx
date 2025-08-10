@@ -55,7 +55,12 @@ export function CreateListModal({
   };
 
   return (
-    <Modal isOpen={true} onClose={onClose} title="Create New Checklist">
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Create New Checklist"
+      titleIcon={<ListTodo className="h-5 w-5 text-primary" />}
+    >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">

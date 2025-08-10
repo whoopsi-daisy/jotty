@@ -21,12 +21,8 @@ export function DeleteCategoryModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={
-        <div className="flex items-center gap-2">
-          <Trash2 className="h-5 w-5 text-destructive" />
-          <span>Delete Category</span>
-        </div>
-      }
+      title="Delete Category"
+      titleIcon={<Trash2 className="h-5 w-5 text-destructive" />}
     >
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">
