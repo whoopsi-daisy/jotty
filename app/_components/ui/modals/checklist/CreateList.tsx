@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { X, Folder, ListTodo } from "lucide-react";
-import { createListAction } from "@/app/_server/actions/data/actions";
+import { X, Folder, ListTodo, Plus } from "lucide-react";
+import {
+  createListAction,
+  createCategoryAction,
+} from "@/app/_server/actions/data/actions";
 import { Checklist } from "@/app/_types";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
@@ -28,6 +31,8 @@ export function CreateListModal({
 }: CreateListModalProps) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(initialCategory);
+  const [newCategory, setNewCategory] = useState("");
+  const [showNewCategory, setShowNewCategory] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const categoryOptions = [
@@ -44,14 +49,30 @@ export function CreateListModal({
     if (!title.trim()) return;
 
     setIsLoading(true);
-    const formData = new FormData();
-    formData.append("title", title.trim());
-    formData.append("category", category || "");
-    const result = await createListAction(formData);
-    setIsLoading(false);
 
-    if (result.success) {
-      onCreated(result.data);
+    try {
+      // Create new category if needed
+      if (showNewCategory && newCategory.trim()) {
+        const categoryFormData = new FormData();
+        categoryFormData.append("name", newCategory.trim());
+        await createCategoryAction(categoryFormData);
+      }
+
+      // Create the checklist
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append(
+        "category",
+        showNewCategory ? newCategory.trim() : category || ""
+      );
+
+      const result = await createListAction(formData);
+
+      if (result.success) {
+        onCreated(result.data);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,12 +103,47 @@ export function CreateListModal({
           <label className="block text-sm font-medium text-foreground mb-2">
             Category
           </label>
-          <Dropdown
-            value={category}
-            options={categoryOptions}
-            onChange={setCategory}
-            className="w-full"
-          />
+          {!showNewCategory ? (
+            <div className="flex gap-2">
+              <Dropdown
+                value={category}
+                options={categoryOptions}
+                onChange={setCategory}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowNewCategory(true)}
+                className="px-3"
+                disabled={isLoading}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="flex-1 px-3 py-2 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                placeholder="Enter new category name..."
+                disabled={isLoading}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowNewCategory(false);
+                  setNewCategory("");
+                }}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 pt-4">
