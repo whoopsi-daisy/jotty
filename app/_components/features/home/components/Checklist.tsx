@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { ChecklistItem } from './ChecklistItem'
-import { ShareModal } from '@/app/_components/ui/modals/sharing/ShareModal'
-import { deleteListAction, createItemAction, updateItemAction, deleteItemAction, reorderItemsAction } from '@/app/_server/actions/data/actions'
+import { useState, useEffect } from "react";
+import { ChecklistItem } from "./ChecklistItem";
+import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
+import {
+  deleteListAction,
+  createItemAction,
+  updateItemAction,
+  deleteItemAction,
+  reorderItemsAction,
+} from "@/app/_server/actions/data/actions";
 import {
   DndContext,
   closestCenter,
@@ -13,35 +19,41 @@ import {
   useSensors,
   DragEndEvent,
   TouchSensor,
-} from '@dnd-kit/core'
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { Checklist } from '@/app/_types'
-import { ChecklistHeader } from './ChecklistHeader'
-import { ChecklistProgress } from './ChecklistProgress'
-import { ChecklistForm } from './ChecklistForm'
+} from "@dnd-kit/sortable";
+import { Checklist } from "@/app/_types";
+import { ChecklistHeader } from "./ChecklistHeader";
+import { ChecklistProgress } from "./ChecklistProgress";
+import { ChecklistForm } from "./ChecklistForm";
 
 interface ChecklistViewProps {
-  list: Checklist
-  onUpdate: () => void
-  onBack: () => void
-  onEdit?: (checklist: Checklist) => void
-  onDelete?: (deletedId: string) => void
+  list: Checklist;
+  onUpdate: () => void;
+  onBack: () => void;
+  onEdit?: (checklist: Checklist) => void;
+  onDelete?: (deletedId: string) => void;
 }
 
-export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: ChecklistViewProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [showShareModal, setShowShareModal] = useState(false)
-  const [localList, setLocalList] = useState(list)
+export function ChecklistView({
+  list,
+  onUpdate,
+  onBack,
+  onEdit,
+  onDelete,
+}: ChecklistViewProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [localList, setLocalList] = useState(list);
 
   // Update localList when prop changes
   useEffect(() => {
-    setLocalList(list)
-  }, [list])
+    setLocalList(list);
+  }, [list]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -58,87 +70,201 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
-  )
-
-
+  );
 
   const handleDeleteList = async () => {
     if (confirm("Are you sure you want to delete this checklist?")) {
-      const formData = new FormData()
-      formData.append('id', localList.id)
-      formData.append('category', localList.category || 'Uncategorized')
-      await deleteListAction(formData)
-      onDelete?.(localList.id)
+      const formData = new FormData();
+      formData.append("id", localList.id);
+      formData.append("category", localList.category || "Uncategorized");
+      await deleteListAction(formData);
+      onDelete?.(localList.id);
     }
-  }
+  };
 
   const handleToggleItem = async (itemId: string, completed: boolean) => {
-    const formData = new FormData()
-    formData.append('listId', localList.id)
-    formData.append('itemId', itemId)
-    formData.append('completed', String(completed))
-    const result = await updateItemAction(formData)
+    const formData = new FormData();
+    formData.append("listId", localList.id);
+    formData.append("itemId", itemId);
+    formData.append("completed", String(completed));
+    const result = await updateItemAction(formData);
 
     if (result.success) {
       // Update local state immediately
-      setLocalList(prev => ({
+      setLocalList((prev) => ({
         ...prev,
-        items: prev.items.map(item =>
+        items: prev.items.map((item) =>
           item.id === itemId ? { ...item, completed } : item
-        )
-      }))
+        ),
+      }));
     }
-    onUpdate()
-  }
+    onUpdate();
+  };
 
   const handleDeleteItem = async (itemId: string) => {
-    const formData = new FormData()
-    formData.append('listId', localList.id)
-    formData.append('itemId', itemId)
-    const result = await deleteItemAction(formData)
+    const formData = new FormData();
+    formData.append("listId", localList.id);
+    formData.append("itemId", itemId);
+    const result = await deleteItemAction(formData);
 
     if (result.success) {
       // Update local state immediately
-      setLocalList(prev => ({
+      setLocalList((prev) => ({
         ...prev,
-        items: prev.items.filter(item => item.id !== itemId)
-      }))
+        items: prev.items.filter((item) => item.id !== itemId),
+      }));
     }
-    onUpdate()
-  }
+    onUpdate();
+  };
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event
+    const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = localList.items.findIndex(item => item.id === active.id)
-      const newIndex = localList.items.findIndex(item => item.id === over?.id)
+      // Find which section this drag is happening in
+      const incompleteItems = localList.items.filter((item) => !item.completed);
+      const completedItems = localList.items.filter((item) => item.completed);
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newItems = arrayMove(localList.items, oldIndex, newIndex)
-        const itemIds = newItems.map(item => item.id)
-        const formData = new FormData()
-        formData.append('listId', localList.id)
-        formData.append('itemIds', JSON.stringify(itemIds))
-        const result = await reorderItemsAction(formData)
+      console.log("Frontend Debug - Before reorder:", {
+        allItems: localList.items.map((item) => ({
+          id: item.id,
+          text: item.text,
+          order: item.order,
+        })),
+        incompleteItems: incompleteItems.map((item) => ({
+          id: item.id,
+          text: item.text,
+          order: item.order,
+        })),
+        completedItems: completedItems.map((item) => ({
+          id: item.id,
+          text: item.text,
+          order: item.order,
+        })),
+      });
 
-        if (result.success) {
-          // Update local state immediately
-          setLocalList(prev => ({
+      // Check if this is a drag in the incomplete section
+      const incompleteOldIndex = incompleteItems.findIndex(
+        (item) => item.id === active.id
+      );
+      const incompleteNewIndex = incompleteItems.findIndex(
+        (item) => item.id === over?.id
+      );
+
+      if (incompleteOldIndex !== -1 && incompleteNewIndex !== -1) {
+        // Reorder within incomplete items
+        const newIncompleteItems = arrayMove(
+          incompleteItems,
+          incompleteOldIndex,
+          incompleteNewIndex
+        ).map((item, index) => ({ ...item, order: index }));
+        const newItems = [...newIncompleteItems, ...completedItems].map(
+          (item, index) => ({ ...item, order: index })
+        );
+
+        console.log("Frontend Debug - After reorder:", {
+          newIncompleteItems: newIncompleteItems.map((item) => ({
+            id: item.id,
+            text: item.text,
+            order: item.order,
+          })),
+          newItems: newItems.map((item) => ({
+            id: item.id,
+            text: item.text,
+            order: item.order,
+          })),
+        });
+
+        // Update local state immediately
+        setLocalList((prev) => ({
+          ...prev,
+          items: newItems,
+        }));
+
+        const itemIds = newItems.map((item) => item.id);
+        console.log("Frontend Debug - Sending to server:", itemIds);
+
+        const formData = new FormData();
+        formData.append("listId", localList.id);
+        formData.append("itemIds", JSON.stringify(itemIds));
+        formData.append("currentItems", JSON.stringify(newItems));
+        const result = await reorderItemsAction(formData);
+
+        if (!result.success) {
+          // Revert on failure
+          setLocalList((prev) => ({
             ...prev,
-            items: newItems
-          }))
+            items: list.items,
+          }));
         }
-        onUpdate()
+        onUpdate();
+        return;
+      }
+
+      // Check if this is a drag in the completed section
+      const completedOldIndex = completedItems.findIndex(
+        (item) => item.id === active.id
+      );
+      const completedNewIndex = completedItems.findIndex(
+        (item) => item.id === over?.id
+      );
+
+      if (completedOldIndex !== -1 && completedNewIndex !== -1) {
+        // Reorder within completed items
+        const newCompletedItems = arrayMove(
+          completedItems,
+          completedOldIndex,
+          completedNewIndex
+        ).map((item, index) => ({ ...item, order: index }));
+        const newItems = [...incompleteItems, ...newCompletedItems].map(
+          (item, index) => ({ ...item, order: index })
+        );
+
+        console.log("Frontend Debug - After reorder (completed):", {
+          newCompletedItems: newCompletedItems.map((item) => ({
+            id: item.id,
+            text: item.text,
+            order: item.order,
+          })),
+          newItems: newItems.map((item) => ({
+            id: item.id,
+            text: item.text,
+            order: item.order,
+          })),
+        });
+
+        // Update local state immediately
+        setLocalList((prev) => ({
+          ...prev,
+          items: newItems,
+        }));
+
+        const itemIds = newItems.map((item) => item.id);
+        console.log("Frontend Debug - Sending to server (completed):", itemIds);
+
+        const formData = new FormData();
+        formData.append("listId", localList.id);
+        formData.append("itemIds", JSON.stringify(itemIds));
+        formData.append("currentItems", JSON.stringify(newItems));
+        const result = await reorderItemsAction(formData);
+
+        if (!result.success) {
+          // Revert on failure
+          setLocalList((prev) => ({
+            ...prev,
+            items: list.items,
+          }));
+        }
+        onUpdate();
       }
     }
-  }
+  };
 
-  const incompleteItems = localList.items.filter(item => !item.completed)
-  const completedItems = localList.items.filter(item => item.completed)
-  const completedCount = completedItems.length
-  const totalCount = localList.items.length
-  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+  const incompleteItems = localList.items.filter((item) => !item.completed);
+  const completedItems = localList.items.filter((item) => item.completed);
+  const completedCount = completedItems.length;
+  const totalCount = localList.items.length;
+  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -159,15 +285,15 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
               onSubmit={async (text) => {
                 setIsLoading(true);
                 const formData = new FormData();
-                formData.append('listId', localList.id);
-                formData.append('text', text);
+                formData.append("listId", localList.id);
+                formData.append("text", text);
                 const result = await createItemAction(formData);
                 setIsLoading(false);
 
                 if (result.success && result.data) {
-                  setLocalList(prev => ({
+                  setLocalList((prev) => ({
                     ...prev,
-                    items: [...prev.items, result.data]
+                    items: [...prev.items, result.data],
                   }));
                 }
                 onUpdate();
@@ -180,6 +306,11 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
             <div className="bg-background rounded-lg border border-border p-4">
               <h3 className="text-lg font-semibold text-foreground mb-4">
                 To Do ({incompleteItems.length})
+                {isLoading && (
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    Saving...
+                  </span>
+                )}
               </h3>
               <DndContext
                 sensors={sensors}
@@ -187,7 +318,7 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={incompleteItems.map(item => item.id)}
+                  items={incompleteItems.map((item) => item.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
@@ -209,6 +340,11 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
             <div className="bg-background rounded-lg border border-border p-4">
               <h3 className="text-lg font-semibold text-foreground mb-4">
                 Completed ({completedItems.length})
+                {isLoading && (
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    Saving...
+                  </span>
+                )}
               </h3>
               <DndContext
                 sensors={sensors}
@@ -216,7 +352,7 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={completedItems.map(item => item.id)}
+                  items={completedItems.map((item) => item.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
@@ -240,7 +376,9 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                 <div className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">No items yet</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                No items yet
+              </h3>
               <p className="text-muted-foreground mb-6">
                 Add your first item to get started with this checklist.
               </p>
@@ -261,5 +399,5 @@ export function ChecklistView({ list, onUpdate, onBack, onEdit, onDelete }: Chec
         />
       )}
     </div>
-  )
-} 
+  );
+}

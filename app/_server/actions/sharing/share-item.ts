@@ -12,7 +12,9 @@ import {
 } from "./sharing-utils";
 import { Result } from "@/app/_types";
 
-export async function shareItemAction(formData: FormData): Promise<Result<null>> {
+export async function shareItemAction(
+  formData: FormData
+): Promise<Result<null>> {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -49,22 +51,33 @@ export async function shareItemAction(formData: FormData): Promise<Result<null>>
       // Validate target users exist
       const invalidUsers = targetUserList.filter((u) => !usernames.includes(u));
       if (invalidUsers.length > 0) {
-        return { success: false, error: `Invalid users: ${invalidUsers.join(", ")}` };
+        return {
+          success: false,
+          error: `Invalid users: ${invalidUsers.join(", ")}`,
+        };
       }
 
       // Don't share with yourself
-      const filteredUsers = targetUserList.filter((u) => u !== currentUser.username);
+      const filteredUsers = targetUserList.filter(
+        (u) => u !== currentUser.username
+      );
       if (filteredUsers.length === 0) {
         return { success: false, error: "Cannot share with yourself" };
       }
 
       // Check if already shared with these users
-      const existingMetadata = await getItemSharingMetadata(itemId, type, currentUser.username);
+      const existingMetadata = await getItemSharingMetadata(
+        itemId,
+        type,
+        currentUser.username
+      );
 
       if (existingMetadata) {
         // Update existing sharing
         const allUsers = [...existingMetadata.sharedWith, ...filteredUsers];
-        const newSharedWith = allUsers.filter((user, index) => allUsers.indexOf(user) === index);
+        const newSharedWith = allUsers.filter(
+          (user, index) => allUsers.indexOf(user) === index
+        );
         await updateSharedItem(itemId, type, currentUser.username, {
           sharedWith: newSharedWith,
         });
@@ -80,7 +93,6 @@ export async function shareItemAction(formData: FormData): Promise<Result<null>>
         );
       }
 
-      revalidatePath("/");
       return { success: true };
     } else if (action === "unshare") {
       if (!targetUsers) {
@@ -89,7 +101,11 @@ export async function shareItemAction(formData: FormData): Promise<Result<null>>
       } else {
         // Remove specific users
         const targetUserList = targetUsers.split(",").map((u) => u.trim());
-        const existingMetadata = await getItemSharingMetadata(itemId, type, currentUser.username);
+        const existingMetadata = await getItemSharingMetadata(
+          itemId,
+          type,
+          currentUser.username
+        );
 
         if (existingMetadata) {
           const newSharedWith = existingMetadata.sharedWith.filter(
@@ -108,7 +124,6 @@ export async function shareItemAction(formData: FormData): Promise<Result<null>>
         }
       }
 
-      revalidatePath("/");
       return { success: true };
     }
 
@@ -119,7 +134,9 @@ export async function shareItemAction(formData: FormData): Promise<Result<null>>
   }
 }
 
-export async function unshareItemAction(formData: FormData): Promise<Result<null>> {
+export async function unshareItemAction(
+  formData: FormData
+): Promise<Result<null>> {
   // This is just a convenience wrapper around shareItemAction
   formData.set("action", "unshare");
   return shareItemAction(formData);

@@ -1,4 +1,30 @@
 {
-  "checklists": {},
-  "documents": {}
+  "checklists": {
+    "fccview-test-1754899149882-checklist": {
+      "id": "1754899149882",
+      "type": "checklist",
+      "title": "fccview-test checklist",
+      "owner": "fccview-test",
+      "sharedWith": [
+        "fccview"
+      ],
+      "sharedAt": "2025-08-11T07:59:19.852Z",
+      "category": "Uncategorized",
+      "filePath": "fccview-test/Uncategorized/1754899149882.md"
+    }
+  },
+  "documents": {
+    "fccview-test-1754900358269-document": {
+      "id": "1754900358269",
+      "type": "document",
+      "title": "A cool doc",
+      "owner": "fccview-test",
+      "sharedWith": [
+        "fccview"
+      ],
+      "sharedAt": "2025-08-11T08:19:31.085Z",
+      "category": "Shared Documents For fccview",
+      "filePath": "fccview-test/Shared Documents For fccview/1754900358269.md"
+    }
+  }
 }

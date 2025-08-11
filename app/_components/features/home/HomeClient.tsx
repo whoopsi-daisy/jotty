@@ -186,7 +186,7 @@ export function HomeClient({
       return (
         <ChecklistView
           list={selectedList}
-          onUpdate={() => { }}
+          onUpdate={() => { }} // No server action call here
           onBack={() => setSelectedChecklist(null)}
           onEdit={handleOpenEditModal}
           onDelete={handleListDeleted}

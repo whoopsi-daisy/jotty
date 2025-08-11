@@ -20,6 +20,7 @@ import { ChecklistContext } from "../../../../_providers/ChecklistProvider";
 import { useAppMode } from "../../../../_providers/AppModeProvider";
 import { SidebarNavigation } from "./components/SidebarNavigation";
 import { CategoryList } from "./components/CategoryList";
+import { SharedItemsList } from "./components/SharedItemsList";
 import { SidebarActions } from "./components/SidebarActions";
 
 interface SidebarProps {
@@ -54,6 +55,7 @@ export function Sidebar({
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
     new Set()
   );
+  const [sharedItemsCollapsed, setSharedItemsCollapsed] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   const { selectedChecklist, setSelectedChecklist } =
@@ -122,6 +124,10 @@ export function Sidebar({
     });
   };
 
+  const toggleSharedItems = () => {
+    setSharedItemsCollapsed(!sharedItemsCollapsed);
+  };
+
   const handleModeSwitch = (newMode: AppMode) => {
     setMode(newMode);
     setSelectedChecklist(null);
@@ -181,7 +187,18 @@ export function Sidebar({
 
           <SidebarNavigation mode={mode} onModeChange={handleModeSwitch} />
 
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto p-2 space-y-4">
+            {/* Shared Items Section */}
+            <SharedItemsList
+              items={mode === "checklists" ? checklists : docs}
+              collapsed={sharedItemsCollapsed}
+              onToggleCollapsed={toggleSharedItems}
+              onItemClick={handleItemClick}
+              isItemSelected={isItemSelected}
+              mode={mode}
+            />
+
+            {/* Categories Section */}
             <CategoryList
               categories={categories}
               items={mode === "checklists" ? checklists : docs}

@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { Trash2, GripVertical } from 'lucide-react'
-import { Button } from '@/app/_components/ui/elements/button'
-import { cn } from '@/app/_utils/utils'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { findMatchingEmoji } from '@/app/_utils/emoji-utils'
-import { useSettings } from '@/app/_utils/settings-store'
+import { Trash2, GripVertical } from "lucide-react";
+import { Button } from "@/app/_components/ui/elements/button";
+import { cn } from "@/app/_utils/utils";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { findMatchingEmoji } from "@/app/_utils/emoji-utils";
+import { useSettings } from "@/app/_utils/settings-store";
 
 interface Item {
-  id: string
-  text: string
-  completed: boolean
-  order: number
+  id: string;
+  text: string;
+  completed: boolean;
+  order: number;
 }
 
 interface ChecklistItemProps {
-  item: Item
-  onToggle: (itemId: string, completed: boolean) => void
-  onDelete: (itemId: string) => void
-  completed?: boolean
+  item: Item;
+  onToggle: (itemId: string, completed: boolean) => void;
+  onDelete: (itemId: string) => void;
+  completed?: boolean;
 }
 
 export function ChecklistItem({
   item,
   onToggle,
   onDelete,
-  completed = false
+  completed = false,
 }: ChecklistItemProps) {
   const {
     attributes,
@@ -35,18 +35,18 @@ export function ChecklistItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id })
+  } = useSortable({ id: item.id });
 
-  const { showEmojis } = useSettings()
+  const { showEmojis } = useSettings();
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  }
+  };
 
   // Get matching emoji for the item text
-  const emoji = showEmojis ? findMatchingEmoji(item.text) : ''
-  const displayText = showEmojis ? `${emoji}  ${item.text}` : item.text
+  const emoji = showEmojis ? findMatchingEmoji(item.text) : "";
+  const displayText = showEmojis ? `${emoji}  ${item.text}` : item.text;
 
   return (
     <div
@@ -105,5 +105,5 @@ export function ChecklistItem({
         <Trash2 className="h-4 w-4" />
       </Button>
     </div>
-  )
-} 
+  );
+}

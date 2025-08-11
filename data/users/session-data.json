@@ -14,5 +14,13 @@
     "ipAddress": "::ffff:192.168.86.47",
     "createdAt": "2025-08-10T12:28:19.695Z",
     "lastActivity": "2025-08-10T12:28:19.695Z"
+  },
+  "132815640355565104d180e921dc1f5e7df07cb69b2433d05561c4428392d411": {
+    "id": "132815640355565104d180e921dc1f5e7df07cb69b2433d05561c4428392d411",
+    "username": "fccview-test",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.48",
+    "createdAt": "2025-08-11T07:58:59.684Z",
+    "lastActivity": "2025-08-11T07:58:59.684Z"
   }
 }

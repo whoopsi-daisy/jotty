@@ -1,58 +1,61 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from 'react'
-import { ChevronDown } from 'lucide-react'
-import { cn } from '@/app/_utils/utils'
+import { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/app/_utils/utils";
 
 interface DropdownOption<T extends string> {
-  id: T
-  name: string
-  icon?: React.ComponentType<{ className?: string }>
+  id: T;
+  name: string;
+  icon?: React.ComponentType<{ className?: string }>;
 }
 
 interface DropdownProps<T extends string> {
-  value: T
-  options: DropdownOption<T>[]
-  onChange: (value: T) => void
-  className?: string
+  value: T;
+  options: DropdownOption<T>[];
+  onChange: (value: T) => void;
+  className?: string;
 }
 
 export function Dropdown<T extends string>({
   value,
   options,
   onChange,
-  className = ''
+  className = "",
 }: DropdownProps<T>) {
-  const [isOpen, setIsOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find(opt => opt.id === value)
+  const selectedOption = options.find((opt) => opt.id === value);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSelect = (e: React.MouseEvent, optionId: T) => {
-    e.preventDefault() // Prevent form submission
-    e.stopPropagation() // Stop event bubbling
-    onChange(optionId)
-    setIsOpen(false)
-  }
+    e.preventDefault(); // Prevent form submission
+    e.stopPropagation(); // Stop event bubbling
+    onChange(optionId);
+    setIsOpen(false);
+  };
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         type="button" // Prevent form submission
         onClick={(e) => {
-          e.preventDefault() // Prevent form submission
-          setIsOpen(!isOpen)
+          e.preventDefault(); // Prevent form submission
+          setIsOpen(!isOpen);
         }}
         className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
       >
@@ -60,7 +63,11 @@ export function Dropdown<T extends string>({
           {selectedOption?.icon && <selectedOption.icon className="h-4 w-4" />}
           <span className="text-sm font-medium">{selectedOption?.name}</span>
         </div>
-        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          className={`h-4 w-4 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
       </button>
 
       {isOpen && (
@@ -84,5 +91,5 @@ export function Dropdown<T extends string>({
         </div>
       )}
     </div>
-  )
-} 
+  );
+}

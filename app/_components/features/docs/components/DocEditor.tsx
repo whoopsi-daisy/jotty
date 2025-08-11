@@ -24,6 +24,7 @@ import {
   updateDocAction,
   deleteDocAction,
 } from "@/app/_server/actions/data/docs-actions";
+import { getCurrentUser } from "@/app/_server/actions/users/current";
 
 interface DocEditorProps {
   doc: Document;
@@ -45,30 +46,57 @@ export function DocEditor({
   // `editorContent` stores the HTML for Tiptap during an editing session
   const [editorContent, setEditorContent] = useState("");
   const [title, setTitle] = useState(doc.title);
-  const [category, setCategory] = useState(doc.category || "");
+  const [category, setCategory] = useState(doc.category || "Uncategorized");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
 
   const turndownService = useMemo(() => new TurndownService(), []);
 
   const categoryOptions = [
     { id: "", name: "Uncategorized", icon: FolderOpen },
-    ...categories.map((cat) => ({
-      id: cat.name,
-      name: cat.name,
-      icon: Folder,
-    })),
+    ...categories
+      .filter((cat) => cat.name !== "Uncategorized")
+      .map((cat) => ({
+        id: cat.name,
+        name: cat.name,
+        icon: Folder,
+      })),
   ];
 
   useEffect(() => {
     const markdownContent = doc.content || "";
     setDocContent(markdownContent);
     setTitle(doc.title);
-    setCategory(doc.category || "");
+    // For uncategorized documents, use empty string to match dropdown option ID
+    const docCategory =
+      doc.category === "Uncategorized" || !doc.category ? "" : doc.category;
+    console.log(
+      "Setting category:",
+      docCategory,
+      "from doc.category:",
+      doc.category
+    );
+    setCategory(docCategory);
     setEditorContent(marked.parse(markdownContent) as string);
     setIsEditing(false);
   }, [doc]);
+
+  // Check if current user is the owner
+  useEffect(() => {
+    const checkOwnership = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user?.username || null);
+        setIsOwner(user?.username === doc.owner);
+      } catch (error) {
+        console.error("Error checking ownership:", error);
+      }
+    };
+    checkOwnership();
+  }, [doc.owner]);
 
   const handleEdit = () => {
     setEditorContent(marked.parse(docContent) as string);
@@ -83,7 +111,10 @@ export function DocEditor({
     formData.append("id", doc.id);
     formData.append("title", title);
     formData.append("content", markdownOutput);
-    formData.append("category", category || "Uncategorized");
+
+    if (isOwner) {
+      formData.append("category", category);
+    }
 
     const result = await updateDocAction(formData);
     setIsSaving(false);
@@ -98,7 +129,9 @@ export function DocEditor({
   const handleCancel = () => {
     setIsEditing(false);
     setTitle(doc.title);
-    setCategory(doc.category || "");
+    setCategory(
+      doc.category === "Uncategorized" || !doc.category ? "" : doc.category
+    );
   };
 
   const handleDelete = async () => {
@@ -115,44 +148,33 @@ export function DocEditor({
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
       {/* Header */}
-      <div className="bg-background border-b border-border px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1 min-w-0">
+      <div className="bg-background border-b border-border px-4 lg:px-6 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="h-10 w-10 p-0"
+              className="h-8 w-8 lg:h-10 lg:w-10 p-0 flex-shrink-0"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 lg:h-5 lg:w-5" />
             </Button>
 
             <div className="flex-1 min-w-0">
               {isEditing ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="text-xl font-bold bg-transparent border-none outline-none focus:ring-0 text-foreground w-full"
+                    className="text-lg lg:text-xl font-bold bg-transparent border-none outline-none focus:ring-0 text-foreground w-full px-0"
                     placeholder="Document title..."
                   />
-
-                  {/* Category selector */}
-                  <div className="flex items-center gap-2">
-                    <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                    <Dropdown
-                      value={category}
-                      options={categoryOptions}
-                      onChange={setCategory}
-                      className="flex-1"
-                    />
-                  </div>
                 </div>
               ) : (
                 <div>
                   <div className="flex items-center gap-2">
-                    <h1 className="text-xl font-bold text-foreground truncate">
+                    <h1 className="text-lg lg:text-xl font-bold text-foreground truncate">
                       {title}
                     </h1>
                     {doc.isShared && (
@@ -172,15 +194,25 @@ export function DocEditor({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 lg:gap-2 flex-shrink-0">
             {isEditing ? (
               <>
-                <Button variant="outline" size="sm" onClick={handleCancel}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancel}
+                  className="text-xs lg:text-sm"
+                >
                   Cancel
                 </Button>
-                <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isSaving ? "Saving..." : "Save Changes"}
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="text-xs lg:text-sm"
+                >
+                  <Save className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                  {isSaving ? "Saving..." : "Save"}
                 </Button>
               </>
             ) : (
@@ -213,6 +245,21 @@ export function DocEditor({
             )}
           </div>
         </div>
+
+        {/* Category dropdown - outside flex container */}
+        {isEditing && isOwner && (
+          <div className="mt-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">Category:</span>
+              <Dropdown
+                value={category}
+                options={categoryOptions}
+                onChange={setCategory}
+                className="w-full lg:w-1/2"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content Area */}

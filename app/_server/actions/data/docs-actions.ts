@@ -13,7 +13,10 @@ import {
   deleteDocsDir,
 } from "@/app/_server/utils/docs-files";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
-import { getItemsSharedWithUser, removeSharedItem } from "@/app/_server/actions/sharing/sharing-utils";
+import {
+  getItemsSharedWithUser,
+  removeSharedItem,
+} from "@/app/_server/actions/sharing/sharing-utils";
 import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 
@@ -22,7 +25,8 @@ const parseMarkdownDoc = (
   id: string,
   category: string,
   owner?: string,
-  isShared?: boolean
+  isShared?: boolean,
+  fileStats?: { birthtime: Date; mtime: Date }
 ): Document => {
   const lines = content.split("\n");
   const titleLine = lines.find((line) => line.startsWith("# "));
@@ -39,8 +43,12 @@ const parseMarkdownDoc = (
     title,
     content: contentWithoutTitle,
     category,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: fileStats
+      ? fileStats.birthtime.toISOString()
+      : new Date().toISOString(),
+    updatedAt: fileStats
+      ? fileStats.mtime.toISOString()
+      : new Date().toISOString(),
     owner,
     isShared,
   };
@@ -76,10 +84,19 @@ export const getDocs = async () => {
         for (const file of files) {
           if (file.isFile() && file.name.endsWith(".md")) {
             const id = path.basename(file.name, ".md");
-            const content = await readDocsFile(
-              path.join(categoryDir, file.name)
+            const filePath = path.join(categoryDir, file.name);
+            const content = await readDocsFile(filePath);
+            const stats = await fs.stat(filePath);
+            docs.push(
+              parseMarkdownDoc(
+                content,
+                id,
+                category.name,
+                currentUser.username,
+                false,
+                stats
+              )
             );
-            docs.push(parseMarkdownDoc(content, id, category.name, currentUser.username, false));
           }
         }
       } catch (error) {
@@ -102,7 +119,17 @@ export const getDocs = async () => {
         );
 
         const content = await fs.readFile(sharedFilePath, "utf-8");
-        docs.push(parseMarkdownDoc(content, sharedItem.id, sharedItem.category || "Uncategorized", sharedItem.owner, true));
+        const stats = await fs.stat(sharedFilePath);
+        docs.push(
+          parseMarkdownDoc(
+            content,
+            sharedItem.id,
+            sharedItem.category || "Uncategorized",
+            sharedItem.owner,
+            true,
+            stats
+          )
+        );
       } catch (error) {
         console.error(`Error reading shared document ${sharedItem.id}:`, error);
         continue;
@@ -162,7 +189,6 @@ export const createDocAction = async (formData: FormData) => {
     };
 
     await writeDocsFile(filePath, docToMarkdown(newDoc));
-    revalidatePath("/");
     return { success: true, data: newDoc };
   } catch (error) {
     return { error: "Failed to create document" };
@@ -190,30 +216,57 @@ export const updateDocAction = async (formData: FormData) => {
       ...doc,
       title,
       content,
-      category,
+      category: category || doc.category,
       updatedAt: new Date().toISOString(),
     };
 
-    const userDir = await getDocsUserDir();
+    // Determine the correct file path based on whether the item is shared
+    let filePath: string;
+    let oldFilePath: string | null = null;
 
-    // If category changed, delete old file and create new one
-    if (doc.category !== category) {
-      const oldFilePath = path.join(
-        userDir,
-        doc.category || "Uncategorized",
+    if (doc.isShared) {
+      // For shared items, update the owner's file
+      const ownerDir = path.join(process.cwd(), "data", "docs", doc.owner!);
+      filePath = path.join(
+        ownerDir,
+        updatedDoc.category || "Uncategorized",
         `${id}.md`
       );
+
+      // If category changed, we need to handle the old file path
+      if (category && category !== doc.category) {
+        oldFilePath = path.join(
+          ownerDir,
+          doc.category || "Uncategorized",
+          `${id}.md`
+        );
+      }
+    } else {
+      // For non-shared items, update the current user's file
+      const userDir = await getDocsUserDir();
+      filePath = path.join(
+        userDir,
+        updatedDoc.category || "Uncategorized",
+        `${id}.md`
+      );
+
+      // If category changed, we need to handle the old file path
+      if (category && category !== doc.category) {
+        oldFilePath = path.join(
+          userDir,
+          doc.category || "Uncategorized",
+          `${id}.md`
+        );
+      }
+    }
+
+    await writeDocsFile(filePath, docToMarkdown(updatedDoc));
+
+    // Delete old file if category changed
+    if (oldFilePath && oldFilePath !== filePath) {
       await deleteDocsFile(oldFilePath);
     }
 
-    const newFilePath = path.join(
-      userDir,
-      category || "Uncategorized",
-      `${id}.md`
-    );
-    await writeDocsFile(newFilePath, docToMarkdown(updatedDoc));
-
-    revalidatePath("/");
     return { success: true, data: updatedDoc };
   } catch (error) {
     return { error: "Failed to update document" };
@@ -239,7 +292,6 @@ export const deleteDocAction = async (formData: FormData) => {
       await removeSharedItem(id, "document", currentUser.username);
     }
 
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
     return { error: "Failed to delete document" };
@@ -254,7 +306,6 @@ export const createDocsCategoryAction = async (formData: FormData) => {
     const categoryDir = path.join(userDir, name);
     await ensureDocsDir(categoryDir);
 
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
     return { error: "Failed to create document category" };
@@ -269,7 +320,6 @@ export const deleteDocsCategoryAction = async (formData: FormData) => {
     const categoryDir = path.join(userDir, name);
     await deleteDocsDir(categoryDir);
 
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
     return { error: "Failed to delete document category" };
@@ -326,7 +376,6 @@ export const renameDocsCategoryAction = async (formData: FormData) => {
       }
     }
 
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
     return { error: "Failed to rename document category" };
@@ -357,12 +406,25 @@ export const getAllDocs = async () => {
 
           const categoryDir = path.join(userDir, category.name);
           try {
-            const files = await fs.readdir(categoryDir, { withFileTypes: true });
+            const files = await fs.readdir(categoryDir, {
+              withFileTypes: true,
+            });
             for (const file of files) {
               if (file.isFile() && file.name.endsWith(".md")) {
                 const id = path.basename(file.name, ".md");
-                const content = await fs.readFile(path.join(categoryDir, file.name), "utf-8");
-                allDocs.push(parseMarkdownDoc(content, id, category.name, user.username, false));
+                const content = await fs.readFile(
+                  path.join(categoryDir, file.name),
+                  "utf-8"
+                );
+                allDocs.push(
+                  parseMarkdownDoc(
+                    content,
+                    id,
+                    category.name,
+                    user.username,
+                    false
+                  )
+                );
               }
             }
           } catch (error) {

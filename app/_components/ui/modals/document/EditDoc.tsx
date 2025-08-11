@@ -7,6 +7,7 @@ import {
   updateDocAction,
   createDocsCategoryAction,
 } from "@/app/_server/actions/data/docs-actions";
+import { getCurrentUser } from "@/app/_server/actions/users/current";
 import { Document, Category } from "@/app/_types";
 import { Modal } from "../../elements/modal";
 
@@ -28,11 +29,27 @@ export function EditDocModal({
   const [newCategory, setNewCategory] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [showNewCategory, setShowNewCategory] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     setTitle(doc.title);
     setCategory(doc.category || "");
   }, [doc]);
+
+  // Check if current user is the owner
+  useEffect(() => {
+    const checkOwnership = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user?.username || null);
+        setIsOwner(user?.username === doc.owner);
+      } catch (error) {
+        console.error("Error checking ownership:", error);
+      }
+    };
+    checkOwnership();
+  }, [doc.owner]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +58,8 @@ export function EditDocModal({
     setIsUpdating(true);
 
     try {
-      // Create new category if needed
-      if (showNewCategory && newCategory.trim()) {
+      // Only create new category if user is owner
+      if (isOwner && showNewCategory && newCategory.trim()) {
         const categoryFormData = new FormData();
         categoryFormData.append("name", newCategory.trim());
         await createDocsCategoryAction(categoryFormData);
@@ -52,10 +69,13 @@ export function EditDocModal({
       const formData = new FormData();
       formData.append("id", doc.id);
       formData.append("title", title.trim());
-      formData.append(
-        "category",
-        showNewCategory ? newCategory.trim() : category
-      );
+      // Only include category if user is owner
+      if (isOwner) {
+        formData.append(
+          "category",
+          showNewCategory ? newCategory.trim() : category
+        );
+      }
       formData.append("content", doc.content);
 
       const result = await updateDocAction(formData);
@@ -94,90 +114,55 @@ export function EditDocModal({
             required
           />
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="h-8 w-8 p-0"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
-        <div className="space-y-2">
-          <label
-            htmlFor="title"
-            className="text-sm font-medium text-foreground"
-          >
-            Title
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-            placeholder="Enter document title..."
-            autoFocus
-            required
-          />
-        </div>
+        {/* Only show category section if user is owner */}
+        {isOwner && (
+          <>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Category
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={showNewCategory ? "" : category}
+                  onChange={(e) => {
+                    if (e.target.value === "new") {
+                      setShowNewCategory(true);
+                      setCategory("");
+                    } else {
+                      setShowNewCategory(false);
+                      setCategory(e.target.value);
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 bg-background border border-input rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                >
+                  <option value="">Uncategorized</option>
+                  {categories.map((cat) => (
+                    <option key={cat.name} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                  <option value="new">+ Create New Category</option>
+                </select>
+              </div>
+            </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="category"
-            className="text-sm font-medium text-foreground"
-          >
-            Category
-          </label>
-          {!showNewCategory ? (
-            <div className="flex gap-2">
-              <select
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="flex-1 px-3 py-2 bg-background border border-input rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-              >
-                <option value="">Select a category...</option>
-                <option value="Uncategorized">Uncategorized</option>
-                {categories.map((cat) => (
-                  <option key={cat.name} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowNewCategory(true)}
-                className="px-3"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="flex-1 px-3 py-2 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="Enter new category name..."
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setShowNewCategory(false);
-                  setNewCategory("");
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-        </div>
+            {showNewCategory && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  New Category Name
+                </label>
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="w-full px-3 py-2 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                  placeholder="Enter new category name..."
+                />
+              </div>
+            )}
+          </>
+        )}
 
         <div className="flex gap-3 pt-4">
           <Button
@@ -196,7 +181,7 @@ export function EditDocModal({
             {isUpdating ? "Updating..." : "Update Document"}
           </Button>
         </div>
-      </form>
+      </div>
     </Modal>
   );
 }

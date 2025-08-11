@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Folder, ListTodo } from "lucide-react";
 import { updateListAction } from "@/app/_server/actions/data/actions";
+import { getCurrentUser } from "@/app/_server/actions/users/current";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
 import { Modal } from "@/app/_components/ui/elements/modal";
@@ -17,6 +18,8 @@ interface EditChecklistModalProps {
     id: string;
     title: string;
     category?: string;
+    owner?: string;
+    isShared?: boolean;
   };
   categories: Category[];
   onClose: () => void;
@@ -32,6 +35,22 @@ export function EditChecklistModal({
   const [title, setTitle] = useState(checklist.title);
   const [category, setCategory] = useState(checklist.category || "");
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
+
+  // Check if current user is the owner
+  useEffect(() => {
+    const checkOwnership = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user?.username || null);
+        setIsOwner(user?.username === checklist.owner);
+      } catch (error) {
+        console.error("Error checking ownership:", error);
+      }
+    };
+    checkOwnership();
+  }, [checklist.owner]);
 
   // Format categories for the dropdown
   const categoryOptions = [
@@ -51,7 +70,10 @@ export function EditChecklistModal({
     const formData = new FormData();
     formData.append("id", checklist.id);
     formData.append("title", title.trim());
-    formData.append("category", category || "");
+    // Only include category if user is owner
+    if (isOwner) {
+      formData.append("category", category || "");
+    }
     const result = await updateListAction(formData);
     setIsLoading(false);
 
@@ -83,17 +105,20 @@ export function EditChecklistModal({
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Category
-          </label>
-          <Dropdown
-            value={category}
-            options={categoryOptions}
-            onChange={setCategory}
-            className="w-full"
-          />
-        </div>
+        {/* Only show category dropdown if user is owner */}
+        {isOwner && (
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Category
+            </label>
+            <Dropdown
+              value={category}
+              options={categoryOptions}
+              onChange={setCategory}
+              className="w-full"
+            />
+          </div>
+        )}
 
         <div className="flex gap-3 pt-4">
           <Button
@@ -101,14 +126,14 @@ export function EditChecklistModal({
             variant="outline"
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 border-border text-foreground hover:bg-muted/50"
+            className="flex-1"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={isLoading || !title.trim()}
-            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="flex-1"
           >
             {isLoading ? "Updating..." : "Update Checklist"}
           </Button>

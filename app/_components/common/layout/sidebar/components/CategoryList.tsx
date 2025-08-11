@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Folder, MoreHorizontal, Plus, FileText, CheckSquare } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  MoreHorizontal,
+  Plus,
+  FileText,
+  CheckSquare,
+} from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 import {
@@ -36,7 +44,11 @@ export function CategoryList({
   mode,
 }: CategoryListProps) {
   const getItemsInCategory = (categoryName: string) => {
-    return items.filter((item) => (item.category || "Uncategorized") === categoryName);
+    // Filter out shared items from regular categories
+    return items.filter(
+      (item) =>
+        (item.category || "Uncategorized") === categoryName && !item.isShared
+    );
   };
 
   return (
@@ -92,7 +104,9 @@ export function CategoryList({
                 >
                   New {mode === "checklists" ? "Checklist" : "Document"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onRenameCategory(category.name)}>
+                <DropdownMenuItem
+                  onClick={() => onRenameCategory(category.name)}
+                >
                   Rename Category
                 </DropdownMenuItem>
                 <DropdownMenuItem

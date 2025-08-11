@@ -13,11 +13,21 @@ import {
   deleteDir,
 } from "@/app/_server/utils/files";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
-import { getItemsSharedWithUser, removeSharedItem } from "@/app/_server/actions/sharing/sharing-utils";
+import {
+  getItemsSharedWithUser,
+  removeSharedItem,
+} from "@/app/_server/actions/sharing/sharing-utils";
 import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 
-const parseMarkdown = (content: string, id: string, category: string, owner?: string, isShared?: boolean): Checklist => {
+const parseMarkdown = (
+  content: string,
+  id: string,
+  category: string,
+  owner?: string,
+  isShared?: boolean,
+  fileStats?: { birthtime: Date; mtime: Date }
+): Checklist => {
   const lines = content.split("\n");
   const title = lines[0]?.replace(/^#\s*/, "") || "Untitled";
   const items = lines
@@ -39,8 +49,12 @@ const parseMarkdown = (content: string, id: string, category: string, owner?: st
     title,
     category,
     items,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: fileStats
+      ? fileStats.birthtime.toISOString()
+      : new Date().toISOString(),
+    updatedAt: fileStats
+      ? fileStats.mtime.toISOString()
+      : new Date().toISOString(),
     owner,
     isShared,
   };
@@ -49,6 +63,7 @@ const parseMarkdown = (content: string, id: string, category: string, owner?: st
 const listToMarkdown = (list: Checklist): string => {
   const header = `# ${list.title}\n`;
   const items = list.items
+    .sort((a, b) => a.order - b.order)
     .map((item) => `- [${item.completed ? "x" : " "}] ${item.text}`)
     .join("\n");
   return `${header}\n${items}`;
@@ -77,8 +92,19 @@ export const getLists = async () => {
         for (const file of files) {
           if (file.isFile() && file.name.endsWith(".md")) {
             const id = path.basename(file.name, ".md");
-            const content = await readFile(path.join(categoryDir, file.name));
-            lists.push(parseMarkdown(content, id, category.name, currentUser.username, false));
+            const filePath = path.join(categoryDir, file.name);
+            const content = await readFile(filePath);
+            const stats = await fs.stat(filePath);
+            lists.push(
+              parseMarkdown(
+                content,
+                id,
+                category.name,
+                currentUser.username,
+                false,
+                stats
+              )
+            );
           }
         }
       } catch (error) {
@@ -101,9 +127,22 @@ export const getLists = async () => {
         );
 
         const content = await fs.readFile(sharedFilePath, "utf-8");
-        lists.push(parseMarkdown(content, sharedItem.id, sharedItem.category || "Uncategorized", sharedItem.owner, true));
+        const stats = await fs.stat(sharedFilePath);
+        lists.push(
+          parseMarkdown(
+            content,
+            sharedItem.id,
+            sharedItem.category || "Uncategorized",
+            sharedItem.owner,
+            true,
+            stats
+          )
+        );
       } catch (error) {
-        console.error(`Error reading shared checklist ${sharedItem.id}:`, error);
+        console.error(
+          `Error reading shared checklist ${sharedItem.id}:`,
+          error
+        );
         continue;
       }
     }
@@ -176,7 +215,7 @@ export const updateListAction = async (formData: FormData) => {
   try {
     const id = formData.get("id") as string;
     const title = formData.get("title") as string;
-    const category = (formData.get("category") as string) || "Uncategorized";
+    const category = formData.get("category") as string;
 
     const lists = await getLists();
     if (!lists.success || !lists.data) {
@@ -191,24 +230,62 @@ export const updateListAction = async (formData: FormData) => {
     const updatedList: Checklist = {
       ...currentList,
       title,
-      category,
+      category: category || currentList.category,
       updatedAt: new Date().toISOString(),
     };
 
-    const userDir = await getUserDir();
-    const filePath = path.join(userDir, category, `${id}.md`);
-    await writeFile(filePath, listToMarkdown(updatedList));
+    // Determine the correct file path based on whether the item is shared
+    let filePath: string;
+    let oldFilePath: string | null = null;
 
-    if (category !== currentList.category) {
-      const oldFilePath = path.join(
-        userDir,
-        currentList.category || "Uncategorized",
+    if (currentList.isShared) {
+      // For shared items, update the owner's file
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        currentList.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        updatedList.category || "Uncategorized",
         `${id}.md`
       );
+
+      // If category changed, we need to handle the old file path
+      if (category && category !== currentList.category) {
+        oldFilePath = path.join(
+          ownerDir,
+          currentList.category || "Uncategorized",
+          `${id}.md`
+        );
+      }
+    } else {
+      // For non-shared items, update the current user's file
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        updatedList.category || "Uncategorized",
+        `${id}.md`
+      );
+
+      // If category changed, we need to handle the old file path
+      if (category && category !== currentList.category) {
+        oldFilePath = path.join(
+          userDir,
+          currentList.category || "Uncategorized",
+          `${id}.md`
+        );
+      }
+    }
+
+    await writeFile(filePath, listToMarkdown(updatedList));
+
+    // Delete old file if category changed
+    if (oldFilePath && oldFilePath !== filePath) {
       await deleteFile(oldFilePath);
     }
 
-    revalidatePath("/");
     return { success: true, data: updatedList };
   } catch (error) {
     return { error: "Failed to update list" };
@@ -347,15 +424,34 @@ export const updateItemAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    const userDir = await getUserDir();
-    const filePath = path.join(
-      userDir,
-      list.category || "Uncategorized",
-      `${listId}.md`
-    );
+    // Determine the correct file path based on whether the item is shared
+    let filePath: string;
+
+    if (list.isShared) {
+      // For shared items, update the owner's file
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    } else {
+      // For non-shared items, update the current user's file
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    }
+
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
     return { error: "Failed to update item" };
@@ -390,15 +486,34 @@ export const createItemAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    const userDir = await getUserDir();
-    const filePath = path.join(
-      userDir,
-      list.category || "Uncategorized",
-      `${listId}.md`
-    );
+    // Determine the correct file path based on whether the item is shared
+    let filePath: string;
+
+    if (list.isShared) {
+      // For shared items, update the owner's file
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    } else {
+      // For non-shared items, update the current user's file
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    }
+
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath("/");
     return { success: true, data: newItem };
   } catch (error) {
     return { error: "Failed to create item" };
@@ -426,15 +541,34 @@ export const deleteItemAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    const userDir = await getUserDir();
-    const filePath = path.join(
-      userDir,
-      list.category || "Uncategorized",
-      `${listId}.md`
-    );
+    // Determine the correct file path based on whether the item is shared
+    let filePath: string;
+
+    if (list.isShared) {
+      // For shared items, update the owner's file
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    } else {
+      // For non-shared items, update the current user's file
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    }
+
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
     return { error: "Failed to delete item" };
@@ -445,7 +579,13 @@ export const reorderItemsAction = async (formData: FormData) => {
   try {
     const listId = formData.get("listId") as string;
     const itemIds = JSON.parse(formData.get("itemIds") as string) as string[];
+    const currentItems = JSON.parse(
+      formData.get("currentItems") as string
+    ) as any[];
 
+    console.log("Reorder Debug - Input:", { listId, itemIds, currentItems });
+
+    // Get the current list to find the file path (but not the items)
     const lists = await getLists();
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
@@ -456,13 +596,33 @@ export const reorderItemsAction = async (formData: FormData) => {
       throw new Error("List not found");
     }
 
-    const itemMap = new Map(list.items.map((item) => [item.id, item]));
+    console.log(
+      "Reorder Debug - Original items from server:",
+      list.items.map((item) => ({
+        id: item.id,
+        text: item.text,
+        order: item.order,
+      }))
+    );
 
+    // Create a map of current items from frontend
+    const itemMap = new Map(currentItems.map((item) => [item.id, item]));
+
+    // Create new items array based on the received order, preserving existing IDs
     const updatedItems = itemIds.map((id, index) => {
       const item = itemMap.get(id);
       if (!item) throw new Error(`Item ${id} not found`);
       return { ...item, order: index };
     });
+
+    console.log(
+      "Reorder Debug - Updated items:",
+      updatedItems.map((item) => ({
+        id: item.id,
+        text: item.text,
+        order: item.order,
+      }))
+    );
 
     const updatedList = {
       ...list,
@@ -470,17 +630,43 @@ export const reorderItemsAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    const userDir = await getUserDir();
-    const filePath = path.join(
-      userDir,
-      list.category || "Uncategorized",
-      `${listId}.md`
-    );
-    await writeFile(filePath, listToMarkdown(updatedList));
+    // Determine the correct file path based on whether the item is shared
+    let filePath: string;
 
-    revalidatePath("/");
+    if (list.isShared) {
+      // For shared items, update the owner's file
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    } else {
+      // For non-shared items, update the current user's file
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    }
+
+    const markdownContent = listToMarkdown(updatedList);
+    console.log("Reorder Debug - Markdown content:", markdownContent);
+
+    await writeFile(filePath, markdownContent);
+
+    // Small delay to ensure file is written
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     return { success: true };
   } catch (error) {
+    console.error("Reorder Debug - Error:", error);
     return { error: "Failed to reorder items" };
   }
 };
@@ -499,7 +685,12 @@ export const getAllLists = async () => {
     const users = await readUsers();
 
     for (const user of users) {
-      const userDir = path.join(process.cwd(), "data", "checklists", user.username);
+      const userDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        user.username
+      );
 
       try {
         const categories = await fs.readdir(userDir, { withFileTypes: true });
@@ -509,12 +700,25 @@ export const getAllLists = async () => {
 
           const categoryDir = path.join(userDir, category.name);
           try {
-            const files = await fs.readdir(categoryDir, { withFileTypes: true });
+            const files = await fs.readdir(categoryDir, {
+              withFileTypes: true,
+            });
             for (const file of files) {
               if (file.isFile() && file.name.endsWith(".md")) {
                 const id = path.basename(file.name, ".md");
-                const content = await fs.readFile(path.join(categoryDir, file.name), "utf-8");
-                allLists.push(parseMarkdown(content, id, category.name, user.username, false));
+                const content = await fs.readFile(
+                  path.join(categoryDir, file.name),
+                  "utf-8"
+                );
+                allLists.push(
+                  parseMarkdown(
+                    content,
+                    id,
+                    category.name,
+                    user.username,
+                    false
+                  )
+                );
               }
             }
           } catch (error) {
