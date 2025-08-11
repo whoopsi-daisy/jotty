@@ -326,6 +326,14 @@
     }
 }
 
+.stroke-current {
+    stroke: rgb(var(--primary-foreground));
+}
+
+.fill-current {
+    fill: rgb(var(--primary));
+}
+
 @layer base {
     * {
         @apply border-border;

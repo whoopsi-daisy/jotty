@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * A complex, themeable SVG logo for the checklist app.
@@ -8,43 +8,31 @@
  * @param {object} props - The component props.
  * @param {string} [props.className='h-8 w-8'] - The class name for sizing the SVG.
  */
-export function Logo({ className = 'h-8 w-8' }: { className?: string }) {
+export function Logo({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      width="100"
+      height="100"
+      viewBox="0 0 100 100"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Shadow/background layer to give depth */}
+      <rect width="100" height="100" rx="20" className="fill-current" />
       <path
-        d="M8 21H2V8l6-6h12v10"
-        className="stroke-current opacity-20"
-      />
-      
-      {/* Main checklist box */}
-      <rect 
-        x="4" 
-        y="4" 
-        width="16" 
-        height="16" 
-        rx="2" 
-        className="stroke-current opacity-50"
-      />
-
-      {/* Stylized, dynamic checkmark that breaks the bounds */}
-      <path
-        d="M8 12l3.5 3.5L22 5"
-        strokeWidth="2.5"
+        d="M25 65L40 80L75 45"
         className="stroke-current"
+        stroke-width="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       />
-
-      {/* Lines inside the box to represent list items */}
-      <line x1="8" y1="9" x2="10" y2="9" className="stroke-current opacity-40" />
-      <line x1="8" y1="16" x2="14" y2="16" className="stroke-current opacity-40" />
+      <path
+        d="M25 45L40 30L75 65"
+        className="stroke-current"
+        stroke-width="10"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
-  )
+  );
 }

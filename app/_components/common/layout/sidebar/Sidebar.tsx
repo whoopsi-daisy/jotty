@@ -171,7 +171,7 @@ export function Sidebar({
               <div className="flex items-center gap-3">
                 <Logo className="h-8 w-8" />
                 <span className="text-xl font-bold text-foreground">
-                  Checklist
+                  <span className="text-primary">rw</span>Markable
                 </span>
               </div>
               <button
