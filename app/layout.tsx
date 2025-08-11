@@ -8,8 +8,8 @@ import { AppModeProvider } from "@/app/_providers/AppModeProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Checklist App",
-  description: "A simple checklist app",
+  title: "rwMarkable",
+  description: "Easily create and manage documents and checklists",
 };
 
 export default async function RootLayout({
