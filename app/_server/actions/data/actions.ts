@@ -191,6 +191,9 @@ export const createListAction = async (formData: FormData) => {
     const categoryDir = path.join(userDir, category);
     const filePath = path.join(categoryDir, `${id}.md`);
 
+    // Ensure the category directory exists
+    await ensureDir(categoryDir);
+
     const newList: Checklist = {
       id,
       title,
@@ -203,6 +206,7 @@ export const createListAction = async (formData: FormData) => {
     await writeFile(filePath, listToMarkdown(newList));
     return { success: true, data: newList };
   } catch (error) {
+    console.error("Error creating list:", error);
     return { error: "Failed to create list" };
   }
 };

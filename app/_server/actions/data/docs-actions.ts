@@ -175,6 +175,9 @@ export const createDocAction = async (formData: FormData) => {
     const categoryDir = path.join(userDir, category);
     const filePath = path.join(categoryDir, `${id}.md`);
 
+    // Ensure the category directory exists
+    await ensureDocsDir(categoryDir);
+
     const newDoc: Document = {
       id,
       title,
@@ -187,6 +190,7 @@ export const createDocAction = async (formData: FormData) => {
     await writeDocsFile(filePath, docToMarkdown(newDoc));
     return { success: true, data: newDoc };
   } catch (error) {
+    console.error("Error creating document:", error);
     return { error: "Failed to create document" };
   }
 };

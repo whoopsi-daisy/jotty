@@ -14,16 +14,16 @@ export function Logo({ className = "h-8 w-8" }: { className?: string }) {
       <path
         d="M25 65L40 80L75 45"
         className="stroke-current"
-        stroke-width="10"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M25 45L40 30L75 65"
         className="stroke-current"
-        stroke-width="10"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
