@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useSettings } from "@/app/_utils/settings-store"
+import { getCustomThemeColors } from "@/app/_consts/themes"
 
-const ALL_THEMES = [
+const BUILT_IN_THEMES = [
   'light',
   'dark',
   'sunset',
@@ -22,11 +23,49 @@ const ALL_THEMES = [
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { theme } = useSettings()
+  const [customThemeColors, setCustomThemeColors] = useState<{ [key: string]: any }>({})
 
   useEffect(() => {
-    document.documentElement.classList.remove(...ALL_THEMES)
+    const loadCustomColors = async () => {
+      try {
+        const colors = await getCustomThemeColors()
+        setCustomThemeColors(colors)
+      } catch (error) {
+        console.error('Failed to load custom theme colors:', error)
+      }
+    }
+
+    loadCustomColors()
+  }, [])
+
+  useEffect(() => {
+    const allThemes = [...BUILT_IN_THEMES, ...Object.keys(customThemeColors)]
+    document.documentElement.classList.remove(...allThemes)
     document.documentElement.classList.add(theme)
-  }, [theme])
+
+    if (customThemeColors[theme]) {
+      const styleId = 'custom-theme-styles'
+      let styleElement = document.getElementById(styleId) as HTMLStyleElement
+
+      if (!styleElement) {
+        styleElement = document.createElement('style')
+        styleElement.id = styleId
+        document.head.appendChild(styleElement)
+      }
+
+      const cssVariables = Object.entries(customThemeColors[theme])
+        .map(([key, value]) => `${key}: ${value};`)
+        .join('\n        ')
+
+      const cssContent = `
+        .${theme} {
+          ${cssVariables}
+        }
+      `
+
+      styleElement.textContent = cssContent
+    }
+  }, [theme, customThemeColors])
 
   return <>{children}</>
 } 

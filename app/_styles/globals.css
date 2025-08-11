@@ -344,100 +344,120 @@
     }
 }
 
-@layer components {
-    .dragging {
-        opacity: 0.5;
-        transform: rotate(5deg);
-    }
 
-    .drag-over {
-        @apply bg-accent bg-opacity-50;
-    }
+.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
 
-    .prose {
-        @apply text-foreground;
-        line-height: 1.7;
-    }
+.drag-over {
+    @apply bg-accent bg-opacity-50;
+}
 
-    .prose h1,
-    .prose h2,
-    .prose h3,
-    .prose h4,
-    .prose h5,
-    .prose h6 {
-        @apply text-foreground font-semibold;
-        line-height: 1.25;
-    }
+.prose {
+    @apply text-foreground;
+    line-height: 1.7;
+}
 
-    .prose h1 {
-        font-size: 1.875rem;
-        margin-bottom: 1rem;
-    }
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+    @apply text-foreground font-semibold;
+    line-height: 1.25;
+}
 
-    .prose h2 {
-        font-size: 1.5rem;
-        margin-bottom: 0.75rem;
-        margin-top: 1.5rem;
-    }
+.prose h1 {
+    font-size: 1.875rem;
+    margin-bottom: 1rem;
+}
 
-    .prose h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
-        margin-top: 1rem;
-    }
+.prose h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+}
 
-    .prose p {
-        margin-bottom: 1rem;
-    }
+.prose h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+}
 
-    .prose strong {
-        @apply font-semibold text-foreground;
-    }
+.prose p {
+    margin-bottom: 1rem;
+}
 
-    .prose em {
-        font-style: italic;
-    }
+.prose strong {
+    @apply font-semibold text-foreground;
+}
 
-    .prose code {
-        @apply bg-muted px-1 py-0.5 rounded text-sm;
-        font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-    }
+.prose em {
+    font-style: italic;
+}
 
-    .prose blockquote {
-        @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
-        margin: 1rem 0;
-    }
+.prose code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
 
-    .prose ul,
-    .prose ol {
-        margin: 1rem 0;
-        padding-left: 1.5rem;
-    }
+.prose pre {
+    @apply bg-muted border border-border rounded-lg p-4 overflow-x-auto;
+    margin: 1rem 0;
+}
 
-    .prose li {
-        margin-bottom: 0.5rem;
-    }
+.prose pre code {
+    @apply bg-transparent p-0 text-sm;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
 
-    .prose a {
-        @apply text-primary underline;
-    }
+.prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
+    margin: 1rem 0;
+}
 
-    .prose a:hover {
-        text-decoration: none;
-    }
+.prose ul,
+.prose ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
 
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+.prose li {
+    margin-bottom: 0.5rem;
+}
 
-    .ProseMirror {
-        height: 100%;    
-    }
+.prose a {
+    @apply text-primary underline;
+}
+
+.prose a:hover {
+    text-decoration: none;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .ProseMirror {
     height: 100%;    
+}
+
+.ProseMirror pre {
+    @apply bg-muted border border-border rounded-lg p-4 overflow-x-auto;
+    margin: 1rem 0;
+}
+
+.ProseMirror pre code {
+    @apply bg-transparent p-0 text-sm;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.ProseMirror code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }

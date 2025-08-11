@@ -1,239 +1,228 @@
 # rwMarkable
 
-A modern, self-hosted checklist and document management application built with Next.js 14, TypeScript, and Tailwind CSS. rwMarkable allows users to create, manage, and collaborate on checklists and rich text documents with a beautiful, responsive interface.
+A simple, self-hosted app for your checklists and notes.
 
+Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternative for managing your personal checklists and documents. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
+
+<p align="center">
+  <em>(Consider adding a screenshot or GIF of the app here!)</em>
+</p>
 <p align="center">
   <a href="https://www.buymeacoffee.com/fccview">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
   </a>
 </p>
 
-## ✨ Features
+## Features
 
-### 📋 Checklist Management
+* **Checklists:** Create task lists with drag & drop reordering, progress bars, and categories.
+* **Rich Text Notes:** A clean WYSIWYG editor for your documents, powered by TipTap with full Markdown support.
+* **Simple Sharing:** Share checklists or documents with other users on your instance.
+* **File-Based:** No database needed! Everything is stored in simple Markdown and JSON files in a single data directory.
+* **User Management:** An admin panel to create and manage user accounts.
+* **Customisable:** Plenty of themes to make it your own.
 
-- **Interactive Checklists**: Create and manage task lists with drag-and-drop reordering
-- **Real-time Updates**: Mark items as complete/incomplete with instant feedback
-- **Progress Tracking**: Visual progress indicators for checklist completion
-- **Categories**: Organize checklists into custom categories
-- **Emoji Support**: Optional emoji display for checklist items
-- **Drag & Drop**: Reorder items using intuitive drag-and-drop interface
+## Tech Stack
 
-### 📄 Document Editor
+* **Framework:** Next.js 14 (App Router)
+* **Language:** TypeScript
+* **Styling:** Tailwind CSS
+* **State:** Zustand
+* **Editor:** TipTap
+* **Drag & Drop:** @dnd-kit
+* **Deployment:** Docker
 
-- **Rich Text Editing**: Full-featured WYSIWYG editor powered by TipTap
-- **Markdown Support**: Write in Markdown with live preview
-- **Formatting Tools**: Bold, italic, strikethrough, headings, lists, quotes, and links
-- **Category Organization**: Organize documents into custom categories
+## Getting Started
 
-### 👥 Collaboration & Sharing
+The recommended way to run `rwMarkable` is with Docker.
 
-- **Item Sharing**: Share checklists and documents with specific users
-- **Shared Items View**: Easy access to items shared with you or by you
+### Docker Compose (Recommended)
 
-### 🔐 Authentication & Security
+1.  Create a `docker-compose.yml` file:
 
-- **Session-based Auth**: Secure cookie-based authentication
-- **User Registration**: Manual user creation by Admins
-- **Role Management**: Admin and regular user roles
-- **Password Security**: SHA-256 password hashing
-- **Protected Routes**: Middleware-based route protection
-
-### 🎨 User Experience
-
-- **Theming**: Tons of themes and customisations available
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Modern UI**: Clean, intuitive interface built with Tailwind CSS
-- **Keyboard Navigation**: Full keyboard accessibility support
-- **Loading States**: Smooth loading indicators and feedback
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Rich Text Editor**: TipTap
-- **Drag & Drop**: @dnd-kit
-- **Icons**: Lucide React
-- **Authentication**: Custom session-based auth
-- **Storage**: File-based (JSON + Markdown)
-- **Deployment**: Docker
-
-## 📦 Installation
-
-### Prerequisites
-
-- Node.js 18+
-- Yarn or npm
-- Docker (optional, for containerized deployment)
-
-### Local Development
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd checklist
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   yarn install
-   ```
-
-3. **Start the development server**
-
-   ```bash
-   yarn dev
-   ```
-
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-5. **Initial Setup**
-   - On first run, you'll be redirected to `/auth/setup`
-   - Create your admin account
-   - Start using the application!
-
-### Docker Deployment
-
-1. **Using Docker Compose (Recommended)**
-
-   - Create a `docker-compose.yml` file:
-
-   ```bash
-   services:
+    ```yaml
+    services:
       app:
-         image: ghcr.io/fccview/rwmarkable:main
-         container_name: rwmarkable
-         user: "1001:65533"
-         ports:
-            - "1234:3000"
-         volumes:
-            - ./data:/app/data:rw # Do NOT change this volume name.
-         restart: unless-stopped
-         environment:
-            - NODE_ENV=production
-         init: true
-   ```
+        image: ghcr.io/fccview/rwmarkable:main
+        container_name: rwmarkable
+        # Use a non-root user for better security.
+        # Create the user on your host with: sudo useradd -u 1001 rwmarkable
+        user: "1001:65533" 
+        ports:
+          - "1234:3000"
+        volumes:
+          # Mount your local data directory into the container.
+          - ./data:/app/data:rw
+        restart: unless-stopped
+        environment:
+          - NODE_ENV=production
+        init: true
+    ```
 
-   - Assign the right permissions and start the container:
+2.  Create the data directory and set permissions:
 
-   ```bash
-   sudo chown -R 1001:65533 data/
-   docker-compose up -d
-   ```
+    ```bash
+    mkdir data
+    sudo chown -R 1001:65533 data/
+    ```
 
-2. **Using Docker directly**
-   - Pull the repository locally
-   ```bash
-   docker build -t rwmarkable .
-   docker run -p 1234:3000 -v data:/app/data rwmarkable
-   ```
+3.  Start the container:
 
-The application will be available at `http://localhost:1234`
+    ```bash
+    docker-compose up -d
+    ```
 
-## 🔧 Configuration
+The application will be available at `http://localhost:1234`.
 
-### Environment Variables
+### Initial Setup
 
-The application uses minimal configuration and works out of the box. For production deployments, consider setting:
+On your first visit, you'll be redirected to `/auth/setup` to create your admin account. Once that's done, you're ready to go!
 
-- `NODE_ENV`: Set to `production` for production builds
-- `NEXT_TELEMETRY_DISABLED`: Set to `1` to disable Next.js telemetry
+### Local Development (Without Docker)
 
-### Data Storage
+If you want to run the app locally for development:
 
-The application uses a simple file-based storage system:
+1.  **Clone & Install:**
+    ```bash
+    git clone <repository-url>
+    cd checklist
+    yarn install
+    ```
+2.  **Run Dev Server:**
+    ```bash
+    yarn dev
+    ```
+    The app will be running at `http://localhost:3000`.
 
-- **Checklists**: Stored as Markdown files in `data/checklists/`
-- **Documents**: Stored as Markdown files in `data/documents/`
-- **Users**: Stored as JSON in `data/users/users.json`
-- **Sessions**: Stored as JSON in `data/users/sessions.json`
-- **Sharing**: Stored as JSON in `data/sharing/shared-items.json`
+## Data Storage
 
-## 🚀 Usage
+`rwMarkable` uses a simple file-based storage system inside the `data/` directory.
 
-### Creating Your First Checklist
+* `data/checklists/`: Stores all checklists as `.md` files.
+* `data/documents/`: Stores all documents as `.md` files.
+* `data/users/`: Contains `users.json` and `sessions.json`.
+* `data/sharing/`: Contains `shared-items.json`.
 
-1. **Navigate to the home page** after logging in
-2. **Click "Create Checklist"** or use the quick add form
-3. **Enter a title** and optionally select a category
-4. **Add items** using the input field
-5. **Mark items complete** by clicking the checkboxes
-6. **Reorder items** by dragging them up or down
+**Make sure you back up the `data` directory!**
 
-### Creating Documents
-
-1. **Switch to Documents mode** using the app mode toggle
-2. **Click "Create Document"**
-3. **Enter a title** and select a category
-4. **Use the rich text editor** to write your content
-5. **Save your changes** using the save button
-
-### Sharing Items
-
-1. **Open any checklist or document**
-2. **Click the share button** (users icon)
-3. **Select users** from the dropdown
-4. **Click "Share"** to grant access
-
-### User Management (Admin Only)
-
-1. **Navigate to the Admin panel**
-2. **Create new users** with the "Create User" form
-3. **Manage user roles** and permissions
-4. **View system statistics**
-
-## 🔒 Security Features
-
-- **Session-based authentication** with secure HTTP-only cookies
-- **Password hashing** using SHA-256
-- **Route protection** via Next.js middleware
-- **Role-based access control** for admin functions
-- **Input validation** and sanitization
-- **CSRF protection** through Next.js built-in security
-
-## 🤝 Contributing
-
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Commit your changes** (`git commit -m 'Add amazing feature'`)
-4. **Push to the branch** (`git push origin feature/amazing-feature`)
-5. **Open a Pull Request**
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. **Check the documentation** in this README
-2. **Search existing issues** on GitHub
-3. **Create a new issue** with detailed information about your problem
-
-I don't have a lot of free time, but I'll try to keep an eye on it all.
-
-## 🔄 Updates
-
-To update your installation:
+## Updating
 
 ### Docker Compose
+
+Pull the latest image and restart your container.
 
 ```bash
 docker-compose pull
 docker-compose up -d
 ```
 
-### Manual Update
+### Manual
+If you're running from source, pull the latest changes and rebuild.
 
 ```bash
 git pull
 yarn install
 yarn build
 yarn start
+```
+
+## Custom Themes and Emojis
+
+You can easily add custom themes and emojis by creating configuration files in a `config/` directory. These will be automatically loaded and merged with the built-in themes and emojis.
+
+### Custom Themes
+
+Create `config/themes.json` with your custom themes:
+
+```json
+{
+  "custom-themes": {
+    "my-theme": {
+      "name": "My Custom Theme",
+      "icon": "Palette",
+      "colors": {
+        "--background": "255 255 255",
+        "--background-secondary": "249 250 251",
+        "--foreground": "20 20 20",
+        "--primary": "37 99 235",
+        "--primary-foreground": "255 255 255",
+        "--secondary": "241 245 249",
+        "--secondary-foreground": "20 20 20",
+        "--muted": "241 245 249",
+        "--muted-foreground": "100 116 139",
+        "--accent": "241 245 249",
+        "--accent-foreground": "20 20 20",
+        "--destructive": "239 68 68",
+        "--destructive-foreground": "255 255 255",
+        "--border": "226 232 240",
+        "--input": "226 232 240",
+        "--ring": "37 99 235"
+      }
+    }
+  }
+}
+```
+
+**Required color variables:**
+- `--background`, `--background-secondary`, `--foreground`
+- `--card`, `--card-foreground`, `--popover`, `--popover-foreground`
+- `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`
+- `--muted`, `--muted-foreground`, `--accent`, `--accent-foreground`
+- `--destructive`, `--destructive-foreground`, `--border`, `--input`, `--ring`
+
+### Custom Emojis
+
+Create `config/emojis.json` with your custom emojis:
+
+```json
+{
+  "custom-emojis": {
+    "meeting": "🤝",
+    "deadline": "⏰",
+    "project": "📋",
+    "deploy": "🚀",
+    "bug": "🐛",
+    "feature": "✨"
+  }
+}
+```
+
+When you type checklist items containing these words, the custom emojis will automatically appear.
+
+### Available Icons
+
+For themes, you can use these icon names: `Sun`, `Moon`, `Sunset`, `Waves`, `Trees`, `CloudMoon`, `Palette`, `Terminal`, `Github`, `Monitor`, `Coffee`, `Flower2`, `Flame`, `Palmtree`, `Building`. If no icon is specified, a default will be chosen based on the theme name.
+
+### Configuration Validation
+
+The app validates your configuration files and will show warnings in the console if there are any format errors. Invalid configs will be ignored and the app will continue working with built-in themes and emojis.
+
+### Docker Setup for Custom Configs
+
+Update your `docker-compose.yml` to include the config volume:
+
+```yaml
+services:
+  app:
+    image: ghcr.io/fccview/rwmarkable:main
+    container_name: rwmarkable
+    user: "1000:1000"
+    ports:
+      - "1234:3000"
+    volumes:
+      - ./data:/app/data:rw
+      - ./config:/app/config:ro
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - HTTPS=false
+    init: true
+```
+
+**Important:** Make sure your local `config/` directory has the correct permissions:
+
+```bash
+mkdir -p config
+chown -R 1000:1000 config/
+chmod -R 755 config/
 ```

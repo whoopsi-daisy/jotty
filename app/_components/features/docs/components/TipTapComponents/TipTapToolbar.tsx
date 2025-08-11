@@ -8,6 +8,7 @@ import {
   List,
   Quote,
   Link as LinkIcon,
+  Square,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 
@@ -32,8 +33,12 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
+  const setCodeBlock = () => {
+    editor.chain().focus().toggleCodeBlock({ language: "javascript" }).run();
+  };
+
   return (
-    <div className="bg-background border-b border-border px-4 py-2 flex items-center gap-1 flex-wrap">
+    <div className="bg-background px-4 py-2 flex items-center gap-1 flex-wrap">
       <Button
         variant={editor.isActive("bold") ? "secondary" : "ghost"}
         size="sm"
@@ -61,6 +66,14 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         onClick={() => editor.chain().focus().toggleCode().run()}
       >
         <Code className="h-4 w-4" />
+      </Button>
+      <div className="w-px h-6 bg-border mx-2" />
+      <Button
+        variant={editor.isActive("codeBlock") ? "secondary" : "ghost"}
+        size="sm"
+        onClick={setCodeBlock}
+      >
+        <Square className="h-4 w-4" />
       </Button>
       <div className="w-px h-6 bg-border mx-2" />
       <Button

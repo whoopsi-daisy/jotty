@@ -1,0 +1,55 @@
+{
+  "custom-themes": {
+    "sunset-orange": {
+      "name": "Sunset Orange",
+      "colors": {
+        "--background": "255 251 235",
+        "--background-secondary": "254 243 199",
+        "--foreground": "120 53 15",
+        "--card": "255 251 235",
+        "--card-foreground": "120 53 15",
+        "--popover": "255 251 235",
+        "--popover-foreground": "120 53 15",
+        "--primary": "245 101 101",
+        "--primary-foreground": "255 251 235",
+        "--secondary": "254 243 199",
+        "--secondary-foreground": "120 53 15",
+        "--muted": "254 243 199",
+        "--muted-foreground": "180 83 9",
+        "--accent": "254 243 199",
+        "--accent-foreground": "120 53 15",
+        "--destructive": "239 68 68",
+        "--destructive-foreground": "255 251 235",
+        "--border": "254 243 199",
+        "--input": "254 243 199",
+        "--ring": "245 101 101"
+      }
+    },
+    "midnight-purple": {
+      "name": "Midnight Purple",
+      "icon": "Moon",
+      "colors": {
+        "--background": "30 30 46",
+        "--background-secondary": "49 50 68",
+        "--foreground": "205 214 244",
+        "--card": "30 30 46",
+        "--card-foreground": "205 214 244",
+        "--popover": "30 30 46",
+        "--popover-foreground": "205 214 244",
+        "--primary": "137 180 250",
+        "--primary-foreground": "30 30 46",
+        "--secondary": "49 50 68",
+        "--secondary-foreground": "205 214 244",
+        "--muted": "49 50 68",
+        "--muted-foreground": "166 173 200",
+        "--accent": "49 50 68",
+        "--accent-foreground": "205 214 244",
+        "--destructive": "243 139 168",
+        "--destructive-foreground": "30 30 46",
+        "--border": "49 50 68",
+        "--input": "49 50 68",
+        "--ring": "137 180 250"
+      }
+    }
+  }
+}

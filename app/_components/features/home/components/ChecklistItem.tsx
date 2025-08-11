@@ -7,6 +7,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { findMatchingEmoji } from "@/app/_utils/emoji-utils";
 import { useSettings } from "@/app/_utils/settings-store";
+import { useState, useEffect } from "react";
 
 interface Item {
   id: string;
@@ -17,8 +18,8 @@ interface Item {
 
 interface ChecklistItemProps {
   item: Item;
-  onToggle: (itemId: string, completed: boolean) => void;
-  onDelete: (itemId: string) => void;
+  onToggle: (id: string, completed: boolean) => void;
+  onDelete: (id: string) => void;
   completed?: boolean;
 }
 
@@ -38,13 +39,21 @@ export function ChecklistItem({
   } = useSortable({ id: item.id });
 
   const { showEmojis } = useSettings();
+  const [emoji, setEmoji] = useState<string>("");
+
+  useEffect(() => {
+    if (showEmojis) {
+      findMatchingEmoji(item.text).then(setEmoji);
+    } else {
+      setEmoji("");
+    }
+  }, [item.text, showEmojis]);
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
-  const emoji = showEmojis ? findMatchingEmoji(item.text) : "";
   const displayText = showEmojis ? `${emoji}  ${item.text}` : item.text;
 
   return (
@@ -96,7 +105,7 @@ export function ChecklistItem({
         variant="ghost"
         size="sm"
         onClick={() => onDelete(item.id)}
-        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
+        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
       >
         <Trash2 className="h-4 w-4" />
       </Button>

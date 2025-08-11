@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-type Theme = 'light' | 'dark' | 'sunset' | 'ocean' | 'forest' | 'nord' | 'dracula' | 'monokai' | 'github-dark' | 'tokyo-night' | 'catppuccin' | 'rose-pine' | 'gruvbox' | 'solarized-dark'
+type BuiltInTheme = 'light' | 'dark' | 'sunset' | 'ocean' | 'forest' | 'nord' | 'dracula' | 'monokai' | 'github-dark' | 'tokyo-night' | 'catppuccin' | 'rose-pine' | 'gruvbox' | 'solarized-dark'
+type Theme = BuiltInTheme | string
 
 interface SettingsState {
   theme: Theme
