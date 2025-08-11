@@ -144,6 +144,44 @@ export function HomeClient({
     }
   };
 
+  const handleCategoryDeleted = (categoryName: string) => {
+    if (mode === "docs") {
+      setDocsCategories((prev) =>
+        prev.filter((cat) => cat.name !== categoryName)
+      );
+      setDocs((prev) => prev.filter((doc) => doc.category !== categoryName));
+    } else {
+      setCategories((prev) => prev.filter((cat) => cat.name !== categoryName));
+      setLists((prev) => prev.filter((list) => list.category !== categoryName));
+    }
+  };
+
+  const handleCategoryRenamed = (oldName: string, newName: string) => {
+    if (mode === "docs") {
+      setDocsCategories((prev) =>
+        prev.map((cat) =>
+          cat.name === oldName ? { ...cat, name: newName } : cat
+        )
+      );
+      setDocs((prev) =>
+        prev.map((doc) =>
+          doc.category === oldName ? { ...doc, category: newName } : doc
+        )
+      );
+    } else {
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.name === oldName ? { ...cat, name: newName } : cat
+        )
+      );
+      setLists((prev) =>
+        prev.map((list) =>
+          list.category === oldName ? { ...list, category: newName } : list
+        )
+      );
+    }
+  };
+
   if (!isInitialized) {
     return (
       <div className="flex h-screen bg-background w-full items-center justify-center">
@@ -199,6 +237,8 @@ export function HomeClient({
       onOpenCategoryModal={handleOpenCategoryModal}
       isAdmin={isAdmin}
       username={username}
+      onCategoryDeleted={handleCategoryDeleted}
+      onCategoryRenamed={handleCategoryRenamed}
     >
       {renderContent()}
 
@@ -206,12 +246,29 @@ export function HomeClient({
         <CreateListModal
           onClose={() => setShowCreateModal(false)}
           onCreated={(newChecklist) => {
-            setShowCreateModal(false);
             if (newChecklist) {
               setLists((prev) => [...prev, newChecklist]);
+              if (
+                newChecklist.category &&
+                !categories.find((cat) => cat.name === newChecklist.category)
+              ) {
+                setCategories((prev) => [
+                  ...prev,
+                  { name: newChecklist.category!, count: 1 },
+                ]);
+              } else if (newChecklist.category) {
+                setCategories((prev) =>
+                  prev.map((cat) =>
+                    cat.name === newChecklist.category
+                      ? { ...cat, count: cat.count + 1 }
+                      : cat
+                  )
+                );
+              }
               setSelectedChecklist(newChecklist.id);
               setHashInUrl(newChecklist.id);
             }
+            setShowCreateModal(false);
           }}
           categories={categories}
           initialCategory={initialCategory}
@@ -222,12 +279,29 @@ export function HomeClient({
         <CreateDocModal
           onClose={() => setShowCreateDocModal(false)}
           onCreated={(newDoc) => {
-            setShowCreateDocModal(false);
             if (newDoc) {
               setDocs((prev) => [...prev, newDoc]);
+              if (
+                newDoc.category &&
+                !docsCategories.find((cat) => cat.name === newDoc.category)
+              ) {
+                setDocsCategories((prev) => [
+                  ...prev,
+                  { name: newDoc.category!, count: 1 },
+                ]);
+              } else if (newDoc.category) {
+                setDocsCategories((prev) =>
+                  prev.map((cat) =>
+                    cat.name === newDoc.category
+                      ? { ...cat, count: cat.count + 1 }
+                      : cat
+                  )
+                );
+              }
               setSelectedDocument(newDoc.id);
               setHashInUrl(newDoc.id);
             }
+            setShowCreateDocModal(false);
           }}
           categories={docsCategories}
           initialCategory={initialCategory}

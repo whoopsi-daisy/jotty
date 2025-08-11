@@ -14,6 +14,8 @@ interface LayoutProps {
   onOpenSettings: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
+  onCategoryDeleted?: (categoryName: string) => void;
+  onCategoryRenamed?: (oldName: string, newName: string) => void;
   children: React.ReactNode;
   isAdmin: boolean;
   username: string;
@@ -26,6 +28,8 @@ export function Layout({
   onOpenSettings,
   onOpenCreateModal,
   onOpenCategoryModal,
+  onCategoryDeleted,
+  onCategoryRenamed,
   isAdmin,
   username,
   children,
@@ -54,6 +58,8 @@ export function Layout({
         docs={docs}
         username={username}
         isAdmin={isAdmin}
+        onCategoryDeleted={onCategoryDeleted}
+        onCategoryRenamed={onCategoryRenamed}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden">

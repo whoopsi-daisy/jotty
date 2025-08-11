@@ -201,7 +201,6 @@ export const createListAction = async (formData: FormData) => {
     };
 
     await writeFile(filePath, listToMarkdown(newList));
-    revalidatePath("/");
     return { success: true, data: newList };
   } catch (error) {
     return { error: "Failed to create list" };
@@ -312,7 +311,6 @@ export const createCategoryAction = async (formData: FormData) => {
     const categoryDir = path.join(userDir, name);
     await ensureDir(categoryDir);
 
-    revalidatePath("/");
     return { success: true, data: { name, count: 0 } };
   } catch (error) {
     return { error: "Failed to create category" };

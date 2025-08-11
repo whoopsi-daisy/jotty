@@ -68,7 +68,7 @@ export function CreateListModal({
 
       const result = await createListAction(formData);
 
-      if (result.success) {
+      if (result.success && result.data) {
         onCreated(result.data);
       }
     } finally {

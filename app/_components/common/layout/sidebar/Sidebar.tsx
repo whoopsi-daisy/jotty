@@ -33,6 +33,8 @@ interface SidebarProps {
   docs?: Document[];
   username: string;
   isAdmin: boolean;
+  onCategoryDeleted?: (categoryName: string) => void;
+  onCategoryRenamed?: (oldName: string, newName: string) => void;
 }
 
 export function Sidebar({
@@ -45,6 +47,8 @@ export function Sidebar({
   docs = [],
   username,
   isAdmin,
+  onCategoryDeleted,
+  onCategoryRenamed,
 }: SidebarProps) {
   const [showDeleteCategoryModal, setShowDeleteCategoryModal] = useState(false);
   const [showRenameCategoryModal, setShowRenameCategoryModal] = useState(false);
@@ -79,6 +83,7 @@ export function Sidebar({
     if (result.success) {
       setShowDeleteCategoryModal(false);
       setCategoryToDelete(null);
+      onCategoryDeleted?.(categoryToDelete);
     }
   };
 
@@ -103,6 +108,7 @@ export function Sidebar({
     if (result.success) {
       setShowRenameCategoryModal(false);
       setCategoryToRename(null);
+      onCategoryRenamed?.(oldName, newName);
     }
   };
 
