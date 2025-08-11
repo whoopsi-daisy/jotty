@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/riofriz/rwMarkable:latest
+    image: ghcr.io/fccview/rwmarkable:main
     container_name: rwMarkable
     ports:
       - "1234:3000"
