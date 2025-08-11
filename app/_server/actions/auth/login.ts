@@ -11,6 +11,7 @@ interface User {
   username: string;
   passwordHash: string;
   isAdmin: boolean;
+  isSuperAdmin?: boolean;
   createdAt?: string;
   lastLogin?: string;
 }
