@@ -2,13 +2,13 @@ version: "3.8"
 
 services:
   app:
-    image: ghcr.io/riofriz/checklist:latest
-    container_name: rwMarkable
+    image: ghcr.io/riofriz/rwmarkable:latest
+    container_name: rwmarkable
     ports:
       - "3000:3000"
     volumes:
-      - checklist_data:/app/data
+      - rwmarkable_data:/app/data
     restart: unless-stopped
 
 volumes:
-  checklist_data:
+  rwmarkable_data:
