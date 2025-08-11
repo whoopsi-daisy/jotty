@@ -2,6 +2,12 @@
 
 A modern, self-hosted checklist and document management application built with Next.js 14, TypeScript, and Tailwind CSS. rwMarkable allows users to create, manage, and collaborate on checklists and rich text documents with a beautiful, responsive interface.
 
+<p align="center">
+  <a href="https://www.buymeacoffee.com/fccview">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
+  </a>
+</p>
+
 ## ✨ Features
 
 ### 📋 Checklist Management
@@ -95,17 +101,39 @@ A modern, self-hosted checklist and document management application built with N
 
 1. **Using Docker Compose (Recommended)**
 
+   - Create a `docker-compose.yml` file:
+
    ```bash
+   services:
+      app:
+         image: ghcr.io/fccview/rwmarkable:main
+         container_name: rwmarkable
+         user: "1001:65533"
+         ports:
+            - "1234:3000"
+         volumes:
+            - ./data:/app/data:rw # Do NOT change this volume name.
+         restart: unless-stopped
+         environment:
+            - NODE_ENV=production
+         init: true
+   ```
+
+   - Assign the right permissions and start the container:
+
+   ```bash
+   sudo chown -R 1001:65533 data/
    docker-compose up -d
    ```
 
 2. **Using Docker directly**
+   - Pull the repository locally
    ```bash
    docker build -t rwmarkable .
-   docker run -p 3000:3000 -v checklist_data:/app/data rwmarkable
+   docker run -p 1234:3000 -v data:/app/data rwmarkable
    ```
 
-The application will be available at `http://localhost:3000`
+The application will be available at `http://localhost:1234`
 
 ## 🔧 Configuration
 
@@ -168,42 +196,6 @@ The application uses a simple file-based storage system:
 - **Input validation** and sanitization
 - **CSRF protection** through Next.js built-in security
 
-## 🐳 Docker Deployment
-
-The application includes optimized Docker configuration for production deployment:
-
-### Production Docker Compose
-
-```yaml
-version: "3.8"
-services:
-  app:
-    image: ghcr.io/riofriz/checklist:latest
-    container_name: rwMarkable
-    ports:
-      - "3000:3000"
-    volumes:
-      - checklist_data:/app/data
-    restart: unless-stopped
-
-volumes:
-  checklist_data:
-```
-
-### Custom Docker Build
-
-```bash
-# Build the image
-docker build -t rwmarkable .
-
-# Run with persistent data
-docker run -d \
-  --name rwmarkable \
-  -p 3000:3000 \
-  -v $(pwd)/data:/app/data \
-  rwmarkable
-```
-
 ## 🤝 Contributing
 
 1. **Fork the repository**
@@ -224,6 +216,8 @@ If you encounter any issues or have questions:
 2. **Search existing issues** on GitHub
 3. **Create a new issue** with detailed information about your problem
 
+I don't have a lot of free time, but I'll try to keep an eye on it all.
+
 ## 🔄 Updates
 
 To update your installation:
@@ -243,7 +237,3 @@ yarn install
 yarn build
 yarn start
 ```
-
----
-
-**rwMarkable** - Simple, powerful, and beautiful checklist and document management.
