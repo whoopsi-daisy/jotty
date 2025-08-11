@@ -73,26 +73,27 @@ export function ChecklistItem({
         <input
           type="checkbox"
           checked={item.completed}
+          id={item.id}
           onChange={(e) => onToggle(item.id, e.target.checked)}
           className={cn(
-            "h-4 w-4 rounded border-input focus:ring-2 focus:ring-offset-2 focus:ring-ring",
+            "h-5 w-5 rounded border-input focus:ring-2 focus:ring-offset-2 focus:ring-ring",
             "bg-background transition-colors duration-200",
             item.completed && "bg-primary border-primary"
           )}
         />
       </div>
 
-      {/* Text */}
-      <span
+      <label
+        htmlFor={item.id}
         className={cn(
-          "flex-1 text-sm transition-all duration-200",
+          "flex-1 text-sm transition-all duration-200 cursor-pointer",
           item.completed
             ? "line-through text-muted-foreground"
             : "text-foreground"
         )}
       >
         {displayText}
-      </span>
+      </label>
 
       {/* Delete Button */}
       <Button

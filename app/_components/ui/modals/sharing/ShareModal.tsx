@@ -195,138 +195,123 @@ export function ShareModal({
       title={`Share ${itemType}`}
       titleIcon={<Share2 className="h-5 w-5 text-primary" />}
     >
-      <div className="p-6 space-y-4">
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <div className="flex items-center gap-2">
-            <Share2 className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">Share {itemType}</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-md hover:bg-accent transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
+      <div className="space-y-4">
+        <div>
+          <h3 className="font-medium mb-1">{itemTitle}</h3>
+          <p className="text-sm text-muted-foreground">
+            {itemCategory && `Category: ${itemCategory}`}
+          </p>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div>
-            <h3 className="font-medium mb-1">{itemTitle}</h3>
-            <p className="text-sm text-muted-foreground">
-              {itemCategory && `Category: ${itemCategory}`}
-            </p>
+        {error && (
+          <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+            <AlertCircle className="h-4 w-4 text-destructive" />
+            <span className="text-sm text-destructive">{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-md">
+            <Check className="h-4 w-4 text-green-500" />
+            <span className="text-sm text-green-500">{success}</span>
+          </div>
+        )}
+
+        <div>
+          <h4 className="font-medium mb-3 flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Select users to share with
+          </h4>
+
+          {/* Search input */}
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search users..."
+              className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            />
           </div>
 
-          {error && (
-            <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-              <AlertCircle className="h-4 w-4 text-destructive" />
-              <span className="text-sm text-destructive">{error}</span>
-            </div>
-          )}
-
-          {success && (
-            <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-md">
-              <Check className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-green-500">{success}</span>
-            </div>
-          )}
-
-          <div>
-            <h4 className="font-medium mb-3 flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Select users to share with
-            </h4>
-
-            {/* Search input */}
-            <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search users..."
-                className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-              />
-            </div>
-
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {filteredUsers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {searchQuery
-                    ? "No users found matching your search."
-                    : "No other users available to share with."}
-                </p>
-              ) : (
-                filteredUsers.map((user) => (
-                  <label
-                    key={user.username}
-                    className="flex items-center gap-3 p-2 rounded-md hover:bg-accent cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.includes(user.username)}
-                      onChange={() => handleUserToggle(user.username)}
-                      className="rounded border-border"
-                    />
-                    <div className="flex-1">
-                      <span className="text-sm font-medium">
-                        {user.username}
-                      </span>
-                      {user.isAdmin && (
-                        <span className="text-xs text-muted-foreground ml-2">
-                          (Admin)
-                        </span>
-                      )}
-                    </div>
-                    {currentSharing.includes(user.username) && (
-                      <span className="text-xs text-primary">
-                        Currently shared
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {filteredUsers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {searchQuery
+                  ? "No users found matching your search."
+                  : "No other users available to share with."}
+              </p>
+            ) : (
+              filteredUsers.map((user) => (
+                <label
+                  key={user.username}
+                  className="flex items-center gap-3 p-2 rounded-md hover:bg-accent cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.includes(user.username)}
+                    onChange={() => handleUserToggle(user.username)}
+                    className="rounded border-border"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">
+                      {user.username}
+                    </span>
+                    {user.isAdmin && (
+                      <span className="text-xs text-muted-foreground ml-2">
+                        (Admin)
                       </span>
                     )}
-                  </label>
-                ))
-              )}
-            </div>
+                  </div>
+                  {currentSharing.includes(user.username) && (
+                    <span className="text-xs text-primary">
+                      Currently shared
+                    </span>
+                  )}
+                </label>
+              ))
+            )}
           </div>
-
-          {currentSharing.length > 0 && (
-            <div className="pt-2 border-t border-border">
-              <p className="text-sm text-muted-foreground mb-2">
-                Currently shared with: {currentSharing.join(", ")}
-              </p>
-            </div>
-          )}
         </div>
 
-        <div className="flex items-center justify-between p-6 border-t border-border">
-          <div className="flex gap-2">
-            {currentSharing.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={handleRemoveAllSharing}
-                disabled={isLoading}
-                className="text-destructive hover:text-destructive"
-              >
-                Remove All
-              </Button>
-            )}
+        {currentSharing.length > 0 && (
+          <div className="pt-2 border-t border-border">
+            <p className="text-sm text-muted-foreground mb-2">
+              Currently shared with: {currentSharing.join(", ")}
+            </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
-              Cancel
+        )}
+      </div>
+
+      <div className="flex items-center justify-between p-6 border-t border-border">
+        <div className="flex gap-2">
+          {currentSharing.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={handleRemoveAllSharing}
+              disabled={isLoading}
+              className="text-destructive hover:text-destructive"
+            >
+              Remove All
             </Button>
-            {selectedUsers.length > 0 ? (
-              <Button onClick={handleShare} disabled={isLoading}>
-                {isLoading ? "Updating..." : "Share"}
-              </Button>
-            ) : currentSharing.length > 0 ? (
-              <Button onClick={handleUnshare} disabled={isLoading}>
-                {isLoading ? "Removing..." : "Remove Selected"}
-              </Button>
-            ) : (
-              <Button disabled>No users selected</Button>
-            )}
-          </div>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          {selectedUsers.length > 0 ? (
+            <Button onClick={handleShare} disabled={isLoading}>
+              {isLoading ? "Updating..." : "Share"}
+            </Button>
+          ) : currentSharing.length > 0 ? (
+            <Button onClick={handleUnshare} disabled={isLoading}>
+              {isLoading ? "Removing..." : "Remove Selected"}
+            </Button>
+          ) : (
+            <Button disabled>No users selected</Button>
+          )}
         </div>
       </div>
     </Modal>

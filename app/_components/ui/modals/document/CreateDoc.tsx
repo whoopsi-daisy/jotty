@@ -79,7 +79,7 @@ export function CreateDocModal({
       title="Create New Document"
       titleIcon={<FileText className="h-5 w-5 text-primary" />}
     >
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <label
             htmlFor="title"

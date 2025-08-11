@@ -189,22 +189,25 @@ export function DocEditor({
                   variant="outline"
                   size="sm"
                   onClick={() => setShowShareModal(true)}
+                  className="h-8 w-8 lg:h-10 lg:w-10 p-0"
                 >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
+                  <Share2 className="h-4 w-4 lg:h-5 lg:w-5" />
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleEdit}>
-                  <Edit3 className="h-4 w-4 mr-2" />
-                  Edit
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEdit}
+                  className="h-8 w-8 lg:h-10 lg:w-10 p-0"
+                >
+                  <Edit3 className="h-4 w-4 lg:h-5 lg:w-5" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleDelete}
-                  className="text-destructive hover:text-destructive/80 hover:border-destructive/50"
+                  className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
+                  <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
                 </Button>
               </>
             )}

@@ -107,8 +107,8 @@ export function SharedItemDot({
             className={cn(
                 "w-2 h-2 rounded-full",
                 isOwnedByMe
-                    ? "bg-primary" // Shared by me - primary color
-                    : "bg-muted-foreground", // Shared with me - muted color
+                    ? "bg-primary"
+                    : "bg-muted-foreground",
                 className
             )}
             title={

@@ -337,25 +337,6 @@
 }
 
 @layer components {
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 1px;
-    }
-
-    ::-webkit-scrollbar-track {
-        @apply bg-muted;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        @apply bg-muted-foreground bg-opacity-30 rounded-full;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        @apply bg-muted-foreground bg-opacity-50;
-    }
-
-    /* Drag and drop styles */
     .dragging {
         opacity: 0.5;
         transform: rotate(5deg);
@@ -365,7 +346,6 @@
         @apply bg-accent bg-opacity-50;
     }
 
-    /* Minimal prose styles for markdown content - using CSS variables */
     .prose {
         @apply text-foreground;
         line-height: 1.7;
