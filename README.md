@@ -1,5 +1,11 @@
 # rwMarkable
 
+<p align="center">
+  <a href="https://www.buymeacoffee.com/fccview">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
+  </a>
+</p>
+
 A simple, self-hosted app for your checklists and notes.
 
 Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternative for managing your personal checklists and documents. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
@@ -9,7 +15,7 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
   <p align="center">
     <em>Clean, intuitive interface for managing your checklists and tasks.</em>
   </p>
-  <img src="public/app-screenshots/checklist-home.png" alt="Checklist Home View" width="800" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  <img src="public/app-screenshots/checklist-home.png" alt="Checklist Home View" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
 
   <p align="center">
     <em>Heavily customisable themes.</em>
@@ -21,12 +27,6 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
   </p>
   <img src="public/app-screenshots/document-view.png" alt="Document Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
 </div>
-
-<p align="center">
-  <a href="https://www.buymeacoffee.com/fccview">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
-  </a>
-</p>
 
 ## Features
 
