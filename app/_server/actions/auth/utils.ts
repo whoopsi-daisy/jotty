@@ -22,18 +22,12 @@ const SESSIONS_FILE = path.join(
 );
 
 export async function readUsers(): Promise<User[]> {
-  console.log("readUsers() called");
-  console.log("readUsers() - USERS_FILE path:", USERS_FILE);
   try {
     await fs.access(USERS_FILE);
-    console.log("readUsers() - file exists and is accessible");
     const content = await fs.readFile(USERS_FILE, "utf-8");
-    console.log("readUsers() - file content length:", content.length);
     const users = JSON.parse(content);
-    console.log("readUsers() - parsed users:", users);
     return users;
   } catch (error) {
-    console.log("readUsers() - error:", error);
     return [];
   }
 }
@@ -60,16 +54,10 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 export async function hasUsers(): Promise<boolean> {
-  console.log("hasUsers() called");
   try {
     const users = await readUsers();
-    console.log("hasUsers() - users array:", users);
-    console.log("hasUsers() - users length:", users.length);
-    const result = users.length > 0;
-    console.log("hasUsers() - returning:", result);
-    return result;
+    return users.length > 0;
   } catch (error) {
-    console.log("hasUsers() - error:", error);
     return false;
   }
 }
