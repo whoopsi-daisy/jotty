@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { hasUsers } from "@/app/_server/actions/auth/utils";
 import LoginForm from "@/app/(loggedOutRoutes)/auth/login/login-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage() {
   const hasExistingUsers = await hasUsers();
   if (!hasExistingUsers) {
