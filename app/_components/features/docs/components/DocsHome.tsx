@@ -39,7 +39,7 @@ export function DocsHomeView({
   const totalCategories = categories.length;
 
   return (
-    <div className="flex-1 overflow-auto bg-background">
+    <div className="flex-1 overflow-auto bg-background h-full">
       {docs.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center p-4">
           <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">

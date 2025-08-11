@@ -3,19 +3,6 @@
     "username": "fccview",
     "passwordHash": "0d66567805897304bf53a1f79eb3c300af8512928c0ca3c3d8a99718d0fcacca",
     "isAdmin": true,
-    "isSuperAdmin": true,
-    "lastLogin": "2025-08-10T12:28:19.694Z"
-  },
-  {
-    "username": "Jodi",
-    "passwordHash": "7bcf9d89298f1bfae16fa02ed6b61908fd2fa8de45dd8e2153a3c47300765328",
-    "isAdmin": false
-  },
-  {
-    "username": "fccview-test",
-    "passwordHash": "0d66567805897304bf53a1f79eb3c300af8512928c0ca3c3d8a99718d0fcacca",
-    "isAdmin": false,
-    "createdAt": "2025-08-11T07:58:42.691Z",
-    "lastLogin": "2025-08-11T07:58:59.683Z"
+    "isSuperAdmin": true
   }
 ]
