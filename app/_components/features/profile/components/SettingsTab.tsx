@@ -35,36 +35,41 @@ export function SettingsTab({
             </Button>
           </div>
 
-          {/* <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                        <div>
-                            <h3 className="font-medium">Export Data</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Download all your checklists and documents
-                            </p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            onClick={handleExportData}
-                        >
-                            <Download className="h-4 w-4 mr-2" />
-                            Export Data
-                        </Button>
-                    </div> */}
+          {/** @todo: add export data functionality */}
+          {/*
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                <div>
+                    <h3 className="font-medium">Export Data</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Download all your checklists and documents
+                    </p>
+                </div>
+                <Button
+                    variant="outline"
+                    onClick={handleExportData}
+                >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Data
+                </Button>
+            </div> 
+          */}
 
+          {/** @todo: add privacy settings functionality */}
           {/* <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                        <div>
-                            <h3 className="font-medium">Privacy Settings</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Manage your privacy and sharing preferences
-                            </p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowPrivacyModal(true)}
-                        >
-                            Manage Privacy
-                        </Button>
-                    </div> */}
+                  <div>
+                      <h3 className="font-medium">Privacy Settings</h3>
+                      <p className="text-sm text-muted-foreground">
+                          Manage your privacy and sharing preferences
+                      </p>
+                  </div>
+                  <Button
+                      variant="outline"
+                      onClick={() => setShowPrivacyModal(true)}
+                  >
+                      Manage Privacy
+                  </Button>
+              </div> 
+            */}
         </div>
       </div>
     </div>

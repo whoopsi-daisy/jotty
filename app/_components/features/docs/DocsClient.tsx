@@ -26,19 +26,10 @@ export function DocsClient({
   const [editingDoc, setEditingDoc] = useState<Document | null>(null);
   const { selectedDocument, setSelectedDocument } = useAppMode();
 
-  const handleOpenEditModal = (doc: Document) => {
-    setEditingDoc(doc);
-    setShowEditModal(true);
-  };
-
   const handleModalClose = async () => {
     if (selectedDocument && editingDoc && selectedDocument === editingDoc.id) {
       setSelectedDocument(null);
     }
-  };
-
-  const handleDocDeleted = async () => {
-    setSelectedDocument(null);
   };
 
   const selectedDoc = docs.find((doc) => doc.id === selectedDocument);
@@ -49,7 +40,7 @@ export function DocsClient({
         <DocEditor
           doc={selectedDoc}
           categories={categories}
-          onUpdate={() => { }}
+          onUpdate={() => {}}
           onBack={() => setSelectedDocument(null)}
           onDelete={onDocDelete}
         />

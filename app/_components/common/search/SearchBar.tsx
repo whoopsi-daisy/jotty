@@ -24,7 +24,6 @@ interface SearchBarProps {
   onSelectDocument: (id: string) => void;
   onModeChange?: (mode: AppMode) => void;
   className?: string;
-  isAdmin?: boolean;
 }
 
 export function SearchBar({
@@ -35,7 +34,6 @@ export function SearchBar({
   onSelectDocument,
   onModeChange,
   className,
-  isAdmin = false,
 }: SearchBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -45,7 +43,6 @@ export function SearchBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Search function
   const performSearch = useCallback(
     (searchQuery: string) => {
       if (!searchQuery.trim()) {
@@ -56,10 +53,8 @@ export function SearchBar({
       const query = searchQuery.toLowerCase();
       const searchResults: SearchResult[] = [];
 
-      // Search checklists
       checklists.forEach((checklist) => {
         const titleMatch = checklist.title.toLowerCase().includes(query);
-        // Search within checklist items text
         const contentMatch = checklist.items.some((item) =>
           item.text.toLowerCase().includes(query)
         );
@@ -77,7 +72,6 @@ export function SearchBar({
         }
       });
 
-      // Search docs
       docs.forEach((doc) => {
         const titleMatch = doc.title.toLowerCase().includes(query);
         const contentMatch = doc.content?.toLowerCase().includes(query);
@@ -95,7 +89,6 @@ export function SearchBar({
         }
       });
 
-      // Sort by relevance (title matches first)
       searchResults.sort((a, b) => {
         const aTitle = a.title.toLowerCase().includes(query);
         const bTitle = b.title.toLowerCase().includes(query);
@@ -104,21 +97,18 @@ export function SearchBar({
         return 0;
       });
 
-      setResults(searchResults.slice(0, 8)); // Limit to 8 results
+      setResults(searchResults.slice(0, 8));
     },
     [checklists, docs]
   );
 
-  // Handle search input
   useEffect(() => {
     performSearch(query);
     setSelectedIndex(0);
   }, [query, performSearch]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl + K to focus search
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setIsOpen(true);
@@ -127,14 +117,12 @@ export function SearchBar({
 
       if (!isOpen) return;
 
-      // Escape to close
       if (e.key === "Escape") {
         setIsOpen(false);
         setQuery("");
         inputRef.current?.blur();
       }
 
-      // Arrow navigation
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
@@ -144,7 +132,6 @@ export function SearchBar({
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
       }
 
-      // Enter to select
       if (e.key === "Enter" && results[selectedIndex]) {
         handleSelectResult(results[selectedIndex]);
       }
@@ -155,7 +142,6 @@ export function SearchBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, results, selectedIndex]);
 
-  // Click outside to close
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -172,13 +158,11 @@ export function SearchBar({
 
   const handleSelectResult = (result: SearchResult) => {
     if (result.type === "checklist") {
-      // If we're in docs mode, switch to checklists mode first
       if (mode === "docs" && onModeChange) {
         onModeChange("checklists");
       }
       onSelectChecklist(result.id);
     } else {
-      // If we're in checklists mode, switch to docs mode first
       if (mode === "checklists" && onModeChange) {
         onModeChange("docs");
       }
@@ -188,8 +172,6 @@ export function SearchBar({
     setQuery("");
     inputRef.current?.blur();
   };
-
-
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
@@ -222,10 +204,7 @@ export function SearchBar({
         }}
         placeholder={`Search ${mode}...`}
         inputRef={inputRef}
-        className={cn(
-          "transition-all",
-          isOpen && "border-primary shadow-md"
-        )}
+        className={cn("transition-all", isOpen && "border-primary shadow-md")}
       />
 
       {isOpen && (query || results.length > 0) && (

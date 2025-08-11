@@ -10,7 +10,10 @@ interface SidebarNavigationProps {
   onModeChange: (mode: AppMode) => void;
 }
 
-export function SidebarNavigation({ mode, onModeChange }: SidebarNavigationProps) {
+export function SidebarNavigation({
+  mode,
+  onModeChange,
+}: SidebarNavigationProps) {
   const modes = [
     {
       id: "checklists" as AppMode,

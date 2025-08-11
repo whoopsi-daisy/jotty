@@ -30,13 +30,12 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
     return Math.round((completed / total) * 100);
   };
 
-  // Sort lists by most recently updated first
   const recentLists = [...lists]
     .sort(
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     )
-    .slice(0, 12); // Show top 12 recent items
+    .slice(0, 12);
 
   return (
     <div className="h-full overflow-y-auto bg-background">
@@ -74,7 +73,6 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
             </Button>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <StatsCard
               icon={<Folder className="h-6 w-6 text-primary" />}
@@ -98,7 +96,6 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
             />
           </div>
 
-          {/* Recent Checklists */}
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-foreground mb-4">
               Recent Checklists
@@ -121,7 +118,6 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
                     )}
                   </div>
 
-                  {/* Progress bar */}
                   <div className="mb-3">
                     <div className="flex justify-between text-xs text-muted-foreground mb-1">
                       <span>Progress</span>
@@ -137,7 +133,6 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
                     </div>
                   </div>
 
-                  {/* Footer info */}
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <CheckCircle className="h-3 w-3" />
@@ -156,7 +151,6 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
             </div>
           </div>
 
-          {/* Show all link if there are more items */}
           {lists.length > 12 && (
             <div className="text-center">
               <p className="text-sm text-muted-foreground">

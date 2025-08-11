@@ -7,7 +7,6 @@ import { HomeClient } from "@/app/_components/features/home/HomeClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 
 export default async function HomePage() {
-  // Fetch data on the server
   const [listsResult, categoriesResult, docsResult, docsCategoriesResult] =
     await Promise.all([
       getLists(),

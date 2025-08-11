@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Plus, Search, Edit3, Trash2, CheckSquare, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Search,
+  Edit3,
+  Trash2,
+  CheckSquare,
+  FileText,
+} from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { UserManagementModal } from "@/app/_components/ui/modals/user/UserManagementModal";
 import { User, Checklist, Document } from "@/app/_types";
@@ -73,7 +81,7 @@ export function AdminClient({ username }: AdminClientProps) {
   };
 
   const handleUserModalSuccess = () => {
-    loadAdminData(); // Refresh data after user changes
+    loadAdminData();
   };
 
   const filteredUsers = users.filter((user) =>
@@ -88,8 +96,6 @@ export function AdminClient({ username }: AdminClientProps) {
     sharedDocuments: sharedItems.sharedWithMe?.documents?.length || 0,
     adminUsers: users.filter((u) => u.isAdmin).length,
   };
-
-
 
   const renderUsers = () => (
     <div className="space-y-6">
@@ -156,10 +162,11 @@ export function AdminClient({ username }: AdminClientProps) {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isAdmin
-                          ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground"
-                          }`}
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          user.isAdmin
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground"
+                        }`}
                       >
                         {user.isAdmin ? "Admin" : "User"}
                       </span>
@@ -370,11 +377,8 @@ export function AdminClient({ username }: AdminClientProps) {
 
       <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Tab Content */}
       <div className="min-h-[600px]">
-        {activeTab === "overview" && (
-          <AdminOverview stats={stats} />
-        )}
+        {activeTab === "overview" && <AdminOverview stats={stats} />}
         {activeTab === "users" && (
           <AdminUsers
             users={users}
@@ -383,7 +387,6 @@ export function AdminClient({ username }: AdminClientProps) {
             onAddUser={handleAddUser}
             onEditUser={handleEditUser}
             onDeleteUser={(user) => {
-              // Handle delete user
               console.log("Delete user:", user);
             }}
           />
@@ -392,7 +395,6 @@ export function AdminClient({ username }: AdminClientProps) {
         {activeTab === "sharing" && renderSharing()}
       </div>
 
-      {/* User Management Modal */}
       <UserManagementModal
         isOpen={showUserModal}
         onClose={() => setShowUserModal(false)}

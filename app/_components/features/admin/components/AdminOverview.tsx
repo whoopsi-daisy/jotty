@@ -1,7 +1,6 @@
 "use client";
 
 import { Users, FileText, CheckSquare, Shield } from "lucide-react";
-import { cn } from "@/app/_utils/utils";
 
 interface AdminStats {
   totalUsers: number;
@@ -53,7 +52,9 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">System Overview</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          System Overview
+        </h2>
         <p className="text-muted-foreground">
           Monitor your application&apos;s usage and user activity.
         </p>
@@ -133,10 +134,11 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
               <div
                 className="bg-primary h-2 rounded-full"
                 style={{
-                  width: `${((stats.sharedChecklists + stats.sharedDocuments) /
-                    (stats.totalChecklists + stats.totalDocuments)) *
+                  width: `${
+                    ((stats.sharedChecklists + stats.sharedDocuments) /
+                      (stats.totalChecklists + stats.totalDocuments)) *
                     100
-                    }%`,
+                  }%`,
                 }}
               />
             </div>

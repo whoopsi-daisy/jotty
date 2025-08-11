@@ -44,7 +44,6 @@ export function ChecklistItem({
     transition,
   };
 
-  // Get matching emoji for the item text
   const emoji = showEmojis ? findMatchingEmoji(item.text) : "";
   const displayText = showEmojis ? `${emoji}  ${item.text}` : item.text;
 
@@ -58,7 +57,6 @@ export function ChecklistItem({
         completed && "opacity-80"
       )}
     >
-      {/* Drag Handle */}
       <button
         type="button"
         {...attributes}
@@ -68,7 +66,6 @@ export function ChecklistItem({
         <GripVertical className="h-4 w-4" />
       </button>
 
-      {/* Checkbox */}
       <div className="relative flex items-center">
         <input
           type="checkbox"
@@ -95,7 +92,6 @@ export function ChecklistItem({
         {displayText}
       </label>
 
-      {/* Delete Button */}
       <Button
         variant="ghost"
         size="sm"

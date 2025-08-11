@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -44,7 +43,6 @@ export function CategoryList({
   mode,
 }: CategoryListProps) {
   const getItemsInCategory = (categoryName: string) => {
-    // Filter out shared items from regular categories
     return items.filter(
       (item) =>
         (item.category || "Uncategorized") === categoryName && !item.isShared

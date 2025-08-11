@@ -20,7 +20,6 @@ export function DocsHomeView({
   onSelectDoc,
 }: DocsHomeViewProps) {
   const getPreview = (content: string) => {
-    // Strip markdown and get first 100 characters
     const plainText = content
       .replace(/[#*_`~]/g, "")
       .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
@@ -30,13 +29,12 @@ export function DocsHomeView({
       : plainText;
   };
 
-  // Sort docs by most recently updated first
   const recentDocs = [...docs]
     .sort(
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     )
-    .slice(0, 12); // Show top 12 recent items
+    .slice(0, 12);
 
   const totalCategories = categories.length;
 
@@ -60,7 +58,6 @@ export function DocsHomeView({
         </div>
       ) : (
         <div className="max-w-7xl mx-auto p-4 lg:p-8">
-          {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
@@ -76,7 +73,6 @@ export function DocsHomeView({
             </Button>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <StatsCard
               icon={<FileText className="h-6 w-6 text-primary" />}
@@ -124,7 +120,6 @@ export function DocsHomeView({
                       </p>
                     )}
 
-                    {/* Footer info */}
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <FileText className="h-3 w-3" />
@@ -141,7 +136,6 @@ export function DocsHomeView({
             </div>
           </div>
 
-          {/* Show all link if there are more items */}
           {docs.length > 12 && (
             <div className="text-center">
               <p className="text-sm text-muted-foreground">

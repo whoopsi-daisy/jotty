@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -8,7 +7,6 @@ import {
   FileText,
   CheckSquare,
 } from "lucide-react";
-import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 import { Checklist, Document } from "@/app/_types";
 
@@ -29,7 +27,6 @@ export function SharedItemsList({
   isItemSelected,
   mode,
 }: SharedItemsListProps) {
-  // Filter items to only show shared items for the current mode
   const sharedItems = items.filter((item) => item.isShared);
 
   if (sharedItems.length === 0) {

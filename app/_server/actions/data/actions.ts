@@ -82,7 +82,6 @@ export const getLists = async () => {
     const categories = await readDir(userDir);
     const lists: Checklist[] = [];
 
-    // Get user's own lists
     for (const category of categories) {
       if (!category.isDirectory()) continue;
 
@@ -112,11 +111,9 @@ export const getLists = async () => {
       }
     }
 
-    // Get shared lists
     const sharedItems = await getItemsSharedWithUser(currentUser.username);
     for (const sharedItem of sharedItems.checklists) {
       try {
-        // Construct the file path for the shared item
         const sharedFilePath = path.join(
           process.cwd(),
           "data",
@@ -234,12 +231,10 @@ export const updateListAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Determine the correct file path based on whether the item is shared
     let filePath: string;
     let oldFilePath: string | null = null;
 
     if (currentList.isShared) {
-      // For shared items, update the owner's file
       const ownerDir = path.join(
         process.cwd(),
         "data",
@@ -252,7 +247,6 @@ export const updateListAction = async (formData: FormData) => {
         `${id}.md`
       );
 
-      // If category changed, we need to handle the old file path
       if (category && category !== currentList.category) {
         oldFilePath = path.join(
           ownerDir,
@@ -261,7 +255,6 @@ export const updateListAction = async (formData: FormData) => {
         );
       }
     } else {
-      // For non-shared items, update the current user's file
       const userDir = await getUserDir();
       filePath = path.join(
         userDir,
@@ -269,7 +262,6 @@ export const updateListAction = async (formData: FormData) => {
         `${id}.md`
       );
 
-      // If category changed, we need to handle the old file path
       if (category && category !== currentList.category) {
         oldFilePath = path.join(
           userDir,
@@ -281,7 +273,6 @@ export const updateListAction = async (formData: FormData) => {
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    // Delete old file if category changed
     if (oldFilePath && oldFilePath !== filePath) {
       await deleteFile(oldFilePath);
     }
@@ -301,7 +292,6 @@ export const deleteListAction = async (formData: FormData) => {
     const filePath = path.join(userDir, category, `${id}.md`);
     await deleteFile(filePath);
 
-    // Clean up sharing metadata
     const currentUser = await getCurrentUser();
     if (currentUser) {
       await removeSharedItem(id, "checklist", currentUser.username);
@@ -357,7 +347,6 @@ export const renameCategoryAction = async (formData: FormData) => {
     const oldCategoryDir = path.join(userDir, oldName);
     const newCategoryDir = path.join(userDir, newName);
 
-    // Check if old directory exists
     if (
       !(await fs
         .access(oldCategoryDir)
@@ -367,7 +356,6 @@ export const renameCategoryAction = async (formData: FormData) => {
       return { error: "Category not found" };
     }
 
-    // Check if new directory already exists
     if (
       await fs
         .access(newCategoryDir)
@@ -377,10 +365,8 @@ export const renameCategoryAction = async (formData: FormData) => {
       return { error: "Category with new name already exists" };
     }
 
-    // Rename the directory
     await fs.rename(oldCategoryDir, newCategoryDir);
 
-    // Update all files in the category to reflect the new category name
     const files = await readDir(newCategoryDir);
     for (const file of files) {
       if (file.isFile() && file.name.endsWith(".md")) {
@@ -424,11 +410,9 @@ export const updateItemAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Determine the correct file path based on whether the item is shared
     let filePath: string;
 
     if (list.isShared) {
-      // For shared items, update the owner's file
       const ownerDir = path.join(
         process.cwd(),
         "data",
@@ -441,7 +425,6 @@ export const updateItemAction = async (formData: FormData) => {
         `${listId}.md`
       );
     } else {
-      // For non-shared items, update the current user's file
       const userDir = await getUserDir();
       filePath = path.join(
         userDir,
@@ -486,11 +469,9 @@ export const createItemAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Determine the correct file path based on whether the item is shared
     let filePath: string;
 
     if (list.isShared) {
-      // For shared items, update the owner's file
       const ownerDir = path.join(
         process.cwd(),
         "data",
@@ -503,7 +484,6 @@ export const createItemAction = async (formData: FormData) => {
         `${listId}.md`
       );
     } else {
-      // For non-shared items, update the current user's file
       const userDir = await getUserDir();
       filePath = path.join(
         userDir,
@@ -541,11 +521,9 @@ export const deleteItemAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Determine the correct file path based on whether the item is shared
     let filePath: string;
 
     if (list.isShared) {
-      // For shared items, update the owner's file
       const ownerDir = path.join(
         process.cwd(),
         "data",
@@ -558,7 +536,6 @@ export const deleteItemAction = async (formData: FormData) => {
         `${listId}.md`
       );
     } else {
-      // For non-shared items, update the current user's file
       const userDir = await getUserDir();
       filePath = path.join(
         userDir,
@@ -585,7 +562,6 @@ export const reorderItemsAction = async (formData: FormData) => {
 
     console.log("Reorder Debug - Input:", { listId, itemIds, currentItems });
 
-    // Get the current list to find the file path (but not the items)
     const lists = await getLists();
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
@@ -605,10 +581,8 @@ export const reorderItemsAction = async (formData: FormData) => {
       }))
     );
 
-    // Create a map of current items from frontend
     const itemMap = new Map(currentItems.map((item) => [item.id, item]));
 
-    // Create new items array based on the received order, preserving existing IDs
     const updatedItems = itemIds.map((id, index) => {
       const item = itemMap.get(id);
       if (!item) throw new Error(`Item ${id} not found`);
@@ -630,11 +604,9 @@ export const reorderItemsAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Determine the correct file path based on whether the item is shared
     let filePath: string;
 
     if (list.isShared) {
-      // For shared items, update the owner's file
       const ownerDir = path.join(
         process.cwd(),
         "data",
@@ -647,7 +619,6 @@ export const reorderItemsAction = async (formData: FormData) => {
         `${listId}.md`
       );
     } else {
-      // For non-shared items, update the current user's file
       const userDir = await getUserDir();
       filePath = path.join(
         userDir,
@@ -661,7 +632,6 @@ export const reorderItemsAction = async (formData: FormData) => {
 
     await writeFile(filePath, markdownContent);
 
-    // Small delay to ensure file is written
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     return { success: true };
@@ -671,7 +641,6 @@ export const reorderItemsAction = async (formData: FormData) => {
   }
 };
 
-// Get all lists for search (used by admins to see all content)
 export const getAllLists = async () => {
   try {
     const currentUser = await getCurrentUser();
@@ -681,7 +650,6 @@ export const getAllLists = async () => {
 
     const allLists: Checklist[] = [];
 
-    // Get all users
     const users = await readUsers();
 
     for (const user of users) {
@@ -726,7 +694,6 @@ export const getAllLists = async () => {
           }
         }
       } catch (error) {
-        // User directory doesn't exist, skip
         continue;
       }
     }

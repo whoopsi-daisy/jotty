@@ -51,7 +51,7 @@ export function UserProfileClient({
         const profileUser: UserType = {
           username: result.data.username,
           isAdmin: result.data.isAdmin,
-          passwordHash: "", // This won't be used in the UI
+          passwordHash: "",
           createdAt: result.data.createdAt,
           lastLogin: result.data.lastLogin,
         };
@@ -72,14 +72,14 @@ export function UserProfileClient({
       const result = await exportUserDataAction();
 
       if (result.success && result.data) {
-        // Create and download JSON file
         const dataStr = JSON.stringify(result.data, null, 2);
         const dataBlob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(dataBlob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `user-data-${username}-${new Date().toISOString().split("T")[0]
-          }.json`;
+        link.download = `user-data-${username}-${
+          new Date().toISOString().split("T")[0]
+        }.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -127,7 +127,6 @@ export function UserProfileClient({
         </div>
       </div>
 
-      {/* Tab Navigation */}
       <div className="bg-muted p-1 rounded-lg">
         <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
           {[
@@ -140,10 +139,11 @@ export function UserProfileClient({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap flex-shrink-0 ${activeTab === tab.id
+                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap flex-shrink-0 ${
+                  activeTab === tab.id
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
-                  }`}
+                }`}
               >
                 <Icon className="h-4 w-4" />
                 {tab.label}
@@ -153,7 +153,6 @@ export function UserProfileClient({
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="min-h-[600px]">
         {activeTab === "profile" && (
           <ProfileTab
@@ -187,7 +186,6 @@ export function UserProfileClient({
         )}
       </div>
 
-      {/* Modals */}
       <DeleteAccountModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

@@ -14,7 +14,6 @@ interface LayoutProps {
   onOpenSettings: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
-  onOpenEditModal: (list: Checklist) => void;
   children: React.ReactNode;
   isAdmin: boolean;
   username: string;
@@ -27,7 +26,6 @@ export function Layout({
   onOpenSettings,
   onOpenCreateModal,
   onOpenCategoryModal,
-  onOpenEditModal,
   isAdmin,
   username,
   children,
@@ -51,7 +49,6 @@ export function Layout({
         onClose={() => setSidebarOpen(false)}
         onOpenCreateModal={onOpenCreateModal}
         onOpenCategoryModal={onOpenCategoryModal}
-        onOpenEditModal={onOpenEditModal}
         categories={categories}
         checklists={lists}
         docs={docs}

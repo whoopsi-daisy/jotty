@@ -20,7 +20,6 @@ export default function UsersPage() {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
 
-  // Load users on mount
   useEffect(() => {
     loadUsers();
   }, []);
@@ -47,7 +46,6 @@ export default function UsersPage() {
     setSuccess("User created successfully");
     loadUsers();
 
-    // Reset form
     const form = document.getElementById("createUserForm") as HTMLFormElement;
     form?.reset();
   }
@@ -81,7 +79,6 @@ export default function UsersPage() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
       <div className="flex-none bg-background border-b border-border px-6 py-4">
         <div className="flex items-center gap-4">
           <Users className="h-5 w-5 text-primary" />
@@ -91,10 +88,8 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto bg-background-secondary">
         <div className="max-w-4xl mx-auto p-6 space-y-6">
-          {/* Messages */}
           {error && (
             <div className="p-4 text-sm text-destructive-foreground bg-destructive/10 rounded-lg border border-destructive/20">
               {error}
@@ -108,7 +103,6 @@ export default function UsersPage() {
           )}
 
           <div className="grid gap-6 lg:grid-cols-2">
-            {/* Create User Form */}
             <div className="bg-background rounded-lg border border-border p-6">
               <div className="flex items-center gap-3 mb-6">
                 <UserPlus className="h-5 w-5 text-primary" />
@@ -175,7 +169,6 @@ export default function UsersPage() {
               </form>
             </div>
 
-            {/* User List */}
             <div className="bg-background rounded-lg border border-border p-6">
               <div className="flex items-center gap-3 mb-6">
                 <Shield className="h-5 w-5 text-primary" />
@@ -201,8 +194,8 @@ export default function UsersPage() {
                           {user.isSuperAdmin
                             ? "Super Admin"
                             : user.isAdmin
-                              ? "Administrator"
-                              : "Regular User"}
+                            ? "Administrator"
+                            : "Regular User"}
                         </p>
                       </div>
                     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Settings, Users, User } from "lucide-react";
+import { LogOut, Menu, Settings, Users } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { SearchBar } from "@/app/_components/common/search/SearchBar";
 import { useRouter } from "next/navigation";
@@ -62,7 +62,6 @@ export function QuickNav({
               onSelectChecklist={onSelectChecklist}
               onSelectDocument={onSelectDocument}
               onModeChange={onModeChange}
-              isAdmin={isAdmin}
             />
           )}
         </div>

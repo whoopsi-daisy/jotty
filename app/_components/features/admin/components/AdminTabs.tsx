@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, FileText, CheckSquare, Settings, Activity, Shield } from "lucide-react";
+import { Users, FileText, Activity, Shield } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 

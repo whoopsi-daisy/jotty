@@ -1,4 +1,3 @@
-// app/_components/_FeatureComponents/DocsPage/ActiveViews/TiptapEditor.tsx
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -11,10 +10,9 @@ type TiptapEditorProps = {
 
 export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const editor = useEditor({
-    immediatelyRender: false, // This fixes the SSR hydration error
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        // Disable the built-in codeBlock to avoid conflicts if you have other plans
         codeBlock: false,
       }),
       Link.configure({
@@ -28,8 +26,6 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     },
     editorProps: {
       attributes: {
-        // THIS IS THE KEY PART
-        // Add your Tailwind `prose` classes here for instant, beautiful styling
         class:
           "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none dark:prose-invert",
       },

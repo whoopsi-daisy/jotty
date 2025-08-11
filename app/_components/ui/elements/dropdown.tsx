@@ -43,8 +43,8 @@ export function Dropdown<T extends string>({
   }, []);
 
   const handleSelect = (e: React.MouseEvent, optionId: T) => {
-    e.preventDefault(); // Prevent form submission
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     onChange(optionId);
     setIsOpen(false);
   };
@@ -52,9 +52,9 @@ export function Dropdown<T extends string>({
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
-        type="button" // Prevent form submission
+        type="button"
         onClick={(e) => {
-          e.preventDefault(); // Prevent form submission
+          e.preventDefault();
           setIsOpen(!isOpen);
         }}
         className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
@@ -76,7 +76,7 @@ export function Dropdown<T extends string>({
             {options.map((option) => (
               <button
                 key={option.id}
-                type="button" // Prevent form submission
+                type="button"
                 onClick={(e) => handleSelect(e, option.id)}
                 className={cn(
                   "w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground",

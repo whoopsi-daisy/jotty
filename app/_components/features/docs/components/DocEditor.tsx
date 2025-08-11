@@ -41,9 +41,7 @@ export function DocEditor({
   onBack,
   onDelete,
 }: DocEditorProps) {
-  // `docContent` stores the raw Markdown from the database
   const [docContent, setDocContent] = useState(doc.content || "");
-  // `editorContent` stores the HTML for Tiptap during an editing session
   const [editorContent, setEditorContent] = useState("");
   const [title, setTitle] = useState(doc.title);
   const [category, setCategory] = useState(doc.category || "Uncategorized");
@@ -70,7 +68,6 @@ export function DocEditor({
     const markdownContent = doc.content || "";
     setDocContent(markdownContent);
     setTitle(doc.title);
-    // For uncategorized documents, use empty string to match dropdown option ID
     const docCategory =
       doc.category === "Uncategorized" || !doc.category ? "" : doc.category;
     console.log(
@@ -84,7 +81,6 @@ export function DocEditor({
     setIsEditing(false);
   }, [doc]);
 
-  // Check if current user is the owner
   useEffect(() => {
     const checkOwnership = async () => {
       try {
@@ -141,13 +137,12 @@ export function DocEditor({
       formData.append("category", doc.category || "Uncategorized");
       await deleteDocAction(formData);
       onDelete?.(doc.id);
-      onBack(); // Go back to docs list after deletion
+      onBack();
     }
   };
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
-      {/* Header */}
       <div className="bg-background border-b border-border px-4 lg:px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -246,7 +241,6 @@ export function DocEditor({
           </div>
         </div>
 
-        {/* Category dropdown - outside flex container */}
         {isEditing && isOwner && (
           <div className="mt-4">
             <div className="flex items-center gap-3">
@@ -262,7 +256,6 @@ export function DocEditor({
         )}
       </div>
 
-      {/* Content Area */}
       <div className="flex-1 overflow-auto">
         {isEditing ? (
           <TiptapEditor content={editorContent} onChange={setEditorContent} />

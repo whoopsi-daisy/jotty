@@ -50,7 +50,6 @@ export function ChecklistView({
   const [showShareModal, setShowShareModal] = useState(false);
   const [localList, setLocalList] = useState(list);
 
-  // Update localList when prop changes
   useEffect(() => {
     setLocalList(list);
   }, [list]);
@@ -90,7 +89,6 @@ export function ChecklistView({
     const result = await updateItemAction(formData);
 
     if (result.success) {
-      // Update local state immediately
       setLocalList((prev) => ({
         ...prev,
         items: prev.items.map((item) =>
@@ -108,7 +106,6 @@ export function ChecklistView({
     const result = await deleteItemAction(formData);
 
     if (result.success) {
-      // Update local state immediately
       setLocalList((prev) => ({
         ...prev,
         items: prev.items.filter((item) => item.id !== itemId),
@@ -121,7 +118,6 @@ export function ChecklistView({
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      // Find which section this drag is happening in
       const incompleteItems = localList.items.filter((item) => !item.completed);
       const completedItems = localList.items.filter((item) => item.completed);
 
@@ -143,7 +139,6 @@ export function ChecklistView({
         })),
       });
 
-      // Check if this is a drag in the incomplete section
       const incompleteOldIndex = incompleteItems.findIndex(
         (item) => item.id === active.id
       );
@@ -152,7 +147,6 @@ export function ChecklistView({
       );
 
       if (incompleteOldIndex !== -1 && incompleteNewIndex !== -1) {
-        // Reorder within incomplete items
         const newIncompleteItems = arrayMove(
           incompleteItems,
           incompleteOldIndex,
@@ -175,7 +169,6 @@ export function ChecklistView({
           })),
         });
 
-        // Update local state immediately
         setLocalList((prev) => ({
           ...prev,
           items: newItems,
@@ -191,7 +184,6 @@ export function ChecklistView({
         const result = await reorderItemsAction(formData);
 
         if (!result.success) {
-          // Revert on failure
           setLocalList((prev) => ({
             ...prev,
             items: list.items,
@@ -201,7 +193,6 @@ export function ChecklistView({
         return;
       }
 
-      // Check if this is a drag in the completed section
       const completedOldIndex = completedItems.findIndex(
         (item) => item.id === active.id
       );
@@ -210,7 +201,6 @@ export function ChecklistView({
       );
 
       if (completedOldIndex !== -1 && completedNewIndex !== -1) {
-        // Reorder within completed items
         const newCompletedItems = arrayMove(
           completedItems,
           completedOldIndex,
@@ -233,7 +223,6 @@ export function ChecklistView({
           })),
         });
 
-        // Update local state immediately
         setLocalList((prev) => ({
           ...prev,
           items: newItems,
@@ -249,7 +238,6 @@ export function ChecklistView({
         const result = await reorderItemsAction(formData);
 
         if (!result.success) {
-          // Revert on failure
           setLocalList((prev) => ({
             ...prev,
             items: list.items,
@@ -262,9 +250,7 @@ export function ChecklistView({
 
   const incompleteItems = localList.items.filter((item) => !item.completed);
   const completedItems = localList.items.filter((item) => item.completed);
-  const completedCount = completedItems.length;
   const totalCount = localList.items.length;
-  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
     <div className="h-full flex flex-col bg-background">

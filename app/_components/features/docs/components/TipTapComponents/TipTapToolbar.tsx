@@ -1,4 +1,3 @@
-// app/_components/_FeatureComponents/DocsPage/ActiveViews/TiptapToolbar.tsx
 import { Editor } from "@tiptap/react";
 import {
   Bold,

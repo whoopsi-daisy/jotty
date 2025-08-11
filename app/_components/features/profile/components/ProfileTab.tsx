@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Edit3, Save, AlertCircle, Check, X, Shield, User } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { User as UserType } from "@/app/_types";
@@ -147,13 +146,16 @@ export function ProfileTab({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-medium text-foreground">{user?.username || username}</h3>
-                {isAdmin && (
-                  <Shield className="h-4 w-4 text-primary" />
-                )}
+                <h3 className="font-medium text-foreground">
+                  {user?.username || username}
+                </h3>
+                {isAdmin && <Shield className="h-4 w-4 text-primary" />}
               </div>
               <p className="text-sm text-muted-foreground">
-                {isAdmin ? "Admin" : "User"} • {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}
+                {isAdmin ? "Admin" : "User"} •{" "}
+                {user?.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString()
+                  : "Unknown"}
               </p>
             </div>
           </div>

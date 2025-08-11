@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { register } from '@/app/_server/actions/auth/register'
+import { useState } from "react";
+import { register } from "@/app/_server/actions/auth/register";
 
 export default function SetupForm() {
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState<string>("");
 
   async function handleSubmit(formData: FormData) {
-    const result = await register(formData)
+    const result = await register(formData);
     if (result?.error) {
-      setError(result.error)
+      setError(result.error);
     }
   }
 
@@ -90,5 +90,5 @@ export default function SetupForm() {
         </button>
       </form>
     </div>
-  )
-} 
+  );
+}

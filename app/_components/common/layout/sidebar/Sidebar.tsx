@@ -28,7 +28,6 @@ interface SidebarProps {
   onClose: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
-  onOpenEditModal: (checklist: Checklist) => void;
   categories: Category[];
   checklists: Checklist[];
   docs?: Document[];
@@ -41,7 +40,6 @@ export function Sidebar({
   onClose,
   onOpenCreateModal,
   onOpenCategoryModal,
-  onOpenEditModal,
   categories,
   checklists,
   docs = [],
@@ -188,7 +186,6 @@ export function Sidebar({
           <SidebarNavigation mode={mode} onModeChange={handleModeSwitch} />
 
           <div className="flex-1 overflow-y-auto p-2 space-y-4">
-            {/* Shared Items Section */}
             <SharedItemsList
               items={mode === "checklists" ? checklists : docs}
               collapsed={sharedItemsCollapsed}
@@ -198,7 +195,6 @@ export function Sidebar({
               mode={mode}
             />
 
-            {/* Categories Section */}
             <CategoryList
               categories={categories}
               items={mode === "checklists" ? checklists : docs}

@@ -32,7 +32,6 @@ const parseMarkdownDoc = (
   const titleLine = lines.find((line) => line.startsWith("# "));
   const title = titleLine?.replace(/^#\s*/, "") || "Untitled Document";
 
-  // Remove the title line from content to get the actual document content
   const contentWithoutTitle = lines
     .filter((line) => !line.startsWith("# ") || line !== titleLine)
     .join("\n")
@@ -74,7 +73,6 @@ export const getDocs = async () => {
     const categories = await readDocsDir(userDir);
     const docs: Document[] = [];
 
-    // Get user's own documents
     for (const category of categories) {
       if (!category.isDirectory()) continue;
 
@@ -104,11 +102,9 @@ export const getDocs = async () => {
       }
     }
 
-    // Get shared documents
     const sharedItems = await getItemsSharedWithUser(currentUser.username);
     for (const sharedItem of sharedItems.documents) {
       try {
-        // Construct the file path for the shared item
         const sharedFilePath = path.join(
           process.cwd(),
           "data",
@@ -220,12 +216,10 @@ export const updateDocAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Determine the correct file path based on whether the item is shared
     let filePath: string;
     let oldFilePath: string | null = null;
 
     if (doc.isShared) {
-      // For shared items, update the owner's file
       const ownerDir = path.join(process.cwd(), "data", "docs", doc.owner!);
       filePath = path.join(
         ownerDir,
@@ -233,7 +227,6 @@ export const updateDocAction = async (formData: FormData) => {
         `${id}.md`
       );
 
-      // If category changed, we need to handle the old file path
       if (category && category !== doc.category) {
         oldFilePath = path.join(
           ownerDir,
@@ -242,7 +235,6 @@ export const updateDocAction = async (formData: FormData) => {
         );
       }
     } else {
-      // For non-shared items, update the current user's file
       const userDir = await getDocsUserDir();
       filePath = path.join(
         userDir,
@@ -250,7 +242,6 @@ export const updateDocAction = async (formData: FormData) => {
         `${id}.md`
       );
 
-      // If category changed, we need to handle the old file path
       if (category && category !== doc.category) {
         oldFilePath = path.join(
           userDir,
@@ -262,7 +253,6 @@ export const updateDocAction = async (formData: FormData) => {
 
     await writeDocsFile(filePath, docToMarkdown(updatedDoc));
 
-    // Delete old file if category changed
     if (oldFilePath && oldFilePath !== filePath) {
       await deleteDocsFile(oldFilePath);
     }
@@ -286,7 +276,6 @@ export const deleteDocAction = async (formData: FormData) => {
     );
     await deleteDocsFile(filePath);
 
-    // Clean up sharing metadata
     const currentUser = await getCurrentUser();
     if (currentUser) {
       await removeSharedItem(id, "document", currentUser.username);
@@ -339,7 +328,6 @@ export const renameDocsCategoryAction = async (formData: FormData) => {
     const oldCategoryDir = path.join(userDir, oldName);
     const newCategoryDir = path.join(userDir, newName);
 
-    // Check if old directory exists
     if (
       !(await fs
         .access(oldCategoryDir)
@@ -349,7 +337,6 @@ export const renameDocsCategoryAction = async (formData: FormData) => {
       return { error: "Category not found" };
     }
 
-    // Check if new directory already exists
     if (
       await fs
         .access(newCategoryDir)
@@ -359,10 +346,8 @@ export const renameDocsCategoryAction = async (formData: FormData) => {
       return { error: "Category with new name already exists" };
     }
 
-    // Rename the directory
     await fs.rename(oldCategoryDir, newCategoryDir);
 
-    // Update all files in the category to reflect the new category name
     const files = await readDocsDir(newCategoryDir);
     for (const file of files) {
       if (file.isFile() && file.name.endsWith(".md")) {
@@ -382,7 +367,6 @@ export const renameDocsCategoryAction = async (formData: FormData) => {
   }
 };
 
-// Get all documents for search (used by admins to see all content)
 export const getAllDocs = async () => {
   try {
     const currentUser = await getCurrentUser();
@@ -392,7 +376,6 @@ export const getAllDocs = async () => {
 
     const allDocs: Document[] = [];
 
-    // Get all users
     const users = await readUsers();
 
     for (const user of users) {
@@ -432,7 +415,6 @@ export const getAllDocs = async () => {
           }
         }
       } catch (error) {
-        // User directory doesn't exist, skip
         continue;
       }
     }

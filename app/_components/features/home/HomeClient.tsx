@@ -46,7 +46,9 @@ export function HomeClient({
   const [showCreateDocModal, setShowCreateDocModal] = useState(false);
   const [showDocsCategoryModal, setShowDocsCategoryModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingChecklist, setEditingChecklist] = useState<Checklist | null>(null);
+  const [editingChecklist, setEditingChecklist] = useState<Checklist | null>(
+    null
+  );
   const [initialCategory, setInitialCategory] = useState<string>("");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const { selectedChecklist, setSelectedChecklist } =
@@ -66,39 +68,32 @@ export function HomeClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
 
-  // Handle URL hash navigation on mount and when data changes
   useEffect(() => {
     if (!isInitialized) return;
 
     const hash = getHashFromUrl();
     if (hash) {
-      // Check if it's a doc ID
       const isDocId = docs.some((doc) => doc.id === hash);
-      // Check if it's a checklist ID
       const isChecklistId = lists.some((list) => list.id === hash);
 
       if (isDocId && mode !== "docs") {
-        // Switch to docs mode and select document
         setMode("docs");
         setSelectedDocument(hash);
         setSelectedChecklist(null);
       } else if (isChecklistId && mode !== "checklists") {
-        // Switch to checklists mode and select checklist
         setMode("checklists");
         setSelectedChecklist(hash);
         setSelectedDocument(null);
       } else if (isDocId && mode === "docs") {
-        // We're already in docs mode, just select the document
         setSelectedDocument(hash);
         setSelectedChecklist(null);
       } else if (isChecklistId && mode === "checklists") {
-        // We're already in checklists mode, just select the checklist
         setSelectedChecklist(hash);
         setSelectedDocument(null);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInitialized, docs, lists]); // Only run when data changes, not when mode changes
+  }, [isInitialized, docs, lists]);
 
   useEffect(() => {
     if (isInitialized) {
@@ -109,10 +104,6 @@ export function HomeClient({
       }
     }
   }, [selectedChecklist, selectedDocument, isInitialized, mode]);
-
-
-
-
 
   const handleOpenEditModal = (checklist: Checklist) => {
     setEditingChecklist(checklist);
@@ -130,7 +121,7 @@ export function HomeClient({
   };
 
   const handleListDeleted = async (deletedId: string) => {
-    setLists(prev => prev.filter(list => list.id !== deletedId));
+    setLists((prev) => prev.filter((list) => list.id !== deletedId));
     setSelectedChecklist(null);
     setHashInUrl("");
   };
@@ -172,7 +163,7 @@ export function HomeClient({
           categories={docsCategories}
           onDocsUpdate={setDocs}
           onDocDelete={(deletedId) => {
-            setDocs(prev => prev.filter(doc => doc.id !== deletedId));
+            setDocs((prev) => prev.filter((doc) => doc.id !== deletedId));
             setSelectedDocument(null);
             setHashInUrl("");
           }}
@@ -180,13 +171,12 @@ export function HomeClient({
       );
     }
 
-    // Checklist mode
     const selectedList = lists.find((list) => list.id === selectedChecklist);
     if (selectedList) {
       return (
         <ChecklistView
           list={selectedList}
-          onUpdate={() => { }} // No server action call here
+          onUpdate={() => {}}
           onBack={() => setSelectedChecklist(null)}
           onEdit={handleOpenEditModal}
           onDelete={handleListDeleted}
@@ -207,7 +197,6 @@ export function HomeClient({
       onOpenSettings={() => setShowSettingsModal(true)}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
-      onOpenEditModal={handleOpenEditModal}
       isAdmin={isAdmin}
       username={username}
     >
@@ -219,7 +208,7 @@ export function HomeClient({
           onCreated={(newChecklist) => {
             setShowCreateModal(false);
             if (newChecklist) {
-              setLists(prev => [...prev, newChecklist]);
+              setLists((prev) => [...prev, newChecklist]);
               setSelectedChecklist(newChecklist.id);
               setHashInUrl(newChecklist.id);
             }
@@ -235,7 +224,7 @@ export function HomeClient({
           onCreated={(newDoc) => {
             setShowCreateDocModal(false);
             if (newDoc) {
-              setDocs(prev => [...prev, newDoc]);
+              setDocs((prev) => [...prev, newDoc]);
               setSelectedDocument(newDoc.id);
               setHashInUrl(newDoc.id);
             }
@@ -251,7 +240,7 @@ export function HomeClient({
           onCreated={(newCategory) => {
             setShowCategoryModal(false);
             if (newCategory) {
-              setCategories(prev => [...prev, newCategory]);
+              setCategories((prev) => [...prev, newCategory]);
             }
           }}
         />
@@ -263,7 +252,7 @@ export function HomeClient({
           onCreated={(newCategory) => {
             setShowDocsCategoryModal(false);
             if (newCategory) {
-              setDocsCategories(prev => [...prev, newCategory]);
+              setDocsCategories((prev) => [...prev, newCategory]);
             }
           }}
         />

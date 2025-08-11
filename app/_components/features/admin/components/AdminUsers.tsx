@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Search, Plus, Edit3, Trash2, Shield, User } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { cn } from "@/app/_utils/utils";
 import { User as UserType } from "@/app/_types";
 
 interface AdminUsersProps {
@@ -31,7 +29,9 @@ export function AdminUsers({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">User Management</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            User Management
+          </h2>
           <p className="text-muted-foreground">
             Manage user accounts and permissions.
           </p>
@@ -66,13 +66,18 @@ export function AdminUsers({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-foreground">{user.username}</h3>
+                    <h3 className="font-medium text-foreground">
+                      {user.username}
+                    </h3>
                     {user.isAdmin && (
                       <Shield className="h-4 w-4 text-primary" />
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {user.isAdmin ? "Admin" : "User"} • {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
+                    {user.isAdmin ? "Admin" : "User"} •{" "}
+                    {user.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString()
+                      : "N/A"}
                   </p>
                 </div>
               </div>
@@ -109,8 +114,7 @@ export function AdminUsers({
             <p className="text-muted-foreground">
               {searchQuery
                 ? "No users match your search criteria."
-                : "Users will appear here once they register."
-              }
+                : "Users will appear here once they register."}
             </p>
           </div>
         )}

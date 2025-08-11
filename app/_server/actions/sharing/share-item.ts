@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 import { readUsers } from "@/app/_server/actions/auth/utils";
 import {
@@ -8,7 +7,6 @@ import {
   removeSharedItem,
   updateSharedItem,
   getItemSharingMetadata,
-  isItemSharedWithUser,
 } from "./sharing-utils";
 import { Result } from "@/app/_types";
 
@@ -32,12 +30,10 @@ export async function shareItemAction(
       return { success: false, error: "Missing required fields" };
     }
 
-    // Validate type
     if (type !== "checklist" && type !== "document") {
       return { success: false, error: "Invalid item type" };
     }
 
-    // Get all users for validation
     const users = await readUsers();
     const usernames = users.map((u) => u.username);
 
@@ -48,7 +44,6 @@ export async function shareItemAction(
 
       const targetUserList = targetUsers.split(",").map((u) => u.trim());
 
-      // Validate target users exist
       const invalidUsers = targetUserList.filter((u) => !usernames.includes(u));
       if (invalidUsers.length > 0) {
         return {
@@ -57,7 +52,6 @@ export async function shareItemAction(
         };
       }
 
-      // Don't share with yourself
       const filteredUsers = targetUserList.filter(
         (u) => u !== currentUser.username
       );
@@ -65,7 +59,6 @@ export async function shareItemAction(
         return { success: false, error: "Cannot share with yourself" };
       }
 
-      // Check if already shared with these users
       const existingMetadata = await getItemSharingMetadata(
         itemId,
         type,
@@ -73,7 +66,6 @@ export async function shareItemAction(
       );
 
       if (existingMetadata) {
-        // Update existing sharing
         const allUsers = [...existingMetadata.sharedWith, ...filteredUsers];
         const newSharedWith = allUsers.filter(
           (user, index) => allUsers.indexOf(user) === index
@@ -82,7 +74,6 @@ export async function shareItemAction(
           sharedWith: newSharedWith,
         });
       } else {
-        // Create new sharing
         await addSharedItem(
           itemId,
           type,
@@ -96,10 +87,8 @@ export async function shareItemAction(
       return { success: true };
     } else if (action === "unshare") {
       if (!targetUsers) {
-        // Remove all sharing
         await removeSharedItem(itemId, type, currentUser.username);
       } else {
-        // Remove specific users
         const targetUserList = targetUsers.split(",").map((u) => u.trim());
         const existingMetadata = await getItemSharingMetadata(
           itemId,
@@ -113,10 +102,8 @@ export async function shareItemAction(
           );
 
           if (newSharedWith.length === 0) {
-            // Remove all sharing if no users left
             await removeSharedItem(itemId, type, currentUser.username);
           } else {
-            // Update with remaining users
             await updateSharedItem(itemId, type, currentUser.username, {
               sharedWith: newSharedWith,
             });
@@ -137,7 +124,6 @@ export async function shareItemAction(
 export async function unshareItemAction(
   formData: FormData
 ): Promise<Result<null>> {
-  // This is just a convenience wrapper around shareItemAction
   formData.set("action", "unshare");
   return shareItemAction(formData);
 }
@@ -153,7 +139,6 @@ export async function getItemSharingStatusAction(
       return { success: false, error: "Not authenticated" };
     }
 
-    // Only owner can check sharing status
     if (currentUser.username !== owner) {
       return { success: false, error: "Unauthorized" };
     }
