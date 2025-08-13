@@ -121,24 +121,6 @@ export function ChecklistView({
       const incompleteItems = localList.items.filter((item) => !item.completed);
       const completedItems = localList.items.filter((item) => item.completed);
 
-      console.log("Frontend Debug - Before reorder:", {
-        allItems: localList.items.map((item) => ({
-          id: item.id,
-          text: item.text,
-          order: item.order,
-        })),
-        incompleteItems: incompleteItems.map((item) => ({
-          id: item.id,
-          text: item.text,
-          order: item.order,
-        })),
-        completedItems: completedItems.map((item) => ({
-          id: item.id,
-          text: item.text,
-          order: item.order,
-        })),
-      });
-
       const incompleteOldIndex = incompleteItems.findIndex(
         (item) => item.id === active.id
       );
@@ -156,26 +138,12 @@ export function ChecklistView({
           (item, index) => ({ ...item, order: index })
         );
 
-        console.log("Frontend Debug - After reorder:", {
-          newIncompleteItems: newIncompleteItems.map((item) => ({
-            id: item.id,
-            text: item.text,
-            order: item.order,
-          })),
-          newItems: newItems.map((item) => ({
-            id: item.id,
-            text: item.text,
-            order: item.order,
-          })),
-        });
-
         setLocalList((prev) => ({
           ...prev,
           items: newItems,
         }));
 
         const itemIds = newItems.map((item) => item.id);
-        console.log("Frontend Debug - Sending to server:", itemIds);
 
         const formData = new FormData();
         formData.append("listId", localList.id);
@@ -210,26 +178,12 @@ export function ChecklistView({
           (item, index) => ({ ...item, order: index })
         );
 
-        console.log("Frontend Debug - After reorder (completed):", {
-          newCompletedItems: newCompletedItems.map((item) => ({
-            id: item.id,
-            text: item.text,
-            order: item.order,
-          })),
-          newItems: newItems.map((item) => ({
-            id: item.id,
-            text: item.text,
-            order: item.order,
-          })),
-        });
-
         setLocalList((prev) => ({
           ...prev,
           items: newItems,
         }));
 
         const itemIds = newItems.map((item) => item.id);
-        console.log("Frontend Debug - Sending to server (completed):", itemIds);
 
         const formData = new FormData();
         formData.append("listId", localList.id);

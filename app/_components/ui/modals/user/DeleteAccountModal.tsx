@@ -88,9 +88,9 @@ export function DeleteAccountModal({
         )}
 
         {success && (
-          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-md">
-            <Check className="h-4 w-4 text-green-500" />
-            <span className="text-sm text-green-500">{success}</span>
+          <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-md">
+            <Check className="h-4 w-4 text-primary" />
+            <span className="text-sm text-primary">{success}</span>
           </div>
         )}
 

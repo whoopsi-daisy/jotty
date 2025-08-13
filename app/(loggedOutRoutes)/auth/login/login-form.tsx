@@ -34,8 +34,8 @@ export default function LoginForm() {
 
       <form action={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 rounded-md">
-            {error}
+          <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+            <span className="text-sm text-destructive">{error}</span>
           </div>
         )}
 

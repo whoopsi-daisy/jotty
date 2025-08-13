@@ -4,6 +4,7 @@ import "@/app/_styles/globals.css";
 import { ThemeProvider } from "@/app/_providers/ThemeProvider";
 import { ChecklistProvider } from "@/app/_providers/ChecklistProvider";
 import { AppModeProvider } from "@/app/_providers/AppModeProvider";
+import { ToastProvider } from "@/app/_providers/ToastProvider";
 import { InstallPrompt } from "@/app/_components/ui/pwa/InstallPrompt";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -65,10 +66,12 @@ export default async function RootLayout({
         <ThemeProvider>
           <AppModeProvider>
             <ChecklistProvider>
-              <div className="min-h-screen bg-background text-foreground transition-colors">
-                {children}
-                <InstallPrompt />
-              </div>
+              <ToastProvider>
+                <div className="min-h-screen bg-background text-foreground transition-colors">
+                  {children}
+                  <InstallPrompt />
+                </div>
+              </ToastProvider>
             </ChecklistProvider>
           </AppModeProvider>
         </ThemeProvider>

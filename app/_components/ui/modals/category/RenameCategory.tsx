@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Edit3 } from "lucide-react";
 import { Modal } from "../../elements/modal";
+import { useToast } from "@/app/_providers/ToastProvider";
 
 interface RenameCategoryModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export function RenameCategoryModal({
 }: RenameCategoryModalProps) {
   const [newName, setNewName] = useState(categoryName);
   const [isRenaming, setIsRenaming] = useState(false);
+  const { showToast } = useToast();
 
   if (!isOpen) return null;
 
@@ -30,9 +32,19 @@ export function RenameCategoryModal({
     setIsRenaming(true);
     try {
       await onRename(categoryName, newName.trim());
+      showToast({
+        type: "success",
+        title: "Category renamed successfully!",
+        message: `Category "${categoryName}" renamed to "${newName.trim()}"`,
+      });
       onClose();
     } catch (error) {
       console.error("Failed to rename category:", error);
+      showToast({
+        type: "error",
+        title: "Failed to rename category",
+        message: "An error occurred while renaming the category.",
+      });
     } finally {
       setIsRenaming(false);
     }
@@ -80,9 +92,7 @@ export function RenameCategoryModal({
           </Button>
           <Button
             type="submit"
-            disabled={
-              !newName.trim() || newName === categoryName || isRenaming
-            }
+            disabled={!newName.trim() || newName === categoryName || isRenaming}
           >
             {isRenaming ? "Renaming..." : "Rename"}
           </Button>

@@ -6,13 +6,16 @@ import { readUsers, writeUsers } from "@/app/_server/actions/auth/utils";
 import { User } from "@/app/_types";
 import { Result } from "@/app/_types";
 
-type UserWithoutPassword = Omit<User, 'passwordHash'>;
+type UserWithoutPassword = Omit<User, "passwordHash">;
 
-export async function updateUserAction(formData: FormData): Promise<Result<UserWithoutPassword>> {
+export async function updateUserAction(
+  formData: FormData
+): Promise<Result<UserWithoutPassword>> {
   try {
     const username = formData.get("username") as string;
     const newUsername = formData.get("newUsername") as string;
     const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
     const isAdmin = formData.get("isAdmin") === "true";
 
     // Validate input
@@ -37,9 +40,25 @@ export async function updateUserAction(formData: FormData): Promise<Result<UserW
       };
     }
 
+    if (password && !confirmPassword) {
+      return {
+        success: false,
+        error: "Confirm password is required when changing password",
+      };
+    }
+
+    if (password && password !== confirmPassword) {
+      return {
+        success: false,
+        error: "Passwords do not match",
+      };
+    }
+
     // Get existing users
     const existingUsers = await readUsers();
-    const userIndex = existingUsers.findIndex((user) => user.username === username);
+    const userIndex = existingUsers.findIndex(
+      (user) => user.username === username
+    );
 
     if (userIndex === -1) {
       return {
@@ -50,7 +69,9 @@ export async function updateUserAction(formData: FormData): Promise<Result<UserW
 
     // Check if new username already exists (if changing username)
     if (newUsername !== username) {
-      const usernameExists = existingUsers.find((user) => user.username === newUsername);
+      const usernameExists = existingUsers.find(
+        (user) => user.username === newUsername
+      );
       if (usernameExists) {
         return {
           success: false,
@@ -68,7 +89,9 @@ export async function updateUserAction(formData: FormData): Promise<Result<UserW
 
     // Update password if provided
     if (password) {
-      const hashedPassword = createHash("sha256").update(password).digest("hex");
+      const hashedPassword = createHash("sha256")
+        .update(password)
+        .digest("hex");
       updatedUser.passwordHash = hashedPassword;
     }
 

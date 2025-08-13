@@ -59,7 +59,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         const allThemes = await getAllThemes();
         setThemes(allThemes);
       } catch (error) {
-        console.error('Failed to load themes:', error);
+        console.error("Failed to load themes:", error);
       } finally {
         setLoading(false);
       }
@@ -99,12 +99,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 className="sr-only"
               />
               <div
-                className={`block w-10 h-6 rounded-full transition-colors ${showEmojis ? "bg-primary" : "bg-muted"
-                  }`}
+                className={`block w-10 h-6 rounded-full transition-colors ${
+                  showEmojis ? "bg-primary" : "bg-muted"
+                }`}
               >
                 <div
-                  className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showEmojis ? "translate-x-4" : "translate-x-0"
-                    }`}
+                  className={`absolute left-1 top-1 bg-card w-4 h-4 rounded-full transition-transform ${
+                    showEmojis ? "translate-x-4" : "translate-x-0"
+                  }`}
                 />
               </div>
             </div>

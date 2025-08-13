@@ -24,7 +24,6 @@ export function InstallPrompt() {
 
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
-      console.log("beforeinstallprompt event fired");
       e.preventDefault();
       setDeferredPrompt(e);
       setShowInstallPrompt(true);

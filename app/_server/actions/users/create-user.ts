@@ -6,19 +6,22 @@ import { readUsers, writeUsers } from "@/app/_server/actions/auth/utils";
 import { User } from "@/app/_types";
 import { Result } from "@/app/_types";
 
-type UserWithoutPassword = Omit<User, 'passwordHash'>;
+type UserWithoutPassword = Omit<User, "passwordHash">;
 
-export async function createUserAction(formData: FormData): Promise<Result<UserWithoutPassword>> {
+export async function createUserAction(
+  formData: FormData
+): Promise<Result<UserWithoutPassword>> {
   try {
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
     const isAdmin = formData.get("isAdmin") === "true";
 
     // Validate input
-    if (!username || !password) {
+    if (!username || !password || !confirmPassword) {
       return {
         success: false,
-        error: "Username and password are required",
+        error: "Username, password, and confirm password are required",
       };
     }
 
@@ -33,6 +36,13 @@ export async function createUserAction(formData: FormData): Promise<Result<UserW
       return {
         success: false,
         error: "Password must be at least 6 characters long",
+      };
+    }
+
+    if (password !== confirmPassword) {
+      return {
+        success: false,
+        error: "Passwords do not match",
       };
     }
 
