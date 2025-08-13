@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { DocsHomeView } from "@/app/_components/features/docs/components/DocsHome";
 import { DocEditor } from "@/app/_components/features/docs/components/DocEditor";
-import { CreateDocModal } from "@/app/_components/ui/modals/document/CreateDoc";
 import { EditDocModal } from "@/app/_components/ui/modals/document/EditDoc";
 import { Document, Category } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
@@ -11,17 +10,16 @@ import { useAppMode } from "@/app/_providers/AppModeProvider";
 interface DocsClientProps {
   docs: Document[];
   categories: Category[];
-  onDocsUpdate: (newDocs: Document[]) => void;
   onDocDelete?: (deletedId: string) => void;
+  onCreateModal: () => void;
 }
 
 export function DocsClient({
   docs,
   categories,
-  onDocsUpdate,
   onDocDelete,
+  onCreateModal,
 }: DocsClientProps) {
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<Document | null>(null);
   const { selectedDocument, setSelectedDocument } = useAppMode();
@@ -48,22 +46,8 @@ export function DocsClient({
         <DocsHomeView
           docs={docs}
           categories={categories}
-          onCreateModal={() => setShowCreateModal(true)}
+          onCreateModal={onCreateModal}
           onSelectDoc={(id) => setSelectedDocument(id)}
-        />
-      )}
-
-      {showCreateModal && (
-        <CreateDocModal
-          onClose={() => setShowCreateModal(false)}
-          onCreated={(newDoc) => {
-            setShowCreateModal(false);
-            if (newDoc) {
-              onDocsUpdate([...docs, newDoc]);
-              setSelectedDocument(newDoc.id);
-            }
-          }}
-          categories={categories}
         />
       )}
 

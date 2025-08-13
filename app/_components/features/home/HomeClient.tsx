@@ -199,12 +199,12 @@ export function HomeClient({
         <DocsClient
           docs={docs}
           categories={docsCategories}
-          onDocsUpdate={setDocs}
           onDocDelete={(deletedId) => {
             setDocs((prev) => prev.filter((doc) => doc.id !== deletedId));
             setSelectedDocument(null);
             setHashInUrl("");
           }}
+          onCreateModal={() => setShowCreateDocModal(true)}
         />
       );
     }
