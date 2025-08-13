@@ -35,6 +35,10 @@ export function SessionManager({ username }: SessionManagerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [terminatingSession, setTerminatingSession] = useState<string | null>(
+    null
+  );
+  const [terminatingAll, setTerminatingAll] = useState(false);
 
   useEffect(() => {
     loadSessions();
@@ -64,6 +68,7 @@ export function SessionManager({ username }: SessionManagerProps) {
       return;
     }
 
+    setTerminatingSession(sessionId);
     try {
       const formData = new FormData();
       formData.append("sessionId", sessionId);
@@ -82,6 +87,8 @@ export function SessionManager({ username }: SessionManagerProps) {
       }
     } catch (error) {
       setError("Failed to terminate session");
+    } finally {
+      setTerminatingSession(null);
     }
   };
 
@@ -94,6 +101,7 @@ export function SessionManager({ username }: SessionManagerProps) {
       return;
     }
 
+    setTerminatingAll(true);
     try {
       const result = await terminateAllOtherSessionsAction();
 
@@ -107,6 +115,8 @@ export function SessionManager({ username }: SessionManagerProps) {
       }
     } catch (error) {
       setError("Failed to terminate sessions");
+    } finally {
+      setTerminatingAll(false);
     }
   };
 
@@ -157,9 +167,9 @@ export function SessionManager({ username }: SessionManagerProps) {
       )}
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-md">
-          <Check className="h-4 w-4 text-green-500" />
-          <span className="text-sm text-green-500">{success}</span>
+        <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-md">
+          <Check className="h-4 w-4 text-primary" />
+          <span className="text-sm text-primary">{success}</span>
         </div>
       )}
 
@@ -175,9 +185,16 @@ export function SessionManager({ username }: SessionManagerProps) {
             variant="outline"
             onClick={handleTerminateAllOtherSessions}
             className="text-destructive hover:text-destructive"
+            disabled={terminatingAll}
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Terminate All Others
+            {terminatingAll ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-destructive mx-auto"></div>
+            ) : (
+              <>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Terminate All Others
+              </>
+            )}
           </Button>
         )}
       </div>
@@ -237,8 +254,13 @@ export function SessionManager({ username }: SessionManagerProps) {
                 size="sm"
                 onClick={() => handleTerminateSession(session.id)}
                 className="text-destructive hover:text-destructive flex-shrink-0 ml-2"
+                disabled={terminatingSession === session.id}
               >
-                <Trash2 className="h-4 w-4" />
+                {terminatingSession === session.id ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-destructive mx-auto"></div>
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
               </Button>
             )}
           </div>

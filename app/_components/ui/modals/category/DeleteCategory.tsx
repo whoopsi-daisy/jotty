@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Trash2, Folder, AlertTriangle } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Modal } from "@/app/_components/ui/elements/modal";
@@ -8,7 +9,7 @@ interface DeleteCategoryModalProps {
   isOpen: boolean;
   categoryName: string;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
 }
 
 export function DeleteCategoryModal({
@@ -17,6 +18,17 @@ export function DeleteCategoryModal({
   onClose,
   onConfirm,
 }: DeleteCategoryModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await onConfirm();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -36,11 +48,15 @@ export function DeleteCategoryModal({
         </p>
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isLoading}
+          >
+            {isLoading ? "Deleting..." : "Delete"}
           </Button>
         </div>
       </div>

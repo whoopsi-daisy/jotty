@@ -10,7 +10,6 @@ import {
   Plus,
   Save,
   AlertCircle,
-  Check,
   Lock,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
@@ -19,6 +18,7 @@ import { createUserAction } from "@/app/_server/actions/users/create-user";
 import { updateUserAction } from "@/app/_server/actions/users/update-user";
 import { deleteUserAction } from "@/app/_server/actions/users/delete-user";
 import { Modal } from "../../elements/modal";
+import { useToast } from "@/app/_providers/ToastProvider";
 
 interface UserManagementModalProps {
   isOpen: boolean;
@@ -42,7 +42,7 @@ export function UserManagementModal({
   const [changePassword, setChangePassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -60,7 +60,6 @@ export function UserManagementModal({
         setChangePassword(false);
       }
       setError(null);
-      setSuccess(null);
     }
   }, [isOpen, mode, user]);
 
@@ -121,11 +120,12 @@ export function UserManagementModal({
         const result = await createUserAction(formData);
 
         if (result.success) {
-          setSuccess("User created successfully!");
-          setTimeout(() => {
-            onSuccess();
-            onClose();
-          }, 1500);
+          showToast({
+            type: "success",
+            title: "User created successfully!",
+          });
+          onSuccess();
+          onClose();
         } else {
           setError(result.error || "Failed to create user");
         }
@@ -142,11 +142,12 @@ export function UserManagementModal({
         const result = await updateUserAction(formData);
 
         if (result.success) {
-          setSuccess("User updated successfully!");
-          setTimeout(() => {
-            onSuccess();
-            onClose();
-          }, 1500);
+          showToast({
+            type: "success",
+            title: "User updated successfully!",
+          });
+          onSuccess();
+          onClose();
         } else {
           setError(result.error || "Failed to update user");
         }
@@ -179,11 +180,12 @@ export function UserManagementModal({
       const result = await deleteUserAction(formData);
 
       if (result.success) {
-        setSuccess("User deleted successfully!");
-        setTimeout(() => {
-          onSuccess();
-          onClose();
-        }, 1500);
+        showToast({
+          type: "success",
+          title: "User deleted successfully!",
+        });
+        onSuccess();
+        onClose();
       } else {
         setError(result.error || "Failed to delete user");
       }
@@ -214,13 +216,6 @@ export function UserManagementModal({
           <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
             <AlertCircle className="h-4 w-4 text-destructive" />
             <span className="text-sm text-destructive">{error}</span>
-          </div>
-        )}
-
-        {success && (
-          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-md">
-            <Check className="h-4 w-4 text-green-500" />
-            <span className="text-sm text-green-500">{success}</span>
           </div>
         )}
 

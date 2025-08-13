@@ -17,6 +17,7 @@ import { readUsers } from "@/app/_server/actions/auth/utils";
 import { getAllLists } from "@/app/_server/actions/data/actions";
 import { getAllDocs } from "@/app/_server/actions/data/docs-actions";
 import { getSharedItemsAction } from "@/app/_server/actions/sharing/get-shared-items";
+import { deleteUserAction } from "@/app/_server/actions/users/delete-user";
 import { useRouter } from "next/navigation";
 import { AdminTabs } from "./components/AdminTabs";
 import { AdminOverview } from "./components/AdminOverview";
@@ -40,6 +41,7 @@ export function AdminClient({ username }: AdminClientProps) {
   const [showUserModal, setShowUserModal] = useState(false);
   const [userModalMode, setUserModalMode] = useState<"add" | "edit">("add");
   const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined);
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
 
   useEffect(() => {
     loadAdminData();
@@ -78,6 +80,36 @@ export function AdminClient({ username }: AdminClientProps) {
     setUserModalMode("edit");
     setSelectedUser(user);
     setShowUserModal(true);
+  };
+
+  const handleDeleteUser = async (user: User) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setDeletingUser(user.username);
+    try {
+      const formData = new FormData();
+      formData.append("username", user.username);
+
+      const result = await deleteUserAction(formData);
+
+      if (result.success) {
+        // Remove user from local state
+        setUsers((prev) => prev.filter((u) => u.username !== user.username));
+      } else {
+        alert(result.error || "Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("Failed to delete user");
+    } finally {
+      setDeletingUser(null);
+    }
   };
 
   const handleUserModalSuccess = () => {
@@ -188,10 +220,16 @@ export function AdminClient({ username }: AdminClientProps) {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={deletingUser === user.username}
                             className="text-destructive"
                             title="Delete User"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {deletingUser === user.username ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-destructive mx-auto"></div>
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </Button>
                         )}
                       </div>
@@ -388,9 +426,7 @@ export function AdminClient({ username }: AdminClientProps) {
             onSearchChange={setSearchQuery}
             onAddUser={handleAddUser}
             onEditUser={handleEditUser}
-            onDeleteUser={(user) => {
-              console.log("Delete user:", user);
-            }}
+            onDeleteUser={handleDeleteUser}
           />
         )}
         {activeTab === "content" && renderContent()}

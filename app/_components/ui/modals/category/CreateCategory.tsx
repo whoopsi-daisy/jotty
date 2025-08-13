@@ -5,6 +5,7 @@ import { createCategoryAction } from "@/app/_server/actions/data/actions";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Modal } from "@/app/_components/ui/elements/modal";
 import { Folder } from "lucide-react";
+import { useToast } from "@/app/_providers/ToastProvider";
 
 interface CreateCategoryModalProps {
   onClose: () => void;
@@ -17,6 +18,7 @@ export function CreateCategoryModal({
 }: CreateCategoryModalProps) {
   const [categoryName, setCategoryName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +30,21 @@ export function CreateCategoryModal({
     const result = await createCategoryAction(formData);
 
     if (result.success) {
+      showToast({
+        type: "success",
+        title: "Category created successfully!",
+      });
       onCreated(result.data);
-      setIsLoading(false);
+      onClose();
+    } else {
+      showToast({
+        type: "error",
+        title: "Failed to create category",
+        message:
+          result.error || "An error occurred while creating the category.",
+      });
     }
+    setIsLoading(false);
   };
 
   return (
