@@ -11,6 +11,7 @@ import {
   Save,
   AlertCircle,
   Check,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { User as UserType } from "@/app/_types";
@@ -36,7 +37,9 @@ export function UserManagementModal({
 }: UserManagementModalProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [changePassword, setChangePassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -47,10 +50,14 @@ export function UserManagementModal({
         setUsername(user.username);
         setIsAdmin(user.isAdmin);
         setPassword(""); // Don't show current password
+        setConfirmPassword("");
+        setChangePassword(false);
       } else {
         setUsername("");
         setPassword("");
+        setConfirmPassword("");
         setIsAdmin(false);
+        setChangePassword(false);
       }
       setError(null);
       setSuccess(null);
@@ -70,6 +77,36 @@ export function UserManagementModal({
       return;
     }
 
+    if (mode === "add" && !confirmPassword.trim()) {
+      setError("Confirm password is required");
+      return;
+    }
+
+    if (mode === "add" && password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password && password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
+    if (changePassword && !password) {
+      setError("Password is required when changing password");
+      return;
+    }
+
+    if (changePassword && !confirmPassword) {
+      setError("Confirm password is required when changing password");
+      return;
+    }
+
+    if (changePassword && password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -78,6 +115,7 @@ export function UserManagementModal({
         const formData = new FormData();
         formData.append("username", username);
         formData.append("password", password);
+        formData.append("confirmPassword", confirmPassword);
         formData.append("isAdmin", String(isAdmin));
 
         const result = await createUserAction(formData);
@@ -95,8 +133,9 @@ export function UserManagementModal({
         const formData = new FormData();
         formData.append("username", user?.username || "");
         formData.append("newUsername", username);
-        if (password) {
+        if (changePassword && password) {
           formData.append("password", password);
+          formData.append("confirmPassword", confirmPassword);
         }
         formData.append("isAdmin", String(isAdmin));
 
@@ -198,19 +237,34 @@ export function UserManagementModal({
         </div>
 
         {mode === "add" && (
-          <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Enter password"
-              disabled={isLoading}
-            />
-          </div>
-        )}
+          <>
+            <div>
+              <label className="block text-sm font-medium mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Enter password"
+                disabled={isLoading}
+              />
+            </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Confirm password"
+                disabled={isLoading}
+              />
+            </div>
+          </>
+        )}
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
@@ -228,6 +282,60 @@ export function UserManagementModal({
             Admin privileges
           </label>
         </div>
+
+        {mode === "edit" && (
+          <>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="changePassword"
+                checked={changePassword}
+                onChange={(e) => setChangePassword(e.target.checked)}
+                className="rounded border-border"
+                disabled={isLoading}
+              />
+              <label
+                htmlFor="changePassword"
+                className="flex items-center gap-2 text-sm cursor-pointer"
+              >
+                <Lock className="h-4 w-4" />
+                Change Password
+              </label>
+            </div>
+
+            {changePassword && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                    placeholder="Enter new password"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                    placeholder="Confirm new password"
+                    disabled={isLoading}
+                  />
+                </div>
+              </>
+            )}
+          </>
+        )}
 
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <div className="flex gap-2">

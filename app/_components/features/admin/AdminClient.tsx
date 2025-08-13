@@ -180,6 +180,7 @@ export function AdminClient({ username }: AdminClientProps) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEditUser(user)}
+                          title="Edit User"
                         >
                           <Edit3 className="h-4 w-4" />
                         </Button>
@@ -188,6 +189,7 @@ export function AdminClient({ username }: AdminClientProps) {
                             variant="ghost"
                             size="sm"
                             className="text-destructive"
+                            title="Delete User"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
