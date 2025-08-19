@@ -43,6 +43,7 @@ export function DocEditor({
 }: DocEditorProps) {
   const [docContent, setDocContent] = useState(doc.content || "");
   const [editorContent, setEditorContent] = useState("");
+  const [isEditorInMarkdownMode, setIsEditorInMarkdownMode] = useState(false);
   const [title, setTitle] = useState(doc.title);
   const [category, setCategory] = useState(doc.category || "Uncategorized");
   const [isEditing, setIsEditing] = useState(false);
@@ -99,9 +100,20 @@ export function DocEditor({
     setIsEditing(true);
   };
 
+  const handleEditorContentChange = (content: string, isMarkdownMode: boolean) => {
+    setEditorContent(content);
+    setIsEditorInMarkdownMode(isMarkdownMode);
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
-    const markdownOutput = turndownService.turndown(editorContent);
+
+    let markdownOutput: string;
+    if (isEditorInMarkdownMode) {
+      markdownOutput = editorContent;
+    } else {
+      markdownOutput = turndownService.turndown(editorContent);
+    }
 
     const formData = new FormData();
     formData.append("id", doc.id);
@@ -150,7 +162,7 @@ export function DocEditor({
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="h-8 w-8 lg:h-10 lg:w-10 p-0 flex-shrink-0"
+              className="h-8 w-8 lg:h-8 lg:w-8 p-0 flex-shrink-0"
             >
               <ArrowLeft className="h-4 w-4 lg:h-5 lg:w-5" />
             </Button>
@@ -258,10 +270,13 @@ export function DocEditor({
 
       <div className="flex-1 overflow-auto">
         {isEditing ? (
-          <TiptapEditor content={editorContent} onChange={setEditorContent} />
+          <TiptapEditor
+            content={editorContent}
+            onChange={handleEditorContentChange}
+          />
         ) : (
           <div
-            className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl p-6 focus:outline-none dark:prose-invert"
+            className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl p-6 focus:outline-none dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal"
             dangerouslySetInnerHTML={{ __html: marked.parse(docContent) }}
           />
         )}
