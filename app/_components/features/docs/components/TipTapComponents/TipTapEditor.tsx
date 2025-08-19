@@ -4,21 +4,33 @@ import Link from "@tiptap/extension-link";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { common, createLowlight } from "lowlight";
 import { TiptapToolbar } from "./TipTapToolbar";
-import { useState } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { marked } from "marked";
+import TurndownService from "turndown";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Eye, FileText } from "lucide-react";
 
 type TiptapEditorProps = {
   content: string;
-  onChange: (htmlContent: string) => void;
+  onChange: (content: string, isMarkdownMode: boolean) => void;
 };
 
 export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
+  const isInitialized = useRef(false);
 
   const lowlight = createLowlight(common);
+  const turndownService = useMemo(() => {
+    const service = new TurndownService({
+      headingStyle: 'atx',
+      codeBlockStyle: 'fenced',
+      emDelimiter: '*',
+      bulletListMarker: '-'
+    });
+
+    return service;
+  }, []);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -37,33 +49,61 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     content: content,
     onUpdate: ({ editor }) => {
       if (!isMarkdownMode) {
-        onChange(editor.getHTML());
+        onChange(editor.getHTML(), false);
       }
     },
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none dark:prose-invert",
+          "text-foreground m-5 focus:outline-none",
+      },
+      handleKeyDown: (view, event) => {
+        if (event.key === 'Enter') {
+          const { state } = view;
+          const { selection } = state;
+          const { $from } = selection;
+
+          if ($from.parent.type.name === 'listItem') {
+            const isEmpty = $from.parent.content.size === 0;
+            if (isEmpty) {
+              event.preventDefault();
+              const tr = state.tr.setBlockType($from.pos, $from.pos, state.schema.nodes.paragraph);
+              view.dispatch(tr);
+              return true;
+            }
+          }
+        }
+        return false;
       },
     },
   });
 
+  useEffect(() => {
+    if (editor && !isInitialized.current) {
+      isInitialized.current = true;
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
+
   const handleMarkdownChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setMarkdownContent(newContent);
-    onChange(newContent);
+    onChange(newContent, true);
   };
 
   const toggleMode = () => {
     if (isMarkdownMode) {
       setIsMarkdownMode(false);
       if (editor) {
-        editor.commands.setContent(marked.parse(markdownContent));
+        const htmlContent = marked.parse(markdownContent);
+        editor.commands.setContent(htmlContent);
       }
     } else {
       setIsMarkdownMode(true);
       if (editor) {
-        setMarkdownContent(editor.getHTML());
+        const htmlContent = editor.getHTML();
+        const markdownOutput = turndownService.turndown(htmlContent);
+        setMarkdownContent(markdownOutput);
       }
     }
   };
@@ -75,6 +115,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         <Button
           variant="ghost"
           size="sm"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={toggleMode}
           className="ml-2"
         >
@@ -104,7 +145,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           </div>
           <div className="flex-1 p-4 border-l border-border overflow-y-auto">
             <div
-              className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert"
+              className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal"
               dangerouslySetInnerHTML={{ __html: marked.parse(markdownContent) }}
             />
           </div>

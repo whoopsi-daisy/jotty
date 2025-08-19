@@ -37,33 +37,43 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
     editor.chain().focus().toggleCodeBlock({ language: "javascript" }).run();
   };
 
+  const handleButtonClick = (command: () => void) => {
+    const { from, to } = editor.state.selection;
+    command();
+    editor.commands.setTextSelection({ from, to });
+  };
+
   return (
     <div className="bg-background px-4 py-2 flex items-center gap-1 flex-wrap">
       <Button
         variant={editor.isActive("bold") ? "secondary" : "ghost"}
         size="sm"
-        onClick={() => editor.chain().focus().toggleBold().run()}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(() => editor.chain().focus().toggleBold().run())}
       >
         <Bold className="h-4 w-4" />
       </Button>
       <Button
         variant={editor.isActive("italic") ? "secondary" : "ghost"}
         size="sm"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(() => editor.chain().focus().toggleItalic().run())}
       >
         <Italic className="h-4 w-4" />
       </Button>
       <Button
         variant={editor.isActive("strike") ? "secondary" : "ghost"}
         size="sm"
-        onClick={() => editor.chain().focus().toggleStrike().run()}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(() => editor.chain().focus().toggleStrike().run())}
       >
         <Strikethrough className="h-4 w-4" />
       </Button>
       <Button
         variant={editor.isActive("code") ? "secondary" : "ghost"}
         size="sm"
-        onClick={() => editor.chain().focus().toggleCode().run()}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(() => editor.chain().focus().toggleCode().run())}
       >
         <Code className="h-4 w-4" />
       </Button>
@@ -71,7 +81,8 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
       <Button
         variant={editor.isActive("codeBlock") ? "secondary" : "ghost"}
         size="sm"
-        onClick={setCodeBlock}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(setCodeBlock)}
       >
         <Square className="h-4 w-4" />
       </Button>
@@ -81,28 +92,32 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
           editor.isActive("heading", { level: 2 }) ? "secondary" : "ghost"
         }
         size="sm"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(() => editor.chain().focus().toggleHeading({ level: 2 }).run())}
       >
         <Heading2 className="h-4 w-4" />
       </Button>
       <Button
         variant={editor.isActive("bulletList") ? "secondary" : "ghost"}
         size="sm"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(() => editor.chain().focus().toggleBulletList().run())}
       >
         <List className="h-4 w-4" />
       </Button>
       <Button
         variant={editor.isActive("blockquote") ? "secondary" : "ghost"}
         size="sm"
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(() => editor.chain().focus().toggleBlockquote().run())}
       >
         <Quote className="h-4 w-4" />
       </Button>
       <Button
         variant={editor.isActive("link") ? "secondary" : "ghost"}
         size="sm"
-        onClick={setLink}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleButtonClick(setLink)}
       >
         <LinkIcon className="h-4 w-4" />
       </Button>
