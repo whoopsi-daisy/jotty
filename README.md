@@ -90,7 +90,7 @@ The recommended way to run `rwMarkable` is with Docker.
     docker-compose up -d
     ```
 
-The application will be available at `http://localhost:1234`.
+The application will be available at `http://localhost:1122`.
 
 ### Initial Setup
 
