@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ChecklistView } from "@/app/_components/features/home/components/Checklist";
 import { HomeView } from "@/app/_components/features/home/components/Home";
@@ -182,6 +182,14 @@ export function HomeClient({
     }
   };
 
+  const handleChecklistUpdate = useCallback((updatedChecklist: Checklist) => {
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === updatedChecklist.id ? updatedChecklist : list
+      )
+    );
+  }, []);
+
   if (!isInitialized) {
     return (
       <div className="flex h-screen bg-background w-full items-center justify-center">
@@ -214,7 +222,7 @@ export function HomeClient({
       return (
         <ChecklistView
           list={selectedList}
-          onUpdate={() => {}}
+          onUpdate={handleChecklistUpdate}
           onBack={() => setSelectedChecklist(null)}
           onEdit={handleOpenEditModal}
           onDelete={handleListDeleted}
