@@ -33,7 +33,7 @@ import { ChecklistForm } from "./ChecklistForm";
 
 interface ChecklistViewProps {
   list: Checklist;
-  onUpdate: () => void;
+  onUpdate: (updatedChecklist: Checklist) => void;
   onBack: () => void;
   onEdit?: (checklist: Checklist) => void;
   onDelete?: (deletedId: string) => void;
@@ -89,14 +89,15 @@ export function ChecklistView({
     const result = await updateItemAction(formData);
 
     if (result.success) {
-      setLocalList((prev) => ({
-        ...prev,
-        items: prev.items.map((item) =>
+      const updatedList = {
+        ...localList,
+        items: localList.items.map((item) =>
           item.id === itemId ? { ...item, completed } : item
         ),
-      }));
+      };
+      setLocalList(updatedList);
+      onUpdate(updatedList);
     }
-    onUpdate();
   };
 
   const handleDeleteItem = async (itemId: string) => {
@@ -106,12 +107,13 @@ export function ChecklistView({
     const result = await deleteItemAction(formData);
 
     if (result.success) {
-      setLocalList((prev) => ({
-        ...prev,
-        items: prev.items.filter((item) => item.id !== itemId),
-      }));
+      const updatedList = {
+        ...localList,
+        items: localList.items.filter((item) => item.id !== itemId),
+      };
+      setLocalList(updatedList);
+      onUpdate(updatedList);
     }
-    onUpdate();
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -138,10 +140,11 @@ export function ChecklistView({
           (item, index) => ({ ...item, order: index })
         );
 
-        setLocalList((prev) => ({
-          ...prev,
+        const updatedList = {
+          ...localList,
           items: newItems,
-        }));
+        };
+        setLocalList(updatedList);
 
         const itemIds = newItems.map((item) => item.id);
 
@@ -156,8 +159,9 @@ export function ChecklistView({
             ...prev,
             items: list.items,
           }));
+        } else {
+          onUpdate(updatedList);
         }
-        onUpdate();
         return;
       }
 
@@ -178,10 +182,11 @@ export function ChecklistView({
           (item, index) => ({ ...item, order: index })
         );
 
-        setLocalList((prev) => ({
-          ...prev,
+        const updatedList = {
+          ...localList,
           items: newItems,
-        }));
+        };
+        setLocalList(updatedList);
 
         const itemIds = newItems.map((item) => item.id);
 
@@ -196,8 +201,9 @@ export function ChecklistView({
             ...prev,
             items: list.items,
           }));
+        } else {
+          onUpdate(updatedList);
         }
-        onUpdate();
       }
     }
   };
@@ -231,12 +237,13 @@ export function ChecklistView({
                 setIsLoading(false);
 
                 if (result.success && result.data) {
-                  setLocalList((prev) => ({
-                    ...prev,
-                    items: [...prev.items, result.data],
-                  }));
+                  const updatedList = {
+                    ...localList,
+                    items: [...localList.items, result.data],
+                  };
+                  setLocalList(updatedList);
+                  onUpdate(updatedList);
                 }
-                onUpdate();
               }}
               isLoading={isLoading}
             />
