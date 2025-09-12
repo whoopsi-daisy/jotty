@@ -14,11 +14,13 @@ import {
   Folder,
   Share2,
   Users,
+  Download,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
 import { Document, Category } from "@/app/_types";
+import { exportToPDF } from "@/app/_utils/pdf-export";
 import {
   updateDocAction,
   deleteDocAction,
@@ -163,6 +165,19 @@ export function DocEditor({
     }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      const element = document.querySelector('.prose');
+      if (!element) return;
+
+      const filename = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      await exportToPDF(element as HTMLElement, filename);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Failed to export PDF');
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
       <div className="bg-background border-b border-border px-4 lg:px-6 py-4">
@@ -245,6 +260,15 @@ export function DocEditor({
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={handleExportPDF}
+                  className="h-8 w-8 lg:h-10 lg:w-10 p-0"
+                  title="Export as PDF"
+                >
+                  <Download className="h-4 w-4 lg:h-5 lg:w-5" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleEdit}
                   className="h-8 w-8 lg:h-10 lg:w-10 p-0"
                 >
@@ -289,6 +313,16 @@ export function DocEditor({
           <div
             className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl p-6 focus:outline-none dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal"
             dangerouslySetInnerHTML={{ __html: marked.parse(docContent) }}
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.tagName === 'A') {
+                e.preventDefault();
+                const href = target.getAttribute('href');
+                if (href) {
+                  window.open(href, '_blank', 'noopener,noreferrer');
+                }
+              }
+            }}
           />
         )}
       </div>
