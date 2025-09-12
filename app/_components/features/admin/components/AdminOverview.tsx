@@ -5,9 +5,9 @@ import { Users, FileText, CheckSquare, Shield } from "lucide-react";
 interface AdminStats {
   totalUsers: number;
   totalChecklists: number;
-  totalDocuments: number;
+  totalNotes: number;
   sharedChecklists: number;
-  sharedDocuments: number;
+  sharedNotes: number;
   adminUsers: number;
 }
 
@@ -33,8 +33,8 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
       icon: CheckSquare,
     },
     {
-      title: "Total Documents",
-      value: stats.totalDocuments,
+      title: "Total Notes",
+      value: stats.totalNotes,
       icon: FileText,
     },
     {
@@ -43,8 +43,8 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
       icon: CheckSquare,
     },
     {
-      title: "Shared Documents",
-      value: stats.sharedDocuments,
+      title: "Shared Notes",
+      value: stats.sharedNotes,
       icon: FileText,
     },
   ];
@@ -121,13 +121,13 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Total Content</span>
               <span className="font-medium">
-                {stats.totalChecklists + stats.totalDocuments}
+                {stats.totalChecklists + stats.totalNotes}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Shared Content</span>
               <span className="font-medium">
-                {stats.sharedChecklists + stats.sharedDocuments}
+                {stats.sharedChecklists + stats.sharedNotes}
               </span>
             </div>
             <div className="w-full bg-muted rounded-full h-2">
@@ -135,8 +135,8 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
                 className="bg-primary h-2 rounded-full"
                 style={{
                   width: `${
-                    ((stats.sharedChecklists + stats.sharedDocuments) /
-                      (stats.totalChecklists + stats.totalDocuments)) *
+                    ((stats.sharedChecklists + stats.sharedNotes) /
+                      (stats.totalChecklists + stats.totalNotes)) *
                     100
                   }%`,
                 }}

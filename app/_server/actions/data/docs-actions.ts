@@ -103,7 +103,7 @@ export const getDocs = async () => {
     }
 
     const sharedItems = await getItemsSharedWithUser(currentUser.username);
-    for (const sharedItem of sharedItems.documents) {
+    for (const sharedItem of sharedItems.notes) {
       try {
         const sharedFilePath = path.join(
           process.cwd(),
@@ -135,7 +135,7 @@ export const getDocs = async () => {
     return { success: true, data: docs };
   } catch (error) {
     console.error("Error in getDocs:", error);
-    return { success: false, error: "Failed to fetch documents" };
+    return { success: false, error: "Failed to fetch notes" };
   }
 };
 
@@ -204,7 +204,7 @@ export const updateDocAction = async (formData: FormData) => {
 
     const docs = await getDocs();
     if (!docs.success || !docs.data) {
-      throw new Error(docs.error || "Failed to fetch documents");
+      throw new Error(docs.error || "Failed to fetch notes");
     }
 
     const doc = docs.data.find((d) => d.id === id);
@@ -426,6 +426,6 @@ export const getAllDocs = async () => {
     return { success: true, data: allDocs };
   } catch (error) {
     console.error("Error in getAllDocs:", error);
-    return { success: false, error: "Failed to fetch all documents" };
+    return { success: false, error: "Failed to fetch all notes" };
   }
 };

@@ -41,7 +41,7 @@ export function SettingsTab({
                 <div>
                     <h3 className="font-medium">Export Data</h3>
                     <p className="text-sm text-muted-foreground">
-                        Download all your checklists and documents
+                        Download all your checklists and notes
                     </p>
                 </div>
                 <Button

@@ -123,9 +123,9 @@ export function AdminClient({ username }: AdminClientProps) {
   const stats = {
     totalUsers: users.length,
     totalChecklists: allLists.length,
-    totalDocuments: allDocs.length,
+    totalNotes: allDocs.length,
     sharedChecklists: sharedItems.sharedWithMe?.checklists?.length || 0,
-    sharedDocuments: sharedItems.sharedWithMe?.documents?.length || 0,
+    sharedNotes: sharedItems.sharedWithMe?.notes?.length || 0,
     adminUsers: users.filter((u) => u.isAdmin).length,
   };
 
@@ -194,17 +194,16 @@ export function AdminClient({ username }: AdminClientProps) {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.isAdmin
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isAdmin
                             ? "bg-primary/10 text-primary"
                             : "bg-muted text-muted-foreground"
-                        }`}
+                          }`}
                       >
                         {user.isAdmin ? "Admin" : "User"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                      {userChecklists} checklists, {userDocs} documents
+                      {userChecklists} checklists, {userDocs} notes
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
@@ -288,7 +287,7 @@ export function AdminClient({ username }: AdminClientProps) {
         <div className="bg-background border border-border rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Documents ({allDocs.length})
+            Notes ({allDocs.length})
           </h3>
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {allDocs.map((doc) => (
@@ -327,7 +326,7 @@ export function AdminClient({ username }: AdminClientProps) {
         <div className="bg-background border border-border rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <CheckSquare className="h-5 w-5" />
-            Shared Checklists
+            Checklists shared with {username}
           </h3>
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {sharedItems.sharedWithMe?.checklists?.length > 0 ? (
@@ -355,11 +354,11 @@ export function AdminClient({ username }: AdminClientProps) {
         <div className="bg-background border border-border rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Shared Documents
+            Notes shared with {username}
           </h3>
           <div className="space-y-3 max-h-96 overflow-y-auto">
-            {sharedItems.sharedWithMe?.documents?.length > 0 ? (
-              sharedItems.sharedWithMe.documents.map((item: any) => (
+            {sharedItems.sharedWithMe?.notes?.length > 0 ? (
+              sharedItems.sharedWithMe.notes.map((item: any) => (
                 <div
                   key={item.id}
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
@@ -373,9 +372,7 @@ export function AdminClient({ username }: AdminClientProps) {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No shared documents
-              </p>
+              <p className="text-sm text-muted-foreground">No shared notes</p>
             )}
           </div>
         </div>

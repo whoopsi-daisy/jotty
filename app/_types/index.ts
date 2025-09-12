@@ -49,7 +49,7 @@ export interface User {
 
 export interface SharedItem {
   id: string;
-  type: 'checklist' | 'document';
+  type: "checklist" | "document";
   title: string;
   owner: string;
   sharedWith: string[];
@@ -60,7 +60,7 @@ export interface SharedItem {
 
 export interface SharingMetadata {
   checklists: Record<string, SharedItem>;
-  documents: Record<string, SharedItem>;
+  notes: Record<string, SharedItem>;
 }
 
 export interface SharingPermissions {

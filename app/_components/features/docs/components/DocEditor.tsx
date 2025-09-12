@@ -52,7 +52,15 @@ export function DocEditor({
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
 
-  const turndownService = useMemo(() => new TurndownService(), []);
+  const turndownService = useMemo(() => {
+    const service = new TurndownService({
+      headingStyle: "atx",
+      codeBlockStyle: "fenced",
+      emDelimiter: "*",
+      bulletListMarker: "-",
+    });
+    return service;
+  }, []);
 
   const categoryOptions = [
     { id: "", name: "Uncategorized", icon: FolderOpen },
@@ -100,7 +108,10 @@ export function DocEditor({
     setIsEditing(true);
   };
 
-  const handleEditorContentChange = (content: string, isMarkdownMode: boolean) => {
+  const handleEditorContentChange = (
+    content: string,
+    isMarkdownMode: boolean
+  ) => {
     setEditorContent(content);
     setIsEditorInMarkdownMode(isMarkdownMode);
   };
