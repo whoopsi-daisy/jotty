@@ -45,6 +45,7 @@ export interface User {
   isSuperAdmin?: boolean;
   createdAt?: string;
   lastLogin?: string;
+  apiKey?: string;
 }
 
 export interface SharedItem {

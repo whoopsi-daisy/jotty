@@ -69,14 +69,23 @@ const listToMarkdown = (list: Checklist): string => {
   return `${header}\n${items}`;
 };
 
-export const getLists = async () => {
+export const getLists = async (username?: string) => {
   try {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      return { success: false, error: "Not authenticated" };
-    }
+    let userDir: string;
+    let currentUser: any = null;
 
-    const userDir = await getUserDir();
+    if (username) {
+      // API key authentication - use provided username
+      userDir = path.join(process.cwd(), "data", "checklists", username);
+      currentUser = { username }; // Create a mock user object for API calls
+    } else {
+      // Session-based authentication
+      currentUser = await getCurrentUser();
+      if (!currentUser) {
+        return { success: false, error: "Not authenticated" };
+      }
+      userDir = await getUserDir();
+    }
     await ensureDir(userDir);
 
     const categories = await readDir(userDir);
@@ -388,20 +397,25 @@ export const renameCategoryAction = async (formData: FormData) => {
   }
 };
 
-export const updateItemAction = async (formData: FormData) => {
+export const updateItemAction = async (formData: FormData, username?: string, skipRevalidation = false) => {
   try {
     const listId = formData.get("listId") as string;
     const itemId = formData.get("itemId") as string;
     const completed = formData.get("completed") === "true";
     const text = formData.get("text") as string;
 
-    const lists = await getLists();
+    const lists = await getLists(username);
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
     }
 
     const list = lists.data.find((l) => l.id === listId);
     if (!list) {
+      throw new Error("List not found");
+    }
+
+    // If username is provided (API call), verify ownership
+    if (username && list.owner !== username) {
       throw new Error("List not found");
     }
 
@@ -430,7 +444,14 @@ export const updateItemAction = async (formData: FormData) => {
         `${listId}.md`
       );
     } else {
-      const userDir = await getUserDir();
+      let userDir: string;
+      if (username) {
+        // API call - use provided username
+        userDir = path.join(process.cwd(), "data", "checklists", username);
+      } else {
+        // Regular call - use session
+        userDir = await getUserDir();
+      }
       filePath = path.join(
         userDir,
         list.category || "Uncategorized",
@@ -440,24 +461,32 @@ export const updateItemAction = async (formData: FormData) => {
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
+    if (!skipRevalidation) {
+      revalidatePath("/");
+    }
+
     return { success: true };
   } catch (error) {
     return { error: "Failed to update item" };
   }
 };
 
-export const createItemAction = async (formData: FormData) => {
+export const createItemAction = async (formData: FormData, username?: string, skipRevalidation = false) => {
   try {
     const listId = formData.get("listId") as string;
     const text = formData.get("text") as string;
 
-    const lists = await getLists();
+    const lists = await getLists(username);
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
     }
 
     const list = lists.data.find((l) => l.id === listId);
     if (!list) {
+      throw new Error("List not found");
+    }
+
+    if (username && list.owner !== username) {
       throw new Error("List not found");
     }
 
@@ -489,7 +518,12 @@ export const createItemAction = async (formData: FormData) => {
         `${listId}.md`
       );
     } else {
-      const userDir = await getUserDir();
+      let userDir: string;
+      if (username) {
+        userDir = path.join(process.cwd(), "data", "checklists", username);
+      } else {
+        userDir = await getUserDir();
+      }
       filePath = path.join(
         userDir,
         list.category || "Uncategorized",
@@ -498,6 +532,10 @@ export const createItemAction = async (formData: FormData) => {
     }
 
     await writeFile(filePath, listToMarkdown(updatedList));
+
+    if (!skipRevalidation) {
+      revalidatePath("/");
+    }
 
     return { success: true, data: newItem };
   } catch (error) {
@@ -580,10 +618,8 @@ export const deleteItemAction = async (formData: FormData) => {
       throw new Error("List not found");
     }
 
-    // Check if item exists before trying to delete it
     const itemExists = list.items.some((item) => item.id === itemId);
     if (!itemExists) {
-      // Item already deleted, return success (idempotent operation)
       return { success: true };
     }
 

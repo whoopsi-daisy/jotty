@@ -103,10 +103,11 @@ export function ChecklistCard({ list, onUpdate }: ChecklistCardProps) {
       </div>
 
       <div className="space-y-2 mb-4">
-        {incompleteItems.map((item) => (
+        {incompleteItems.map((item, index) => (
           <ChecklistItem
             key={item.id}
             item={item}
+            index={index}
             onToggle={handleToggleItem}
             onDelete={handleDeleteItem}
           />
@@ -117,10 +118,11 @@ export function ChecklistCard({ list, onUpdate }: ChecklistCardProps) {
         <div className="border-t border-border pt-4 mb-4">
           <h4 className="text-sm font-medium text-muted-foreground mb-2">Completed</h4>
           <div className="space-y-2">
-            {completedItems.map((item) => (
+            {completedItems.map((item, index) => (
               <ChecklistItem
                 key={item.id}
                 item={item}
+                index={incompleteItems.length + index}
                 onToggle={handleToggleItem}
                 onDelete={handleDeleteItem}
                 completed

@@ -4,6 +4,10 @@ import type { NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const sessionId = request.cookies.get("session")?.value;
 
+  if (request.nextUrl.pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
   if (request.nextUrl.pathname.startsWith("/auth")) {
     if (sessionId) {
       return NextResponse.redirect(new URL("/", request.url));

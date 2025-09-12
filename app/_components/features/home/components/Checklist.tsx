@@ -321,10 +321,11 @@ export function ChecklistView({
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
-                    {incompleteItems.map((item) => (
+                    {incompleteItems.map((item, index) => (
                       <ChecklistItem
                         key={item.id}
                         item={item}
+                        index={index}
                         onToggle={handleToggleItem}
                         onDelete={handleDeleteItem}
                         onEdit={handleEditItem}
@@ -356,10 +357,11 @@ export function ChecklistView({
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
-                    {completedItems.map((item) => (
+                    {completedItems.map((item, index) => (
                       <ChecklistItem
                         key={item.id}
                         item={item}
+                        index={incompleteItems.length + index}
                         onToggle={handleToggleItem}
                         onDelete={handleDeleteItem}
                         onEdit={handleEditItem}

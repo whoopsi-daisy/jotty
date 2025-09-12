@@ -18,6 +18,7 @@ interface Item {
 
 interface ChecklistItemProps {
   item: Item;
+  index: number;
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
   onEdit?: (id: string, text: string) => void;
@@ -26,6 +27,7 @@ interface ChecklistItemProps {
 
 export function ChecklistItem({
   item,
+  index,
   onToggle,
   onDelete,
   onEdit,
@@ -168,6 +170,7 @@ export function ChecklistItem({
       )}
 
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-xs text-muted-foreground mr-1">#{index}</span>
         {!isEditing && onEdit && (
           <Button
             variant="ghost"

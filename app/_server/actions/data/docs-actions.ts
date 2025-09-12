@@ -60,14 +60,23 @@ const docToMarkdown = (doc: Note): string => {
   return `${header}\n\n${content}`;
 };
 
-export const getDocs = async () => {
+export const getDocs = async (username?: string) => {
   try {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      return { success: false, error: "Not authenticated" };
-    }
+    let userDir: string;
+    let currentUser: any = null;
 
-    const userDir = await getDocsUserDir();
+    if (username) {
+      // API key authentication - use provided username
+      userDir = path.join(process.cwd(), "data", "docs", username);
+      currentUser = { username }; // Create a mock user object for API calls
+    } else {
+      // Session-based authentication
+      currentUser = await getCurrentUser();
+      if (!currentUser) {
+        return { success: false, error: "Not authenticated" };
+      }
+      userDir = await getDocsUserDir();
+    }
     await ensureDocsDir(userDir);
 
     const categories = await readDocsDir(userDir);

@@ -35,6 +35,7 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
 - **File-Based:** No database needed! Everything is stored in simple Markdown and JSON files in a single data directory.
 - **User Management:** An admin panel to create and manage user accounts.
 - **Customisable:** Plenty of themes to make it your own.
+- **API Access:** Programmatic access to your checklists and notes via REST API.
 
 ## Tech Stack
 
@@ -45,6 +46,17 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
 - **Editor:** TipTap
 - **Drag & Drop:** @dnd-kit
 - **Deployment:** Docker
+
+## API
+
+`rwMarkable` includes a REST API for programmatic access to your checklists and notes. This is perfect for:
+
+- **Automation:** Create tasks from external systems
+- **Integrations:** Connect with other tools and services
+- **Scripts:** Automate repetitive tasks
+- **Dashboards:** Build custom interfaces
+
+📖 **For the complete API documentation, see [app/api/README.md](app/api/README.md)**
 
 ## Getting Started
 
