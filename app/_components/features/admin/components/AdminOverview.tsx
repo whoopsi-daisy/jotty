@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, FileText, CheckSquare, Shield } from "lucide-react";
+import { Users, FileText, CheckSquare, Shield, Share2 } from "lucide-react";
 
 interface AdminStats {
   totalUsers: number;
@@ -8,6 +8,7 @@ interface AdminStats {
   totalNotes: number;
   sharedChecklists: number;
   sharedNotes: number;
+  totalSharingRelationships: number;
   adminUsers: number;
 }
 
@@ -46,6 +47,11 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
       title: "Shared Notes",
       value: stats.sharedNotes,
       icon: FileText,
+    },
+    {
+      title: "Total Shares",
+      value: stats.totalSharingRelationships,
+      icon: Share2,
     },
   ];
 
@@ -125,20 +131,25 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Shared Content</span>
+              <span className="text-muted-foreground">Shared Items</span>
               <span className="font-medium">
                 {stats.sharedChecklists + stats.sharedNotes}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Sharing Relationships</span>
+              <span className="font-medium">
+                {stats.totalSharingRelationships}
               </span>
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <div
                 className="bg-primary h-2 rounded-full"
                 style={{
-                  width: `${
-                    ((stats.sharedChecklists + stats.sharedNotes) /
+                  width: `${((stats.sharedChecklists + stats.sharedNotes) /
                       (stats.totalChecklists + stats.totalNotes)) *
                     100
-                  }%`,
+                    }%`,
                 }}
               />
             </div>

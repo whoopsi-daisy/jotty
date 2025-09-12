@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, ClipboardList } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 
 interface ChecklistFormProps {
   onSubmit: (text: string) => void;
+  onBulkSubmit?: (itemsText: string) => void;
   isLoading?: boolean;
 }
 
 export function ChecklistForm({
   onSubmit,
+  onBulkSubmit,
   isLoading = false,
 }: ChecklistFormProps) {
   const [newItemText, setNewItemText] = useState("");
@@ -33,6 +35,18 @@ export function ChecklistForm({
         className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         disabled={isLoading}
       />
+      {onBulkSubmit && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onBulkSubmit("")}
+          disabled={isLoading}
+          title="Bulk add items"
+        >
+          <ClipboardList className="h-4 w-4" />
+        </Button>
+      )}
       <Button
         type="submit"
         size="sm"
