@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/app/_server/utils/api-auth";
 import { getLists } from "@/app/_server/actions/data/actions";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         const apiKey = request.headers.get("x-api-key");

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/app/_server/utils/api-auth";
 import { createItemAction } from "@/app/_server/actions/data/actions";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(
     request: NextRequest,
     { params }: { params: { listId: string } }

@@ -3,6 +3,8 @@ import fs from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { username: string; filename: string } }
