@@ -21,7 +21,6 @@ export function AdminContent({ allLists, allDocs, users }: AdminContentProps) {
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Group content by user - memoized to prevent unnecessary recalculations
   const sortedUserContent = useMemo(() => {
     const userContentMap = new Map<string, UserContent>();
 
@@ -37,12 +36,10 @@ export function AdminContent({ allLists, allDocs, users }: AdminContentProps) {
       });
     });
 
-    // Sort users by total content (most active first)
     return Array.from(userContentMap.values())
       .sort((a, b) => b.totalItems - a.totalItems);
   }, [users, allLists, allDocs]);
 
-  // Initialize with all users expanded only once
   useEffect(() => {
     if (!isInitialized && sortedUserContent.length > 0) {
       setExpandedUsers(new Set(sortedUserContent.map(uc => uc.user.username)));
@@ -137,7 +134,6 @@ export function AdminContent({ allLists, allDocs, users }: AdminContentProps) {
                 <div className="mt-4 pt-4 border-t border-border">
                   {hasContent ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Checklists */}
                       <div>
                         <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
                           <CheckSquare className="h-4 w-4" />
@@ -167,7 +163,6 @@ export function AdminContent({ allLists, allDocs, users }: AdminContentProps) {
                         </div>
                       </div>
 
-                      {/* Notes */}
                       <div>
                         <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
                           <FileText className="h-4 w-4" />

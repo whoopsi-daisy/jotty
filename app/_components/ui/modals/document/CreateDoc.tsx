@@ -46,14 +46,12 @@ export function CreateDocModal({
     setIsCreating(true);
 
     try {
-      // Create new category if needed
       if (showNewCategory && newCategory.trim()) {
         const categoryFormData = new FormData();
         categoryFormData.append("name", newCategory.trim());
         await createDocsCategoryAction(categoryFormData);
       }
 
-      // Create the document
       const formData = new FormData();
       formData.append("title", title.trim());
       formData.append(

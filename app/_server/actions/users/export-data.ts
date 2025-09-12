@@ -40,21 +40,16 @@ export async function exportUserDataAction(): Promise<Result<UserDataExport>> {
       };
     }
 
-    // Get user's checklists
     const listsResult = await getLists();
     const checklists = listsResult.success ? listsResult.data || [] : [];
 
-    // Get user's notes
     const docsResult = await getDocs();
     const notes = docsResult.success ? docsResult.data || [] : [];
 
-    // Get items shared by user
     const sharedByMe = await getItemsSharedByUser(currentUser.username);
 
-    // Get items shared with user
     const sharedWithMe = await getItemsSharedWithUser(currentUser.username);
 
-    // Create export data
     const exportData: UserDataExport = {
       user: {
         username: currentUser.username,
@@ -62,8 +57,8 @@ export async function exportUserDataAction(): Promise<Result<UserDataExport>> {
         createdAt: currentUser.createdAt,
         lastLogin: currentUser.lastLogin,
       },
-      checklists: checklists.filter((list) => !list.isShared), // Only own checklists
-      notes: notes.filter((doc) => !doc.isShared), // Only own notes
+      checklists: checklists.filter((list) => !list.isShared),
+      notes: notes.filter((doc) => !doc.isShared),
       sharedByMe: {
         checklists: sharedByMe.checklists,
         notes: sharedByMe.notes,

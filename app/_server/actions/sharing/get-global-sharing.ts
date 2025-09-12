@@ -24,17 +24,14 @@ export async function getGlobalSharingAction(): Promise<
         const allSharedChecklists = Object.values(metadata.checklists);
         const allSharedNotes = Object.values(metadata.notes);
 
-        // Calculate sharing statistics
         const totalSharedChecklists = allSharedChecklists.length;
         const totalSharedNotes = allSharedNotes.length;
 
-        // Count total sharing relationships (sum of all sharedWith arrays)
         const totalSharingRelationships = [
             ...allSharedChecklists,
             ...allSharedNotes
         ].reduce((total, item) => total + item.sharedWith.length, 0);
 
-        // Find most active sharers
         const sharerCounts: Record<string, number> = {};
         [...allSharedChecklists, ...allSharedNotes].forEach(item => {
             sharerCounts[item.owner] = (sharerCounts[item.owner] || 0) + 1;

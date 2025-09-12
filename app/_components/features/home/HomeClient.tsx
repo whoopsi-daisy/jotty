@@ -66,7 +66,7 @@ export function HomeClient({
     }
     setIsInitialized(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
+  }, []);
 
   useEffect(() => {
     if (!isInitialized) return;

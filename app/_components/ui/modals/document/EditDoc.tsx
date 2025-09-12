@@ -37,7 +37,6 @@ export function EditDocModal({
     setCategory(doc.category || "");
   }, [doc]);
 
-  // Check if current user is the owner
   useEffect(() => {
     const checkOwnership = async () => {
       try {
@@ -58,18 +57,15 @@ export function EditDocModal({
     setIsUpdating(true);
 
     try {
-      // Only create new category if user is owner
       if (isOwner && showNewCategory && newCategory.trim()) {
         const categoryFormData = new FormData();
         categoryFormData.append("name", newCategory.trim());
         await createDocsCategoryAction(categoryFormData);
       }
 
-      // Update the document
       const formData = new FormData();
       formData.append("id", doc.id);
       formData.append("title", title.trim());
-      // Only include category if user is owner
       if (isOwner) {
         formData.append(
           "category",
@@ -115,7 +111,6 @@ export function EditDocModal({
           />
         </div>
 
-        {/* Only show category section if user is owner */}
         {isOwner && (
           <>
             <div className="space-y-2">

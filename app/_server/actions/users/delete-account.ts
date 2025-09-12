@@ -9,7 +9,6 @@ import { Result } from "@/app/_types";
 import fs from "fs/promises";
 import path from "path";
 import { removeAllSessionsForUser } from "./session-storage";
-import { getItemsSharedByUser } from "../sharing/sharing-utils";
 
 export async function deleteAccountAction(
   formData: FormData
@@ -33,7 +32,6 @@ export async function deleteAccountAction(
       };
     }
 
-    // Get all users
     const users = await readUsers();
     const userIndex = users.findIndex(
       (user) => user.username === currentUser.username
@@ -46,7 +44,6 @@ export async function deleteAccountAction(
       };
     }
 
-    // Verify password
     const { createHash } = await import("crypto");
     const passwordHash = createHash("sha256")
       .update(confirmPassword)
@@ -59,7 +56,6 @@ export async function deleteAccountAction(
       };
     }
 
-    // Prevent deletion of the last admin user
     const adminUsers = users.filter((user) => user.isAdmin);
     if (currentUser.isAdmin && adminUsers.length === 1) {
       return {
@@ -68,16 +64,9 @@ export async function deleteAccountAction(
       };
     }
 
-    // Clean up user's sessions
     await removeAllSessionsForUser(currentUser.username);
 
-    // Clean up user's shared items
-    const sharedItems = await getItemsSharedByUser(currentUser.username);
-    // Note: Shared items will be cleaned up by the cleanup utility when items are deleted
-
-    // Clean up user's data files
     try {
-      // Delete user's checklists directory
       const checklistsDir = path.join(
         process.cwd(),
         "data",
@@ -86,7 +75,6 @@ export async function deleteAccountAction(
       );
       await fs.rm(checklistsDir, { recursive: true, force: true });
 
-      // Delete user's notes directory
       const docsDir = path.join(
         process.cwd(),
         "data",
@@ -96,13 +84,10 @@ export async function deleteAccountAction(
       await fs.rm(docsDir, { recursive: true, force: true });
     } catch (error) {
       console.warn("Warning: Could not clean up user data files:", error);
-      // Continue with deletion even if cleanup fails
     }
 
-    // Remove user from users array
     users.splice(userIndex, 1);
 
-    // Write updated users to file
     await writeUsers(users);
 
     return {

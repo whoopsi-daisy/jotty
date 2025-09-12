@@ -580,6 +580,13 @@ export const deleteItemAction = async (formData: FormData) => {
       throw new Error("List not found");
     }
 
+    // Check if item exists before trying to delete it
+    const itemExists = list.items.some((item) => item.id === itemId);
+    if (!itemExists) {
+      // Item already deleted, return success (idempotent operation)
+      return { success: true };
+    }
+
     const updatedList = {
       ...list,
       items: list.items.filter((item) => item.id !== itemId),

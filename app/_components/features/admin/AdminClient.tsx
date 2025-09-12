@@ -93,7 +93,6 @@ export function AdminClient({ username }: AdminClientProps) {
       const result = await deleteUserAction(formData);
 
       if (result.success) {
-        // Remove user from local state
         setUsers((prev) => prev.filter((u) => u.username !== user.username));
       } else {
         alert(result.error || "Failed to delete user");

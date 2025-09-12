@@ -1,6 +1,5 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { readUsers, writeUsers } from "@/app/_server/actions/auth/utils";
 import { Result } from "@/app/_types";
 import fs from "fs/promises";
@@ -12,7 +11,6 @@ export async function deleteUserAction(
   try {
     const username = formData.get("username") as string;
 
-    // Validate input
     if (!username) {
       return {
         success: false,
@@ -20,7 +18,6 @@ export async function deleteUserAction(
       };
     }
 
-    // Get existing users
     const existingUsers = await readUsers();
     const userIndex = existingUsers.findIndex(
       (user) => user.username === username
@@ -33,7 +30,6 @@ export async function deleteUserAction(
       };
     }
 
-    // Prevent deletion of the last admin user
     const adminUsers = existingUsers.filter((user) => user.isAdmin);
     if (existingUsers[userIndex].isAdmin && adminUsers.length === 1) {
       return {
@@ -42,15 +38,11 @@ export async function deleteUserAction(
       };
     }
 
-    // Remove user from users array
     existingUsers.splice(userIndex, 1);
 
-    // Write updated users to file
     await writeUsers(existingUsers);
 
-    // Clean up user's data files
     try {
-      // Delete user's checklists directory
       const checklistsDir = path.join(
         process.cwd(),
         "data",
@@ -59,12 +51,10 @@ export async function deleteUserAction(
       );
       await fs.rm(checklistsDir, { recursive: true, force: true });
 
-      // Delete user's notes directory
       const docsDir = path.join(process.cwd(), "data", "docs", username);
       await fs.rm(docsDir, { recursive: true, force: true });
     } catch (error) {
       console.warn("Warning: Could not clean up user data files:", error);
-      // Continue with deletion even if cleanup fails
     }
 
     return {

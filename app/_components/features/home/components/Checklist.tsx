@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChecklistItem } from "./ChecklistItem";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
 import {
@@ -52,9 +52,11 @@ export function ChecklistView({
   const [showShareModal, setShowShareModal] = useState(false);
   const [showBulkPasteModal, setShowBulkPasteModal] = useState(false);
   const [localList, setLocalList] = useState(list);
+  const [focusKey, setFocusKey] = useState(0);
 
   useEffect(() => {
     setLocalList(list);
+    setFocusKey(prev => prev + 1);
   }, [list]);
 
   const sensors = useSensors(
@@ -100,6 +102,7 @@ export function ChecklistView({
       };
       setLocalList(updatedList);
       onUpdate(updatedList);
+      setFocusKey(prev => prev + 1);
     }
   };
 
@@ -123,18 +126,23 @@ export function ChecklistView({
   };
 
   const handleDeleteItem = async (itemId: string) => {
+    const optimisticList = {
+      ...localList,
+      items: localList.items.filter((item) => item.id !== itemId),
+    };
+    setLocalList(optimisticList);
+    onUpdate(optimisticList);
+    setFocusKey(prev => prev + 1);
+
     const formData = new FormData();
     formData.append("listId", localList.id);
     formData.append("itemId", itemId);
     const result = await deleteItemAction(formData);
 
-    if (result.success) {
-      const updatedList = {
-        ...localList,
-        items: localList.items.filter((item) => item.id !== itemId),
-      };
-      setLocalList(updatedList);
-      onUpdate(updatedList);
+    if (!result.success) {
+      setLocalList(localList);
+      onUpdate(localList);
+      console.error("Failed to delete item:", result.error);
     }
   };
 
@@ -268,6 +276,7 @@ export function ChecklistView({
         <div className="max-w-4xl mx-auto space-y-4 lg:space-y-6 pb-20 lg:pb-0">
           <div className="bg-background rounded-lg border border-border p-4">
             <ChecklistForm
+              key={focusKey}
               onSubmit={async (text) => {
                 setIsLoading(true);
                 const formData = new FormData();
@@ -283,10 +292,12 @@ export function ChecklistView({
                   };
                   setLocalList(updatedList);
                   onUpdate(updatedList);
+                  setFocusKey((prev) => prev + 1);
                 }
               }}
               onBulkSubmit={() => setShowBulkPasteModal(true)}
               isLoading={isLoading}
+              autoFocus={true}
             />
           </div>
 

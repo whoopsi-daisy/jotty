@@ -1,4 +1,3 @@
-// app/_components/_FeatureComponents/DocsPage/ActiveViews/DocEditor.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
