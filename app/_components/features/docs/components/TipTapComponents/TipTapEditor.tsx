@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Image from "@tiptap/extension-image";
 import { common, createLowlight } from "lowlight";
 import { TiptapToolbar } from "./TipTapToolbar";
 import { useState, useEffect, useMemo, useRef } from "react";
@@ -13,9 +14,10 @@ import { Eye, FileText } from "lucide-react";
 type TiptapEditorProps = {
   content: string;
   onChange: (content: string, isMarkdownMode: boolean) => void;
+  category?: string;
 };
 
-export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
+export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
@@ -44,6 +46,11 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       Link.configure({
         openOnClick: false,
         autolink: true,
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg',
+        },
       }),
     ],
     content: content,

@@ -283,6 +283,7 @@ export function DocEditor({
           <TiptapEditor
             content={editorContent}
             onChange={handleEditorContentChange}
+            category={category}
           />
         ) : (
           <div
