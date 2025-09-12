@@ -2,7 +2,7 @@
 
 import { Search, Plus, Edit3, Trash2, Shield, User } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { User as UserType, Checklist, Document } from "@/app/_types";
+import { User as UserType, Checklist, Note } from "@/app/_types";
 
 interface AdminUsersProps {
   users: UserType[];
@@ -12,7 +12,7 @@ interface AdminUsersProps {
   onEditUser: (user: UserType) => void;
   onDeleteUser: (user: UserType) => void;
   allLists: Checklist[];
-  allDocs: Document[];
+  allDocs: Note[];
   username: string;
   deletingUser: string | null;
 }

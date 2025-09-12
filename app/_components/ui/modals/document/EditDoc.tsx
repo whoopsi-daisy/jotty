@@ -8,11 +8,11 @@ import {
   createDocsCategoryAction,
 } from "@/app/_server/actions/data/docs-actions";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
-import { Document, Category } from "@/app/_types";
+import { Note, Category } from "@/app/_types";
 import { Modal } from "../../elements/modal";
 
 interface EditDocModalProps {
-  doc: Document;
+  doc: Note;
   onClose: () => void;
   onUpdated: () => void;
   categories: Category[];
@@ -88,7 +88,7 @@ export function EditDocModal({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Edit Document"
+      title="Edit Note"
       titleIcon={<FileText className="h-5 w-5 text-primary" />}
     >
       <div className="p-6 space-y-4">
@@ -105,7 +105,7 @@ export function EditDocModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full px-3 py-2 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-            placeholder="Enter document title..."
+            placeholder="Enter note title..."
             autoFocus
             required
           />
@@ -173,7 +173,7 @@ export function EditDocModal({
             disabled={!title.trim() || isUpdating}
             className="flex-1"
           >
-            {isUpdating ? "Updating..." : "Update Document"}
+            {isUpdating ? "Updating..." : "Update Note"}
           </Button>
         </div>
       </div>

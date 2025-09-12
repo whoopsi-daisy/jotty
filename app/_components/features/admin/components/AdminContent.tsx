@@ -2,18 +2,18 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { CheckSquare, FileText, ChevronDown, ChevronRight, User, Shield } from "lucide-react";
-import { Checklist, Document, User as UserType } from "@/app/_types";
+import { Checklist, Note, User as UserType } from "@/app/_types";
 
 interface AdminContentProps {
   allLists: Checklist[];
-  allDocs: Document[];
+  allDocs: Note[];
   users: UserType[];
 }
 
 interface UserContent {
   user: UserType;
   checklists: Checklist[];
-  notes: Document[];
+  notes: Note[];
   totalItems: number;
 }
 

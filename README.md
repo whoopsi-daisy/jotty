@@ -24,7 +24,7 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
   <p align="center">
     <em>Rich text editor for notes and beautiful theme customization.</em>
   </p>
-  <img src="public/app-screenshots/document-view.png" alt="Document Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
+  <img src="public/app-screenshots/document-view.png" alt="Note Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
 </div>
 
 ## Features

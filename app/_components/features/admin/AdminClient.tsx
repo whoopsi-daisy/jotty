@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { UserManagementModal } from "@/app/_components/ui/modals/user/UserManagementModal";
-import { User, Checklist, Document } from "@/app/_types";
+import { User, Checklist, Note } from "@/app/_types";
 import { readUsers } from "@/app/_server/actions/auth/utils";
 import { getAllLists } from "@/app/_server/actions/data/actions";
 import { getAllDocs } from "@/app/_server/actions/data/docs-actions";
@@ -25,7 +25,7 @@ export function AdminClient({ username }: AdminClientProps) {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [allLists, setAllLists] = useState<Checklist[]>([]);
-  const [allDocs, setAllDocs] = useState<Document[]>([]);
+  const [allDocs, setAllDocs] = useState<Note[]>([]);
   const [globalSharing, setGlobalSharing] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<

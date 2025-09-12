@@ -19,7 +19,7 @@ import {
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
-import { Document, Category } from "@/app/_types";
+import { Note, Category } from "@/app/_types";
 import { exportToPDF } from "@/app/_utils/pdf-export";
 import {
   updateDocAction,
@@ -28,7 +28,7 @@ import {
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 
 interface DocEditorProps {
-  doc: Document;
+  doc: Note;
   categories: Category[];
   onUpdate: () => void;
   onBack: () => void;
@@ -200,7 +200,7 @@ export function DocEditor({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="text-lg lg:text-xl font-bold bg-transparent border-none outline-none focus:ring-0 text-foreground w-full px-0"
-                    placeholder="Document title..."
+                    placeholder="Note title..."
                   />
                 </div>
               ) : (

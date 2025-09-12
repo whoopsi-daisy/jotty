@@ -2,12 +2,12 @@
 
 import { Plus, FileText, Clock, FolderOpen, BookOpen } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { Document, Category } from "@/app/_types";
+import { Note, Category } from "@/app/_types";
 import { StatsCard } from "@/app/_components/ui/elements/statsCard";
 import { formatRelativeTime } from "@/app/_utils/date-utils";
 
 interface DocsHomeViewProps {
-  docs: Document[];
+  docs: Note[];
   categories: Category[];
   onCreateModal: () => void;
   onSelectDoc: (id: string) => void;
@@ -49,11 +49,11 @@ export function DocsHomeView({
             No notes yet
           </h3>
           <p className="text-muted-foreground mb-6 max-w-md text-center">
-            Create your first document to get started with your knowledge base.
+            Create your first note to get started with your knowledge base.
           </p>
           <Button onClick={onCreateModal} size="lg">
             <Plus className="h-5 w-5 mr-2" />
-            Create New Document
+            Create New Note
           </Button>
         </div>
       ) : (
@@ -69,7 +69,7 @@ export function DocsHomeView({
             </div>
             <Button onClick={onCreateModal} size="lg">
               <Plus className="h-5 w-5 mr-2" />
-              New Document
+              New Note
             </Button>
           </div>
 
@@ -123,7 +123,7 @@ export function DocsHomeView({
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <FileText className="h-3 w-3" />
-                        <span>Document</span>
+                        <span>Note</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />

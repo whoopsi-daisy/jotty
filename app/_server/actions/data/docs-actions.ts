@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import path from "path";
-import { Document, Category } from "@/app/_types";
+import { Note, Category } from "@/app/_types";
 import {
   getDocsUserDir,
   ensureDocsDir,
@@ -27,10 +27,10 @@ const parseMarkdownDoc = (
   owner?: string,
   isShared?: boolean,
   fileStats?: { birthtime: Date; mtime: Date }
-): Document => {
+): Note => {
   const lines = content.split("\n");
   const titleLine = lines.find((line) => line.startsWith("# "));
-  const title = titleLine?.replace(/^#\s*/, "") || "Untitled Document";
+  const title = titleLine?.replace(/^#\s*/, "") || "Untitled Note";
 
   const contentWithoutTitle = lines
     .filter((line) => !line.startsWith("# ") || line !== titleLine)
@@ -53,7 +53,7 @@ const parseMarkdownDoc = (
   };
 };
 
-const docToMarkdown = (doc: Document): string => {
+const docToMarkdown = (doc: Note): string => {
   const header = `# ${doc.title}`;
   const content = doc.content || "";
 
@@ -71,7 +71,7 @@ export const getDocs = async () => {
     await ensureDocsDir(userDir);
 
     const categories = await readDocsDir(userDir);
-    const docs: Document[] = [];
+    const docs: Note[] = [];
 
     for (const category of categories) {
       if (!category.isDirectory()) continue;
@@ -178,7 +178,7 @@ export const createDocAction = async (formData: FormData) => {
     // Ensure the category directory exists
     await ensureDocsDir(categoryDir);
 
-    const newDoc: Document = {
+    const newDoc: Note = {
       id,
       title,
       content,
@@ -209,7 +209,7 @@ export const updateDocAction = async (formData: FormData) => {
 
     const doc = docs.data.find((d) => d.id === id);
     if (!doc) {
-      throw new Error("Document not found");
+      throw new Error("Note not found");
     }
 
     const updatedDoc = {
@@ -378,7 +378,7 @@ export const getAllDocs = async () => {
       return { success: false, error: "Not authenticated" };
     }
 
-    const allDocs: Document[] = [];
+    const allDocs: Note[] = [];
 
     const users = await readUsers();
 

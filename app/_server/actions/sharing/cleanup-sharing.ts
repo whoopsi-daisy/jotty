@@ -29,7 +29,7 @@ export async function cleanupSharingMetadataAction(): Promise<
     }
 
     const existingChecklistIds = new Set(allLists.data.map((list) => list.id));
-    const existingDocumentIds = new Set(allDocs.data.map((doc) => doc.id));
+    const existingNoteIds = new Set(allDocs.data.map((doc) => doc.id));
 
     let removedChecklists = 0;
     let removedNotes = 0;
@@ -44,7 +44,7 @@ export async function cleanupSharingMetadataAction(): Promise<
 
     const notesToRemove: string[] = [];
     for (const [id, sharedItem] of Object.entries(metadata.notes)) {
-      if (!existingDocumentIds.has(id)) {
+      if (!existingNoteIds.has(id)) {
         notesToRemove.push(id);
         removedNotes++;
       }
@@ -102,7 +102,7 @@ export async function validateSharingMetadataAction(): Promise<
     }
 
     const existingChecklistIds = new Set(allLists.data.map((list) => list.id));
-    const existingDocumentIds = new Set(allDocs.data.map((doc) => doc.id));
+    const existingNoteIds = new Set(allDocs.data.map((doc) => doc.id));
 
     let validChecklists = 0;
     let validNotes = 0;
@@ -118,7 +118,7 @@ export async function validateSharingMetadataAction(): Promise<
     }
 
     for (const [id, sharedItem] of Object.entries(metadata.notes)) {
-      if (existingDocumentIds.has(id)) {
+      if (existingNoteIds.has(id)) {
         validNotes++;
       } else {
         orphanedNotes++;

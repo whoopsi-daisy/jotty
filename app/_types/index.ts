@@ -16,7 +16,7 @@ export interface Checklist {
   isShared?: boolean;
 }
 
-export interface Document {
+export interface Note {
   id: string;
   title: string;
   content: string;
