@@ -68,30 +68,32 @@ The recommended way to run `rwMarkable` is with Docker.
 
     ```yaml
     services:
-      app:
-        image: ghcr.io/fccview/rwmarkable:main
+      rwmarkable:
+        image: ghcr.io/fccview/rwmarkable:latest
         container_name: rwmarkable
-        # Use a non-root user for better security.
-        # If you haven't previously, create the user on your host with: sudo useradd -u 1000 rwmarkable
         user: "1000:1000"
         ports:
-          # Mapping port 1122 for this as port 3000 is a very common one. Feel free to change it.
+          # Feel free to change the FIRST port, 3000 is very common 
+          # so I like to map it to something else (in this case 1122)
           - "1122:3000"
         volumes:
-          # Mount your local data directory into the container.
+          # --- MOUNT DATA DIRECTORY
+          # This is needed for persistent data storage on YOUR host machine rather than inside the docker volume.
           - ./data:/app/data:rw
-          # Mount your custom themes/emojis within the config folder.
           - ./config:/app/config:ro
         restart: unless-stopped
         environment:
           - NODE_ENV=production
-        init: true
+          # Uncomment to enable HTTPS
+          # - HTTPS=true
+        # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
+        #platform: linux/arm64
     ```
 
 2.  Create the data directory and set permissions:
 
     ```bash
-    mkdir data
+    mkdir -p data/users data/checklists data/docs data/sharing
     sudo chown -R 1000:1000 data/
     ```
 
