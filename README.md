@@ -8,8 +8,7 @@
 
 A simple, self-hosted app for your checklists and notes.
 
-Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternative for managing your personal checklists and documents. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
-
+Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternative for managing your personal checklists and notes. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
 
 <div align="center">
   <p align="center">
@@ -23,29 +22,41 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
   <img src="public/app-screenshots/checklist-theme.png" alt="Checklist with Theme" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
 
   <p align="center">
-    <em>Rich text editor for documents and beautiful theme customization.</em>
+    <em>Rich text editor for notes and beautiful theme customization.</em>
   </p>
-  <img src="public/app-screenshots/document-view.png" alt="Document Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
+  <img src="public/app-screenshots/document-view.png" alt="Note Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
 </div>
 
 ## Features
 
-* **Checklists:** Create task lists with drag & drop reordering, progress bars, and categories.
-* **Rich Text Notes:** A clean WYSIWYG editor for your documents, powered by TipTap with full Markdown support.
-* **Simple Sharing:** Share checklists or documents with other users on your instance.
-* **File-Based:** No database needed! Everything is stored in simple Markdown and JSON files in a single data directory.
-* **User Management:** An admin panel to create and manage user accounts.
-* **Customisable:** Plenty of themes to make it your own.
+- **Checklists:** Create task lists with drag & drop reordering, progress bars, and categories.
+- **Rich Text Notes:** A clean WYSIWYG editor for your notes, powered by TipTap with full Markdown support.
+- **Simple Sharing:** Share checklists or notes with other users on your instance.
+- **File-Based:** No database needed! Everything is stored in simple Markdown and JSON files in a single data directory.
+- **User Management:** An admin panel to create and manage user accounts.
+- **Customisable:** Plenty of themes to make it your own.
+- **API Access:** Programmatic access to your checklists and notes via REST API.
 
 ## Tech Stack
 
-* **Framework:** Next.js 14 (App Router)
-* **Language:** TypeScript
-* **Styling:** Tailwind CSS
-* **State:** Zustand
-* **Editor:** TipTap
-* **Drag & Drop:** @dnd-kit
-* **Deployment:** Docker
+- **Framework:** Next.js 14 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **State:** Zustand
+- **Editor:** TipTap
+- **Drag & Drop:** @dnd-kit
+- **Deployment:** Docker
+
+## API
+
+`rwMarkable` includes a REST API for programmatic access to your checklists and notes. This is perfect for:
+
+- **Automation:** Create tasks from external systems
+- **Integrations:** Connect with other tools and services
+- **Scripts:** Automate repetitive tasks
+- **Dashboards:** Build custom interfaces
+
+📖 **For the complete API documentation, see [app/api/README.md](app/api/README.md)**
 
 ## Getting Started
 
@@ -57,30 +68,32 @@ The recommended way to run `rwMarkable` is with Docker.
 
     ```yaml
     services:
-      app:
-        image: ghcr.io/fccview/rwmarkable:main
+      rwmarkable:
+        image: ghcr.io/fccview/rwmarkable:latest
         container_name: rwmarkable
-        # Use a non-root user for better security.
-        # If you haven't previously, create the user on your host with: sudo useradd -u 1000 rwmarkable
-        user: "1000:1000" 
+        user: "1000:1000"
         ports:
-          # Mapping port 1122 for this as port 3000 is a very common one. Feel free to change it.
+          # Feel free to change the FIRST port, 3000 is very common 
+          # so I like to map it to something else (in this case 1122)
           - "1122:3000"
         volumes:
-          # Mount your local data directory into the container.
+          # --- MOUNT DATA DIRECTORY
+          # This is needed for persistent data storage on YOUR host machine rather than inside the docker volume.
           - ./data:/app/data:rw
-          # Mount your custom themes/emojis within the config folder. 
           - ./config:/app/config:ro
         restart: unless-stopped
         environment:
           - NODE_ENV=production
-        init: true
+          # Uncomment to enable HTTPS
+          # - HTTPS=true
+        # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
+        #platform: linux/arm64
     ```
 
 2.  Create the data directory and set permissions:
 
     ```bash
-    mkdir data
+    mkdir -p data/users data/checklists data/docs data/sharing
     sudo chown -R 1000:1000 data/
     ```
 
@@ -116,10 +129,10 @@ If you want to run the app locally for development:
 
 `rwMarkable` uses a simple file-based storage system inside the `data/` directory.
 
-* `data/checklists/`: Stores all checklists as `.md` files.
-* `data/documents/`: Stores all documents as `.md` files.
-* `data/users/`: Contains `users.json` and `sessions.json`.
-* `data/sharing/`: Contains `shared-items.json`.
+- `data/checklists/`: Stores all checklists as `.md` files.
+- `data/notes/`: Stores all notes as `.md` files.
+- `data/users/`: Contains `users.json` and `sessions.json`.
+- `data/sharing/`: Contains `shared-items.json`.
 
 **Make sure you back up the `data` directory!**
 
@@ -135,6 +148,7 @@ docker-compose up -d
 ```
 
 ### Manual
+
 If you're running from source, pull the latest changes and rebuild.
 
 ```bash
@@ -182,6 +196,7 @@ Create `config/themes.json` with your custom themes:
 ```
 
 **Required color variables:**
+
 - `--background`, `--background-secondary`, `--foreground`
 - `--card`, `--card-foreground`, `--popover`, `--popover-foreground`
 - `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`
