@@ -47,7 +47,6 @@ export function SidebarActions({
           href="/profile"
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <User className="h-4 w-4" />
           <span className="truncate">{username}</span>
           {isAdmin && (
             <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded">
@@ -56,12 +55,13 @@ export function SidebarActions({
           )}
         </Link>
         <Button
-          onClick={onOpenSettings}
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0"
         >
-          <Settings className="h-4 w-4" />
+          <Link href="/profile">
+            <User className="h-4 w-4" />
+          </Link>
         </Button>
       </div>
     </div>
