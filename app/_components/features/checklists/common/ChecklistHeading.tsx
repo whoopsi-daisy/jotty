@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Plus, ClipboardList, Users } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Checklist } from "@/app/_types";
+import { isMobileDevice } from "@/app/_utils/utils";
 
 interface ChecklistHeadingProps {
     checklist: Checklist;
@@ -38,7 +39,7 @@ export function ChecklistHeading({
     };
 
     useEffect(() => {
-        if (autoFocus && inputRef.current) {
+        if (autoFocus && inputRef.current && !isMobileDevice()) {
             inputRef.current.focus();
         }
     }, [focusKey, autoFocus]);
