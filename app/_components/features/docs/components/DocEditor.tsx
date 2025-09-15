@@ -30,7 +30,7 @@ import { getCurrentUser } from "@/app/_server/actions/users/current";
 interface DocEditorProps {
   doc: Note;
   categories: Category[];
-  onUpdate: () => void;
+  onUpdate: (updatedDoc: Note) => void;
   onBack: () => void;
   onDelete?: (deletedId: string) => void;
 }
@@ -80,12 +80,6 @@ export function DocEditor({
     setTitle(doc.title);
     const docCategory =
       doc.category === "Uncategorized" || !doc.category ? "" : doc.category;
-    console.log(
-      "Setting category:",
-      docCategory,
-      "from doc.category:",
-      doc.category
-    );
     setCategory(docCategory);
     setEditorContent(marked.parse(markdownContent) as string);
     setIsEditing(false);
@@ -142,7 +136,16 @@ export function DocEditor({
     if (result.success) {
       setDocContent(markdownOutput);
       setIsEditing(false);
-      onUpdate();
+
+      const updatedDoc: Note = {
+        ...doc,
+        title,
+        content: markdownOutput,
+        category: isOwner ? category : doc.category,
+        updatedAt: new Date().toISOString(),
+      };
+
+      onUpdate(updatedDoc);
     }
   };
 

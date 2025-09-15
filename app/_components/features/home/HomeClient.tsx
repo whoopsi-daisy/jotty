@@ -212,6 +212,9 @@ export function HomeClient({
             setSelectedNote(null);
             setHashInUrl("");
           }}
+          onDocUpdate={(updatedDoc) => {
+            setDocs((prev) => prev.map((doc) => doc.id === updatedDoc.id ? updatedDoc : doc));
+          }}
           onCreateModal={() => setShowCreateDocModal(true)}
         />
       );
