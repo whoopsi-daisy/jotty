@@ -22,6 +22,22 @@ x-api-key: ck_your_api_key_here
 
 **Note**: Replace `ck_your_api_key_here` with your actual API key.
 
+## Checklist Types
+
+The API supports two types of checklists:
+
+### Regular Checklists
+- Simple checklists with basic items
+- Items have only `text` and `completed` status
+- Used for simple to-do lists and shopping lists
+
+### Task Checklists  
+- Advanced checklists with task management features
+- Items include additional metadata:
+  - `status`: Task status (`in_progress`, `paused`, `completed`)
+  - `time`: Time tracking data (either `0` or JSON array of time entries)
+- Used for project management and time tracking
+
 ## Endpoints
 
 ### 1. Get All Checklists
@@ -37,6 +53,7 @@ Retrieves all checklists for the authenticated user.
       "id": "<checklistID>",
       "title": "My Tasks",
       "category": "Work",
+      "type": "regular",
       "items": [
         {
           "index": 0,
@@ -51,6 +68,30 @@ Retrieves all checklists for the authenticated user.
       ],
       "createdAt": "2024-01-01T00:00:00.000Z",
       "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "<taskChecklistID>",
+      "title": "Project Tasks",
+      "category": "Work",
+      "type": "task",
+      "items": [
+        {
+          "index": 0,
+          "text": "Task with status",
+          "completed": false,
+          "status": "in_progress",
+          "time": 0
+        },
+        {
+          "index": 1,
+          "text": "Task with time tracking",
+          "completed": false,
+          "status": "paused",
+          "time": [{"id":"1757951487325","startTime":"2025-09-15T15:51:24.610Z","endTime":"2025-09-15T15:51:27.325Z","duration":2}]
+        }
+      ],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
     }
   ]
 }
@@ -61,12 +102,26 @@ Retrieves all checklists for the authenticated user.
 
 Adds a new item to the specified checklist.
 
-**Request Body:**
+**Request Body for Regular Checklists:**
 ```json
 {
   "text": "New task to complete"
 }
 ```
+
+**Request Body for Task Checklists:**
+```json
+{
+  "text": "New task to complete",
+  "status": "in_progress",
+  "time": 0
+}
+```
+
+**Task Checklist Parameters:**
+- `text` (required): The task description
+- `status` (optional): Task status - `"in_progress"`, `"paused"`, or `"completed"` (defaults to `"in_progress"`)
+- `time` (optional): Time tracking value - either `0` for no time tracked or a JSON array of time entries (defaults to `0`)
 
 **Response:**
 ```json
@@ -145,13 +200,22 @@ curl -H "x-api-key: ck_your_api_key_here" \
      https://your-checklist-app.com/api/checklists
 ```
 
-### Add item to checklist
+### Add item to regular checklist
 ```bash
 curl -X POST \
      -H "x-api-key: ck_your_api_key_here" \
      -H "Content-Type: application/json" \
      -d '{"text": "New task"}' \
      https://your-checklist-app.com/api/checklists/<checklist_id>/items
+```
+
+### Add item to task checklist
+```bash
+curl -X POST \
+     -H "x-api-key: ck_your_api_key_here" \
+     -H "Content-Type: application/json" \
+     -d '{"text": "New task with status", "status": "in_progress", "time": 0}' \
+     https://your-checklist-app.com/api/checklists/<task_checklist_id>/items
 ```
 
 ### Check item (mark as completed)
@@ -180,4 +244,6 @@ curl -H "x-api-key: ck_your_api_key_here" \
 - All timestamps are in ISO 8601 format
 - API keys are permanent and do not expire
 - Only items owned by the authenticated user are accessible
+- For task checklists, the `status` and `time` parameters are optional when creating items
+- Time tracking data is stored as JSON arrays with `id`, `startTime`, `endTime`, and `duration` fields
 - This is a beta implementation - additional features will be added in future updates

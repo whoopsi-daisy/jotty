@@ -17,7 +17,7 @@ export async function POST(
         }
 
         const body = await request.json();
-        const { text } = body;
+        const { text, status, time } = body;
 
         if (!text) {
             return NextResponse.json({ error: "Text is required" }, { status: 400 });
@@ -26,6 +26,14 @@ export async function POST(
         const formData = new FormData();
         formData.append("listId", params.listId);
         formData.append("text", text);
+
+        // Add optional task parameters if provided
+        if (status) {
+            formData.append("status", status);
+        }
+        if (time !== undefined) {
+            formData.append("time", typeof time === 'string' ? time : JSON.stringify(time));
+        }
 
         const result = await createItemAction(formData, user.username, true);
 

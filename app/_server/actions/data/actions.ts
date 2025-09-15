@@ -560,6 +560,8 @@ export const createItemAction = async (formData: FormData, username?: string, sk
   try {
     const listId = formData.get("listId") as string;
     const text = formData.get("text") as string;
+    const status = formData.get("status") as string;
+    const timeStr = formData.get("time") as string;
 
     const lists = await getLists(username);
     if (!lists.success || !lists.data) {
@@ -575,14 +577,24 @@ export const createItemAction = async (formData: FormData, username?: string, sk
       throw new Error("List not found");
     }
 
+    let timeEntries: any[] = [];
+    if (timeStr && timeStr !== "0") {
+      try {
+        timeEntries = JSON.parse(timeStr);
+      } catch (e) {
+        console.error("Failed to parse time entries:", e);
+        timeEntries = [];
+      }
+    }
+
     const newItem = {
       id: `${listId}-${Date.now()}`,
       text,
       completed: false,
       order: list.items.length,
       ...(list.type === "task" && {
-        status: "todo" as const,
-        timeEntries: [],
+        status: (status as "todo" | "in_progress" | "completed" | "paused") || "todo",
+        timeEntries,
       }),
     };
 
