@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, Folder, Plus, TrendingUp, Clock, BarChart3, CheckSquare } from "lucide-react";
+import { CheckCircle, Folder, Plus, TrendingUp, Clock, BarChart3, CheckSquare, Timer } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Checklist, Item } from "@/app/_types";
 import { StatsCard } from "@/app/_components/ui/elements/statsCard";
@@ -55,6 +55,31 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
     const completed = items.filter(item => item.status === "completed").length;
     const paused = items.filter(item => item.status === "paused").length;
     return { todo, inProgress, completed, paused };
+  };
+
+  const getTotalTimeSpent = (items: Item[]) => {
+    return items.reduce((total, item) => {
+      if (item.timeEntries && item.timeEntries.length > 0) {
+        const itemTotal = item.timeEntries.reduce((sum, entry) => {
+          return sum + (entry.duration || 0);
+        }, 0);
+        return total + itemTotal;
+      }
+      return total;
+    }, 0);
+  };
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m`;
+    } else {
+      return `${seconds}s`;
+    }
   };
 
   return (
@@ -120,11 +145,12 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-primary" />
-                Task Projects
+                Tasks
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {taskLists.map((list) => {
                   const statusCounts = getTaskStatusCounts(list.items);
+                  const totalTimeSpent = getTotalTimeSpent(list.items);
                   return (
                     <div
                       key={list.id}
@@ -178,6 +204,16 @@ export function HomeView({ lists, onCreateModal }: HomeViewProps) {
                             </div>
                           )}
                         </div>
+
+                        {totalTimeSpent > 0 && (
+                          <div className="mt-2 pt-2 border-t border-border">
+                            <div className="flex items-center gap-1 text-xs">
+                              <Timer className="h-3 w-3 text-purple-500" />
+                              <span className="text-muted-foreground">Total time: </span>
+                              <span className="font-medium text-purple-600">{formatTime(totalTimeSpent)}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between text-xs text-muted-foreground">

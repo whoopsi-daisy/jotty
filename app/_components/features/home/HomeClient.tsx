@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ChecklistView } from "@/app/_components/features/home/components/Checklist";
+import { ChecklistView } from "@/app/_components/features/checklists/simple/Checklist";
 import { HomeView } from "@/app/_components/features/home/components/Home";
 import { DocsClient } from "@/app/_components/features/docs/DocsClient";
 import { CreateListModal } from "@/app/_components/ui/modals/checklist/CreateList";

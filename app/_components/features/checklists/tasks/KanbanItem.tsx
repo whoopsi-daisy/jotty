@@ -212,7 +212,7 @@ export function KanbanItem({ item, isDragging, checklistId, onUpdate }: KanbanIt
 
                 {item.timeEntries && item.timeEntries.length > 0 && (
                     <div className="text-xs text-muted-foreground">
-                        {item.timeEntries.length} time entry{item.timeEntries.length !== 1 ? 's' : ''}
+                        {item.timeEntries.length} time entr{item.timeEntries.length !== 1 ? 'ies' : 'y'}
                     </div>
                 )}
 

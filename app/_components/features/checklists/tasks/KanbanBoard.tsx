@@ -5,9 +5,9 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/
 import { Checklist } from "@/app/_types";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanItem } from "./KanbanItem";
-import { createItemAction, updateItemStatusAction, getLists } from "@/app/_server/actions/data/actions";
-import { Plus, Users } from "lucide-react";
-import { Button } from "@/app/_components/ui/elements/button";
+import { ChecklistHeading } from "../../checklists/common/ChecklistHeading";
+import { createItemAction, updateItemStatusAction, getLists, createBulkItemsAction } from "@/app/_server/actions/data/actions";
+import { BulkPasteModal } from "@/app/_components/ui/modals/bulk-paste/BulkPasteModal";
 
 interface KanbanBoardProps {
     checklist: Checklist;
@@ -24,11 +24,13 @@ const columns = [
 export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [localChecklist, setLocalChecklist] = useState(checklist);
-    const [newItemText, setNewItemText] = useState("");
-    const [isAddingItem, setIsAddingItem] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showBulkPasteModal, setShowBulkPasteModal] = useState(false);
+    const [focusKey, setFocusKey] = useState(0);
 
     useEffect(() => {
         setLocalChecklist(checklist);
+        setFocusKey(prev => prev + 1);
     }, [checklist]);
 
     const refreshChecklist = async () => {
@@ -100,17 +102,14 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
         }
     };
 
-    const handleAddItem = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newItemText.trim()) return;
-
-        setIsAddingItem(true);
+    const handleAddItem = async (text: string) => {
+        setIsLoading(true);
         const formData = new FormData();
         formData.append("listId", localChecklist.id);
-        formData.append("text", newItemText.trim());
+        formData.append("text", text);
 
         const result = await createItemAction(formData);
-        setIsAddingItem(false);
+        setIsLoading(false);
 
         if (result.success && result.data) {
             const updatedList = {
@@ -120,7 +119,26 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
             };
             setLocalChecklist(updatedList);
             onUpdate(updatedList);
-            setNewItemText("");
+            setFocusKey(prev => prev + 1);
+        }
+    };
+
+    const handleBulkPaste = async (itemsText: string) => {
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append("listId", localChecklist.id);
+        formData.append("itemsText", itemsText);
+        const result = await createBulkItemsAction(formData);
+        setIsLoading(false);
+
+        if (result.success && result.data) {
+            const updatedList = {
+                ...localChecklist,
+                items: [...localChecklist.items, ...result.data],
+                updatedAt: new Date().toISOString(),
+            };
+            setLocalChecklist(updatedList);
+            onUpdate(updatedList);
         }
     };
 
@@ -128,45 +146,17 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
 
     return (
         <div className="h-full flex flex-col bg-background">
-            <div className="p-4 border-b border-border">
-                <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <h2 className="text-xl font-semibold text-foreground">{localChecklist.title}</h2>
-                        {localChecklist.isShared && (
-                            <div title="Shared item">
-                                <Users className="h-4 w-4 text-primary" />
-                            </div>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>ID: {localChecklist.id}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                        Drag tasks between columns to update their status
-                    </p>
-                </div>
-
-                <form onSubmit={handleAddItem} className="flex flex-col sm:flex-row gap-2">
-                    <input
-                        type="text"
-                        value={newItemText}
-                        onChange={(e) => setNewItemText(e.target.value)}
-                        placeholder="Add new task..."
-                        className="flex-1 px-4 py-3 border border-input bg-background rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:border-ring transition-colors"
-                        disabled={isAddingItem}
-                    />
-                    <Button
-                        type="submit"
-                        size="lg"
-                        disabled={isAddingItem || !newItemText.trim()}
-                        className="px-6 sm:px-6"
-                    >
-                        <Plus className="h-4 w-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Add Task</span>
-                        <span className="sm:hidden">Add</span>
-                    </Button>
-                </form>
-            </div>
+            <ChecklistHeading
+                checklist={localChecklist}
+                key={focusKey}
+                onSubmit={handleAddItem}
+                onBulkSubmit={() => setShowBulkPasteModal(true)}
+                isLoading={isLoading}
+                autoFocus={true}
+                focusKey={focusKey}
+                placeholder="Add new task..."
+                submitButtonText="Add Task"
+            />
 
             <div className="flex-1 overflow-hidden">
                 <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -199,6 +189,15 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
                     </DragOverlay>
                 </DndContext>
             </div>
+
+            {showBulkPasteModal && (
+                <BulkPasteModal
+                    isOpen={showBulkPasteModal}
+                    onClose={() => setShowBulkPasteModal(false)}
+                    onSubmit={handleBulkPaste}
+                    isLoading={isLoading}
+                />
+            )}
         </div>
     );
 }

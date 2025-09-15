@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Users } from "lucide-react";
+import { useState, useEffect } from "react";
 import { ChecklistItem } from "./ChecklistItem";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
 import { ConversionConfirmModal } from "@/app/_components/ui/modals/confirmation/ConversionConfirmModal";
@@ -31,11 +30,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Checklist } from "@/app/_types";
-import { ChecklistHeader } from "./ChecklistHeader";
+import { ChecklistHeader } from "../common/ChecklistHeader";
 import { ChecklistProgress } from "./ChecklistProgress";
-import { ChecklistForm } from "./ChecklistForm";
+import { ChecklistHeading } from "../common/ChecklistHeading";
 import { BulkPasteModal } from "@/app/_components/ui/modals/bulk-paste/BulkPasteModal";
-import { KanbanBoard } from "./KanbanBoard";
+import { KanbanBoard } from "../../checklists/tasks/KanbanBoard";
 
 interface ChecklistViewProps {
   list: Checklist;
@@ -339,49 +338,34 @@ export function ChecklistView({
         onConvertType={handleConvertType}
       />
 
-      <div className="p-4 border-b border-border">
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <h2 className="text-xl font-semibold text-foreground">{localList.title}</h2>
-            {localList.isShared && (
-              <div title="Shared item">
-                <Users className="h-4 w-4 text-primary" />
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>ID: {localList.id}</span>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            Check off items as you complete them
-          </p>
-        </div>
+      <ChecklistHeading
+        checklist={localList}
+        key={focusKey}
+        onSubmit={async (text) => {
+          setIsLoading(true);
+          const formData = new FormData();
+          formData.append("listId", localList.id);
+          formData.append("text", text);
+          const result = await createItemAction(formData);
+          setIsLoading(false);
 
-        <ChecklistForm
-          key={focusKey}
-          onSubmit={async (text) => {
-            setIsLoading(true);
-            const formData = new FormData();
-            formData.append("listId", localList.id);
-            formData.append("text", text);
-            const result = await createItemAction(formData);
-            setIsLoading(false);
-
-            if (result.success && result.data) {
-              const updatedList = {
-                ...localList,
-                items: [...localList.items, result.data],
-              };
-              setLocalList(updatedList);
-              onUpdate(updatedList);
-              setFocusKey((prev) => prev + 1);
-            }
-          }}
-          onBulkSubmit={() => setShowBulkPasteModal(true)}
-          isLoading={isLoading}
-          autoFocus={true}
-        />
-      </div>
+          if (result.success && result.data) {
+            const updatedList = {
+              ...localList,
+              items: [...localList.items, result.data],
+            };
+            setLocalList(updatedList);
+            onUpdate(updatedList);
+            setFocusKey((prev) => prev + 1);
+          }
+        }}
+        onBulkSubmit={() => setShowBulkPasteModal(true)}
+        isLoading={isLoading}
+        autoFocus={true}
+        focusKey={focusKey}
+        placeholder="Add new item..."
+        submitButtonText="Add Item"
+      />
 
       {totalCount > 0 && <ChecklistProgress checklist={localList} />}
 
