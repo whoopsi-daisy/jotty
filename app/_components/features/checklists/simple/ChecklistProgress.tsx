@@ -8,9 +8,12 @@ interface ChecklistProgressProps {
 }
 
 export function ChecklistProgress({ checklist }: ChecklistProgressProps) {
-  const completedCount = checklist.items.filter(
-    (item) => item.completed
-  ).length;
+  const completedCount = checklist.items.filter((item) => {
+    if (checklist.type === "task") {
+      return item.status === "completed";
+    }
+    return item.completed;
+  }).length;
   const totalCount = checklist.items.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 

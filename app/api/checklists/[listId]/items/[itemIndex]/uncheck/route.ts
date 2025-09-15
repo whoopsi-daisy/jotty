@@ -21,12 +21,12 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid item index" }, { status: 400 });
     }
 
-    const lists = await getLists();
+    const lists = await getLists(user.username);
     if (!lists.success || !lists.data) {
       return NextResponse.json({ error: lists.error || "Failed to fetch lists" }, { status: 500 });
     }
 
-    const list = lists.data.find(l => l.id === params.listId && l.owner === user.username);
+    const list = lists.data.find(l => l.id === params.listId);
     if (!list) {
       return NextResponse.json({ error: "List not found" }, { status: 404 });
     }

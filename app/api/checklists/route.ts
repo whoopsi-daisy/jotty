@@ -24,11 +24,25 @@ export async function GET(request: NextRequest) {
             id: list.id,
             title: list.title,
             category: list.category || "Uncategorized",
-            items: list.items.map((item, index) => ({
-                index,
-                text: item.text,
-                completed: item.completed
-            })),
+            type: list.type || "simple",
+            items: list.items.map((item, index) => {
+                const baseItem = {
+                    index,
+                    text: item.text,
+                    completed: item.completed
+                };
+
+                // Add task-specific fields if this is a task checklist
+                if (list.type === "task") {
+                    return {
+                        ...baseItem,
+                        status: item.status || "todo",
+                        time: item.timeEntries && item.timeEntries.length > 0 ? item.timeEntries : 0
+                    };
+                }
+
+                return baseItem;
+            }),
             createdAt: list.createdAt,
             updatedAt: list.updatedAt
         }));

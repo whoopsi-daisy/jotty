@@ -175,10 +175,12 @@ export function Sidebar({
           <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Logo className="h-8 w-8" />
-                <span className="text-xl font-bold text-foreground">
-                  <span className="text-primary">rw</span>Markable
-                </span>
+                <a href="/" className="flex items-center gap-3">
+                  <Logo className="h-8 w-8" />
+                  <span className="text-xl font-bold text-foreground">
+                    <span className="text-primary">rw</span>Markable
+                  </span>
+                </a>
               </div>
               <button
                 onClick={onClose}

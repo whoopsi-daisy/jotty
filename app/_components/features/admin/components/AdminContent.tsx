@@ -67,7 +67,7 @@ export function AdminContent({ allLists, allDocs, users }: AdminContentProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="md:flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground">All Content</h2>
           <p className="text-muted-foreground">

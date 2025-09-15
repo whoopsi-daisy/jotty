@@ -8,6 +8,7 @@ import {
   Plus,
   FileText,
   CheckSquare,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
@@ -132,7 +133,13 @@ export function CategoryList({
                     {mode === "docs" ? (
                       <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     ) : (
-                      <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <>
+                        {"type" in item && item.type === "task" ? (
+                          <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        ) : (
+                          <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        )}
+                      </>
                     )}
                     <span className="truncate">{item.title}</span>
                   </button>

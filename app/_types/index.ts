@@ -1,13 +1,27 @@
+export type ChecklistType = "simple" | "task";
+
+export interface TimeEntry {
+  id: string;
+  startTime: string;
+  endTime?: string;
+  duration?: number;
+}
+
 export interface Item {
   id: string;
   text: string;
   completed: boolean;
   order: number;
+  status?: "todo" | "in_progress" | "completed" | "paused";
+  timeEntries?: TimeEntry[];
+  estimatedTime?: number;
+  targetDate?: string;
 }
 
 export interface Checklist {
   id: string;
   title: string;
+  type: ChecklistType;
   category?: string;
   items: Item[];
   createdAt: string;

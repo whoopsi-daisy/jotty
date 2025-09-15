@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DocsHomeView } from "@/app/_components/features/docs/components/DocsHome";
 import { DocEditor } from "@/app/_components/features/docs/components/DocEditor";
 import { EditDocModal } from "@/app/_components/ui/modals/document/EditDoc";
@@ -11,6 +11,7 @@ interface DocsClientProps {
   docs: Note[];
   categories: Category[];
   onDocDelete?: (deletedId: string) => void;
+  onDocUpdate?: (updatedDoc: Note) => void;
   onCreateModal: () => void;
 }
 
@@ -18,11 +19,17 @@ export function DocsClient({
   docs,
   categories,
   onDocDelete,
+  onDocUpdate,
   onCreateModal,
 }: DocsClientProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<Note | null>(null);
+  const [localDocs, setLocalDocs] = useState<Note[]>(docs);
   const { selectedNote, setSelectedNote } = useAppMode();
+
+  useEffect(() => {
+    setLocalDocs(docs);
+  }, [docs]);
 
   const handleModalClose = async () => {
     if (selectedNote && editingDoc && selectedNote === editingDoc.id) {
@@ -30,7 +37,12 @@ export function DocsClient({
     }
   };
 
-  const selectedDoc = docs.find((doc) => doc.id === selectedNote);
+  const selectedDoc = localDocs.find((doc) => doc.id === selectedNote);
+
+  const handleDocUpdate = (updatedDoc: Note) => {
+    setLocalDocs(prev => prev.map(doc => doc.id === updatedDoc.id ? updatedDoc : doc));
+    onDocUpdate?.(updatedDoc);
+  };
 
   return (
     <>
@@ -38,13 +50,13 @@ export function DocsClient({
         <DocEditor
           doc={selectedDoc}
           categories={categories}
-          onUpdate={() => { }}
+          onUpdate={handleDocUpdate}
           onBack={() => setSelectedNote(null)}
           onDelete={onDocDelete}
         />
       ) : (
         <DocsHomeView
-          docs={docs}
+          docs={localDocs}
           categories={categories}
           onCreateModal={onCreateModal}
           onSelectDoc={(id) => setSelectedNote(id)}

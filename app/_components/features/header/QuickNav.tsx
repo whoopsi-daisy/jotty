@@ -40,7 +40,7 @@ export function QuickNav({
   }
 
   return (
-    <header className="bg-background border-b border-border px-4 py-3 lg:px-6 lg:py-4">
+    <header className="bg-background border-b border-border px-4 py-3 lg:px-6 lg:py-5">
       <div className="flex items-center gap-2 md:gap-4 justify-between w-full">
         {showSidebarToggle && onSidebarToggle && (
           <Button

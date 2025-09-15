@@ -156,8 +156,10 @@ export const getDocsCategories = async () => {
     const entries = await readDocsDir(userDir);
     const categories: Category[] = [];
 
+    const excludedDirs = ['images'];
+
     for (const entry of entries) {
-      if (entry.isDirectory()) {
+      if (entry.isDirectory() && !excludedDirs.includes(entry.name)) {
         const categoryDir = path.join(userDir, entry.name);
         const files = await readDocsDir(categoryDir);
         const count = files.filter(

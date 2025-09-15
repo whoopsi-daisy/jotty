@@ -259,3 +259,41 @@ mkdir -p config
 chown -R 1000:1000 config/
 chmod -R 755 config/
 ```
+
+## Community shouts
+
+I would like to thank the following members for raising issues and help test/debug them!
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/fruiz1972"><img width="100" height="100" alt="fruiz1972" src="https://avatars.githubusercontent.com/u/183622648?v=4&size=100"><br/>fruiz1972</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/seigel"><img width="100" height="100"  src="https://avatars.githubusercontent.com/u/15181?v=4&size=100"><br />seigel</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/mariushosting"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/37554361?v=4&size=100"><br />mariushosting</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/Isotop7"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/8883656?v=4&size=100"><br />Isotop7</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/bluegumcity"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/142639670?v=4&size=100"><br />bluegumcity</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For issues and questions, please open an issue on the GitHub repository.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=fccview/rwmarkable&type=Date)](https://www.star-history.com/#fccview/rwmarkable&Date)
