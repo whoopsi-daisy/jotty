@@ -6,6 +6,7 @@ import {
   Users,
   FileText,
   CheckSquare,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/app/_utils/utils";
 import { Checklist, Note } from "@/app/_types";
@@ -74,7 +75,13 @@ export function SharedItemsList({
               {mode === "docs" ? (
                 <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               ) : (
-                <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <>
+                  {"type" in item && item.type === "task" ? (
+                    <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  ) : (
+                    <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  )}
+                </>
               )}
               <div className="flex-1 min-w-0">
                 <div className="truncate">{item.title}</div>

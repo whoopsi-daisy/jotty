@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Users } from "lucide-react";
 import { ChecklistItem } from "./ChecklistItem";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
+import { ConversionConfirmModal } from "@/app/_components/ui/modals/confirmation/ConversionConfirmModal";
 import {
   deleteListAction,
   createItemAction,
@@ -10,6 +12,7 @@ import {
   deleteItemAction,
   reorderItemsAction,
   createBulkItemsAction,
+  convertChecklistTypeAction,
 } from "@/app/_server/actions/data/actions";
 import {
   DndContext,
@@ -32,6 +35,7 @@ import { ChecklistHeader } from "./ChecklistHeader";
 import { ChecklistProgress } from "./ChecklistProgress";
 import { ChecklistForm } from "./ChecklistForm";
 import { BulkPasteModal } from "@/app/_components/ui/modals/bulk-paste/BulkPasteModal";
+import { KanbanBoard } from "./KanbanBoard";
 
 interface ChecklistViewProps {
   list: Checklist;
@@ -51,6 +55,7 @@ export function ChecklistView({
   const [isLoading, setIsLoading] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showBulkPasteModal, setShowBulkPasteModal] = useState(false);
+  const [showConversionModal, setShowConversionModal] = useState(false);
   const [localList, setLocalList] = useState(list);
   const [focusKey, setFocusKey] = useState(0);
 
@@ -256,9 +261,72 @@ export function ChecklistView({
     }
   };
 
+  const handleConvertType = () => {
+    setShowConversionModal(true);
+  };
+
+  const getNewType = (currentType: "simple" | "task"): "simple" | "task" => {
+    return currentType === "simple" ? "task" : "simple";
+  };
+
+  const handleConfirmConversion = async () => {
+    setIsLoading(true);
+    const newType = getNewType(localList.type);
+    const formData = new FormData();
+    formData.append("listId", localList.id);
+    formData.append("newType", newType);
+
+    const result = await convertChecklistTypeAction(formData);
+    setIsLoading(false);
+
+    if (result.success && result.data) {
+      setLocalList(result.data);
+      onUpdate(result.data);
+    }
+  };
+
   const incompleteItems = localList.items.filter((item) => !item.completed);
   const completedItems = localList.items.filter((item) => item.completed);
   const totalCount = localList.items.length;
+
+  if (localList.type === "task") {
+    return (
+      <div className="h-full flex flex-col bg-background">
+        <ChecklistHeader
+          checklist={localList}
+          onBack={onBack}
+          onEdit={() => onEdit?.(list)}
+          onDelete={handleDeleteList}
+          onShare={() => setShowShareModal(true)}
+          onConvertType={handleConvertType}
+        />
+
+        <KanbanBoard checklist={localList} onUpdate={onUpdate} />
+
+        {showShareModal && (
+          <ShareModal
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            itemId={localList.id}
+            itemTitle={localList.title}
+            itemType="checklist"
+            itemCategory={localList.category}
+            itemOwner={localList.owner || ""}
+          />
+        )}
+
+        {showConversionModal && (
+          <ConversionConfirmModal
+            isOpen={showConversionModal}
+            onClose={() => setShowConversionModal(false)}
+            onConfirm={handleConfirmConversion}
+            currentType={localList.type}
+            newType={getNewType(localList.type)}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -268,42 +336,62 @@ export function ChecklistView({
         onEdit={() => onEdit?.(list)}
         onDelete={handleDeleteList}
         onShare={() => setShowShareModal(true)}
+        onConvertType={handleConvertType}
       />
+
+      <div className="p-4 border-b border-border">
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-xl font-semibold text-foreground">{localList.title}</h2>
+            {localList.isShared && (
+              <div title="Shared item">
+                <Users className="h-4 w-4 text-primary" />
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>ID: {localList.id}</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">
+            Check off items as you complete them
+          </p>
+        </div>
+
+        <ChecklistForm
+          key={focusKey}
+          onSubmit={async (text) => {
+            setIsLoading(true);
+            const formData = new FormData();
+            formData.append("listId", localList.id);
+            formData.append("text", text);
+            const result = await createItemAction(formData);
+            setIsLoading(false);
+
+            if (result.success && result.data) {
+              const updatedList = {
+                ...localList,
+                items: [...localList.items, result.data],
+              };
+              setLocalList(updatedList);
+              onUpdate(updatedList);
+              setFocusKey((prev) => prev + 1);
+            }
+          }}
+          onBulkSubmit={() => setShowBulkPasteModal(true)}
+          isLoading={isLoading}
+          autoFocus={true}
+        />
+      </div>
 
       {totalCount > 0 && <ChecklistProgress checklist={localList} />}
 
-      <div className="flex-1 overflow-y-auto p-3 lg:p-6 bg-background-secondary">
-        <div className="max-w-4xl mx-auto space-y-4 lg:space-y-6 pb-20 lg:pb-0">
-          <div className="bg-background rounded-lg border border-border p-4">
-            <ChecklistForm
-              key={focusKey}
-              onSubmit={async (text) => {
-                setIsLoading(true);
-                const formData = new FormData();
-                formData.append("listId", localList.id);
-                formData.append("text", text);
-                const result = await createItemAction(formData);
-                setIsLoading(false);
-
-                if (result.success && result.data) {
-                  const updatedList = {
-                    ...localList,
-                    items: [...localList.items, result.data],
-                  };
-                  setLocalList(updatedList);
-                  onUpdate(updatedList);
-                  setFocusKey((prev) => prev + 1);
-                }
-              }}
-              onBulkSubmit={() => setShowBulkPasteModal(true)}
-              isLoading={isLoading}
-              autoFocus={true}
-            />
-          </div>
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="w-full space-y-4 pb-20 lg:pb-0">
 
           {incompleteItems.length > 0 && (
-            <div className="bg-background rounded-lg border border-border p-4">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
+            <div className="bg-card rounded-lg border border-border p-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
                 To Do ({incompleteItems.length})
                 {isLoading && (
                   <span className="ml-2 text-sm text-muted-foreground">
@@ -338,8 +426,9 @@ export function ChecklistView({
           )}
 
           {completedItems.length > 0 && (
-            <div className="bg-background rounded-lg border border-border p-4">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
+            <div className="bg-card rounded-lg border border-border p-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 Completed ({completedItems.length})
                 {isLoading && (
                   <span className="ml-2 text-sm text-muted-foreground">
@@ -399,6 +488,16 @@ export function ChecklistView({
           itemType="checklist"
           itemCategory={localList.category}
           itemOwner={localList.owner || ""}
+        />
+      )}
+
+      {showConversionModal && (
+        <ConversionConfirmModal
+          isOpen={showConversionModal}
+          onClose={() => setShowConversionModal(false)}
+          onConfirm={handleConfirmConversion}
+          currentType={localList.type}
+          newType={getNewType(localList.type)}
         />
       )}
 

@@ -1,16 +1,22 @@
 import fs from "fs/promises";
 import path from "path";
+import { ChecklistType, Item, TimeEntry } from "@/app/_types";
 
 export interface ChecklistItem {
   id: string;
   text: string;
   completed: boolean;
   order: number;
+  status?: "todo" | "in_progress" | "completed" | "paused";
+  timeEntries?: TimeEntry[];
+  estimatedTime?: number;
+  targetDate?: string;
 }
 
 export interface Checklist {
   id: string;
   title: string;
+  type: ChecklistType;
   category?: string;
   items: ChecklistItem[];
   createdAt: string;
@@ -18,6 +24,14 @@ export interface Checklist {
 }
 
 const DATA_DIR = process.env.DATA_DIR || "./data/checklists";
+
+function escapePipeCharacter(text: string): string {
+  return text.replace(/\|/g, "∣");
+}
+
+function unescapePipeCharacter(text: string): string {
+  return text.replace(/∣/g, "|");
+}
 
 async function ensureDataDir() {
   try {
@@ -48,7 +62,7 @@ function getChecklistPath(title: string, category?: string): string {
   return path.join(DATA_DIR, filename);
 }
 
-function parseMarkdown(content: string): ChecklistItem[] {
+function parseMarkdown(content: string, type: ChecklistType = "simple"): ChecklistItem[] {
   const lines = content.split("\n");
   const items: ChecklistItem[] = [];
 
@@ -57,19 +71,60 @@ function parseMarkdown(content: string): ChecklistItem[] {
     if (trimmed.startsWith("- [ ] ") || trimmed.startsWith("- [x] ")) {
       const completed = trimmed.startsWith("- [x] ");
       const text = trimmed.substring(6);
-      items.push({
-        id: `item-${index}`,
-        text,
-        completed,
-        order: index,
-      });
+
+      if (type === "task" && text.includes(" | ")) {
+        const parts = text.split(" | ");
+        const itemText = unescapePipeCharacter(parts[0]);
+        const metadata = parts.slice(1);
+
+        let status: "todo" | "in_progress" | "completed" | "paused" = "todo";
+        let timeEntries: TimeEntry[] = [];
+        let estimatedTime: number | undefined;
+        let targetDate: string | undefined;
+
+        metadata.forEach(meta => {
+          if (meta.startsWith("status:")) {
+            const statusValue = meta.substring(7);
+            if (["todo", "in_progress", "completed", "paused"].includes(statusValue)) {
+              status = statusValue as "todo" | "in_progress" | "completed" | "paused";
+            }
+          } else if (meta.startsWith("time:")) {
+            const timeValue = meta.substring(5);
+            if (timeValue && timeValue !== "0") {
+              timeEntries = JSON.parse(timeValue);
+            }
+          } else if (meta.startsWith("estimated:")) {
+            estimatedTime = parseInt(meta.substring(10));
+          } else if (meta.startsWith("target:")) {
+            targetDate = meta.substring(7);
+          }
+        });
+
+        items.push({
+          id: `item-${index}`,
+          text: itemText,
+          completed,
+          order: index,
+          status,
+          timeEntries,
+          estimatedTime,
+          targetDate,
+        });
+      } else {
+        items.push({
+          id: `item-${index}`,
+          text: unescapePipeCharacter(text),
+          completed,
+          order: index,
+        });
+      }
     }
   });
 
   return items;
 }
 
-function itemsToMarkdown(items: ChecklistItem[]): string {
+function itemsToMarkdown(items: ChecklistItem[], type: ChecklistType = "simple"): string {
   return items
     .sort((a, b) => {
       if (a.completed !== b.completed) {
@@ -77,7 +132,35 @@ function itemsToMarkdown(items: ChecklistItem[]): string {
       }
       return a.order - b.order;
     })
-    .map((item) => `- [${item.completed ? "x" : " "}] ${item.text}`)
+    .map((item) => {
+      const escapedText = escapePipeCharacter(item.text);
+
+      if (type === "task" && (item.status || item.timeEntries?.length || item.estimatedTime || item.targetDate)) {
+        const metadata: string[] = [];
+
+        if (item.status && item.status !== "todo") {
+          metadata.push(`status:${item.status}`);
+        }
+
+        if (item.timeEntries && item.timeEntries.length > 0) {
+          metadata.push(`time:${JSON.stringify(item.timeEntries)}`);
+        } else {
+          metadata.push("time:0");
+        }
+
+        if (item.estimatedTime) {
+          metadata.push(`estimated:${item.estimatedTime}`);
+        }
+
+        if (item.targetDate) {
+          metadata.push(`target:${item.targetDate}`);
+        }
+
+        return `- [${item.completed ? "x" : " "}] ${escapedText} | ${metadata.join(" | ")}`;
+      }
+
+      return `- [${item.completed ? "x" : " "}] ${escapedText}`;
+    })
     .join("\n");
 }
 
@@ -98,7 +181,13 @@ async function scanDirectory(
         const lines = content.split("\n");
 
         const title = lines[0].replace(/^#\s*/, "") || "Untitled";
-        const items = parseMarkdown(content);
+
+        let type: ChecklistType = "simple";
+        if (content.includes(" | status:") || content.includes(" | time:") || content.includes(" | estimated:") || content.includes(" | target:")) {
+          type = "task";
+        }
+
+        const items = parseMarkdown(content, type);
 
         const stats = await fs.stat(fullPath);
         const relativePath = path.relative(DATA_DIR, fullPath);
@@ -112,6 +201,7 @@ async function scanDirectory(
         checklists.push({
           id: entry.name.replace(".md", ""),
           title,
+          type,
           category: checklistCategory,
           items,
           createdAt: stats.birthtime.toISOString(),
@@ -163,7 +253,8 @@ export async function getChecklists(): Promise<Checklist[]> {
 
 export async function createChecklist(
   title: string,
-  category?: string
+  category?: string,
+  type: ChecklistType = "simple"
 ): Promise<Checklist> {
   await ensureDataDir();
 
@@ -181,6 +272,7 @@ export async function createChecklist(
   return {
     id: path.basename(filePath, ".md"),
     title,
+    type,
     category,
     items: [],
     createdAt: new Date().toISOString(),
@@ -374,7 +466,7 @@ export async function updateItem(
 
   const lines = content.split("\n");
   const titleLine = lines[0];
-  const newContent = titleLine + "\n\n" + itemsToMarkdown(items);
+  const newContent = titleLine + "\n\n" + itemsToMarkdown(items, checklist.type);
 
   await fs.writeFile(filePath, newContent, "utf-8");
 }
@@ -411,7 +503,7 @@ export async function deleteItem(
 
   const lines = content.split("\n");
   const titleLine = lines[0];
-  const newContent = titleLine + "\n\n" + itemsToMarkdown(filteredItems);
+  const newContent = titleLine + "\n\n" + itemsToMarkdown(filteredItems, checklist.type);
 
   await fs.writeFile(filePath, newContent, "utf-8");
 }
@@ -456,7 +548,61 @@ export async function reorderItems(
 
   const lines = content.split("\n");
   const titleLine = lines[0];
-  const newContent = titleLine + "\n\n" + itemsToMarkdown(reorderedItems);
+  const newContent = titleLine + "\n\n" + itemsToMarkdown(reorderedItems, checklist.type);
 
+  await fs.writeFile(filePath, newContent, "utf-8");
+}
+
+export async function convertChecklistType(
+  checklistId: string,
+  newType: ChecklistType
+): Promise<void> {
+  const checklists = await getChecklists();
+  const checklist = checklists.find((c) => c.id === checklistId);
+
+  if (!checklist) {
+    throw new Error("Checklist not found");
+  }
+
+  if (checklist.type === newType) {
+    return;
+  }
+
+  const files = await fs.readdir(DATA_DIR, { recursive: true });
+  let filePath: string | null = null;
+
+  for (const file of files) {
+    if (typeof file === "string" && file.includes(checklistId)) {
+      filePath = path.join(DATA_DIR, file);
+      break;
+    }
+  }
+
+  if (!filePath) {
+    throw new Error("Checklist file not found");
+  }
+
+  const content = await fs.readFile(filePath, "utf-8");
+  const lines = content.split("\n");
+  const titleLine = lines[0];
+
+  let convertedItems: ChecklistItem[];
+
+  if (newType === "task") {
+    convertedItems = checklist.items.map(item => ({
+      ...item,
+      status: item.completed ? "completed" : "todo",
+      timeEntries: [],
+    }));
+  } else {
+    convertedItems = checklist.items.map(item => ({
+      id: item.id,
+      text: item.text,
+      completed: item.completed,
+      order: item.order,
+    }));
+  }
+
+  const newContent = titleLine + "\n\n" + itemsToMarkdown(convertedItems, newType);
   await fs.writeFile(filePath, newContent, "utf-8");
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { X, Folder, ListTodo, Plus } from "lucide-react";
+import { X, Folder, ListTodo, Plus, CheckSquare, BarChart3 } from "lucide-react";
 import {
   createListAction,
   createCategoryAction,
 } from "@/app/_server/actions/data/actions";
-import { Checklist } from "@/app/_types";
+import { Checklist, ChecklistType } from "@/app/_types";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
 import { Modal } from "@/app/_components/ui/elements/modal";
@@ -33,6 +33,7 @@ export function CreateListModal({
   const [category, setCategory] = useState(initialCategory);
   const [newCategory, setNewCategory] = useState("");
   const [showNewCategory, setShowNewCategory] = useState(false);
+  const [type, setType] = useState<ChecklistType>("simple");
   const [isLoading, setIsLoading] = useState(false);
 
   const categoryOptions = [
@@ -63,6 +64,7 @@ export function CreateListModal({
         "category",
         showNewCategory ? newCategory.trim() : category || ""
       );
+      formData.append("type", type);
 
       const result = await createListAction(formData);
 
@@ -95,6 +97,52 @@ export function CreateListModal({
             required
             disabled={isLoading}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Checklist Type
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setType("simple")}
+              className={`p-4 rounded-lg border-2 transition-all ${type === "simple"
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-primary/50"
+                }`}
+              disabled={isLoading}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <CheckSquare className="h-6 w-6 text-muted-foreground" />
+                <div className="text-center">
+                  <div className="font-medium text-sm">Simple Checklist</div>
+                  <div className="text-xs text-muted-foreground">
+                    Basic todo items
+                  </div>
+                </div>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setType("task")}
+              className={`p-4 rounded-lg border-2 transition-all ${type === "task"
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-primary/50"
+                }`}
+              disabled={isLoading}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <BarChart3 className="h-6 w-6 text-muted-foreground" />
+                <div className="text-center">
+                  <div className="font-medium text-sm">Task Project</div>
+                  <div className="text-xs text-muted-foreground">
+                    With time tracking
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
 
         <div>

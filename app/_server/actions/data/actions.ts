@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import path from "path";
-import { Checklist } from "@/app/_types";
+import { Checklist, ChecklistType } from "@/app/_types";
 import {
   getUserDir,
   ensureDir,
@@ -30,23 +30,77 @@ const parseMarkdown = (
 ): Checklist => {
   const lines = content.split("\n");
   const title = lines[0]?.replace(/^#\s*/, "") || "Untitled";
+
+  let type: ChecklistType = "simple";
+  if (content.includes("<!-- type:task -->")) {
+    type = "task";
+  } else if (content.includes(" | status:") || content.includes(" | time:") || content.includes(" | estimated:") || content.includes(" | target:")) {
+    type = "task";
+  }
+
   const items = lines
     .slice(1)
     .filter((line) => line.trim().startsWith("- ["))
     .map((line, index) => {
       const completed = line.includes("- [x]");
       const text = line.replace(/^-\s*\[[x ]\]\s*/, "");
-      return {
-        id: `${id}-${index}`,
-        text,
-        completed,
-        order: index,
-      };
+
+      if (type === "task" && text.includes(" | ")) {
+        const parts = text.split(" | ");
+        const itemText = parts[0].replace(/∣/g, "|");
+        const metadata = parts.slice(1);
+
+        let status: "todo" | "in_progress" | "completed" | "paused" = "todo";
+        let timeEntries: any[] = [];
+        let estimatedTime: number | undefined;
+        let targetDate: string | undefined;
+
+        metadata.forEach(meta => {
+          if (meta.startsWith("status:")) {
+            const statusValue = meta.substring(7);
+            if (["todo", "in_progress", "completed", "paused"].includes(statusValue)) {
+              status = statusValue as "todo" | "in_progress" | "completed" | "paused";
+            }
+          } else if (meta.startsWith("time:")) {
+            const timeValue = meta.substring(5);
+            if (timeValue && timeValue !== "0") {
+              try {
+                timeEntries = JSON.parse(timeValue);
+              } catch {
+                timeEntries = [];
+              }
+            }
+          } else if (meta.startsWith("estimated:")) {
+            estimatedTime = parseInt(meta.substring(10));
+          } else if (meta.startsWith("target:")) {
+            targetDate = meta.substring(7);
+          }
+        });
+
+        return {
+          id: `${id}-${index}`,
+          text: itemText,
+          completed,
+          order: index,
+          status,
+          timeEntries,
+          estimatedTime,
+          targetDate,
+        };
+      } else {
+        return {
+          id: `${id}-${index}`,
+          text: text.replace(/∣/g, "|"),
+          completed,
+          order: index,
+        };
+      }
     });
 
   return {
     id,
     title,
+    type,
     category,
     items,
     createdAt: fileStats
@@ -61,10 +115,40 @@ const parseMarkdown = (
 };
 
 const listToMarkdown = (list: Checklist): string => {
-  const header = `# ${list.title}\n`;
+  const header = list.type === "task"
+    ? `# ${list.title}\n<!-- type:task -->\n`
+    : `# ${list.title}\n`;
   const items = list.items
     .sort((a, b) => a.order - b.order)
-    .map((item) => `- [${item.completed ? "x" : " "}] ${item.text}`)
+    .map((item) => {
+      const escapedText = item.text.replace(/\|/g, "∣");
+
+      if (list.type === "task") {
+        const metadata: string[] = [];
+
+        if (item.status && item.status !== "todo") {
+          metadata.push(`status:${item.status}`);
+        }
+
+        if (item.timeEntries && item.timeEntries.length > 0) {
+          metadata.push(`time:${JSON.stringify(item.timeEntries)}`);
+        } else {
+          metadata.push("time:0");
+        }
+
+        if (item.estimatedTime) {
+          metadata.push(`estimated:${item.estimatedTime}`);
+        }
+
+        if (item.targetDate) {
+          metadata.push(`target:${item.targetDate}`);
+        }
+
+        return `- [${item.completed ? "x" : " "}] ${escapedText} | ${metadata.join(" | ")}`;
+      }
+
+      return `- [${item.completed ? "x" : " "}] ${escapedText}`;
+    })
     .join("\n");
   return `${header}\n${items}`;
 };
@@ -194,18 +278,19 @@ export const createListAction = async (formData: FormData) => {
   try {
     const title = formData.get("title") as string;
     const category = (formData.get("category") as string) || "Uncategorized";
+    const type = (formData.get("type") as ChecklistType) || "simple";
 
     const userDir = await getUserDir();
     const id = Date.now().toString();
     const categoryDir = path.join(userDir, category);
     const filePath = path.join(categoryDir, `${id}.md`);
 
-    // Ensure the category directory exists
     await ensureDir(categoryDir);
 
     const newList: Checklist = {
       id,
       title,
+      type,
       category,
       items: [],
       createdAt: new Date().toISOString(),
@@ -495,6 +580,10 @@ export const createItemAction = async (formData: FormData, username?: string, sk
       text,
       completed: false,
       order: list.items.length,
+      ...(list.type === "task" && {
+        status: "todo" as const,
+        timeEntries: [],
+      }),
     };
 
     const updatedList = {
@@ -564,6 +653,10 @@ export const createBulkItemsAction = async (formData: FormData) => {
       text: text.trim(),
       completed: false,
       order: list.items.length + index,
+      ...(list.type === "task" && {
+        status: "todo" as const,
+        timeEntries: [],
+      }),
     }));
 
     const updatedList = {
@@ -810,5 +903,163 @@ export const getAllLists = async () => {
   } catch (error) {
     console.error("Error in getAllLists:", error);
     return { success: false, error: "Failed to fetch all lists" };
+  }
+};
+
+export const updateItemStatusAction = async (formData: FormData) => {
+  try {
+    const listId = formData.get("listId") as string;
+    const itemId = formData.get("itemId") as string;
+    const status = formData.get("status") as string;
+    const timeEntriesStr = formData.get("timeEntries") as string;
+
+    if (!listId || !itemId) {
+      return { error: "List ID and item ID are required" };
+    }
+
+    if (!status && !timeEntriesStr) {
+      return { error: "Either status or timeEntries must be provided" };
+    }
+
+    const lists = await getLists();
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
+    }
+
+    const list = lists.data.find((l) => l.id === listId);
+    if (!list) {
+      throw new Error("List not found");
+    }
+
+    const updatedList = {
+      ...list,
+      items: list.items.map((item) => {
+        if (item.id === itemId) {
+          const updates: any = {};
+          if (status) updates.status = status as any;
+          if (timeEntriesStr) {
+            try {
+              updates.timeEntries = JSON.parse(timeEntriesStr);
+            } catch (e) {
+              console.error("Failed to parse timeEntries:", e);
+            }
+          }
+          return { ...item, ...updates };
+        }
+        return item;
+      }),
+      updatedAt: new Date().toISOString(),
+    };
+
+    let filePath: string;
+
+    if (list.isShared) {
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    } else {
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    }
+
+    await writeFile(filePath, listToMarkdown(updatedList));
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating item status:", error);
+    return { error: "Failed to update item status" };
+  }
+};
+
+export const convertChecklistTypeAction = async (formData: FormData) => {
+  try {
+    const listId = formData.get("listId") as string;
+    const newType = formData.get("newType") as ChecklistType;
+
+    if (!listId || !newType) {
+      return { error: "List ID and type are required" };
+    }
+
+    const lists = await getLists();
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
+    }
+
+    const list = lists.data.find((l) => l.id === listId);
+    if (!list) {
+      throw new Error("List not found");
+    }
+
+    if (list.type === newType) {
+      return { success: true };
+    }
+
+    let filePath: string;
+
+    if (list.isShared) {
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    } else {
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    }
+
+    let convertedItems: any[];
+
+    if (newType === "task") {
+      convertedItems = list.items.map(item => ({
+        ...item,
+        status: item.completed ? "completed" : "todo",
+        timeEntries: [],
+      }));
+    } else {
+      convertedItems = list.items.map(item => ({
+        id: item.id,
+        text: item.text,
+        completed: item.completed,
+        order: item.order,
+      }));
+    }
+
+    const updatedList = {
+      ...list,
+      type: newType,
+      items: convertedItems,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await writeFile(filePath, listToMarkdown(updatedList));
+
+    revalidatePath("/");
+    return { success: true, data: updatedList };
+  } catch (error) {
+    console.error("Error converting checklist type:", error);
+    return { error: "Failed to convert checklist type" };
   }
 };

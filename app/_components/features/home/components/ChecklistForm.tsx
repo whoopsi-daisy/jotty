@@ -37,35 +37,42 @@ export function ChecklistForm({
   }, [focusKey]);
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 p-3 lg:p-6">
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
       <input
         ref={inputRef}
         type="text"
         value={newItemText}
         onChange={(e) => setNewItemText(e.target.value)}
         placeholder="Add new item..."
-        className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="flex-1 px-4 py-3 border border-input bg-background rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:border-ring transition-colors"
         disabled={isLoading}
       />
-      {onBulkSubmit && (
+      <div className="flex gap-2">
+        {onBulkSubmit && (
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={() => onBulkSubmit("")}
+            disabled={isLoading}
+            title="Bulk add items"
+            className="px-4"
+          >
+            <ClipboardList className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Bulk</span>
+          </Button>
+        )}
         <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => onBulkSubmit("")}
-          disabled={isLoading}
-          title="Bulk add items"
+          type="submit"
+          size="lg"
+          disabled={isLoading || !newItemText.trim()}
+          className="px-6"
         >
-          <ClipboardList className="h-4 w-4" />
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Add Item</span>
+          <span className="sm:hidden">Add</span>
         </Button>
-      )}
-      <Button
-        type="submit"
-        size="sm"
-        disabled={isLoading || !newItemText.trim()}
-      >
-        <Plus className="h-4 w-4" />
-      </Button>
+      </div>
     </form>
   );
 }
