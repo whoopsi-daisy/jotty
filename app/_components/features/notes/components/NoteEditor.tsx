@@ -24,10 +24,10 @@ import { exportToPDF } from "@/app/_utils/pdf-export";
 import {
   updateDocAction,
   deleteDocAction,
-} from "@/app/_server/actions/data/docs-actions";
+} from "@/app/_server/actions/data/notes-actions";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 
-interface DocEditorProps {
+interface NoteEditorProps {
   doc: Note;
   categories: Category[];
   onUpdate: (updatedDoc: Note) => void;
@@ -37,7 +37,7 @@ interface DocEditorProps {
   isAdmin?: boolean;
 }
 
-export function DocEditor({
+export function NoteEditor({
   doc,
   categories,
   onUpdate,
@@ -45,7 +45,7 @@ export function DocEditor({
   onDelete,
   currentUsername,
   isAdmin = false,
-}: DocEditorProps) {
+}: NoteEditorProps) {
   const [docContent, setDocContent] = useState(doc.content || "");
   const [editorContent, setEditorContent] = useState("");
   const [isEditorInMarkdownMode, setIsEditorInMarkdownMode] = useState(false);
@@ -174,14 +174,14 @@ export function DocEditor({
 
   const handleExportPDF = async () => {
     try {
-      const element = document.querySelector('.prose');
+      const element = document.querySelector(".prose");
       if (!element) return;
 
-      const filename = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const filename = title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
       await exportToPDF(element as HTMLElement, filename);
     } catch (error) {
-      console.error('Error exporting PDF:', error);
-      alert('Failed to export PDF');
+      console.error("Error exporting PDF:", error);
+      alert("Failed to export PDF");
     }
   };
 
@@ -281,7 +281,9 @@ export function DocEditor({
                 >
                   <Edit3 className="h-4 w-4 lg:h-5 lg:w-5" />
                 </Button>
-                {(doc.isShared ? (isAdmin || currentUsername === doc.owner) : true) && (
+                {(doc.isShared
+                  ? isAdmin || currentUsername === doc.owner
+                  : true) && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -324,11 +326,11 @@ export function DocEditor({
             dangerouslySetInnerHTML={{ __html: marked.parse(docContent) }}
             onClick={(e) => {
               const target = e.target as HTMLElement;
-              if (target.tagName === 'A') {
+              if (target.tagName === "A") {
                 e.preventDefault();
-                const href = target.getAttribute('href');
+                const href = target.getAttribute("href");
                 if (href) {
-                  window.open(href, '_blank', 'noopener,noreferrer');
+                  window.open(href, "_blank", "noopener,noreferrer");
                 }
               }
             }}

@@ -4,7 +4,7 @@ import { useState, useEffect, useContext, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ChecklistView } from "@/app/_components/features/checklists/simple/Checklist";
 import { HomeView } from "@/app/_components/features/home/components/Home";
-import { DocsClient } from "@/app/_components/features/docs/DocsClient";
+import { NotesClient } from "@/app/_components/features/notes/NotesClient";
 import { CreateListModal } from "@/app/_components/ui/modals/checklist/CreateList";
 import { CreateCategoryModal } from "@/app/_components/ui/modals/category/CreateCategory";
 import { EditChecklistModal } from "@/app/_components/ui/modals/checklist/EditChecklistModal";
@@ -204,7 +204,7 @@ export function HomeClient({
   const renderContent = () => {
     if (mode === "docs") {
       return (
-        <DocsClient
+        <NotesClient
           docs={docs}
           categories={docsCategories}
           onDocDelete={(deletedId) => {
@@ -213,7 +213,9 @@ export function HomeClient({
             setHashInUrl("");
           }}
           onDocUpdate={(updatedDoc) => {
-            setDocs((prev) => prev.map((doc) => doc.id === updatedDoc.id ? updatedDoc : doc));
+            setDocs((prev) =>
+              prev.map((doc) => (doc.id === updatedDoc.id ? updatedDoc : doc))
+            );
           }}
           onCreateModal={() => setShowCreateDocModal(true)}
           currentUsername={username}

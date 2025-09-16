@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DocsHomeView } from "@/app/_components/features/docs/components/DocsHome";
-import { DocEditor } from "@/app/_components/features/docs/components/DocEditor";
+import { NotesHomeView } from "@/app/_components/features/notes/components/NotesHome";
+import { NoteEditor } from "@/app/_components/features/notes/components/NoteEditor";
 import { EditDocModal } from "@/app/_components/ui/modals/document/EditDoc";
 import { Note, Category } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 
-interface DocsClientProps {
+interface NotesClientProps {
   docs: Note[];
   categories: Category[];
   onDocDelete?: (deletedId: string) => void;
@@ -17,7 +17,7 @@ interface DocsClientProps {
   isAdmin?: boolean;
 }
 
-export function DocsClient({
+export function NotesClient({
   docs,
   categories,
   onDocDelete,
@@ -25,7 +25,7 @@ export function DocsClient({
   onCreateModal,
   currentUsername,
   isAdmin = false,
-}: DocsClientProps) {
+}: NotesClientProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<Note | null>(null);
   const [localDocs, setLocalDocs] = useState<Note[]>(docs);
@@ -44,14 +44,16 @@ export function DocsClient({
   const selectedDoc = localDocs.find((doc) => doc.id === selectedNote);
 
   const handleDocUpdate = (updatedDoc: Note) => {
-    setLocalDocs(prev => prev.map(doc => doc.id === updatedDoc.id ? updatedDoc : doc));
+    setLocalDocs((prev) =>
+      prev.map((doc) => (doc.id === updatedDoc.id ? updatedDoc : doc))
+    );
     onDocUpdate?.(updatedDoc);
   };
 
   return (
     <>
       {selectedDoc ? (
-        <DocEditor
+        <NoteEditor
           doc={selectedDoc}
           categories={categories}
           onUpdate={handleDocUpdate}
@@ -61,8 +63,8 @@ export function DocsClient({
           isAdmin={isAdmin}
         />
       ) : (
-        <DocsHomeView
-          docs={localDocs}
+        <NotesHomeView
+          notes={localDocs}
           categories={categories}
           onCreateModal={onCreateModal}
           onSelectDoc={(id) => setSelectedNote(id)}

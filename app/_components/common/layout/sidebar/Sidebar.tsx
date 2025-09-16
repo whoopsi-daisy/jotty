@@ -10,7 +10,7 @@ import {
 import {
   deleteDocsCategoryAction,
   renameDocsCategoryAction,
-} from "@/app/_server/actions/data/docs-actions";
+} from "@/app/_server/actions/data/notes-actions";
 import { DeleteCategoryModal } from "@/app/_components/ui/modals/category/DeleteCategory";
 import { RenameCategoryModal } from "@/app/_components/ui/modals/category/RenameCategory";
 import { Logo } from "@/app/_components/ui/icons/logo";

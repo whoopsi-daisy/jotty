@@ -6,7 +6,7 @@ import { Button } from "@/app/_components/ui/elements/button";
 import {
   updateDocAction,
   createDocsCategoryAction,
-} from "@/app/_server/actions/data/docs-actions";
+} from "@/app/_server/actions/data/notes-actions";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 import { Note, Category } from "@/app/_types";
 import { Modal } from "../../elements/modal";

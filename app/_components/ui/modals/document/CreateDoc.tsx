@@ -7,7 +7,7 @@ import { Dropdown } from "@/app/_components/ui/elements/dropdown";
 import {
   createDocAction,
   createDocsCategoryAction,
-} from "@/app/_server/actions/data/docs-actions";
+} from "@/app/_server/actions/data/notes-actions";
 import { Category, Note } from "@/app/_types";
 import { Modal } from "../../elements/modal";
 

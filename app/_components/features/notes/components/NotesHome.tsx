@@ -6,19 +6,19 @@ import { Note, Category } from "@/app/_types";
 import { StatsCard } from "@/app/_components/ui/elements/statsCard";
 import { formatRelativeTime } from "@/app/_utils/date-utils";
 
-interface DocsHomeViewProps {
-  docs: Note[];
+interface NotesHomeViewProps {
+  notes: Note[];
   categories: Category[];
   onCreateModal: () => void;
   onSelectDoc: (id: string) => void;
 }
 
-export function DocsHomeView({
-  docs,
+export function NotesHomeView({
+  notes,
   categories,
   onCreateModal,
   onSelectDoc,
-}: DocsHomeViewProps) {
+}: NotesHomeViewProps) {
   const getPreview = (content: string) => {
     const plainText = content
       .replace(/[#*_`~]/g, "")
@@ -29,7 +29,7 @@ export function DocsHomeView({
       : plainText;
   };
 
-  const recentDocs = [...docs]
+  const recentDocs = [...notes]
     .sort(
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -40,7 +40,7 @@ export function DocsHomeView({
 
   return (
     <div className="flex-1 overflow-auto bg-background h-full">
-      {docs.length === 0 ? (
+      {notes.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center p-4">
           <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
             <FileText className="h-10 w-10 text-muted-foreground" />
@@ -77,7 +77,7 @@ export function DocsHomeView({
             <StatsCard
               icon={<FileText className="h-6 w-6 text-primary" />}
               header="Total Docs"
-              value={docs.length}
+              value={notes.length}
             />
             <StatsCard
               icon={<FolderOpen className="h-6 w-6 text-primary" />}
@@ -136,10 +136,10 @@ export function DocsHomeView({
             </div>
           </div>
 
-          {docs.length > 12 && (
+          {notes.length > 12 && (
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Showing {recentDocs.length} of {docs.length} notes. Use the
+                Showing {recentDocs.length} of {notes.length} notes. Use the
                 sidebar to browse all or search above.
               </p>
             </div>

@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 
-const DOCS_DATA_DIR = path.join(process.cwd(), "data", "docs");
+const DOCS_DATA_DIR = path.join(process.cwd(), "data", "notes");
 
 export async function getDocsUserDir(): Promise<string> {
   const user = await getCurrentUser();

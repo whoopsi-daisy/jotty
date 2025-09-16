@@ -51,7 +51,7 @@ export async function deleteUserAction(
       );
       await fs.rm(checklistsDir, { recursive: true, force: true });
 
-      const docsDir = path.join(process.cwd(), "data", "docs", username);
+      const docsDir = path.join(process.cwd(), "data", "notes", username);
       await fs.rm(docsDir, { recursive: true, force: true });
     } catch (error) {
       console.warn("Warning: Could not clean up user data files:", error);
