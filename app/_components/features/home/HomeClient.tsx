@@ -216,6 +216,8 @@ export function HomeClient({
             setDocs((prev) => prev.map((doc) => doc.id === updatedDoc.id ? updatedDoc : doc));
           }}
           onCreateModal={() => setShowCreateDocModal(true)}
+          currentUsername={username}
+          isAdmin={isAdmin}
         />
       );
     }
@@ -229,6 +231,8 @@ export function HomeClient({
           onBack={() => setSelectedChecklist(null)}
           onEdit={handleOpenEditModal}
           onDelete={handleListDeleted}
+          currentUsername={username}
+          isAdmin={isAdmin}
         />
       );
     }

@@ -283,17 +283,47 @@ export const deleteDocAction = async (formData: FormData) => {
     const id = formData.get("id") as string;
     const category = formData.get("category") as string;
 
-    const userDir = await getDocsUserDir();
-    const filePath = path.join(
-      userDir,
-      category || "Uncategorized",
-      `${id}.md`
-    );
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return { error: "Not authenticated" };
+    }
+
+    const docs = await getDocs();
+    if (!docs.success || !docs.data) {
+      return { error: "Failed to fetch documents" };
+    }
+
+    const doc = docs.data.find((d) => d.id === id);
+    if (!doc) {
+      return { error: "Document not found" };
+    }
+
+    let filePath: string;
+
+    if (doc.isShared) {
+      if (!currentUser.isAdmin && currentUser.username !== doc.owner) {
+        return { error: "Unauthorized to delete this shared document" };
+      }
+
+      const ownerDir = path.join(process.cwd(), "data", "docs", doc.owner!);
+      filePath = path.join(
+        ownerDir,
+        category || "Uncategorized",
+        `${id}.md`
+      );
+    } else {
+      const userDir = await getDocsUserDir();
+      filePath = path.join(
+        userDir,
+        category || "Uncategorized",
+        `${id}.md`
+      );
+    }
+
     await deleteDocsFile(filePath);
 
-    const currentUser = await getCurrentUser();
-    if (currentUser) {
-      await removeSharedItem(id, "document", currentUser.username);
+    if (doc.isShared && doc.owner) {
+      await removeSharedItem(id, "document", doc.owner);
     }
 
     return { success: true };
