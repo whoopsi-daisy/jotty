@@ -42,6 +42,8 @@ interface ChecklistViewProps {
   onBack: () => void;
   onEdit?: (checklist: Checklist) => void;
   onDelete?: (deletedId: string) => void;
+  currentUsername?: string;
+  isAdmin?: boolean;
 }
 
 export function ChecklistView({
@@ -50,6 +52,8 @@ export function ChecklistView({
   onBack,
   onEdit,
   onDelete,
+  currentUsername,
+  isAdmin = false,
 }: ChecklistViewProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -295,7 +299,11 @@ export function ChecklistView({
           checklist={localList}
           onBack={onBack}
           onEdit={() => onEdit?.(list)}
-          onDelete={handleDeleteList}
+          onDelete={
+            localList.isShared
+              ? (isAdmin || currentUsername === localList.owner) ? handleDeleteList : undefined
+              : handleDeleteList
+          }
           onShare={() => setShowShareModal(true)}
           onConvertType={handleConvertType}
         />
@@ -333,7 +341,11 @@ export function ChecklistView({
         checklist={localList}
         onBack={onBack}
         onEdit={() => onEdit?.(list)}
-        onDelete={handleDeleteList}
+        onDelete={
+          localList.isShared
+            ? (isAdmin || currentUsername === localList.owner) ? handleDeleteList : undefined
+            : handleDeleteList
+        }
         onShare={() => setShowShareModal(true)}
         onConvertType={handleConvertType}
       />

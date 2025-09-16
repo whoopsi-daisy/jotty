@@ -13,6 +13,8 @@ interface DocsClientProps {
   onDocDelete?: (deletedId: string) => void;
   onDocUpdate?: (updatedDoc: Note) => void;
   onCreateModal: () => void;
+  currentUsername?: string;
+  isAdmin?: boolean;
 }
 
 export function DocsClient({
@@ -21,6 +23,8 @@ export function DocsClient({
   onDocDelete,
   onDocUpdate,
   onCreateModal,
+  currentUsername,
+  isAdmin = false,
 }: DocsClientProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<Note | null>(null);
@@ -53,6 +57,8 @@ export function DocsClient({
           onUpdate={handleDocUpdate}
           onBack={() => setSelectedNote(null)}
           onDelete={onDocDelete}
+          currentUsername={currentUsername}
+          isAdmin={isAdmin}
         />
       ) : (
         <DocsHomeView

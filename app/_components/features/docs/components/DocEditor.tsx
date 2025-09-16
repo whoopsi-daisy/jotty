@@ -33,6 +33,8 @@ interface DocEditorProps {
   onUpdate: (updatedDoc: Note) => void;
   onBack: () => void;
   onDelete?: (deletedId: string) => void;
+  currentUsername?: string;
+  isAdmin?: boolean;
 }
 
 export function DocEditor({
@@ -41,6 +43,8 @@ export function DocEditor({
   onUpdate,
   onBack,
   onDelete,
+  currentUsername,
+  isAdmin = false,
 }: DocEditorProps) {
   const [docContent, setDocContent] = useState(doc.content || "");
   const [editorContent, setEditorContent] = useState("");
@@ -277,14 +281,16 @@ export function DocEditor({
                 >
                   <Edit3 className="h-4 w-4 lg:h-5 lg:w-5" />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDelete}
-                  className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                </Button>
+                {(doc.isShared ? (isAdmin || currentUsername === doc.owner) : true) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                  </Button>
+                )}
               </>
             )}
           </div>

@@ -385,13 +385,44 @@ export const deleteListAction = async (formData: FormData) => {
     const id = formData.get("id") as string;
     const category = (formData.get("category") as string) || "Uncategorized";
 
-    const userDir = await getUserDir();
-    const filePath = path.join(userDir, category, `${id}.md`);
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return { error: "Not authenticated" };
+    }
+
+    const lists = await getLists();
+    if (!lists.success || !lists.data) {
+      return { error: "Failed to fetch lists" };
+    }
+
+    const list = lists.data.find((l) => l.id === id);
+    if (!list) {
+      return { error: "List not found" };
+    }
+
+    let filePath: string;
+
+    if (list.isShared) {
+      if (!currentUser.isAdmin && currentUser.username !== list.owner) {
+        return { error: "Unauthorized to delete this shared item" };
+      }
+
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(ownerDir, category, `${id}.md`);
+    } else {
+      const userDir = await getUserDir();
+      filePath = path.join(userDir, category, `${id}.md`);
+    }
+
     await deleteFile(filePath);
 
-    const currentUser = await getCurrentUser();
-    if (currentUser) {
-      await removeSharedItem(id, "checklist", currentUser.username);
+    if (list.isShared && list.owner) {
+      await removeSharedItem(id, "checklist", list.owner);
     }
 
     revalidatePath("/");
