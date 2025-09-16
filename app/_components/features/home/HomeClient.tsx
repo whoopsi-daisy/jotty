@@ -93,7 +93,7 @@ export function HomeClient({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInitialized, docs, lists]);
+  }, [isInitialized]);
 
   useEffect(() => {
     if (isInitialized) {
