@@ -88,4 +88,4 @@ export interface EmojiDictionary {
   [key: string]: string;
 }
 
-export type AppMode = "checklists" | "docs";
+export type AppMode = "checklists" | "notes";

@@ -158,13 +158,13 @@ export function SearchBar({
 
   const handleSelectResult = (result: SearchResult) => {
     if (result.type === "checklist") {
-      if (mode === "docs" && onModeChange) {
+      if (mode === "notes" && onModeChange) {
         onModeChange("checklists");
       }
       onSelectChecklist(result.id);
     } else {
       if (mode === "checklists" && onModeChange) {
-        onModeChange("docs");
+        onModeChange("notes");
       }
       onSelectNote(result.id);
     }

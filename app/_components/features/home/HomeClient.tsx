@@ -60,7 +60,7 @@ export function HomeClient({
     if (hash) {
       if (mode === "checklists") {
         setSelectedChecklist(hash);
-      } else if (mode === "docs") {
+      } else if (mode === "notes") {
         setSelectedNote(hash);
       }
     }
@@ -76,15 +76,15 @@ export function HomeClient({
       const isDocId = docs.some((doc) => doc.id === hash);
       const isChecklistId = lists.some((list) => list.id === hash);
 
-      if (isDocId && mode !== "docs") {
-        setMode("docs");
+      if (isDocId && mode !== "notes") {
+        setMode("notes");
         setSelectedNote(hash);
         setSelectedChecklist(null);
       } else if (isChecklistId && mode !== "checklists") {
         setMode("checklists");
         setSelectedChecklist(hash);
         setSelectedNote(null);
-      } else if (isDocId && mode === "docs") {
+      } else if (isDocId && mode === "notes") {
         setSelectedNote(hash);
         setSelectedChecklist(null);
       } else if (isChecklistId && mode === "checklists") {
@@ -99,7 +99,7 @@ export function HomeClient({
     if (isInitialized) {
       if (mode === "checklists") {
         setHashInUrl(selectedChecklist);
-      } else if (mode === "docs") {
+      } else if (mode === "notes") {
         setHashInUrl(selectedNote);
       }
     }
@@ -127,7 +127,7 @@ export function HomeClient({
   };
 
   const handleOpenCreateModal = (initialCategory?: string) => {
-    if (mode === "docs") {
+    if (mode === "notes") {
       setShowCreateDocModal(true);
       setInitialCategory(initialCategory || "");
     } else {
@@ -137,7 +137,7 @@ export function HomeClient({
   };
 
   const handleOpenCategoryModal = () => {
-    if (mode === "docs") {
+    if (mode === "notes") {
       setShowDocsCategoryModal(true);
     } else {
       setShowCategoryModal(true);
@@ -145,7 +145,7 @@ export function HomeClient({
   };
 
   const handleCategoryDeleted = (categoryName: string) => {
-    if (mode === "docs") {
+    if (mode === "notes") {
       setDocsCategories((prev) =>
         prev.filter((cat) => cat.name !== categoryName)
       );
@@ -157,7 +157,7 @@ export function HomeClient({
   };
 
   const handleCategoryRenamed = (oldName: string, newName: string) => {
-    if (mode === "docs") {
+    if (mode === "notes") {
       setDocsCategories((prev) =>
         prev.map((cat) =>
           cat.name === oldName ? { ...cat, name: newName } : cat
@@ -202,7 +202,7 @@ export function HomeClient({
   }
 
   const renderContent = () => {
-    if (mode === "docs") {
+    if (mode === "notes") {
       return (
         <NotesClient
           docs={docs}
@@ -248,7 +248,7 @@ export function HomeClient({
     <Layout
       lists={lists}
       docs={docs}
-      categories={mode === "docs" ? docsCategories : categories}
+      categories={mode === "notes" ? docsCategories : categories}
       onOpenSettings={() => setShowSettingsModal(true)}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
@@ -292,7 +292,7 @@ export function HomeClient({
         />
       )}
 
-      {mode === "docs" && showCreateDocModal && (
+      {mode === "notes" && showCreateDocModal && (
         <CreateDocModal
           onClose={() => setShowCreateDocModal(false)}
           onCreated={(newDoc) => {
@@ -337,7 +337,7 @@ export function HomeClient({
         />
       )}
 
-      {mode === "docs" && showDocsCategoryModal && (
+      {mode === "notes" && showDocsCategoryModal && (
         <CreateCategoryModal
           onClose={() => setShowDocsCategoryModal(false)}
           onCreated={(newCategory) => {

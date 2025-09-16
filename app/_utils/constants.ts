@@ -15,7 +15,7 @@ export const ROUTES = {
 
 export const MODES = {
   CHECKLISTS: "checklists",
-  DOCS: "docs",
+  DOCS: "notes",
 } as const;
 
 export const STORAGE_KEYS = {

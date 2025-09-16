@@ -33,10 +33,10 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
 
     if (url === null) return;
     if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      editor.chain().focus().unsetLink().run();
       return;
     }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    editor.chain().focus().setLink({ href: url }).run();
   };
 
   const setCodeBlock = () => {
@@ -66,7 +66,9 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         variant={editor.isActive("bold") ? "secondary" : "ghost"}
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(() => editor.chain().focus().toggleBold().run())}
+        onClick={() =>
+          handleButtonClick(() => editor.chain().focus().toggleBold().run())
+        }
       >
         <Bold className="h-4 w-4" />
       </Button>
@@ -74,7 +76,9 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         variant={editor.isActive("italic") ? "secondary" : "ghost"}
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(() => editor.chain().focus().toggleItalic().run())}
+        onClick={() =>
+          handleButtonClick(() => editor.chain().focus().toggleItalic().run())
+        }
       >
         <Italic className="h-4 w-4" />
       </Button>
@@ -82,7 +86,9 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         variant={editor.isActive("strike") ? "secondary" : "ghost"}
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(() => editor.chain().focus().toggleStrike().run())}
+        onClick={() =>
+          handleButtonClick(() => editor.chain().focus().toggleStrike().run())
+        }
       >
         <Strikethrough className="h-4 w-4" />
       </Button>
@@ -90,7 +96,9 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         variant={editor.isActive("code") ? "secondary" : "ghost"}
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(() => editor.chain().focus().toggleCode().run())}
+        onClick={() =>
+          handleButtonClick(() => editor.chain().focus().toggleCode().run())
+        }
       >
         <Code className="h-4 w-4" />
       </Button>
@@ -110,7 +118,11 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         }
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(() => editor.chain().focus().toggleHeading({ level: 2 }).run())}
+        onClick={() =>
+          handleButtonClick(() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          )
+        }
       >
         <Heading2 className="h-4 w-4" />
       </Button>
@@ -118,7 +130,11 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         variant={editor.isActive("bulletList") ? "secondary" : "ghost"}
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(() => editor.chain().focus().toggleBulletList().run())}
+        onClick={() =>
+          handleButtonClick(() =>
+            editor.chain().focus().toggleBulletList().run()
+          )
+        }
       >
         <List className="h-4 w-4" />
       </Button>
@@ -126,7 +142,11 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         variant={editor.isActive("blockquote") ? "secondary" : "ghost"}
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(() => editor.chain().focus().toggleBlockquote().run())}
+        onClick={() =>
+          handleButtonClick(() =>
+            editor.chain().focus().toggleBlockquote().run()
+          )
+        }
       >
         <Quote className="h-4 w-4" />
       </Button>

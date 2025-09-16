@@ -76,7 +76,7 @@ export function Sidebar({
     formData.append("name", categoryToDelete);
 
     const result =
-      mode === "docs"
+      mode === "notes"
         ? await deleteDocsCategoryAction(formData)
         : await deleteCategoryAction(formData);
 
@@ -101,7 +101,7 @@ export function Sidebar({
     formData.append("newName", newName);
 
     const result =
-      mode === "docs"
+      mode === "notes"
         ? await renameDocsCategoryAction(formData)
         : await renameCategoryAction(formData);
 
@@ -139,7 +139,7 @@ export function Sidebar({
   };
 
   const handleItemClick = (item: Checklist | Note) => {
-    if (mode === "docs") {
+    if (mode === "notes") {
       setSelectedNote(item.id);
       setSelectedChecklist(null);
     } else {
@@ -150,7 +150,7 @@ export function Sidebar({
   };
 
   const isItemSelected = (item: Checklist | Note) => {
-    return mode === "docs"
+    return mode === "notes"
       ? selectedNote === item.id
       : selectedChecklist === item.id;
   };

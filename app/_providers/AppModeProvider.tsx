@@ -24,7 +24,7 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const savedMode = localStorage.getItem("app-mode");
-    if (savedMode === "checklists" || savedMode === "docs") {
+    if (savedMode === "checklists" || savedMode === "notes") {
       setMode(savedMode);
     }
   }, []);

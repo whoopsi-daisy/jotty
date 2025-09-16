@@ -28,7 +28,7 @@ interface CategoryListProps {
   onQuickCreate: (categoryName: string) => void;
   onItemClick: (item: Checklist | Note) => void;
   isItemSelected: (item: Checklist | Note) => boolean;
-  mode: "checklists" | "docs";
+  mode: "checklists" | "notes";
 }
 
 export function CategoryList({
@@ -130,7 +130,7 @@ export function CategoryList({
                         : "hover:bg-muted/50 text-foreground"
                     )}
                   >
-                    {mode === "docs" ? (
+                    {mode === "notes" ? (
                       <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     ) : (
                       <>

@@ -10,6 +10,7 @@ import { marked } from "marked";
 import TurndownService from "turndown";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Eye, FileText } from "lucide-react";
+import { InputRule } from "@tiptap/core";
 
 type TiptapEditorProps = {
   content: string;
@@ -17,7 +18,11 @@ type TiptapEditorProps = {
   category?: string;
 };
 
-export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps) => {
+export const TiptapEditor = ({
+  content,
+  onChange,
+  category,
+}: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
@@ -25,11 +30,26 @@ export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps)
   const lowlight = createLowlight(common);
   const turndownService = useMemo(() => {
     const service = new TurndownService({
-      headingStyle: 'atx',
-      codeBlockStyle: 'fenced',
-      emDelimiter: '*',
-      bulletListMarker: '-'
+      headingStyle: "atx",
+      codeBlockStyle: "fenced",
+      emDelimiter: "*",
+      bulletListMarker: "-",
     });
+
+    service.escape = function (string) {
+      return string
+        .replace(/\\/g, "\\\\")
+        .replace(/\*/g, "\\*")
+        .replace(/^-/gm, "\\-")
+        .replace(/^\+ /gm, "\\+ ")
+        .replace(/^(\d+)\. /gm, "$1\\. ")
+        .replace(/^>/gm, "\\>")
+        .replace(/_/g, "\\_")
+        .replace(/^#/gm, "\\#")
+        .replace(/^(\s*)(#{1,6}\s+)/gm, "$1\\$2")
+        .replace(/`/g, "\\`")
+        .replace(/^~~~/gm, "\\~~~");
+    };
 
     return service;
   }, []);
@@ -46,10 +66,36 @@ export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps)
       Link.configure({
         openOnClick: false,
         autolink: true,
+        HTMLAttributes: {
+          class: "text-blue-600 underline cursor-pointer",
+        },
+      }).extend({
+        addInputRules() {
+          return [
+            new InputRule({
+              find: /\[([^\]]+)\]\(([^)]+)\)/,
+              handler: ({ state, range, match }) => {
+                const { tr } = state;
+                const start = range.from;
+                const end = range.to;
+                const text = match[1];
+                const href = match[2];
+
+                tr.replaceWith(
+                  start,
+                  end,
+                  state.schema.text(text, [
+                    state.schema.marks.link.create({ href }),
+                  ])
+                );
+              },
+            }),
+          ];
+        },
       }),
       Image.configure({
         HTMLAttributes: {
-          class: 'max-w-full h-auto rounded-lg',
+          class: "max-w-full h-auto rounded-lg",
         },
       }),
     ],
@@ -61,20 +107,23 @@ export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps)
     },
     editorProps: {
       attributes: {
-        class:
-          "text-foreground m-5 focus:outline-none",
+        class: "text-foreground m-5 focus:outline-none",
       },
       handleKeyDown: (view, event) => {
-        if (event.key === 'Enter') {
+        if (event.key === "Enter") {
           const { state } = view;
           const { selection } = state;
           const { $from } = selection;
 
-          if ($from.parent.type.name === 'listItem') {
+          if ($from.parent.type.name === "listItem") {
             const isEmpty = $from.parent.content.size === 0;
             if (isEmpty) {
               event.preventDefault();
-              const tr = state.tr.setBlockType($from.pos, $from.pos, state.schema.nodes.paragraph);
+              const tr = state.tr.setBlockType(
+                $from.pos,
+                $from.pos,
+                state.schema.nodes.paragraph
+              );
               view.dispatch(tr);
               return true;
             }
@@ -102,7 +151,10 @@ export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps)
     if (isMarkdownMode) {
       setIsMarkdownMode(false);
       if (editor) {
-        const htmlContent = marked.parse(markdownContent);
+        const htmlContent = marked.parse(markdownContent, {
+          breaks: true,
+          gfm: true,
+        });
         editor.commands.setContent(htmlContent);
       }
     } else {
@@ -114,7 +166,6 @@ export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps)
       }
     }
   };
-
 
   return (
     <div className="flex flex-col h-full">
@@ -156,20 +207,17 @@ export const TiptapEditor = ({ content, onChange, category }: TiptapEditorProps)
           <div className="flex-1 p-4 border-t md:border-t-0 md:border-l border-border overflow-y-auto">
             <div
               className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal"
-              dangerouslySetInnerHTML={{ __html: marked.parse(markdownContent) }}
+              dangerouslySetInnerHTML={{
+                __html: marked.parse(markdownContent, {
+                  breaks: true,
+                  gfm: true,
+                }),
+              }}
             />
           </div>
         </div>
       ) : (
-        <div
-          className="flex-1 overflow-y-auto"
-          onClick={(e) => {
-            const target = e.target as HTMLElement;
-            if (target.tagName === 'A') {
-              e.preventDefault();
-            }
-          }}
-        >
+        <div className="flex-1 overflow-y-auto">
           <EditorContent editor={editor} />
         </div>
       )}
