@@ -1,22 +1,27 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import CodeBlock from "@tiptap/extension-code-block";
 import Image from "@tiptap/extension-image";
-import { common, createLowlight } from "lowlight";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import CodeBlockComponent from "./CodeBlockComponent";
 import { TiptapToolbar } from "./TipTapToolbar";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { marked } from "marked";
-import TurndownService from "turndown";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Eye, FileText } from "lucide-react";
 import { InputRule } from "@tiptap/core";
+import { UnifiedMarkdownRenderer } from "../UnifiedMarkdownRenderer";
+import { createTurndownService, parseMarkdownToHtml } from "@/app/_utils/markdownUtils";
 
 type TiptapEditorProps = {
   content: string;
   onChange: (content: string, isMarkdownMode: boolean) => void;
   category?: string;
 };
+
+export function MarkdownPreview({ content }: { content: string }) {
+  return <UnifiedMarkdownRenderer content={content} />;
+}
 
 export const TiptapEditor = ({
   content,
@@ -27,32 +32,7 @@ export const TiptapEditor = ({
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
 
-  const lowlight = createLowlight(common);
-  const turndownService = useMemo(() => {
-    const service = new TurndownService({
-      headingStyle: "atx",
-      codeBlockStyle: "fenced",
-      emDelimiter: "*",
-      bulletListMarker: "-",
-    });
-
-    service.escape = function (string) {
-      return string
-        .replace(/\\/g, "\\\\")
-        .replace(/\*/g, "\\*")
-        .replace(/^-/gm, "\\-")
-        .replace(/^\+ /gm, "\\+ ")
-        .replace(/^(\d+)\. /gm, "$1\\. ")
-        .replace(/^>/gm, "\\>")
-        .replace(/_/g, "\\_")
-        .replace(/^#/gm, "\\#")
-        .replace(/^(\s*)(#{1,6}\s+)/gm, "$1\\$2")
-        .replace(/`/g, "\\`")
-        .replace(/^~~~/gm, "\\~~~");
-    };
-
-    return service;
-  }, []);
+  const turndownService = useMemo(() => createTurndownService(), []);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -60,8 +40,14 @@ export const TiptapEditor = ({
       StarterKit.configure({
         codeBlock: false,
       }),
-      CodeBlockLowlight.configure({
-        lowlight,
+      CodeBlock.configure({
+        HTMLAttributes: {
+          class: "code-block",
+        },
+      }).extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlockComponent);
+        },
       }),
       Link.configure({
         openOnClick: false,
@@ -137,7 +123,9 @@ export const TiptapEditor = ({
   useEffect(() => {
     if (editor && !isInitialized.current) {
       isInitialized.current = true;
-      editor.commands.setContent(content);
+      setTimeout(() => {
+        editor.commands.setContent(content);
+      }, 0);
     }
   }, [editor, content]);
 
@@ -151,10 +139,7 @@ export const TiptapEditor = ({
     if (isMarkdownMode) {
       setIsMarkdownMode(false);
       if (editor) {
-        const htmlContent = marked.parse(markdownContent, {
-          breaks: true,
-          gfm: true,
-        });
+        const htmlContent = parseMarkdownToHtml(markdownContent);
         editor.commands.setContent(htmlContent);
       }
     } else {
@@ -205,15 +190,7 @@ export const TiptapEditor = ({
             />
           </div>
           <div className="flex-1 p-4 border-t md:border-t-0 md:border-l border-border overflow-y-auto">
-            <div
-              className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal"
-              dangerouslySetInnerHTML={{
-                __html: marked.parse(markdownContent, {
-                  breaks: true,
-                  gfm: true,
-                }),
-              }}
-            />
+            <MarkdownPreview content={markdownContent} />
           </div>
         </div>
       ) : (

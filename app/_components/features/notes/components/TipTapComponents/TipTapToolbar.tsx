@@ -8,12 +8,12 @@ import {
   List,
   Quote,
   Link as LinkIcon,
-  Square,
   Image as ImageIcon,
   Upload,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { ImageModal } from "@/app/_components/ui/modals/image/ImageModal";
+import { CodeBlockDropdown } from "./CodeBlockDropdown";
 import { useState } from "react";
 
 type ToolbarProps = {
@@ -39,9 +39,6 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
     editor.chain().focus().setLink({ href: url }).run();
   };
 
-  const setCodeBlock = () => {
-    editor.chain().focus().toggleCodeBlock({ language: "javascript" }).run();
-  };
 
   const addImage = () => {
     const url = window.prompt("Image URL");
@@ -103,14 +100,7 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         <Code className="h-4 w-4" />
       </Button>
       <div className="w-px h-6 bg-border mx-2" />
-      <Button
-        variant={editor.isActive("codeBlock") ? "secondary" : "ghost"}
-        size="sm"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => handleButtonClick(setCodeBlock)}
-      >
-        <Square className="h-4 w-4" />
-      </Button>
+      <CodeBlockDropdown editor={editor} />
       <div className="w-px h-6 bg-border mx-2" />
       <Button
         variant={

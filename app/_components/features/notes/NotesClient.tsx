@@ -50,6 +50,10 @@ export function NotesClient({
     onDocUpdate?.(updatedDoc);
   };
 
+  const handleNoteSelection = (noteId: string) => {
+    setSelectedNote(noteId);
+  };
+
   return (
     <>
       {selectedDoc ? (

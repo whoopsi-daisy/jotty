@@ -3,6 +3,7 @@
 import { useContext, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/utils";
+import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import {
   deleteCategoryAction,
   renameCategoryAction,
@@ -132,21 +133,27 @@ export function Sidebar({
     setSharedItemsCollapsed(!sharedItemsCollapsed);
   };
 
+  const { checkNavigation } = useNavigationGuard();
+
   const handleModeSwitch = (newMode: AppMode) => {
-    setMode(newMode);
-    setSelectedChecklist(null);
-    setSelectedNote(null);
+    checkNavigation(() => {
+      setMode(newMode);
+      setSelectedChecklist(null);
+      setSelectedNote(null);
+    });
   };
 
   const handleItemClick = (item: Checklist | Note) => {
-    if (mode === "notes") {
-      setSelectedNote(item.id);
-      setSelectedChecklist(null);
-    } else {
-      setSelectedChecklist(item.id);
-      setSelectedNote(null);
-    }
-    onClose();
+    checkNavigation(() => {
+      if (mode === "notes") {
+        setSelectedNote(item.id);
+        setSelectedChecklist(null);
+      } else {
+        setSelectedChecklist(item.id);
+        setSelectedNote(null);
+      }
+      onClose();
+    });
   };
 
   const isItemSelected = (item: Checklist | Note) => {

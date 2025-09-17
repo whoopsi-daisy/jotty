@@ -4,11 +4,63 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Item } from "@/app/_types";
 import { cn } from "@/app/_utils/utils";
-import { Clock, Target, Play, GripVertical, Timer, Pause, Square, RotateCcw, Circle, CheckCircle2, PauseCircle } from "lucide-react";
+import { Clock, Target, Play, GripVertical, Timer, Pause, Square, RotateCcw, Circle, CheckCircle2, PauseCircle, Edit2, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
-import { useState, useEffect } from "react";
-import { updateItemStatusAction } from "@/app/_server/actions/data/actions";
+import { useState, useEffect, useRef } from "react";
+import { updateItemStatusAction, updateItemAction, deleteItemAction } from "@/app/_server/actions/data/actions";
+
+interface TimeEntriesAccordionProps {
+    timeEntries: any[];
+    totalTime: number;
+    formatTimerTime: (seconds: number) => string;
+}
+
+function TimeEntriesAccordion({ timeEntries, totalTime, formatTimerTime }: TimeEntriesAccordionProps) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const formatDateTime = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleString();
+    };
+
+    return (
+        <div className="border border-border/30 rounded-md bg-muted/20">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full flex items-center justify-between p-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+                <span className="flex items-center gap-1.5">
+                    <Clock className="h-3 w-3" />
+                    <span className="font-medium">{timeEntries.length} sessions</span>
+                    <span className="text-muted-foreground/60">•</span>
+                    <span className="font-semibold text-foreground">{formatTimerTime(totalTime)}</span>
+                </span>
+                {isOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            </button>
+
+            {isOpen && (
+                <div className="border-t border-border/30 p-2 space-y-1.5 max-h-32 overflow-y-auto">
+                    {timeEntries.map((entry, index) => (
+                        <div key={entry.id || index} className="bg-background border border-border/20 rounded p-2">
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs font-semibold text-foreground">{formatTimerTime(entry.duration || 0)}</span>
+                                <span className="text-xs text-muted-foreground">
+                                    {new Date(entry.startTime).toLocaleTimeString()}
+                                </span>
+                            </div>
+                            {entry.endTime && (
+                                <div className="text-xs text-muted-foreground/70 mt-0.5">
+                                    {new Date(entry.startTime).toLocaleDateString()} • {new Date(entry.endTime).toLocaleTimeString()}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 interface KanbanItemProps {
     item: Item;
@@ -22,6 +74,9 @@ export function KanbanItem({ item, isDragging, checklistId, onUpdate }: KanbanIt
     const [currentTime, setCurrentTime] = useState(0);
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [totalTime, setTotalTime] = useState(0);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editText, setEditText] = useState(item.text);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const {
         attributes,
@@ -58,6 +113,13 @@ export function KanbanItem({ item, isDragging, checklistId, onUpdate }: KanbanIt
         }
         return () => clearInterval(interval);
     }, [isRunning, startTime]);
+
+    useEffect(() => {
+        if (isEditing && inputRef.current) {
+            inputRef.current.focus();
+            inputRef.current.select();
+        }
+    }, [isEditing]);
 
     const handleTimerToggle = async () => {
         if (isRunning) {
@@ -108,6 +170,46 @@ export function KanbanItem({ item, isDragging, checklistId, onUpdate }: KanbanIt
         formData.append("status", newStatus);
         await updateItemStatusAction(formData);
         onUpdate?.();
+    };
+
+    const handleEdit = () => {
+        setIsEditing(true);
+        setEditText(item.text);
+    };
+
+    const handleSave = async () => {
+        if (editText.trim() && editText !== item.text) {
+            const formData = new FormData();
+            formData.append("listId", checklistId);
+            formData.append("itemId", item.id);
+            formData.append("text", editText.trim());
+            await updateItemAction(formData);
+            onUpdate?.();
+        }
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setEditText(item.text);
+        setIsEditing(false);
+    };
+
+    const handleDelete = async () => {
+        if (confirm("Are you sure you want to delete this task?")) {
+            const formData = new FormData();
+            formData.append("listId", checklistId);
+            formData.append("itemId", item.id);
+            await deleteItemAction(formData);
+            onUpdate?.();
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            handleSave();
+        } else if (e.key === "Escape") {
+            handleCancel();
+        }
     };
 
     const statusOptions = [
@@ -179,16 +281,31 @@ export function KanbanItem({ item, isDragging, checklistId, onUpdate }: KanbanIt
             <div
                 {...attributes}
                 {...listeners}
-                className="absolute top-2 right-2 cursor-move text-muted-foreground hover:text-foreground opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
+                className="absolute top-2 right-2 cursor-move text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity touch-manipulation"
             >
                 <GripVertical className="h-4 w-4" />
             </div>
-            <div className="space-y-2 pr-6">
+            <div className="space-y-2">
                 <div className="flex items-start gap-2">
-                    <p className="text-sm font-medium text-foreground leading-tight flex-1">
-                        {item.text}
-                    </p>
-                    <div className="flex-shrink-0">
+                    {isEditing ? (
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            onBlur={handleSave}
+                            onKeyDown={handleKeyDown}
+                            className="text-sm font-medium text-foreground leading-tight flex-1 bg-transparent border-none outline-none resize-none w-[70%]"
+                        />
+                    ) : (
+                        <p
+                            className="text-sm font-medium text-foreground leading-tight flex-1 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 w-[70%]"
+                            onDoubleClick={handleEdit}
+                        >
+                            {item.text}
+                        </p>
+                    )}
+                    <div className="flex-shrink-0 mt-0.5">
                         {getStatusIcon(item.status)}
                     </div>
                 </div>
@@ -211,43 +328,35 @@ export function KanbanItem({ item, isDragging, checklistId, onUpdate }: KanbanIt
                 )}
 
                 {item.timeEntries && item.timeEntries.length > 0 && (
-                    <div className="text-xs text-muted-foreground">
-                        {item.timeEntries.length} time entr{item.timeEntries.length !== 1 ? 'ies' : 'y'}
-                    </div>
+                    <TimeEntriesAccordion
+                        timeEntries={item.timeEntries}
+                        totalTime={totalTime + currentTime}
+                        formatTimerTime={formatTimerTime}
+                    />
                 )}
 
-                <div className="space-y-2 pt-2">
-                    <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                    <div className="flex items-center gap-2">
                         <div className="text-xs text-muted-foreground">
-                            Total: {formatTimerTime(totalTime + currentTime)}
+                            {formatTimerTime(totalTime + currentTime)}
                         </div>
                         <div className="flex gap-1">
                             <Button
-                                variant="ghost"
+                                variant={isRunning ? "default" : "ghost"}
                                 size="sm"
-                                className="h-6 px-2 text-xs touch-manipulation"
+                                className="h-6 px-2 text-xs"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleTimerToggle();
                                 }}
                             >
-                                {isRunning ? (
-                                    <>
-                                        <Pause className="h-3 w-3" />
-                                        <span className="hidden sm:inline ml-1">{formatTimerTime(currentTime)}</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Timer className="h-3 w-3" />
-                                        <span className="hidden sm:inline ml-1">Start</span>
-                                    </>
-                                )}
+                                {isRunning ? <Pause className="h-3 w-3" /> : <Timer className="h-3 w-3" />}
                             </Button>
                             {totalTime > 0 && (
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-6 px-2 text-xs touch-manipulation"
+                                    className="h-6 px-2 text-xs"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleResetTimer();
@@ -259,16 +368,42 @@ export function KanbanItem({ item, isDragging, checklistId, onUpdate }: KanbanIt
                         </div>
                     </div>
 
-                    <div className="sm:hidden">
-                        <Dropdown
-                            value={item.status || "todo"}
-                            options={statusOptions}
-                            onChange={(newStatus) => {
-                                handleStatusChange(newStatus);
+                    <div className="flex items-center gap-1">
+                        {!isEditing && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEdit();
+                                }}
+                            >
+                                <Edit2 className="h-3 w-3" />
+                            </Button>
+                        )}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete();
                             }}
-                            className="text-xs"
-                        />
+                        >
+                            <Trash2 className="h-3 w-3" />
+                        </Button>
                     </div>
+                </div>
+                <div className="sm:hidden w-full">
+                    <Dropdown
+                        value={item.status || "todo"}
+                        options={statusOptions}
+                        onChange={(newStatus) => {
+                            handleStatusChange(newStatus);
+                        }}
+                        className="text-xs"
+                    />
                 </div>
             </div>
         </div>

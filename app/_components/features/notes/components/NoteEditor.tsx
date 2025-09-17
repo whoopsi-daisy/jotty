@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { TiptapEditor } from "./TipTapComponents/TipTapEditor";
-import { marked } from "marked";
-import TurndownService from "turndown";
+import { UnifiedMarkdownRenderer } from "./UnifiedMarkdownRenderer";
+import { createTurndownService, parseMarkdownToHtml } from "@/app/_utils/markdownUtils";
+import { useSettings } from "@/app/_utils/settings-store";
+import { UnsavedChangesModal } from "@/app/_components/ui/modals/confirmation/UnsavedChangesModal";
+import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 
 import {
   ArrowLeft,
@@ -54,18 +57,16 @@ export function NoteEditor({
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedContent, setLastSavedContent] = useState(doc.content || "");
 
-  const turndownService = useMemo(() => {
-    const service = new TurndownService({
-      headingStyle: "atx",
-      codeBlockStyle: "fenced",
-      emDelimiter: "*",
-      bulletListMarker: "-",
-    });
-    return service;
-  }, []);
+  const { autosaveNotes } = useSettings();
+  const { registerNavigationGuard, unregisterNavigationGuard, executePendingNavigation } = useNavigationGuard();
+  const autosaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const turndownService = useMemo(() => createTurndownService(), []);
 
   const categoryOptions = [
     { id: "", name: "Uncategorized", icon: FolderOpen },
@@ -85,7 +86,8 @@ export function NoteEditor({
     const docCategory =
       doc.category === "Uncategorized" || !doc.category ? "" : doc.category;
     setCategory(docCategory);
-    setEditorContent(marked.parse(markdownContent) as string);
+
+    setEditorContent(parseMarkdownToHtml(markdownContent));
     setIsEditing(false);
   }, [doc]);
 
@@ -93,17 +95,119 @@ export function NoteEditor({
     const checkOwnership = async () => {
       try {
         const user = await getCurrentUser();
-        setCurrentUser(user?.username || null);
-        setIsOwner(user?.username === doc.owner);
+        const isOwnerResult = user?.username === doc.owner || (doc.owner === undefined && !!user?.username);
+        setIsOwner(isOwnerResult);
       } catch (error) {
         console.error("Error checking ownership:", error);
       }
     };
     checkOwnership();
-  }, [doc.owner]);
+  }, [doc.owner, doc.id, doc.title, doc.isShared, isEditing]);
+
+  const performAutosave = useCallback(async () => {
+    if (!isEditing || !hasUnsavedChanges || isSaving) return;
+
+    let markdownOutput: string;
+    if (isEditorInMarkdownMode) {
+      markdownOutput = editorContent;
+    } else {
+      markdownOutput = turndownService.turndown(editorContent);
+    }
+
+    const formData = new FormData();
+    formData.append("id", doc.id);
+    formData.append("title", title);
+    formData.append("content", markdownOutput);
+
+    if (isOwner) {
+      formData.append("category", category);
+    }
+
+    try {
+      const result = await updateDocAction(formData);
+      if (result.success) {
+        setLastSavedContent(markdownOutput);
+        setHasUnsavedChanges(false);
+      }
+    } catch (error) {
+      console.error("Autosave failed:", error);
+    }
+  }, [isEditing, hasUnsavedChanges, isSaving, isEditorInMarkdownMode, editorContent, turndownService, doc.id, title, isOwner, category]);
+
+  useEffect(() => {
+    if (autosaveNotes && isEditing) {
+      autosaveIntervalRef.current = setInterval(performAutosave, 15000);
+    } else {
+      if (autosaveIntervalRef.current) {
+        clearInterval(autosaveIntervalRef.current);
+        autosaveIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (autosaveIntervalRef.current) {
+        clearInterval(autosaveIntervalRef.current);
+        autosaveIntervalRef.current = null;
+      }
+    };
+  }, [autosaveNotes, isEditing, performAutosave]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setHasUnsavedChanges(false);
+      return;
+    }
+
+    let currentContent: string;
+    if (isEditorInMarkdownMode) {
+      currentContent = editorContent;
+    } else {
+      currentContent = turndownService.turndown(editorContent);
+    }
+
+    const hasChanges = currentContent !== lastSavedContent || title !== doc.title || category !== doc.category;
+    setHasUnsavedChanges(hasChanges);
+  }, [isEditing, editorContent, isEditorInMarkdownMode, turndownService, lastSavedContent, title, doc.title, category, doc.category]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      unregisterNavigationGuard();
+      return;
+    }
+
+    const navigationGuard = () => {
+      if (hasUnsavedChanges) {
+        setShowUnsavedChangesModal(true);
+        return false;
+      }
+      return true;
+    };
+
+    registerNavigationGuard(navigationGuard);
+
+    return () => {
+      unregisterNavigationGuard();
+    };
+  }, [isEditing, hasUnsavedChanges, registerNavigationGuard, unregisterNavigationGuard]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   const handleEdit = () => {
-    setEditorContent(marked.parse(docContent) as string);
+    setEditorContent(parseMarkdownToHtml(docContent));
     setIsEditing(true);
   };
 
@@ -140,6 +244,8 @@ export function NoteEditor({
     if (result.success) {
       setDocContent(markdownOutput);
       setIsEditing(false);
+      setLastSavedContent(markdownOutput);
+      setHasUnsavedChanges(false);
 
       const updatedDoc: Note = {
         ...doc,
@@ -159,6 +265,20 @@ export function NoteEditor({
     setCategory(
       doc.category === "Uncategorized" || !doc.category ? "" : doc.category
     );
+    setHasUnsavedChanges(false);
+  };
+
+  const handleUnsavedChangesSave = async () => {
+    await handleSave();
+    executePendingNavigation();
+  };
+
+  const handleUnsavedChangesDiscard = () => {
+    executePendingNavigation();
+  };
+
+  const handleBack = () => {
+    onBack();
   };
 
   const handleDelete = async () => {
@@ -174,7 +294,7 @@ export function NoteEditor({
 
   const handleExportPDF = async () => {
     try {
-      const element = document.querySelector(".prose");
+      const element = document.querySelector(".prose") || document.querySelector("[class*='prose']");
       if (!element) return;
 
       const filename = title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
@@ -193,7 +313,7 @@ export function NoteEditor({
             <Button
               variant="ghost"
               size="sm"
-              onClick={onBack}
+              onClick={handleBack}
               className="h-8 w-8 lg:h-8 lg:w-8 p-0 flex-shrink-0"
             >
               <ArrowLeft className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -284,15 +404,15 @@ export function NoteEditor({
                 {(doc.isShared
                   ? isAdmin || currentUsername === doc.owner
                   : true) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                  </Button>
-                )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDelete}
+                      className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                    </Button>
+                  )}
               </>
             )}
           </div>
@@ -311,6 +431,7 @@ export function NoteEditor({
             </div>
           </div>
         )}
+
       </div>
 
       <div className="flex-1 overflow-auto">
@@ -321,20 +442,9 @@ export function NoteEditor({
             category={category}
           />
         ) : (
-          <div
-            className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl p-6 focus:outline-none dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal"
-            dangerouslySetInnerHTML={{ __html: marked.parse(docContent) }}
-            onClick={(e) => {
-              const target = e.target as HTMLElement;
-              if (target.tagName === "A") {
-                e.preventDefault();
-                const href = target.getAttribute("href");
-                if (href) {
-                  window.open(href, "_blank", "noopener,noreferrer");
-                }
-              }
-            }}
-          />
+          <div className="p-6">
+            <UnifiedMarkdownRenderer content={docContent} />
+          </div>
         )}
       </div>
 
@@ -349,6 +459,14 @@ export function NoteEditor({
           itemOwner={doc.owner || ""}
         />
       )}
+
+      <UnsavedChangesModal
+        isOpen={showUnsavedChangesModal}
+        onClose={() => setShowUnsavedChangesModal(false)}
+        onSave={handleUnsavedChangesSave}
+        onDiscard={handleUnsavedChangesDiscard}
+        noteTitle={doc.title}
+      />
     </div>
   );
 }

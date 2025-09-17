@@ -158,7 +158,7 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
                 submitButtonText="Add Task"
             />
 
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden pb-[6em]">
                 <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <div className="h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-2 sm:p-4 overflow-x-auto">
                         {columns.map((column) => {
