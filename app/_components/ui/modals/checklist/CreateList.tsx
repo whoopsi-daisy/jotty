@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Folder, ListTodo, Plus, CheckSquare, BarChart3 } from "lucide-react";
 import {
   createListAction,
@@ -35,6 +35,13 @@ export function CreateListModal({
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [type, setType] = useState<ChecklistType>("simple");
   const [isLoading, setIsLoading] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  }, []);
 
   const categoryOptions = [
     { id: "", name: "Uncategorized", icon: ListTodo },
@@ -89,6 +96,7 @@ export function CreateListModal({
             Checklist Name *
           </label>
           <input
+            ref={titleInputRef}
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}

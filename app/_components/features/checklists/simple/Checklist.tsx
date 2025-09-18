@@ -381,8 +381,8 @@ export function ChecklistView({
 
       {totalCount > 0 && <ChecklistProgress checklist={localList} />}
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="w-full space-y-4 pb-20 lg:pb-0">
+      <div className="flex-1 overflow-y-auto p-4 pb-24 lg:pb-4">
+        <div className="w-full space-y-4">
 
           {incompleteItems.length > 0 && (
             <div className="bg-card rounded-lg border border-border p-4">
