@@ -11,7 +11,10 @@ import { Button } from "@/app/_components/ui/elements/button";
 import { Eye, FileText } from "lucide-react";
 import { InputRule } from "@tiptap/core";
 import { UnifiedMarkdownRenderer } from "../UnifiedMarkdownRenderer";
-import { createTurndownService, parseMarkdownToHtml } from "@/app/_utils/markdownUtils";
+import {
+  createTurndownService,
+  parseMarkdownToHtml,
+} from "@/app/_utils/markdownUtils";
 
 type TiptapEditorProps = {
   content: string;
@@ -195,7 +198,7 @@ export const TiptapEditor = ({
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
-          <EditorContent editor={editor} />
+          <EditorContent editor={editor} className="h-full" />
         </div>
       )}
     </div>

@@ -3,7 +3,10 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { TiptapEditor } from "./TipTapComponents/TipTapEditor";
 import { UnifiedMarkdownRenderer } from "./UnifiedMarkdownRenderer";
-import { createTurndownService, parseMarkdownToHtml } from "@/app/_utils/markdownUtils";
+import {
+  createTurndownService,
+  parseMarkdownToHtml,
+} from "@/app/_utils/markdownUtils";
 import { useSettings } from "@/app/_utils/settings-store";
 import { UnsavedChangesModal } from "@/app/_components/ui/modals/confirmation/UnsavedChangesModal";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
@@ -18,10 +21,12 @@ import {
   Share2,
   Users,
   Download,
+  List,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
+import { TableOfContents } from "./TableOfContents";
 import { Note, Category } from "@/app/_types";
 import { exportToPDF } from "@/app/_utils/pdf-export";
 import {
@@ -61,9 +66,14 @@ export function NoteEditor({
   const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedContent, setLastSavedContent] = useState(doc.content || "");
+  const [showTableOfContents, setShowTableOfContents] = useState(false);
 
   const { autosaveNotes } = useSettings();
-  const { registerNavigationGuard, unregisterNavigationGuard, executePendingNavigation } = useNavigationGuard();
+  const {
+    registerNavigationGuard,
+    unregisterNavigationGuard,
+    executePendingNavigation,
+  } = useNavigationGuard();
   const autosaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const turndownService = useMemo(() => createTurndownService(), []);
@@ -95,7 +105,9 @@ export function NoteEditor({
     const checkOwnership = async () => {
       try {
         const user = await getCurrentUser();
-        const isOwnerResult = user?.username === doc.owner || (doc.owner === undefined && !!user?.username);
+        const isOwnerResult =
+          user?.username === doc.owner ||
+          (doc.owner === undefined && !!user?.username);
         setIsOwner(isOwnerResult);
       } catch (error) {
         console.error("Error checking ownership:", error);
@@ -127,12 +139,32 @@ export function NoteEditor({
       const result = await updateDocAction(formData);
       if (result.success) {
         setLastSavedContent(markdownOutput);
+        // Update the doc content to reflect the saved state
+        onUpdate({
+          ...doc,
+          content: markdownOutput,
+          title,
+          category: isOwner ? category : doc.category,
+          updatedAt: new Date().toISOString(),
+        });
         setHasUnsavedChanges(false);
       }
     } catch (error) {
       console.error("Autosave failed:", error);
     }
-  }, [isEditing, hasUnsavedChanges, isSaving, isEditorInMarkdownMode, editorContent, turndownService, doc.id, title, isOwner, category]);
+  }, [
+    isEditing,
+    hasUnsavedChanges,
+    isSaving,
+    isEditorInMarkdownMode,
+    editorContent,
+    turndownService,
+    title,
+    isOwner,
+    category,
+    doc,
+    onUpdate,
+  ]);
 
   useEffect(() => {
     if (autosaveNotes && isEditing) {
@@ -158,16 +190,43 @@ export function NoteEditor({
       return;
     }
 
-    let currentContent: string;
-    if (isEditorInMarkdownMode) {
-      currentContent = editorContent;
-    } else {
-      currentContent = turndownService.turndown(editorContent);
-    }
+    const timeoutId = setTimeout(() => {
+      let currentContent: string;
+      if (isEditorInMarkdownMode) {
+        currentContent = editorContent;
+      } else {
+        currentContent = turndownService.turndown(editorContent);
+      }
 
-    const hasChanges = currentContent !== lastSavedContent || title !== doc.title || category !== doc.category;
-    setHasUnsavedChanges(hasChanges);
-  }, [isEditing, editorContent, isEditorInMarkdownMode, turndownService, lastSavedContent, title, doc.title, category, doc.category]);
+      const originalContent = doc.content || "";
+
+      const normalizeContent = (content: string) => {
+        return content.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+      };
+
+      const normalizedCurrent = normalizeContent(currentContent);
+      const normalizedOriginal = normalizeContent(originalContent);
+
+      const hasChanges =
+        normalizedCurrent !== normalizedOriginal ||
+        title !== doc.title ||
+        category !== (doc.category || "Uncategorized");
+
+      setHasUnsavedChanges(hasChanges);
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    isEditing,
+    editorContent,
+    isEditorInMarkdownMode,
+    turndownService,
+    doc.content,
+    title,
+    doc.title,
+    category,
+    doc.category,
+  ]);
 
   useEffect(() => {
     if (!isEditing) {
@@ -188,13 +247,19 @@ export function NoteEditor({
     return () => {
       unregisterNavigationGuard();
     };
-  }, [isEditing, hasUnsavedChanges, registerNavigationGuard, unregisterNavigationGuard]);
+  }, [
+    isEditing,
+    hasUnsavedChanges,
+    registerNavigationGuard,
+    unregisterNavigationGuard,
+  ]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
         return e.returnValue;
       }
     };
@@ -294,7 +359,9 @@ export function NoteEditor({
 
   const handleExportPDF = async () => {
     try {
-      const element = document.querySelector(".prose") || document.querySelector("[class*='prose']");
+      const element =
+        document.querySelector(".prose") ||
+        document.querySelector("[class*='prose']");
       if (!element) return;
 
       const filename = title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
@@ -396,6 +463,15 @@ export function NoteEditor({
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() => setShowTableOfContents(!showTableOfContents)}
+                  className="hidden lg:flex h-8 w-8 lg:h-10 lg:w-10 p-0"
+                  title="Toggle Table of Contents"
+                >
+                  <List className="h-4 w-4 lg:h-5 lg:w-5" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleEdit}
                   className="h-8 w-8 lg:h-10 lg:w-10 p-0"
                 >
@@ -404,15 +480,15 @@ export function NoteEditor({
                 {(doc.isShared
                   ? isAdmin || currentUsername === doc.owner
                   : true) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDelete}
-                      className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -431,20 +507,32 @@ export function NoteEditor({
             </div>
           </div>
         )}
-
       </div>
 
-      <div className="flex-1 overflow-auto">
-        {isEditing ? (
-          <TiptapEditor
-            content={editorContent}
-            onChange={handleEditorContentChange}
-            category={category}
+      <div className="flex-1 overflow-auto flex">
+        <div className="flex-1 overflow-auto">
+          {isEditing ? (
+            <TiptapEditor
+              content={editorContent}
+              onChange={handleEditorContentChange}
+              category={category}
+            />
+          ) : (
+            <div className="p-6">
+              <UnifiedMarkdownRenderer content={docContent} />
+            </div>
+          )}
+        </div>
+        {showTableOfContents && (
+          <TableOfContents
+            content={
+              isEditing
+                ? isEditorInMarkdownMode
+                  ? editorContent
+                  : turndownService.turndown(editorContent)
+                : docContent
+            }
           />
-        ) : (
-          <div className="p-6">
-            <UnifiedMarkdownRenderer content={docContent} />
-          </div>
         )}
       </div>
 
