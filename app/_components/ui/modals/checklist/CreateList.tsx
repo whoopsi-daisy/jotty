@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Folder, ListTodo, Plus, CheckSquare, BarChart3 } from "lucide-react";
+import {
+  X,
+  Folder,
+  ListTodo,
+  Plus,
+  CheckSquare,
+  BarChart3,
+} from "lucide-react";
 import {
   createListAction,
   createCategoryAction,
@@ -115,10 +122,11 @@ export function CreateListModal({
             <button
               type="button"
               onClick={() => setType("simple")}
-              className={`p-4 rounded-lg border-2 transition-all ${type === "simple"
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50"
-                }`}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                type === "simple"
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/50"
+              }`}
               disabled={isLoading}
             >
               <div className="flex flex-col items-center gap-2">
@@ -134,10 +142,11 @@ export function CreateListModal({
             <button
               type="button"
               onClick={() => setType("task")}
-              className={`p-4 rounded-lg border-2 transition-all ${type === "task"
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50"
-                }`}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                type === "task"
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/50"
+              }`}
               disabled={isLoading}
             >
               <div className="flex flex-col items-center gap-2">
@@ -158,7 +167,7 @@ export function CreateListModal({
             Category
           </label>
           {!showNewCategory ? (
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Dropdown
                 value={category}
                 options={categoryOptions}
@@ -176,7 +185,7 @@ export function CreateListModal({
               </Button>
             </div>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="text"
                 value={newCategory}

@@ -34,7 +34,12 @@ const parseMarkdown = (
   let type: ChecklistType = "simple";
   if (content.includes("<!-- type:task -->")) {
     type = "task";
-  } else if (content.includes(" | status:") || content.includes(" | time:") || content.includes(" | estimated:") || content.includes(" | target:")) {
+  } else if (
+    content.includes(" | status:") ||
+    content.includes(" | time:") ||
+    content.includes(" | estimated:") ||
+    content.includes(" | target:")
+  ) {
     type = "task";
   }
 
@@ -55,11 +60,19 @@ const parseMarkdown = (
         let estimatedTime: number | undefined;
         let targetDate: string | undefined;
 
-        metadata.forEach(meta => {
+        metadata.forEach((meta) => {
           if (meta.startsWith("status:")) {
             const statusValue = meta.substring(7);
-            if (["todo", "in_progress", "completed", "paused"].includes(statusValue)) {
-              status = statusValue as "todo" | "in_progress" | "completed" | "paused";
+            if (
+              ["todo", "in_progress", "completed", "paused"].includes(
+                statusValue
+              )
+            ) {
+              status = statusValue as
+                | "todo"
+                | "in_progress"
+                | "completed"
+                | "paused";
             }
           } else if (meta.startsWith("time:")) {
             const timeValue = meta.substring(5);
@@ -115,9 +128,10 @@ const parseMarkdown = (
 };
 
 const listToMarkdown = (list: Checklist): string => {
-  const header = list.type === "task"
-    ? `# ${list.title}\n<!-- type:task -->\n`
-    : `# ${list.title}\n`;
+  const header =
+    list.type === "task"
+      ? `# ${list.title}\n<!-- type:task -->\n`
+      : `# ${list.title}\n`;
   const items = list.items
     .sort((a, b) => a.order - b.order)
     .map((item) => {
@@ -144,7 +158,9 @@ const listToMarkdown = (list: Checklist): string => {
           metadata.push(`target:${item.targetDate}`);
         }
 
-        return `- [${item.completed ? "x" : " "}] ${escapedText} | ${metadata.join(" | ")}`;
+        return `- [${
+          item.completed ? "x" : " "
+        }] ${escapedText} | ${metadata.join(" | ")}`;
       }
 
       return `- [${item.completed ? "x" : " "}] ${escapedText}`;
@@ -159,11 +175,9 @@ export const getLists = async (username?: string) => {
     let currentUser: any = null;
 
     if (username) {
-      // API key authentication - use provided username
       userDir = path.join(process.cwd(), "data", "checklists", username);
-      currentUser = { username }; // Create a mock user object for API calls
+      currentUser = { username };
     } else {
-      // Session-based authentication
       currentUser = await getCurrentUser();
       if (!currentUser) {
         return { success: false, error: "Not authenticated" };
@@ -513,7 +527,11 @@ export const renameCategoryAction = async (formData: FormData) => {
   }
 };
 
-export const updateItemAction = async (formData: FormData, username?: string, skipRevalidation = false) => {
+export const updateItemAction = async (
+  formData: FormData,
+  username?: string,
+  skipRevalidation = false
+) => {
   try {
     const listId = formData.get("listId") as string;
     const itemId = formData.get("itemId") as string;
@@ -530,7 +548,6 @@ export const updateItemAction = async (formData: FormData, username?: string, sk
       throw new Error("List not found");
     }
 
-    // If username is provided (API call), verify ownership
     if (username && list.owner !== username) {
       throw new Error("List not found");
     }
@@ -562,10 +579,8 @@ export const updateItemAction = async (formData: FormData, username?: string, sk
     } else {
       let userDir: string;
       if (username) {
-        // API call - use provided username
         userDir = path.join(process.cwd(), "data", "checklists", username);
       } else {
-        // Regular call - use session
         userDir = await getUserDir();
       }
       filePath = path.join(
@@ -587,7 +602,11 @@ export const updateItemAction = async (formData: FormData, username?: string, sk
   }
 };
 
-export const createItemAction = async (formData: FormData, username?: string, skipRevalidation = false) => {
+export const createItemAction = async (
+  formData: FormData,
+  username?: string,
+  skipRevalidation = false
+) => {
   try {
     const listId = formData.get("listId") as string;
     const text = formData.get("text") as string;
@@ -624,7 +643,8 @@ export const createItemAction = async (formData: FormData, username?: string, sk
       completed: false,
       order: list.items.length,
       ...(list.type === "task" && {
-        status: (status as "todo" | "in_progress" | "completed" | "paused") || "todo",
+        status:
+          (status as "todo" | "in_progress" | "completed" | "paused") || "todo",
         timeEntries,
       }),
     };
@@ -690,7 +710,7 @@ export const createBulkItemsAction = async (formData: FormData) => {
       throw new Error("List not found");
     }
 
-    const lines = itemsText.split('\n').filter(line => line.trim());
+    const lines = itemsText.split("\n").filter((line) => line.trim());
     const newItems = lines.map((text, index) => ({
       id: `${listId}-${Date.now()}-${index}`,
       text: text.trim(),
@@ -1027,6 +1047,69 @@ export const updateItemStatusAction = async (formData: FormData) => {
   }
 };
 
+export const bulkToggleItemsAction = async (formData: FormData) => {
+  try {
+    const listId = formData.get("listId") as string;
+    const completed = formData.get("completed") === "true";
+    const itemIdsStr = formData.get("itemIds") as string;
+
+    if (!listId || !itemIdsStr) {
+      return { error: "List ID and item IDs are required" };
+    }
+
+    const itemIds = JSON.parse(itemIdsStr);
+
+    const lists = await getLists();
+    if (!lists.success || !lists.data) {
+      throw new Error(lists.error || "Failed to fetch lists");
+    }
+
+    const list = lists.data.find((l) => l.id === listId);
+    if (!list) {
+      throw new Error("List not found");
+    }
+
+    const updatedList = {
+      ...list,
+      items: list.items.map((item) =>
+        itemIds.includes(item.id) ? { ...item, completed } : item
+      ),
+      updatedAt: new Date().toISOString(),
+    };
+
+    let filePath: string;
+
+    if (list.isShared) {
+      const ownerDir = path.join(
+        process.cwd(),
+        "data",
+        "checklists",
+        list.owner!
+      );
+      filePath = path.join(
+        ownerDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    } else {
+      const userDir = await getUserDir();
+      filePath = path.join(
+        userDir,
+        list.category || "Uncategorized",
+        `${listId}.md`
+      );
+    }
+
+    await writeFile(filePath, listToMarkdown(updatedList));
+
+    revalidatePath("/");
+    return { success: true, data: updatedList };
+  } catch (error) {
+    console.error("Error bulk toggling items:", error);
+    return { error: "Failed to bulk toggle items" };
+  }
+};
+
 export const convertChecklistTypeAction = async (formData: FormData) => {
   try {
     const listId = formData.get("listId") as string;
@@ -1076,13 +1159,13 @@ export const convertChecklistTypeAction = async (formData: FormData) => {
     let convertedItems: any[];
 
     if (newType === "task") {
-      convertedItems = list.items.map(item => ({
+      convertedItems = list.items.map((item) => ({
         ...item,
         status: item.completed ? "completed" : "todo",
         timeEntries: [],
       }));
     } else {
-      convertedItems = list.items.map(item => ({
+      convertedItems = list.items.map((item) => ({
         id: item.id,
         text: item.text,
         completed: item.completed,

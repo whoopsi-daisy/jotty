@@ -28,7 +28,7 @@ export function SidebarActions({
 
   return (
     <div className="p-4 space-y-2 border-t border-border">
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <Button
           onClick={() => onOpenCreateModal()}
           size="sm"
@@ -37,11 +37,7 @@ export function SidebarActions({
           <Plus className="h-4 w-4 mr-2" />
           New {mode === "checklists" ? "Checklist" : "Note"}
         </Button>
-        <Button
-          onClick={onOpenCategoryModal}
-          variant="outline"
-          size="sm"
-        >
+        <Button onClick={onOpenCategoryModal} variant="outline" size="sm">
           <FolderPlus className="h-4 w-4" />
         </Button>
       </div>

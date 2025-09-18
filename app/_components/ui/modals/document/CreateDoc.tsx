@@ -112,7 +112,7 @@ export function CreateDocModal({
             Category
           </label>
           {!showNewCategory ? (
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Dropdown
                 value={category}
                 options={categoryOptions}
@@ -129,7 +129,7 @@ export function CreateDocModal({
               </Button>
             </div>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="text"
                 value={newCategory}

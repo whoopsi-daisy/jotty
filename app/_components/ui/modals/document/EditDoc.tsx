@@ -117,7 +117,7 @@ export function EditDocModal({
               <label className="text-sm font-medium text-foreground">
                 Category
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <select
                   value={showNewCategory ? "" : category}
                   onChange={(e) => {
