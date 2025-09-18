@@ -1,0 +1,42 @@
+{
+  "checklists": {
+    "fccview-1757949157004-checklist": {
+      "id": "1757949157004",
+      "type": "checklist",
+      "title": "Testing task",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-16T07:22:24.498Z",
+      "category": "Tasks",
+      "filePath": "fccview/Tasks/1757949157004.md"
+    },
+    "fccview-1757706436003-checklist": {
+      "id": "1757706436003",
+      "type": "checklist",
+      "title": "Uncategorized test",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-16T07:22:55.581Z",
+      "category": "Uncategorized",
+      "filePath": "fccview/Uncategorized/1757706436003.md"
+    }
+  },
+  "notes": {
+    "fccview-1754935952483-document": {
+      "id": "1754935952483",
+      "type": "document",
+      "title": "Lorem Ipsum Doc",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-16T07:23:05.905Z",
+      "category": "Lorem Ipsum",
+      "filePath": "fccview/Lorem Ipsum/1754935952483.md"
+    }
+  }
+}
