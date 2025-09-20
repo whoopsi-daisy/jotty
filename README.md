@@ -29,13 +29,13 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
 
 ## Features
 
-- **Checklists:** Create task lists with drag & drop reordering, progress bars, and categories.
-- **Rich Text Notes:** A clean WYSIWYG editor for your notes, powered by TipTap with full Markdown support.
-- **Simple Sharing:** Share checklists or notes with other users on your instance.
+- **Checklists:** Create task lists with drag & drop reordering, progress bars, and categories. Supports both simple checklists and advanced task projects with Kanban boards and time tracking.
+- **Rich Text Notes:** A clean WYSIWYG editor for your notes, powered by TipTap with full Markdown support and syntax highlighting.
+- **Sharing:** Share checklists or notes with other users on your instance, including public sharing with shareable links.
 - **File-Based:** No database needed! Everything is stored in simple Markdown and JSON files in a single data directory.
-- **User Management:** An admin panel to create and manage user accounts.
-- **Customisable:** Plenty of themes to make it your own.
-- **API Access:** Programmatic access to your checklists and notes via REST API.
+- **User Management:** An admin panel to create and manage user accounts with session tracking.
+- **Customisable:** 14 built-in themes plus custom theme support with custom emojis and icons.
+- **API Access:** Programmatic access to your checklists and notes via REST API with authentication.
 
 ## Tech Stack
 
@@ -281,6 +281,37 @@ I would like to thank the following members for raising issues and help test/deb
       </td>
       <td align="center" valign="top" width="20%">
         <a href="https://github.com/bluegumcity"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/142639670?v=4&size=100"><br />bluegumcity</a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/IGOLz"><img width="100" height="100" alt="IGOLz" src="https://avatars.githubusercontent.com/u/24594920?s=96&v=4&size=100"><br/>IGOLz</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/floqui-nl"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/73650390?s=96&v=4&size=100"><br />floqui-nl</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/davehope"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/5435716?s=96&v=4&size=100"><br />davehope</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/Sku1ly"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/45756272?s=96&v=4&size=100"><br />Sku1ly</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/ItsNoted"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/57927413?s=96&v=4&size=100"><br />ItsNoted</a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/red-bw"><img width="100" height="100" alt="red-bw" src="https://avatars.githubusercontent.com/u/76931972?s=96&v=4&size=100"><br/>red-bw</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/kn0rr0x"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/13623757?s=96&v=4&size=100"><br />kn0rr0x</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+      </td>
+      <td align="center" valign="top" width="20%">
+      </td>
+      <td align="center" valign="top" width="20%">
       </td>
     </tr>
   </tbody>
