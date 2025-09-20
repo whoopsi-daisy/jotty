@@ -243,8 +243,28 @@ export function ShareModal({
 
   const handleCopyUrl = async () => {
     try {
-      await navigator.clipboard.writeText(publicUrl);
-      setSuccess("Public URL copied to clipboard!");
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(publicUrl);
+        setSuccess("Public URL copied to clipboard!");
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = publicUrl;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          document.execCommand("copy");
+          setSuccess("Public URL copied to clipboard!");
+        } catch (err) {
+          setError("Failed to copy URL to clipboard");
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
     } catch (error) {
       setError("Failed to copy URL to clipboard");
     }
@@ -410,8 +430,8 @@ export function ShareModal({
                   {isLoading
                     ? "Updating..."
                     : isPubliclyShared
-                    ? "Make Private"
-                    : "Make Public"}
+                      ? "Make Private"
+                      : "Make Public"}
                 </Button>
               </div>
             </div>
