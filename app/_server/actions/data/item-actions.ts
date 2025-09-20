@@ -242,8 +242,6 @@ export const reorderItemsAction = async (formData: FormData) => {
       formData.get("currentItems") as string
     ) as any[];
 
-    console.log("Reorder Debug - Input:", { listId, itemIds, currentItems });
-
     const lists = await getLists();
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
@@ -254,15 +252,6 @@ export const reorderItemsAction = async (formData: FormData) => {
       throw new Error("List not found");
     }
 
-    console.log(
-      "Reorder Debug - Original items from server:",
-      list.items.map((item) => ({
-        id: item.id,
-        text: item.text,
-        order: item.order,
-      }))
-    );
-
     const itemMap = new Map(currentItems.map((item) => [item.id, item]));
 
     const updatedItems = itemIds.map((id, index) => {
@@ -270,15 +259,6 @@ export const reorderItemsAction = async (formData: FormData) => {
       if (!item) throw new Error(`Item ${id} not found`);
       return { ...item, order: index };
     });
-
-    console.log(
-      "Reorder Debug - Updated items:",
-      updatedItems.map((item) => ({
-        id: item.id,
-        text: item.text,
-        order: item.order,
-      }))
-    );
 
     const updatedList = {
       ...list,
@@ -310,7 +290,6 @@ export const reorderItemsAction = async (formData: FormData) => {
     }
 
     const markdownContent = listToMarkdown(updatedList);
-    console.log("Reorder Debug - Markdown content:", markdownContent);
 
     await writeFile(filePath, markdownContent);
 
@@ -318,7 +297,6 @@ export const reorderItemsAction = async (formData: FormData) => {
 
     return { success: true };
   } catch (error) {
-    console.error("Reorder Debug - Error:", error);
     return { error: "Failed to reorder items" };
   }
 };

@@ -471,7 +471,6 @@ export const getAllDocs = async () => {
 export const checkForDocsFolder = async (): Promise<boolean> => {
   try {
     const docsPath = path.join(process.cwd(), "data", "docs");
-    console.log(docsPath);
     await fs.access(docsPath);
     return true;
   } catch {

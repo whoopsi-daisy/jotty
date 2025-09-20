@@ -3,6 +3,8 @@
 import { useMemo, useEffect } from "react";
 import { marked } from "marked";
 import { CodeBlockRenderer } from "./TipTapComponents/CodeBlockRenderer";
+import { FileAttachment } from "@/app/_components/ui/elements/FileAttachment";
+import { parseMarkdownToHtml } from "@/app/_utils/markdownUtils";
 
 interface UnifiedMarkdownRendererProps {
   content: string;
@@ -37,25 +39,91 @@ export function UnifiedMarkdownRenderer({
   const parsedContent = useMemo(() => {
     if (!content?.trim()) return [];
 
-    // More robust regex that handles different line endings and whitespace
     const codeBlockRegex = /```(\w*)\r?\n([\s\S]*?)```/g;
+    const fileAttachmentRegex = /\[📎 ([^\]]+)\]\((.+?)\)/g;
     const parts: JSX.Element[] = [];
     let lastIndex = 0;
     let match;
     let keyCounter = 0;
 
+    const processContent = (text: string) => {
+      const fileAttachmentMatches = Array.from(text.matchAll(fileAttachmentRegex));
+
+      if (fileAttachmentMatches.length === 0) {
+        return (
+          <div
+            key={`text-${keyCounter++}`}
+            dangerouslySetInnerHTML={{
+              __html: parseMarkdownToHtml(text),
+            }}
+          />
+        );
+      }
+
+      const elements: JSX.Element[] = [];
+      let currentIndex = 0;
+
+      fileAttachmentMatches.forEach((fileMatch, index) => {
+        if (fileMatch.index! > currentIndex) {
+          const beforeText = text.slice(currentIndex, fileMatch.index);
+          if (beforeText.trim()) {
+            elements.push(
+              <div
+                key={`text-${keyCounter++}`}
+                dangerouslySetInnerHTML={{
+                  __html: parseMarkdownToHtml(beforeText),
+                }}
+              />
+            );
+          }
+        }
+
+        const fileName = fileMatch[1];
+        const fileUrl = fileMatch[2];
+        const isImage = fileUrl.includes('/api/image/');
+        const mimeType = isImage ? 'image/jpeg' : 'application/octet-stream';
+
+        elements.push(
+          <FileAttachment
+            key={`file-${keyCounter++}`}
+            url={fileUrl}
+            fileName={fileName}
+            mimeType={mimeType}
+            type={isImage ? 'image' : 'file'}
+            className="my-4"
+          />
+        );
+
+        currentIndex = fileMatch.index! + fileMatch[0].length;
+      });
+
+      if (currentIndex < text.length) {
+        const remainingText = text.slice(currentIndex);
+        if (remainingText.trim()) {
+          elements.push(
+            <div
+              key={`text-${keyCounter++}`}
+              dangerouslySetInnerHTML={{
+                __html: parseMarkdownToHtml(remainingText),
+              }}
+            />
+          );
+        }
+      }
+
+      return elements;
+    };
+
     while ((match = codeBlockRegex.exec(content)) !== null) {
       if (match.index > lastIndex) {
         const beforeCode = content.slice(lastIndex, match.index);
         if (beforeCode.trim()) {
-          parts.push(
-            <div
-              key={`text-${keyCounter++}`}
-              dangerouslySetInnerHTML={{
-                __html: marked.parse(beforeCode, { breaks: true, gfm: true }),
-              }}
-            />
-          );
+          const processedElements = processContent(beforeCode);
+          if (Array.isArray(processedElements)) {
+            parts.push(...processedElements);
+          } else {
+            parts.push(processedElements);
+          }
         }
       }
 
@@ -75,26 +143,22 @@ export function UnifiedMarkdownRenderer({
     if (lastIndex < content.length) {
       const remaining = content.slice(lastIndex);
       if (remaining.trim()) {
-        parts.push(
-          <div
-            key={`text-${keyCounter++}`}
-            dangerouslySetInnerHTML={{
-              __html: marked.parse(remaining, { breaks: true, gfm: true }),
-            }}
-          />
-        );
+        const processedElements = processContent(remaining);
+        if (Array.isArray(processedElements)) {
+          parts.push(...processedElements);
+        } else {
+          parts.push(processedElements);
+        }
       }
     }
 
     if (parts.length === 0) {
-      parts.push(
-        <div
-          key="full-content"
-          dangerouslySetInnerHTML={{
-            __html: marked.parse(content, { breaks: true, gfm: true }),
-          }}
-        />
-      );
+      const processedElements = processContent(content);
+      if (Array.isArray(processedElements)) {
+        parts.push(...processedElements);
+      } else {
+        parts.push(processedElements);
+      }
     }
 
     return parts;

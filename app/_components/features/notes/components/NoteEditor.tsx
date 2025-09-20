@@ -5,7 +5,9 @@ import { TiptapEditor } from "./TipTapComponents/TipTapEditor";
 import { UnifiedMarkdownRenderer } from "./UnifiedMarkdownRenderer";
 import {
   createTurndownService,
-  parseMarkdownToHtml,
+  convertMarkdownToHtml,
+  convertHtmlToMarkdownUnified,
+  getMarkdownPreviewContent,
 } from "@/app/_utils/markdownUtils";
 import { useSettings } from "@/app/_utils/settings-store";
 import { UnsavedChangesModal } from "@/app/_components/ui/modals/confirmation/UnsavedChangesModal";
@@ -61,6 +63,7 @@ export function NoteEditor({
   const [category, setCategory] = useState(doc.category || "Uncategorized");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
@@ -97,7 +100,7 @@ export function NoteEditor({
       doc.category === "Uncategorized" || !doc.category ? "" : doc.category;
     setCategory(docCategory);
 
-    setEditorContent(parseMarkdownToHtml(markdownContent));
+    setEditorContent(convertMarkdownToHtml(markdownContent));
     setIsEditing(false);
   }, [doc]);
 
@@ -117,13 +120,15 @@ export function NoteEditor({
   }, [doc.owner, doc.id, doc.title, doc.isShared, isEditing]);
 
   const performAutosave = useCallback(async () => {
-    if (!isEditing || !hasUnsavedChanges || isSaving) return;
+    if (!isEditing || !hasUnsavedChanges || isSaving || isAutoSaving) return;
+
+    setIsAutoSaving(true);
 
     let markdownOutput: string;
     if (isEditorInMarkdownMode) {
       markdownOutput = editorContent;
     } else {
-      markdownOutput = turndownService.turndown(editorContent);
+      markdownOutput = convertHtmlToMarkdownUnified(editorContent);
     }
 
     const formData = new FormData();
@@ -139,31 +144,25 @@ export function NoteEditor({
       const result = await updateDocAction(formData);
       if (result.success) {
         setLastSavedContent(markdownOutput);
-        // Update the doc content to reflect the saved state
-        onUpdate({
-          ...doc,
-          content: markdownOutput,
-          title,
-          category: isOwner ? category : doc.category,
-          updatedAt: new Date().toISOString(),
-        });
         setHasUnsavedChanges(false);
+        // Don't call onUpdate during autosave to avoid exiting edit mode
       }
     } catch (error) {
       console.error("Autosave failed:", error);
+    } finally {
+      setIsAutoSaving(false);
     }
   }, [
     isEditing,
     hasUnsavedChanges,
     isSaving,
+    isAutoSaving,
     isEditorInMarkdownMode,
     editorContent,
-    turndownService,
     title,
     isOwner,
     category,
-    doc,
-    onUpdate,
+    doc
   ]);
 
   useEffect(() => {
@@ -195,13 +194,13 @@ export function NoteEditor({
       if (isEditorInMarkdownMode) {
         currentContent = editorContent;
       } else {
-        currentContent = turndownService.turndown(editorContent);
+        currentContent = convertHtmlToMarkdownUnified(editorContent);
       }
 
       const originalContent = doc.content || "";
 
       const normalizeContent = (content: string) => {
-        return content.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+        return content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
       };
 
       const normalizedCurrent = normalizeContent(currentContent);
@@ -272,7 +271,7 @@ export function NoteEditor({
   }, [hasUnsavedChanges]);
 
   const handleEdit = () => {
-    setEditorContent(parseMarkdownToHtml(docContent));
+    setEditorContent(convertMarkdownToHtml(docContent));
     setIsEditing(true);
   };
 
@@ -291,7 +290,7 @@ export function NoteEditor({
     if (isEditorInMarkdownMode) {
       markdownOutput = editorContent;
     } else {
-      markdownOutput = turndownService.turndown(editorContent);
+      markdownOutput = convertHtmlToMarkdownUnified(editorContent);
     }
 
     const formData = new FormData();
@@ -440,6 +439,12 @@ export function NoteEditor({
                   <Save className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
+                {autosaveNotes && isAutoSaving && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+                    <span>Auto-saving...</span>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -480,15 +485,15 @@ export function NoteEditor({
                 {(doc.isShared
                   ? isAdmin || currentUsername === doc.owner
                   : true) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                  </Button>
-                )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDelete}
+                      className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                    </Button>
+                  )}
               </>
             )}
           </div>
@@ -527,9 +532,7 @@ export function NoteEditor({
           <TableOfContents
             content={
               isEditing
-                ? isEditorInMarkdownMode
-                  ? editorContent
-                  : turndownService.turndown(editorContent)
+                ? getMarkdownPreviewContent(editorContent, isEditorInMarkdownMode)
                 : docContent
             }
           />

@@ -6,14 +6,16 @@ import Image from "@tiptap/extension-image";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import CodeBlockComponent from "./CodeBlockComponent";
 import { TiptapToolbar } from "./TipTapToolbar";
+import { FileAttachmentExtension } from "./FileAttachmentExtension";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Eye, FileText } from "lucide-react";
 import { InputRule } from "@tiptap/core";
-import { UnifiedMarkdownRenderer } from "../UnifiedMarkdownRenderer";
 import {
   createTurndownService,
-  parseMarkdownToHtml,
+  convertMarkdownToHtml,
+  convertHtmlToMarkdownUnified,
+  getMarkdownPreviewContent,
 } from "@/app/_utils/markdownUtils";
 
 type TiptapEditorProps = {
@@ -22,9 +24,6 @@ type TiptapEditorProps = {
   category?: string;
 };
 
-export function MarkdownPreview({ content }: { content: string }) {
-  return <UnifiedMarkdownRenderer content={content} />;
-}
 
 export const TiptapEditor = ({
   content,
@@ -35,13 +34,26 @@ export const TiptapEditor = ({
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
 
-  const turndownService = useMemo(() => createTurndownService(), []);
-
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         codeBlock: false,
+        bulletList: {
+          HTMLAttributes: {
+            class: 'list-disc',
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'list-decimal',
+          },
+        },
+        listItem: {
+          HTMLAttributes: {
+            class: 'list-item',
+          },
+        },
       }),
       CodeBlock.configure({
         HTMLAttributes: {
@@ -85,6 +97,11 @@ export const TiptapEditor = ({
       Image.configure({
         HTMLAttributes: {
           class: "max-w-full h-auto rounded-lg",
+        },
+      }),
+      FileAttachmentExtension.configure({
+        HTMLAttributes: {
+          class: "file-attachment",
         },
       }),
     ],
@@ -142,14 +159,14 @@ export const TiptapEditor = ({
     if (isMarkdownMode) {
       setIsMarkdownMode(false);
       if (editor) {
-        const htmlContent = parseMarkdownToHtml(markdownContent);
+        const htmlContent = convertMarkdownToHtml(markdownContent);
         editor.commands.setContent(htmlContent);
       }
     } else {
       setIsMarkdownMode(true);
       if (editor) {
         const htmlContent = editor.getHTML();
-        const markdownOutput = turndownService.turndown(htmlContent);
+        const markdownOutput = convertHtmlToMarkdownUnified(htmlContent);
         setMarkdownContent(markdownOutput);
       }
     }
@@ -171,7 +188,7 @@ export const TiptapEditor = ({
           {isMarkdownMode ? (
             <>
               <Eye className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Preview</span>
+              <span className="hidden sm:inline">Rich Text</span>
             </>
           ) : (
             <>
@@ -183,18 +200,13 @@ export const TiptapEditor = ({
       </div>
 
       {isMarkdownMode ? (
-        <div className="flex-1 flex flex-col md:flex-row">
-          <div className="flex-1 p-4">
-            <textarea
-              value={markdownContent}
-              onChange={handleMarkdownChange}
-              className="w-full h-full p-4 bg-background text-foreground border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Write your markdown here..."
-            />
-          </div>
-          <div className="flex-1 p-4 border-t md:border-t-0 md:border-l border-border overflow-y-auto">
-            <MarkdownPreview content={markdownContent} />
-          </div>
+        <div className="flex-1 p-4 overflow-y-auto">
+          <textarea
+            value={markdownContent}
+            onChange={handleMarkdownChange}
+            className="w-full h-full p-4 bg-background text-foreground border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="Write your markdown here..."
+          />
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">

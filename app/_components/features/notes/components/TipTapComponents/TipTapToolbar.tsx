@@ -10,9 +10,10 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Upload,
+  Paperclip,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { ImageModal } from "@/app/_components/ui/modals/image/ImageModal";
+import { FileModal } from "@/app/_components/ui/modals/file/FileModal";
 import { CodeBlockDropdown } from "./CodeBlockDropdown";
 import { useState } from "react";
 
@@ -21,7 +22,7 @@ type ToolbarProps = {
 };
 
 export const TiptapToolbar = ({ editor }: ToolbarProps) => {
-  const [showImageModal, setShowImageModal] = useState(false);
+  const [showFileModal, setShowFileModal] = useState(false);
 
   if (!editor) {
     return null;
@@ -47,8 +48,19 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
     }
   };
 
-  const handleImageSelect = (url: string) => {
-    editor.chain().focus().setImage({ src: url }).run();
+  const handleFileSelect = (url: string, type: 'image' | 'file', fileName?: string, mimeType?: string) => {
+    if (type === 'image') {
+      editor.chain().focus().setImage({ src: url }).run();
+    } else {
+      const finalFileName = fileName || url.split('/').pop() || 'file';
+      const finalMimeType = mimeType || 'application/octet-stream';
+      editor.chain().focus().setFileAttachment({
+        url,
+        fileName: finalFileName,
+        mimeType: finalMimeType,
+        type: 'file'
+      }).run();
+    }
   };
 
   const handleButtonClick = (command: () => void) => {
@@ -162,15 +174,15 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         variant="ghost"
         size="sm"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => setShowImageModal(true)}
-        title="Upload image"
+        onClick={() => setShowFileModal(true)}
+        title="Upload files"
       >
-        <Upload className="h-4 w-4" />
+        <Paperclip className="h-4 w-4" />
       </Button>
-      <ImageModal
-        isOpen={showImageModal}
-        onClose={() => setShowImageModal(false)}
-        onSelectImage={handleImageSelect}
+      <FileModal
+        isOpen={showFileModal}
+        onClose={() => setShowFileModal(false)}
+        onSelectFile={handleFileSelect}
         category=""
       />
     </div>

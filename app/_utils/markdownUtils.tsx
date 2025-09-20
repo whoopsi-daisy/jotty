@@ -8,7 +8,36 @@ export const createTurndownService = () => {
         codeBlockStyle: "fenced",
         emDelimiter: "*",
         bulletListMarker: "-",
+        br: "\n",
     });
+
+    const originalTurndown = service.turndown;
+    service.turndown = function (html) {
+        return originalTurndown.call(this, html);
+    };
+
+    service.addRule('fileAttachment', {
+        filter: (node) => {
+            if (node.nodeName === 'P' && (node as HTMLElement).hasAttribute('data-file-attachment')) {
+            }
+            return node.nodeName === 'P' && (node as HTMLElement).hasAttribute('data-file-attachment');
+        },
+        replacement: (content, node) => {
+            const element = node as HTMLElement;
+            const url = element.getAttribute('data-url');
+            const fileName = element.getAttribute('data-file-name');
+            const type = element.getAttribute('data-type');
+
+            if (type === 'image') {
+                return `![${fileName}](${url})`;
+            } else {
+                return `[📎 ${fileName}](${url})`;
+            }
+        }
+    });
+
+
+
 
     service.escape = function (string) {
         return string
@@ -43,6 +72,31 @@ export const parseMarkdownToHtml = (markdown: string): string => {
 export const convertHtmlToMarkdown = (html: string): string => {
     const turndownService = createTurndownService();
     return turndownService.turndown(html);
+};
+
+// Unified markdown processing functions
+export const processMarkdownContent = (content: string): string => {
+    // Ensure consistent processing of markdown content
+    if (!content || typeof content !== 'string') return '';
+    return content.trim();
+};
+
+export const convertMarkdownToHtml = (markdown: string): string => {
+    const processedMarkdown = processMarkdownContent(markdown);
+    return parseMarkdownToHtml(processedMarkdown);
+};
+
+export const convertHtmlToMarkdownUnified = (html: string): string => {
+    if (!html || typeof html !== 'string') return '';
+    return convertHtmlToMarkdown(html);
+};
+
+export const getMarkdownPreviewContent = (content: string, isMarkdownMode: boolean): string => {
+    if (isMarkdownMode) {
+        return processMarkdownContent(content);
+    } else {
+        return convertHtmlToMarkdownUnified(content);
+    }
 };
 
 export const languageIcons: Record<string, JSX.Element> = {
