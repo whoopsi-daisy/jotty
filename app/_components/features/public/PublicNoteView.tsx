@@ -16,10 +16,10 @@ export function PublicNoteView({ note }: PublicNoteViewProps) {
           <div className="flex items-center gap-3 mb-4">
             <FileText className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                 {note.title}
               </h1>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
                 <div className="flex items-center gap-1">
                   <User className="h-4 w-4" />
                   <span>by {note.owner}</span>
@@ -27,9 +27,7 @@ export function PublicNoteView({ note }: PublicNoteViewProps) {
                 {note.category && <span>• {note.category}</span>}
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  <span>
-                    Updated {new Date(note.updatedAt).toLocaleDateString()}
-                  </span>
+                  <span>Updated {new Date(note.updatedAt).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>

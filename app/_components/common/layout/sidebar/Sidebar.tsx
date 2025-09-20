@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState, useMemo } from "react";
+import { useContext, useState, useMemo, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/utils";
@@ -72,6 +72,44 @@ export function Sidebar({
     new Set()
   );
   const [sharedItemsCollapsed, setSharedItemsCollapsed] = useState(false);
+  const [isLocalStorageInitialized, setIsLocalStorageInitialized] = useState(false);
+
+  useEffect(() => {
+    const savedCollapsed = localStorage.getItem('sidebar-collapsed-categories');
+    if (savedCollapsed) {
+      try {
+        const categories = JSON.parse(savedCollapsed);
+        setCollapsedCategories(new Set(categories));
+      } catch (error) {
+        console.error('Failed to parse collapsed categories from localStorage:', error);
+      }
+    }
+
+    const savedSharedItems = localStorage.getItem('sidebar-shared-items-collapsed');
+    if (savedSharedItems) {
+      try {
+        setSharedItemsCollapsed(JSON.parse(savedSharedItems));
+      } catch (error) {
+        console.error('Failed to parse shared items collapsed state from localStorage:', error);
+      }
+    }
+
+    setIsLocalStorageInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLocalStorageInitialized) return;
+
+    const categoriesArray = Array.from(collapsedCategories);
+    localStorage.setItem('sidebar-collapsed-categories', JSON.stringify(categoriesArray));
+  }, [collapsedCategories, isLocalStorageInitialized]);
+
+  useEffect(() => {
+    if (!isLocalStorageInitialized) return;
+
+    localStorage.setItem('sidebar-shared-items-collapsed', JSON.stringify(sharedItemsCollapsed));
+  }, [sharedItemsCollapsed, isLocalStorageInitialized]);
+
   const [showSettings, setShowSettings] = useState(false);
 
   const router = useRouter();

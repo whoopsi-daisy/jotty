@@ -94,7 +94,9 @@ export function PublicChecklistView({ checklist }: PublicChecklistViewProps) {
           <div className="flex items-center gap-3 mb-4">
             {checklistIcon}
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{checklist.title}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                {checklist.title}
+              </h1>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
                 <div className="flex items-center gap-1">
                   <User className="h-4 w-4" />
