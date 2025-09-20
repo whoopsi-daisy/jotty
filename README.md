@@ -93,7 +93,7 @@ The recommended way to run `rwMarkable` is with Docker.
 2.  Create the data directory and set permissions:
 
     ```bash
-    mkdir -p data/users data/checklists data/docs data/sharing
+    mkdir -p data/users data/checklists data/notes data/sharing
     sudo chown -R 1000:1000 data/
     ```
 
