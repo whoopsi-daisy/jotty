@@ -24,6 +24,7 @@ import {
   Users,
   Download,
   List,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Dropdown } from "@/app/_components/ui/elements/dropdown";
@@ -36,6 +37,7 @@ import {
   deleteDocAction,
 } from "@/app/_server/actions/data/notes-actions";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { useSharingStatus } from "@/app/_components/hooks/useSharingStatus";
 
 interface NoteEditorProps {
   doc: Note;
@@ -72,6 +74,12 @@ export function NoteEditor({
   const [showTableOfContents, setShowTableOfContents] = useState(false);
 
   const { autosaveNotes } = useSettings();
+  const { sharingStatus } = useSharingStatus(
+    doc.id,
+    "document",
+    doc.owner || "",
+    true
+  );
   const {
     registerNavigationGuard,
     unregisterNavigationGuard,
@@ -145,7 +153,6 @@ export function NoteEditor({
       if (result.success) {
         setLastSavedContent(markdownOutput);
         setHasUnsavedChanges(false);
-        // Don't call onUpdate during autosave to avoid exiting edit mode
       }
     } catch (error) {
       console.error("Autosave failed:", error);
@@ -162,7 +169,7 @@ export function NoteEditor({
     title,
     isOwner,
     category,
-    doc
+    doc,
   ]);
 
   useEffect(() => {
@@ -402,11 +409,13 @@ export function NoteEditor({
                     <h1 className="text-lg lg:text-xl font-bold text-foreground truncate">
                       {title}
                     </h1>
-                    {doc.isShared && (
-                      <div title="Shared item">
-                        <Users className="h-4 w-4 text-primary" />
-                      </div>
+                    {sharingStatus?.isPubliclyShared && (
+                      <Globe className="h-3 w-3 text-primary" />
                     )}
+                    {sharingStatus?.isShared &&
+                      !sharingStatus.isPubliclyShared && (
+                        <Users className="h-3 w-3 text-primary" />
+                      )}
                   </div>
                   {category && category !== "Uncategorized" && (
                     <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
@@ -485,15 +494,15 @@ export function NoteEditor({
                 {(doc.isShared
                   ? isAdmin || currentUsername === doc.owner
                   : true) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDelete}
-                      className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -532,7 +541,10 @@ export function NoteEditor({
           <TableOfContents
             content={
               isEditing
-                ? getMarkdownPreviewContent(editorContent, isEditorInMarkdownMode)
+                ? getMarkdownPreviewContent(
+                    editorContent,
+                    isEditorInMarkdownMode
+                  )
                 : docContent
             }
           />

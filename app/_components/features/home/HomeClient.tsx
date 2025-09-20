@@ -57,12 +57,10 @@ export function HomeClient({
   };
 
   const handleCategoryDeleted = (categoryName: string) => {
-    // Refresh the page to get updated data
     window.location.reload();
   };
 
   const handleCategoryRenamed = (oldName: string, newName: string) => {
-    // Refresh the page to get updated data
     window.location.reload();
   };
 

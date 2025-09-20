@@ -71,6 +71,7 @@ export interface SharedItem {
   sharedAt: string;
   category?: string;
   filePath: string;
+  isPubliclyShared?: boolean;
 }
 
 export interface SharingMetadata {

@@ -17,6 +17,10 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  if (request.nextUrl.pathname.startsWith("/public/")) {
+    return response;
+  }
+
   if (!sessionId) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }

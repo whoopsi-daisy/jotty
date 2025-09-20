@@ -43,7 +43,6 @@ export const updateItemAction = async (
       updatedAt: new Date().toISOString(),
     };
 
-    // Always save in the original owner's directory
     const ownerDir = path.join(
       process.cwd(),
       "data",
@@ -122,7 +121,6 @@ export const createItemAction = async (
       updatedAt: new Date().toISOString(),
     };
 
-    // Always save in the original owner's directory
     const ownerDir = path.join(
       process.cwd(),
       "data",
@@ -237,7 +235,6 @@ export const reorderItemsAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Always save in the original owner's directory
     const ownerDir = path.join(
       process.cwd(),
       "data",
@@ -308,7 +305,6 @@ export const updateItemStatusAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Always save in the original owner's directory
     const ownerDir = path.join(
       process.cwd(),
       "data",

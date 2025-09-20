@@ -168,7 +168,6 @@ export function Sidebar({
   };
 
   const isItemSelected = (item: Checklist | Note) => {
-    // Check if the current pathname matches the item's route
     if (mode === "notes") {
       return pathname === `/note/${item.id}`;
     } else {
@@ -176,7 +175,6 @@ export function Sidebar({
     }
   };
 
-  // Don't render until mode is initialized to prevent flicker
   if (!isInitialized) {
     return null;
   }

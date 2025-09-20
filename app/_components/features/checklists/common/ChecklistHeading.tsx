@@ -1,11 +1,20 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Plus, ClipboardList, Users, Hash, Copy, Check } from "lucide-react";
+import {
+  Plus,
+  ClipboardList,
+  Users,
+  Hash,
+  Copy,
+  Check,
+  Globe,
+} from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Checklist } from "@/app/_types";
 import { isMobileDevice } from "@/app/_utils/utils";
 import { useChecklist } from "../hooks/simple-checklist-hooks";
+import { useSharingStatus } from "@/app/_components/hooks/useSharingStatus";
 
 interface ChecklistHeadingProps {
   checklist: Checklist;
@@ -34,6 +43,12 @@ export function ChecklistHeading({
     list: checklist,
     onUpdate: () => {},
   });
+  const { sharingStatus } = useSharingStatus(
+    checklist.id,
+    "checklist",
+    checklist.owner || "",
+    true
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,14 +85,11 @@ export function ChecklistHeading({
                 <Hash className="h-3 w-3" />
               )}
             </Button>
-            {checklist.isShared && (
-              <div
-                title="Shared item"
-                className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded-full"
-              >
-                <Users className="h-3 w-3 text-primary" />
-                <span className="text-xs font-medium text-primary">Shared</span>
-              </div>
+            {sharingStatus?.isPubliclyShared && (
+              <Globe className="h-3 w-3 text-primary" />
+            )}
+            {sharingStatus?.isShared && !sharingStatus.isPubliclyShared && (
+              <Users className="h-3 w-3 text-primary" />
             )}
           </div>
         </div>

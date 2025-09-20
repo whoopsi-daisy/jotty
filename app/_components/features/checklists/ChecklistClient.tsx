@@ -147,7 +147,6 @@ export function ChecklistClient({
           onClose={() => setShowEditModal(false)}
           onUpdated={() => {
             setShowEditModal(false);
-            // Refresh the checklist data
             window.location.reload();
           }}
         />

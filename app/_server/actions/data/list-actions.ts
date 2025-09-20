@@ -70,7 +70,6 @@ export const updateListAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Always save in the original owner's directory
     const ownerDir = path.join(
       process.cwd(),
       "data",

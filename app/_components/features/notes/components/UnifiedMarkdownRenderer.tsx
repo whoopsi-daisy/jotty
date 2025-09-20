@@ -15,10 +15,55 @@ export function UnifiedMarkdownRenderer({
   className = "",
 }: UnifiedMarkdownRendererProps) {
   const [isClient, setIsClient] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (isClient && !selectedQuote) {
+      const quotes = [
+        "Nothing... a whole lot of nothing.",
+        "What's in the box?!",
+        "Hello? Is there anybody in there?",
+        "You've got nothing. I've got nothing. Let's do nothing.",
+        "The journey of a thousand miles begins with a single step.",
+        "Silence is golden.",
+        "There's nothing to see here.",
+        "Empty.",
+        "Hello darkness, my old friend.",
+        "I'll be back.",
+        "Just start.",
+        "This is not the note you are looking for.",
+        "I feel like a blank canvas.",
+        "Alright, alright, alright.",
+        "There is no spoon.",
+        "Waiting.",
+        "// TODO: Add content here",
+        "Error 404: Note not found.",
+        "Make it so.",
+        "Hello, world!",
+        "The rest is still unwritten.",
+        "A note about nothing.",
+        "What... is your quest?",
+        "Where we're going, we don't need roads.",
+        "The Nothing is spreading.",
+        "This page intentionally left blank.",
+        "And now for something completely different.",
+        "I'm sorry, Dave. I'm afraid I can't do that.",
+        "Space: the final frontier.",
+        "Get on with it!",
+        "Are you the Keymaster?",
+        "All work and no play makes Jack a dull boy.",
+        "The sleeper must awaken.",
+        "In the beginning...",
+        "An enigma, wrapped in a riddle, inside a mystery.",
+      ];
+      const quoteIndex = Math.floor(Math.random() * quotes.length);
+      setSelectedQuote(quotes[quoteIndex]);
+    }
+  }, [isClient, selectedQuote]);
 
   useEffect(() => {
     const addHeadingIds = () => {
@@ -172,47 +217,7 @@ export function UnifiedMarkdownRenderer({
   }, [content]);
 
   if (!content?.trim()) {
-    const quotes = [
-      "Nothing... a whole lot of nothing.",
-      "What's in the box?!",
-      "Hello? Is there anybody in there?",
-      "You've got nothing. I've got nothing. Let's do nothing.",
-      "The journey of a thousand miles begins with a single step.",
-      "Silence is golden.",
-      "There's nothing to see here.",
-      "Empty.",
-      "Hello darkness, my old friend.",
-      "I'll be back.",
-      "Just start.",
-      "This is not the note you are looking for.",
-      "I feel like a blank canvas.",
-      "Alright, alright, alright.",
-      "There is no spoon.",
-      "Waiting.",
-      "// TODO: Add content here",
-      "Error 404: Note not found.",
-      "Make it so.",
-      "Hello, world!",
-      "The rest is still unwritten.",
-      "A note about nothing.",
-      "What... is your quest?",
-      "Where we're going, we don't need roads.",
-      "The Nothing is spreading.",
-      "This page intentionally left blank.",
-      "And now for something completely different.",
-      "I'm sorry, Dave. I'm afraid I can't do that.",
-      "Space: the final frontier.",
-      "Get on with it!",
-      "Are you the Keymaster?",
-      "All work and no play makes Jack a dull boy.",
-      "The sleeper must awaken.",
-      "In the beginning...",
-      "An enigma, wrapped in a riddle, inside a mystery.",
-    ];
-
-    // Use a deterministic quote on server, random on client
-    const quoteIndex = isClient ? Math.floor(Math.random() * quotes.length) : 0; // Always use first quote on server
-    const selectedQuote = quotes[quoteIndex];
+    const displayQuote = selectedQuote || "Nothing... a whole lot of nothing.";
 
     return (
       <div
@@ -220,7 +225,7 @@ export function UnifiedMarkdownRenderer({
       >
         <div className="text-center py-12">
           <p className="text-lg italic text-muted-foreground">
-            &quot;{selectedQuote}&quot;
+            &quot;{displayQuote}&quot;
           </p>
           <p className="text-sm text-muted-foreground mt-4">
             Start writing your note above!

@@ -8,9 +8,11 @@ import {
   Users,
   BarChart3,
   CheckSquare,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Checklist } from "@/app/_types";
+import { useSharingStatus } from "@/app/_components/hooks/useSharingStatus";
 
 interface ChecklistHeaderProps {
   checklist: Checklist;
@@ -29,6 +31,12 @@ export function ChecklistHeader({
   onShare,
   onConvertType,
 }: ChecklistHeaderProps) {
+  const { sharingStatus } = useSharingStatus(
+    checklist.id,
+    "checklist",
+    checklist.owner || "",
+    true
+  );
   return (
     <div className="bg-background border-b border-border px-3 py-2 lg:px-6 lg:py-1.5">
       <div className="flex items-center justify-between">

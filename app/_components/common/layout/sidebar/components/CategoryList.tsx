@@ -10,6 +10,8 @@ import {
   CheckSquare,
   BarChart3,
   Edit,
+  Users,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
@@ -18,6 +20,7 @@ import {
   DropdownMenuItem,
 } from "@/app/_components/ui/elements/dropdown-menu";
 import { Category, Checklist, Note } from "@/app/_types";
+import { SidebarItem } from "./SidebarItem";
 
 interface CategoryListProps {
   categories: Category[];
@@ -127,43 +130,14 @@ export function CategoryList({
             {!isCollapsed && hasItems && (
               <div className="ml-6 space-y-1">
                 {categoryItems.map((item) => (
-                  <div key={item.id} className="flex items-center group/item">
-                    <button
-                      onClick={() => onItemClick(item)}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors flex-1 text-left truncate",
-                        isItemSelected(item)
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-muted/50 text-foreground"
-                      )}
-                    >
-                      {mode === "notes" ? (
-                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      ) : (
-                        <>
-                          {"type" in item && item.type === "task" ? (
-                            <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          ) : (
-                            <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          )}
-                        </>
-                      )}
-                      <span className="truncate">{item.title}</span>
-                    </button>
-                    {onEditItem && !isItemSelected(item) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditItem(item);
-                        }}
-                        className="h-8 w-8 p-0 opacity-0 hover:bg-muted/50 text-foreground group-hover/item:opacity-100 transition-opacity"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+                  <SidebarItem
+                    key={item.id}
+                    item={item}
+                    mode={mode}
+                    isSelected={isItemSelected(item)}
+                    onItemClick={onItemClick}
+                    onEditItem={onEditItem}
+                  />
                 ))}
               </div>
             )}
