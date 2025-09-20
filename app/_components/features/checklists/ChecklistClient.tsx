@@ -11,6 +11,7 @@ import { ConversionConfirmModal } from "@/app/_components/ui/modals/confirmation
 import { EditChecklistModal } from "@/app/_components/ui/modals/checklist/EditChecklistModal";
 import { CreateListModal } from "@/app/_components/ui/modals/checklist/CreateList";
 import { CreateCategoryModal } from "@/app/_components/ui/modals/category/CreateCategory";
+import { SettingsModal } from "@/app/_components/ui/modals/settings/Settings";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/common/layout/Layout";
 import { useChecklist } from "./hooks/simple-checklist-hooks";
@@ -40,6 +41,7 @@ export function ChecklistClient({
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
 
   useEffect(() => {
@@ -73,6 +75,10 @@ export function ChecklistClient({
 
   const handleOpenCategoryModal = () => {
     setShowCategoryModal(true);
+  };
+
+  const handleOpenSettings = () => {
+    setShowSettingsModal(true);
   };
 
   const {
@@ -126,7 +132,7 @@ export function ChecklistClient({
     <Layout
       lists={lists}
       categories={categories}
-      onOpenSettings={() => { }}
+      onOpenSettings={handleOpenSettings}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
       isAdmin={isAdmin}
@@ -191,6 +197,11 @@ export function ChecklistClient({
           }}
         />
       )}
+
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
     </Layout>
   );
 }

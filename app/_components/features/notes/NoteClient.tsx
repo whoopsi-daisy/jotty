@@ -6,6 +6,7 @@ import { Note, Category } from "@/app/_types";
 import { NoteEditor } from "./components/NoteEditor";
 import { CreateDocModal } from "@/app/_components/ui/modals/document/CreateDoc";
 import { CreateCategoryModal } from "@/app/_components/ui/modals/category/CreateCategory";
+import { SettingsModal } from "@/app/_components/ui/modals/settings/Settings";
 import { getDocsCategories } from "@/app/_server/actions/data/notes-actions";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/common/layout/Layout";
@@ -31,6 +32,7 @@ export function NoteClient({
   const [localNote, setLocalNote] = useState<Note>(note);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
 
   useEffect(() => {
@@ -62,12 +64,16 @@ export function NoteClient({
     setShowCategoryModal(true);
   };
 
+  const handleOpenSettings = () => {
+    setShowSettingsModal(true);
+  };
+
   return (
     <Layout
       lists={[]}
       docs={docs}
       categories={categories}
-      onOpenSettings={() => { }}
+      onOpenSettings={handleOpenSettings}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
       isAdmin={isAdmin}
@@ -106,6 +112,11 @@ export function NoteClient({
           }}
         />
       )}
+
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
     </Layout>
   );
 }
