@@ -10,6 +10,8 @@ export function InstallPrompt() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true);
       return;

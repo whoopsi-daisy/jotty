@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useContext } from "react";
+import { useState, useMemo } from "react";
 import { QuickNav } from "@/app/_components/features/header/QuickNav";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Checklist, Category, Note } from "@/app/_types";
-import { ChecklistContext } from "@/app/_providers/ChecklistProvider";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
+
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
 
 interface LayoutProps {
   lists: Checklist[];
   docs?: Note[];
   categories: Category[];
+  sharingStatuses?: Record<string, SharingStatus>;
   onOpenSettings: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
@@ -25,6 +31,7 @@ export function Layout({
   lists,
   docs,
   categories,
+  sharingStatuses,
   onOpenSettings,
   onOpenCreateModal,
   onOpenCategoryModal,
@@ -35,16 +42,20 @@ export function Layout({
   children,
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { setSelectedChecklist } = useContext(ChecklistContext);
-  const { setSelectedNote, setMode } = useAppMode();
+  const { setMode, isInitialized } = useAppMode();
 
-  const handleSelectChecklist = (id: string) => {
-    setSelectedChecklist(id);
-  };
+  const stableDocs = useMemo(() => docs || [], [docs]);
+  const stableLists = useMemo(() => lists || [], [lists]);
 
-  const handleSelectNote = (id: string) => {
-    setSelectedNote(id);
-  };
+  if (!isInitialized) {
+    return (
+      <div className="flex h-screen bg-background w-full">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background w-full">
@@ -54,8 +65,9 @@ export function Layout({
         onOpenCreateModal={onOpenCreateModal}
         onOpenCategoryModal={onOpenCategoryModal}
         categories={categories}
-        checklists={lists}
-        docs={docs}
+        checklists={stableLists}
+        docs={stableDocs}
+        sharingStatuses={sharingStatuses}
         username={username}
         isAdmin={isAdmin}
         onCategoryDeleted={onCategoryDeleted}
@@ -68,10 +80,8 @@ export function Layout({
           onSidebarToggle={() => setSidebarOpen(true)}
           onOpenSettings={onOpenSettings}
           isAdmin={isAdmin}
-          checklists={lists}
-          docs={docs || []}
-          onSelectChecklist={handleSelectChecklist}
-          onSelectNote={handleSelectNote}
+          checklists={stableLists}
+          docs={stableDocs}
           onModeChange={setMode}
         />
 
