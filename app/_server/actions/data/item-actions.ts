@@ -2,12 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import path from "path";
-import {
-  getUserDir,
-  writeFile,
-} from "@/app/_server/utils/files";
-import { getLists } from "./list-queries";
+import { getUserDir, writeFile } from "@/app/_server/utils/files";
+import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
+import { isAdmin } from "@/app/_server/actions/auth/utils";
 
 export const updateItemAction = async (
   formData: FormData,
@@ -20,7 +18,8 @@ export const updateItemAction = async (
     const completed = formData.get("completed") === "true";
     const text = formData.get("text") as string;
 
-    const lists = await getLists(username);
+    const isAdminUser = await isAdmin();
+    const lists = await (isAdminUser ? getAllLists() : getLists(username));
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
     }
@@ -30,7 +29,7 @@ export const updateItemAction = async (
       throw new Error("List not found");
     }
 
-    if (username && list.owner !== username) {
+    if (username && list.owner !== username && !isAdminUser) {
       throw new Error("List not found");
     }
 
@@ -44,33 +43,18 @@ export const updateItemAction = async (
       updatedAt: new Date().toISOString(),
     };
 
-    let filePath: string;
-
-    if (list.isShared) {
-      const ownerDir = path.join(
-        process.cwd(),
-        "data",
-        "checklists",
-        list.owner!
-      );
-      filePath = path.join(
-        ownerDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    } else {
-      let userDir: string;
-      if (username) {
-        userDir = path.join(process.cwd(), "data", "checklists", username);
-      } else {
-        userDir = await getUserDir();
-      }
-      filePath = path.join(
-        userDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    }
+    // Always save in the original owner's directory
+    const ownerDir = path.join(
+      process.cwd(),
+      "data",
+      "checklists",
+      list.owner!
+    );
+    const filePath = path.join(
+      ownerDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
@@ -95,7 +79,8 @@ export const createItemAction = async (
     const status = formData.get("status") as string;
     const timeStr = formData.get("time") as string;
 
-    const lists = await getLists(username);
+    const isAdminUser = await isAdmin();
+    const lists = await (isAdminUser ? getAllLists() : getLists(username));
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
     }
@@ -105,7 +90,7 @@ export const createItemAction = async (
       throw new Error("List not found");
     }
 
-    if (username && list.owner !== username) {
+    if (username && list.owner !== username && !isAdminUser) {
       throw new Error("List not found");
     }
 
@@ -137,33 +122,18 @@ export const createItemAction = async (
       updatedAt: new Date().toISOString(),
     };
 
-    let filePath: string;
-
-    if (list.isShared) {
-      const ownerDir = path.join(
-        process.cwd(),
-        "data",
-        "checklists",
-        list.owner!
-      );
-      filePath = path.join(
-        ownerDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    } else {
-      let userDir: string;
-      if (username) {
-        userDir = path.join(process.cwd(), "data", "checklists", username);
-      } else {
-        userDir = await getUserDir();
-      }
-      filePath = path.join(
-        userDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    }
+    // Always save in the original owner's directory
+    const ownerDir = path.join(
+      process.cwd(),
+      "data",
+      "checklists",
+      list.owner!
+    );
+    const filePath = path.join(
+      ownerDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
@@ -242,7 +212,8 @@ export const reorderItemsAction = async (formData: FormData) => {
       formData.get("currentItems") as string
     ) as any[];
 
-    const lists = await getLists();
+    const isAdminUser = await isAdmin();
+    const lists = await (isAdminUser ? getAllLists() : getLists());
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
     }
@@ -266,28 +237,18 @@ export const reorderItemsAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    let filePath: string;
-
-    if (list.isShared) {
-      const ownerDir = path.join(
-        process.cwd(),
-        "data",
-        "checklists",
-        list.owner!
-      );
-      filePath = path.join(
-        ownerDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    } else {
-      const userDir = await getUserDir();
-      filePath = path.join(
-        userDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    }
+    // Always save in the original owner's directory
+    const ownerDir = path.join(
+      process.cwd(),
+      "data",
+      "checklists",
+      list.owner!
+    );
+    const filePath = path.join(
+      ownerDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
 
     const markdownContent = listToMarkdown(updatedList);
 
@@ -316,7 +277,8 @@ export const updateItemStatusAction = async (formData: FormData) => {
       return { error: "Either status or timeEntries must be provided" };
     }
 
-    const lists = await getLists();
+    const isAdminUser = await isAdmin();
+    const lists = await (isAdminUser ? getAllLists() : getLists());
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
     }
@@ -346,28 +308,18 @@ export const updateItemStatusAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    let filePath: string;
-
-    if (list.isShared) {
-      const ownerDir = path.join(
-        process.cwd(),
-        "data",
-        "checklists",
-        list.owner!
-      );
-      filePath = path.join(
-        ownerDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    } else {
-      const userDir = await getUserDir();
-      filePath = path.join(
-        userDir,
-        list.category || "Uncategorized",
-        `${listId}.md`
-      );
-    }
+    // Always save in the original owner's directory
+    const ownerDir = path.join(
+      process.cwd(),
+      "data",
+      "checklists",
+      list.owner!
+    );
+    const filePath = path.join(
+      ownerDir,
+      list.category || "Uncategorized",
+      `${listId}.md`
+    );
 
     await writeFile(filePath, listToMarkdown(updatedList));
 

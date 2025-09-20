@@ -16,8 +16,6 @@ interface HeaderProps {
   isAdmin: boolean;
   checklists?: Checklist[];
   docs?: Note[];
-  onSelectChecklist?: (id: string) => void;
-  onSelectNote?: (id: string) => void;
   onModeChange?: (mode: AppMode) => void;
 }
 
@@ -28,8 +26,6 @@ export function QuickNav({
   isAdmin,
   checklists = [],
   docs = [],
-  onSelectChecklist,
-  onSelectNote,
   onModeChange,
 }: HeaderProps) {
   const router = useRouter();
@@ -56,16 +52,16 @@ export function QuickNav({
         )}
 
         <div className="flex-1 min-w-0 max-w-lg mx-1 md:mx-4">
-          {onSelectChecklist && onSelectNote && (
-            <SearchBar
-              mode={mode}
-              checklists={checklists}
-              docs={docs}
-              onSelectChecklist={(id) => checkNavigation(() => onSelectChecklist(id))}
-              onSelectNote={(id) => checkNavigation(() => onSelectNote(id))}
-              onModeChange={onModeChange ? (mode) => checkNavigation(() => onModeChange(mode)) : undefined}
-            />
-          )}
+          <SearchBar
+            mode={mode}
+            checklists={checklists}
+            docs={docs}
+            onModeChange={
+              onModeChange
+                ? (mode) => checkNavigation(() => onModeChange(mode))
+                : undefined
+            }
+          />
         </div>
 
         <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">

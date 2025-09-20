@@ -24,7 +24,6 @@ type TiptapEditorProps = {
   category?: string;
 };
 
-
 export const TiptapEditor = ({
   content,
   onChange,
@@ -41,17 +40,17 @@ export const TiptapEditor = ({
         codeBlock: false,
         bulletList: {
           HTMLAttributes: {
-            class: 'list-disc',
+            class: "list-disc",
           },
         },
         orderedList: {
           HTMLAttributes: {
-            class: 'list-decimal',
+            class: "list-decimal",
           },
         },
         listItem: {
           HTMLAttributes: {
-            class: 'list-item',
+            class: "list-item",
           },
         },
       }),

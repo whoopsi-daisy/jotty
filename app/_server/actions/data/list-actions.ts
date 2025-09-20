@@ -11,8 +11,9 @@ import {
 } from "@/app/_server/utils/files";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 import { removeSharedItem } from "@/app/_server/actions/sharing/sharing-utils";
-import { getLists } from "./list-queries";
+import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
+import { isAdmin } from "@/app/_server/actions/auth/utils";
 
 export const createListAction = async (formData: FormData) => {
   try {
@@ -51,7 +52,8 @@ export const updateListAction = async (formData: FormData) => {
     const title = formData.get("title") as string;
     const category = formData.get("category") as string;
 
-    const lists = await getLists();
+    const isAdminUser = await isAdmin();
+    const lists = await (isAdminUser ? getAllLists() : getLists());
     if (!lists.success || !lists.data) {
       throw new Error(lists.error || "Failed to fetch lists");
     }
@@ -68,44 +70,26 @@ export const updateListAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    let filePath: string;
+    // Always save in the original owner's directory
+    const ownerDir = path.join(
+      process.cwd(),
+      "data",
+      "checklists",
+      currentList.owner!
+    );
+    const filePath = path.join(
+      ownerDir,
+      updatedList.category || "Uncategorized",
+      `${id}.md`
+    );
+
     let oldFilePath: string | null = null;
-
-    if (currentList.isShared) {
-      const ownerDir = path.join(
-        process.cwd(),
-        "data",
-        "checklists",
-        currentList.owner!
-      );
-      filePath = path.join(
+    if (category && category !== currentList.category) {
+      oldFilePath = path.join(
         ownerDir,
-        updatedList.category || "Uncategorized",
+        currentList.category || "Uncategorized",
         `${id}.md`
       );
-
-      if (category && category !== currentList.category) {
-        oldFilePath = path.join(
-          ownerDir,
-          currentList.category || "Uncategorized",
-          `${id}.md`
-        );
-      }
-    } else {
-      const userDir = await getUserDir();
-      filePath = path.join(
-        userDir,
-        updatedList.category || "Uncategorized",
-        `${id}.md`
-      );
-
-      if (category && category !== currentList.category) {
-        oldFilePath = path.join(
-          userDir,
-          currentList.category || "Uncategorized",
-          `${id}.md`
-        );
-      }
     }
 
     await writeFile(filePath, listToMarkdown(updatedList));
@@ -130,7 +114,8 @@ export const deleteListAction = async (formData: FormData) => {
       return { error: "Not authenticated" };
     }
 
-    const lists = await getLists();
+    const isAdminUser = await isAdmin();
+    const lists = await (isAdminUser ? getAllLists() : getLists());
     if (!lists.success || !lists.data) {
       return { error: "Failed to fetch lists" };
     }

@@ -16,7 +16,7 @@ import {
   getItemsSharedWithUser,
   removeSharedItem,
 } from "@/app/_server/actions/sharing/sharing-utils";
-import { readUsers } from "@/app/_server/actions/auth/utils";
+import { readUsers, isAdmin } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 
 const USER_NOTES_DIR = (username: string) =>
@@ -156,7 +156,7 @@ export const getDocsCategories = async () => {
     const entries = await readDocsDir(userDir);
     const categories: Category[] = [];
 
-    const excludedDirs = ["images"];
+    const excludedDirs = ["images", "files"];
 
     for (const entry of entries) {
       if (entry.isDirectory() && !excludedDirs.includes(entry.name)) {
@@ -218,7 +218,8 @@ export const updateDocAction = async (formData: FormData) => {
     const content = formData.get("content") as string;
     const category = formData.get("category") as string;
 
-    const docs = await getDocs();
+    const isAdminUser = await isAdmin();
+    const docs = await (isAdminUser ? getAllDocs() : getDocs());
     if (!docs.success || !docs.data) {
       throw new Error(docs.error || "Failed to fetch notes");
     }
@@ -236,39 +237,20 @@ export const updateDocAction = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    let filePath: string;
+    const ownerDir = USER_NOTES_DIR(doc.owner!);
+    const filePath = path.join(
+      ownerDir,
+      updatedDoc.category || "Uncategorized",
+      `${id}.md`
+    );
+
     let oldFilePath: string | null = null;
-
-    if (doc.isShared) {
-      const ownerDir = USER_NOTES_DIR(doc.owner!);
-      filePath = path.join(
+    if (category && category !== doc.category) {
+      oldFilePath = path.join(
         ownerDir,
-        updatedDoc.category || "Uncategorized",
+        doc.category || "Uncategorized",
         `${id}.md`
       );
-
-      if (category && category !== doc.category) {
-        oldFilePath = path.join(
-          ownerDir,
-          doc.category || "Uncategorized",
-          `${id}.md`
-        );
-      }
-    } else {
-      const userDir = await getDocsUserDir();
-      filePath = path.join(
-        userDir,
-        updatedDoc.category || "Uncategorized",
-        `${id}.md`
-      );
-
-      if (category && category !== doc.category) {
-        oldFilePath = path.join(
-          userDir,
-          doc.category || "Uncategorized",
-          `${id}.md`
-        );
-      }
     }
 
     await writeDocsFile(filePath, docToMarkdown(updatedDoc));
@@ -293,7 +275,8 @@ export const deleteDocAction = async (formData: FormData) => {
       return { error: "Not authenticated" };
     }
 
-    const docs = await getDocs();
+    const isAdminUser = await isAdmin();
+    const docs = await (isAdminUser ? getAllDocs() : getDocs());
     if (!docs.success || !docs.data) {
       return { error: "Failed to fetch documents" };
     }

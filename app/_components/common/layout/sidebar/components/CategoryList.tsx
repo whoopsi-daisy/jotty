@@ -9,6 +9,7 @@ import {
   FileText,
   CheckSquare,
   BarChart3,
+  Edit,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
@@ -27,6 +28,7 @@ interface CategoryListProps {
   onRenameCategory: (categoryName: string) => void;
   onQuickCreate: (categoryName: string) => void;
   onItemClick: (item: Checklist | Note) => void;
+  onEditItem?: (item: Checklist | Note) => void;
   isItemSelected: (item: Checklist | Note) => boolean;
   mode: "checklists" | "notes";
 }
@@ -40,6 +42,7 @@ export function CategoryList({
   onRenameCategory,
   onQuickCreate,
   onItemClick,
+  onEditItem,
   isItemSelected,
   mode,
 }: CategoryListProps) {
@@ -49,6 +52,10 @@ export function CategoryList({
         (item.category || "Uncategorized") === categoryName && !item.isShared
     );
   };
+
+  if (!categories || categories.length === 0 || !items || items.length === 0) {
+    return null;
+  }
 
   return (
     <div className="space-y-1">
@@ -120,29 +127,43 @@ export function CategoryList({
             {!isCollapsed && hasItems && (
               <div className="ml-6 space-y-1">
                 {categoryItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => onItemClick(item)}
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors w-full text-left truncate",
-                      isItemSelected(item)
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-muted/50 text-foreground"
+                  <div key={item.id} className="flex items-center group/item">
+                    <button
+                      onClick={() => onItemClick(item)}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors flex-1 text-left truncate",
+                        isItemSelected(item)
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-muted/50 text-foreground"
+                      )}
+                    >
+                      {mode === "notes" ? (
+                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      ) : (
+                        <>
+                          {"type" in item && item.type === "task" ? (
+                            <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          ) : (
+                            <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          )}
+                        </>
+                      )}
+                      <span className="truncate">{item.title}</span>
+                    </button>
+                    {onEditItem && !isItemSelected(item) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditItem(item);
+                        }}
+                        className="h-8 w-8 p-0 opacity-0 hover:bg-muted/50 text-foreground group-hover/item:opacity-100 transition-opacity"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                     )}
-                  >
-                    {mode === "notes" ? (
-                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    ) : (
-                      <>
-                        {"type" in item && item.type === "task" ? (
-                          <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        ) : (
-                          <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        )}
-                      </>
-                    )}
-                    <span className="truncate">{item.title}</span>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Checklist } from "@/app/_types";
 import { KanbanColumn } from "./KanbanColumn";
@@ -21,6 +22,8 @@ const columns = [
 ];
 
 export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
+  const [isClient, setIsClient] = useState(false);
+
   const {
     localChecklist,
     isLoading,
@@ -35,6 +38,10 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
     handleBulkPaste,
     activeItem,
   } = useKanbanBoard({ checklist, onUpdate });
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -51,7 +58,37 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
       />
 
       <div className="flex-1 overflow-hidden pb-[6em]">
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        {isClient ? (
+          <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <div className="h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-2 sm:p-4 overflow-x-auto">
+              {columns.map((column) => {
+                const items = getItemsByStatus(column.status);
+                return (
+                  <KanbanColumn
+                    key={column.id}
+                    id={column.id}
+                    title={column.title}
+                    items={items}
+                    status={column.status}
+                    checklistId={localChecklist.id}
+                    onUpdate={refreshChecklist}
+                  />
+                );
+              })}
+            </div>
+
+            <DragOverlay>
+              {activeItem ? (
+                <KanbanItem
+                  item={activeItem}
+                  isDragging
+                  checklistId={localChecklist.id}
+                  onUpdate={refreshChecklist}
+                />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        ) : (
           <div className="h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-2 sm:p-4 overflow-x-auto">
             {columns.map((column) => {
               const items = getItemsByStatus(column.status);
@@ -68,18 +105,7 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
               );
             })}
           </div>
-
-          <DragOverlay>
-            {activeItem ? (
-              <KanbanItem
-                item={activeItem}
-                isDragging
-                checklistId={localChecklist.id}
-                onUpdate={refreshChecklist}
-              />
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+        )}
       </div>
 
       {showBulkPasteModal && (

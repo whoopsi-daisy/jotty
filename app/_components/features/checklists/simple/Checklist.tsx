@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { ChecklistItem } from "./ChecklistItem";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
 import { ConversionConfirmModal } from "@/app/_components/ui/modals/confirmation/ConversionConfirmModal";
@@ -44,6 +45,8 @@ export function ChecklistView({
   currentUsername,
   isAdmin = false,
 }: ChecklistViewProps) {
+  const [isClient, setIsClient] = useState(false);
+
   const {
     isLoading,
     showShareModal,
@@ -69,6 +72,10 @@ export function ChecklistView({
     completedItems,
     totalCount,
   } = useChecklist({ list, onUpdate, onDelete });
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -104,8 +111,6 @@ export function ChecklistView({
           onShare={() => setShowShareModal(true)}
           onConvertType={handleConvertType}
         />
-
-        <KanbanBoard checklist={localList} onUpdate={onUpdate} />
 
         {showShareModal && (
           <ShareModal
@@ -185,29 +190,44 @@ export function ChecklistView({
                   Check All
                 </button>
               </div>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={incompleteItems.map((item) => item.id)}
-                  strategy={verticalListSortingStrategy}
+              {isClient ? (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
                 >
-                  <div className="space-y-2">
-                    {incompleteItems.map((item, index) => (
-                      <ChecklistItem
-                        key={item.id}
-                        item={item}
-                        index={index}
-                        onToggle={handleToggleItem}
-                        onDelete={handleDeleteItem}
-                        onEdit={handleEditItem}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
+                  <SortableContext
+                    items={incompleteItems.map((item) => item.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {incompleteItems.map((item, index) => (
+                        <ChecklistItem
+                          key={item.id}
+                          item={item}
+                          index={index}
+                          onToggle={handleToggleItem}
+                          onDelete={handleDeleteItem}
+                          onEdit={handleEditItem}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              ) : (
+                <div className="space-y-2">
+                  {incompleteItems.map((item, index) => (
+                    <ChecklistItem
+                      key={item.id}
+                      item={item}
+                      index={index}
+                      onToggle={handleToggleItem}
+                      onDelete={handleDeleteItem}
+                      onEdit={handleEditItem}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -231,30 +251,46 @@ export function ChecklistView({
                   Uncheck All
                 </button>
               </div>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={completedItems.map((item) => item.id)}
-                  strategy={verticalListSortingStrategy}
+              {isClient ? (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
                 >
-                  <div className="space-y-2">
-                    {completedItems.map((item, index) => (
-                      <ChecklistItem
-                        key={item.id}
-                        item={item}
-                        index={incompleteItems.length + index}
-                        onToggle={handleToggleItem}
-                        onDelete={handleDeleteItem}
-                        onEdit={handleEditItem}
-                        completed
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
+                  <SortableContext
+                    items={completedItems.map((item) => item.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {completedItems.map((item, index) => (
+                        <ChecklistItem
+                          key={item.id}
+                          item={item}
+                          index={incompleteItems.length + index}
+                          onToggle={handleToggleItem}
+                          onDelete={handleDeleteItem}
+                          onEdit={handleEditItem}
+                          completed
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              ) : (
+                <div className="space-y-2">
+                  {completedItems.map((item, index) => (
+                    <ChecklistItem
+                      key={item.id}
+                      item={item}
+                      index={incompleteItems.length + index}
+                      onToggle={handleToggleItem}
+                      onDelete={handleDeleteItem}
+                      onEdit={handleEditItem}
+                      completed
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

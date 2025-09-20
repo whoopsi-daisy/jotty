@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
-import { marked } from "marked";
+import { useMemo, useEffect, useState } from "react";
 import { CodeBlockRenderer } from "./TipTapComponents/CodeBlockRenderer";
 import { FileAttachment } from "@/app/_components/ui/elements/FileAttachment";
 import { parseMarkdownToHtml } from "@/app/_utils/markdownUtils";
@@ -15,6 +14,12 @@ export function UnifiedMarkdownRenderer({
   content,
   className = "",
 }: UnifiedMarkdownRendererProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   useEffect(() => {
     const addHeadingIds = () => {
       const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
@@ -47,7 +52,9 @@ export function UnifiedMarkdownRenderer({
     let keyCounter = 0;
 
     const processContent = (text: string) => {
-      const fileAttachmentMatches = Array.from(text.matchAll(fileAttachmentRegex));
+      const fileAttachmentMatches = Array.from(
+        text.matchAll(fileAttachmentRegex)
+      );
 
       if (fileAttachmentMatches.length === 0) {
         return (
@@ -80,8 +87,8 @@ export function UnifiedMarkdownRenderer({
 
         const fileName = fileMatch[1];
         const fileUrl = fileMatch[2];
-        const isImage = fileUrl.includes('/api/image/');
-        const mimeType = isImage ? 'image/jpeg' : 'application/octet-stream';
+        const isImage = fileUrl.includes("/api/image/");
+        const mimeType = isImage ? "image/jpeg" : "application/octet-stream";
 
         elements.push(
           <FileAttachment
@@ -89,7 +96,7 @@ export function UnifiedMarkdownRenderer({
             url={fileUrl}
             fileName={fileName}
             mimeType={mimeType}
-            type={isImage ? 'image' : 'file'}
+            type={isImage ? "image" : "file"}
             className="my-4"
           />
         );
@@ -203,7 +210,9 @@ export function UnifiedMarkdownRenderer({
       "An enigma, wrapped in a riddle, inside a mystery.",
     ];
 
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    // Use a deterministic quote on server, random on client
+    const quoteIndex = isClient ? Math.floor(Math.random() * quotes.length) : 0; // Always use first quote on server
+    const selectedQuote = quotes[quoteIndex];
 
     return (
       <div
@@ -211,7 +220,7 @@ export function UnifiedMarkdownRenderer({
       >
         <div className="text-center py-12">
           <p className="text-lg italic text-muted-foreground">
-            &quot;{randomQuote}&quot;
+            &quot;{selectedQuote}&quot;
           </p>
           <p className="text-sm text-muted-foreground mt-4">
             Start writing your note above!
