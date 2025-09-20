@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Checklist, ChecklistItem as ChecklistItemType } from "@/app/_types";
+import { Checklist, Item } from "@/app/_types";
 import { CheckSquare, BarChart3, Clock, User, PauseCircle } from "lucide-react";
 import { cn } from "@/app/_utils/utils";
 
@@ -69,14 +69,14 @@ export function PublicChecklistView({ checklist }: PublicChecklistViewProps) {
   const taskItemsByStatus = useMemo(() => {
     if (checklist.type !== "task") return null;
     return checklist.items.reduce(
-      (acc, item) => {
+      (acc: Record<string, Item[]>, item: Item) => {
         const status = item.status || "todo";
         if (acc[status]) {
           acc[status].push(item);
         }
         return acc;
       },
-      { completed: [], in_progress: [], paused: [], todo: [] }
+      { completed: [], in_progress: [], paused: [], todo: [] } as Record<string, Item[]>
     );
   }, [checklist.items, checklist.type]);
 
@@ -137,7 +137,7 @@ export function PublicChecklistView({ checklist }: PublicChecklistViewProps) {
           ) : checklist.type === "task" && taskItemsByStatus ? (
             Object.entries(taskItemsByStatus)
               .sort(([a], [b]) => Object.keys(TASK_STATUS_CONFIG).indexOf(a) - Object.keys(TASK_STATUS_CONFIG).indexOf(b))
-              .map(([status, items]) => {
+              .map(([status, items]: [string, Item[]]) => {
                 if (items.length === 0) return null;
                 const config = TASK_STATUS_CONFIG[status as keyof typeof TASK_STATUS_CONFIG];
                 return (
@@ -147,7 +147,7 @@ export function PublicChecklistView({ checklist }: PublicChecklistViewProps) {
                       {config.title} ({items.length})
                     </h3>
                     <div className="space-y-2">
-                      {items.map((item) => (
+                      {items.map((item: Item) => (
                         <ChecklistItem key={item.id} item={item} type="task" />
                       ))}
                     </div>
@@ -173,7 +173,7 @@ export function PublicChecklistView({ checklist }: PublicChecklistViewProps) {
   );
 }
 
-function ChecklistItem({ item, type }: { item: ChecklistItemType; type: "simple" | "task" }) {
+function ChecklistItem({ item, type }: { item: Item; type: "simple" | "task" }) {
   const isCompleted = item.completed || item.status === "completed";
   const statusConfig = item.status ? TASK_STATUS_CONFIG[item.status as keyof typeof TASK_STATUS_CONFIG] : null;
 
