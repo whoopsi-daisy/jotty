@@ -9,9 +9,12 @@ import { ChecklistHeader } from "./common/ChecklistHeader";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
 import { ConversionConfirmModal } from "@/app/_components/ui/modals/confirmation/ConversionConfirmModal";
 import { EditChecklistModal } from "@/app/_components/ui/modals/checklist/EditChecklistModal";
+import { CreateListModal } from "@/app/_components/ui/modals/checklist/CreateList";
+import { CreateCategoryModal } from "@/app/_components/ui/modals/category/CreateCategory";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/common/layout/Layout";
 import { useChecklist } from "./hooks/simple-checklist-hooks";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 interface ChecklistClientProps {
   checklist: Checklist;
@@ -30,10 +33,14 @@ export function ChecklistClient({
 }: ChecklistClientProps) {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
+  const { mode } = useAppMode();
   const [localChecklist, setLocalChecklist] = useState<Checklist>(checklist);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [initialCategory, setInitialCategory] = useState<string>("");
 
   useEffect(() => {
     setLocalChecklist(checklist);
@@ -57,6 +64,15 @@ export function ChecklistClient({
     checkNavigation(() => {
       router.push("/");
     });
+  };
+
+  const handleOpenCreateModal = (initialCategory?: string) => {
+    setInitialCategory(initialCategory || "");
+    setShowCreateModal(true);
+  };
+
+  const handleOpenCategoryModal = () => {
+    setShowCategoryModal(true);
   };
 
   const {
@@ -110,9 +126,9 @@ export function ChecklistClient({
     <Layout
       lists={lists}
       categories={categories}
-      onOpenSettings={() => {}}
-      onOpenCreateModal={() => {}}
-      onOpenCategoryModal={() => {}}
+      onOpenSettings={() => { }}
+      onOpenCreateModal={handleOpenCreateModal}
+      onOpenCategoryModal={handleOpenCategoryModal}
       isAdmin={isAdmin}
       username={username}
     >
@@ -147,6 +163,30 @@ export function ChecklistClient({
           onClose={() => setShowEditModal(false)}
           onUpdated={() => {
             setShowEditModal(false);
+            window.location.reload();
+          }}
+        />
+      )}
+
+      {showCreateModal && (
+        <CreateListModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={(newChecklist) => {
+            if (newChecklist) {
+              router.push(`/checklist/${newChecklist.id}`);
+            }
+            setShowCreateModal(false);
+          }}
+          categories={categories}
+          initialCategory={initialCategory}
+        />
+      )}
+
+      {showCategoryModal && (
+        <CreateCategoryModal
+          onClose={() => setShowCategoryModal(false)}
+          onCreated={() => {
+            setShowCategoryModal(false);
             window.location.reload();
           }}
         />
