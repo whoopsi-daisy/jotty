@@ -11,10 +11,12 @@ import {
   Image as ImageIcon,
   Upload,
   Paperclip,
+  Table,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { FileModal } from "@/app/_components/ui/modals/file/FileModal";
 import { CodeBlockDropdown } from "./CodeBlockDropdown";
+import { TableInsertModal } from "./TableInsertModal";
 import { useState } from "react";
 
 type ToolbarProps = {
@@ -23,6 +25,7 @@ type ToolbarProps = {
 
 export const TiptapToolbar = ({ editor }: ToolbarProps) => {
   const [showFileModal, setShowFileModal] = useState(false);
+  const [showTableModal, setShowTableModal] = useState(false);
 
   if (!editor) {
     return null;
@@ -179,11 +182,26 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
       >
         <Paperclip className="h-4 w-4" />
       </Button>
+      <div className="w-px h-6 bg-border mx-2" />
+      <Button
+        variant="ghost"
+        size="sm"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setShowTableModal(true)}
+        title="Insert table"
+      >
+        <Table className="h-4 w-4" />
+      </Button>
       <FileModal
         isOpen={showFileModal}
         onClose={() => setShowFileModal(false)}
         onSelectFile={handleFileSelect}
         category=""
+      />
+      <TableInsertModal
+        isOpen={showTableModal}
+        onClose={() => setShowTableModal(false)}
+        editor={editor}
       />
     </div>
   );

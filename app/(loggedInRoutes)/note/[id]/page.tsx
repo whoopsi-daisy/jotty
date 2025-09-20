@@ -4,6 +4,7 @@ import {
   getDocsCategories,
   getAllDocs,
 } from "@/app/_server/actions/data/notes-actions";
+import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 import { NoteClient } from "@/app/_components/features/notes/NoteClient";
 
@@ -47,11 +48,24 @@ export default async function NotePage({ params }: NotePageProps) {
       ? docsCategoriesResult.data
       : [];
 
+  const allItems = [...docsResult.data];
+  const itemsToCheck = allItems.map(item => ({
+    id: item.id,
+    type: "document" as const,
+    owner: item.owner || ""
+  }));
+
+  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
+  const sharingStatuses = sharingStatusesResult.success && sharingStatusesResult.data
+    ? sharingStatusesResult.data
+    : {};
+
   return (
     <NoteClient
       note={note}
       docs={docsResult.data}
       categories={docsCategories}
+      sharingStatuses={sharingStatuses}
       username={username}
       isAdmin={isAdminUser}
     />

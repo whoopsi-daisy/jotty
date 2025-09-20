@@ -22,6 +22,12 @@ import {
 import { Category, Checklist, Note } from "@/app/_types";
 import { SidebarItem } from "./SidebarItem";
 
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
 interface CategoryListProps {
   categories: Category[];
   items: (Checklist | Note)[];
@@ -34,6 +40,7 @@ interface CategoryListProps {
   onEditItem?: (item: Checklist | Note) => void;
   isItemSelected: (item: Checklist | Note) => boolean;
   mode: "checklists" | "notes";
+  getSharingStatus: (itemId: string) => SharingStatus | null;
 }
 
 export function CategoryList({
@@ -48,6 +55,7 @@ export function CategoryList({
   onEditItem,
   isItemSelected,
   mode,
+  getSharingStatus,
 }: CategoryListProps) {
   const getItemsInCategory = (categoryName: string) => {
     return items.filter(
@@ -137,6 +145,7 @@ export function CategoryList({
                     isSelected={isItemSelected(item)}
                     onItemClick={onItemClick}
                     onEditItem={onEditItem}
+                    sharingStatus={getSharingStatus(item.id)}
                   />
                 ))}
               </div>

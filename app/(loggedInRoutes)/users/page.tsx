@@ -194,8 +194,8 @@ export default function UsersPage() {
                           {user.isSuperAdmin
                             ? "Super Admin"
                             : user.isAdmin
-                            ? "Administrator"
-                            : "Regular User"}
+                              ? "Administrator"
+                              : "Regular User"}
                         </p>
                       </div>
                     </div>

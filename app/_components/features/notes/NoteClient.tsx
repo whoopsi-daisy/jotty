@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Note, Category } from "@/app/_types";
 import { NoteEditor } from "./components/NoteEditor";
@@ -12,10 +12,17 @@ import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/common/layout/Layout";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
 interface NoteClientProps {
   note: Note;
   docs: Note[];
   categories: Category[];
+  sharingStatuses?: Record<string, SharingStatus>;
   username: string;
   isAdmin: boolean;
 }
@@ -24,6 +31,7 @@ export function NoteClient({
   note,
   docs,
   categories,
+  sharingStatuses,
   username,
   isAdmin,
 }: NoteClientProps) {
@@ -34,9 +42,13 @@ export function NoteClient({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
+  const prevNoteId = useRef(note.id);
 
   useEffect(() => {
-    setLocalNote(note);
+    if (note.id !== prevNoteId.current) {
+      setLocalNote(note);
+      prevNoteId.current = note.id;
+    }
   }, [note]);
 
   const handleUpdate = (updatedNote: Note) => {
@@ -73,6 +85,7 @@ export function NoteClient({
       lists={[]}
       docs={docs}
       categories={categories}
+      sharingStatuses={sharingStatuses}
       onOpenSettings={handleOpenSettings}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
@@ -108,7 +121,7 @@ export function NoteClient({
           onClose={() => setShowCategoryModal(false)}
           onCreated={() => {
             setShowCategoryModal(false);
-            window.location.reload();
+            router.refresh();
           }}
         />
       )}

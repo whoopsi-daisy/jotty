@@ -12,11 +12,18 @@ import { Checklist, Category, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { CreateDocModal } from "@/app/_components/ui/modals/document/CreateDoc";
 
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
 interface HomeClientProps {
   initialLists: Checklist[];
   initialCategories: Category[];
   initialDocs: Note[];
   initialDocsCategories: Category[];
+  sharingStatuses: Record<string, SharingStatus>;
   username: string;
   isAdmin: boolean;
 }
@@ -26,6 +33,7 @@ export function HomeClient({
   initialCategories,
   initialDocs,
   initialDocsCategories,
+  sharingStatuses,
   username,
   isAdmin,
 }: HomeClientProps) {
@@ -57,11 +65,11 @@ export function HomeClient({
   };
 
   const handleCategoryDeleted = (categoryName: string) => {
-    window.location.reload();
+    router.refresh();
   };
 
   const handleCategoryRenamed = (oldName: string, newName: string) => {
-    window.location.reload();
+    router.refresh();
   };
 
   const handleSelectChecklist = (id: string) => {
@@ -98,6 +106,7 @@ export function HomeClient({
       lists={initialLists}
       docs={initialDocs}
       categories={mode === "notes" ? initialDocsCategories : initialCategories}
+      sharingStatuses={sharingStatuses}
       onOpenSettings={() => setShowSettingsModal(true)}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
@@ -141,7 +150,7 @@ export function HomeClient({
           onClose={() => setShowCategoryModal(false)}
           onCreated={() => {
             setShowCategoryModal(false);
-            window.location.reload();
+            router.refresh();
           }}
         />
       )}
@@ -151,7 +160,7 @@ export function HomeClient({
           onClose={() => setShowDocsCategoryModal(false)}
           onCreated={() => {
             setShowDocsCategoryModal(false);
-            window.location.reload();
+            router.refresh();
           }}
         />
       )}

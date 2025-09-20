@@ -6,6 +6,12 @@ import { cn } from "@/app/_utils/utils";
 import { Checklist, Note } from "@/app/_types";
 import { SidebarItem } from "./SidebarItem";
 
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
 interface SharedItemsListProps {
   items: (Checklist | Note)[];
   collapsed: boolean;
@@ -14,6 +20,7 @@ interface SharedItemsListProps {
   onEditItem?: (item: Checklist | Note) => void;
   isItemSelected: (item: Checklist | Note) => boolean;
   mode: "checklists" | "notes";
+  getSharingStatus: (itemId: string) => SharingStatus | null;
 }
 
 export function SharedItemsList({
@@ -24,6 +31,7 @@ export function SharedItemsList({
   onEditItem,
   isItemSelected,
   mode,
+  getSharingStatus,
 }: SharedItemsListProps) {
   const [collapsedUsers, setCollapsedUsers] = useState<Set<string>>(new Set());
 
@@ -117,6 +125,7 @@ export function SharedItemsList({
                         isSelected={isItemSelected(item)}
                         onItemClick={onItemClick}
                         onEditItem={onEditItem}
+                        sharingStatus={getSharingStatus(item.id)}
                       />
                     ))}
                   </div>

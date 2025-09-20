@@ -12,7 +12,12 @@ import {
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 import { Checklist, Note } from "@/app/_types";
-import { useSharingStatus } from "@/app/_components/hooks/useSharingStatus";
+
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
 
 interface SidebarItemProps {
   item: Checklist | Note;
@@ -20,6 +25,7 @@ interface SidebarItemProps {
   isSelected: boolean;
   onItemClick: (item: Checklist | Note) => void;
   onEditItem?: (item: Checklist | Note) => void;
+  sharingStatus?: SharingStatus | null;
 }
 
 export function SidebarItem({
@@ -28,13 +34,8 @@ export function SidebarItem({
   isSelected,
   onItemClick,
   onEditItem,
+  sharingStatus,
 }: SidebarItemProps) {
-  const { sharingStatus } = useSharingStatus(
-    item.id,
-    mode === "checklists" ? "checklist" : "document",
-    item.owner || "",
-    true
-  );
 
   return (
     <div className="flex items-center group/item">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Checklist, Category } from "@/app/_types";
 import { ChecklistView } from "./simple/Checklist";
@@ -17,10 +17,17 @@ import { Layout } from "@/app/_components/common/layout/Layout";
 import { useChecklist } from "./hooks/simple-checklist-hooks";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
 interface ChecklistClientProps {
   checklist: Checklist;
   lists: Checklist[];
   categories: Category[];
+  sharingStatuses?: Record<string, SharingStatus>;
   username: string;
   isAdmin: boolean;
 }
@@ -29,6 +36,7 @@ export function ChecklistClient({
   checklist,
   lists,
   categories,
+  sharingStatuses,
   username,
   isAdmin,
 }: ChecklistClientProps) {
@@ -43,9 +51,13 @@ export function ChecklistClient({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
+  const prevChecklistId = useRef(checklist.id);
 
   useEffect(() => {
-    setLocalChecklist(checklist);
+    if (checklist.id !== prevChecklistId.current) {
+      setLocalChecklist(checklist);
+      prevChecklistId.current = checklist.id;
+    }
   }, [checklist]);
 
   const handleUpdate = (updatedChecklist: Checklist) => {
@@ -132,6 +144,7 @@ export function ChecklistClient({
     <Layout
       lists={lists}
       categories={categories}
+      sharingStatuses={sharingStatuses}
       onOpenSettings={handleOpenSettings}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
@@ -169,7 +182,7 @@ export function ChecklistClient({
           onClose={() => setShowEditModal(false)}
           onUpdated={() => {
             setShowEditModal(false);
-            window.location.reload();
+            router.refresh();
           }}
         />
       )}
@@ -193,7 +206,7 @@ export function ChecklistClient({
           onClose={() => setShowCategoryModal(false)}
           onCreated={() => {
             setShowCategoryModal(false);
-            window.location.reload();
+            router.refresh();
           }}
         />
       )}

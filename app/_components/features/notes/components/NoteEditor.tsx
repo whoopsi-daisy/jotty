@@ -38,6 +38,7 @@ import {
 } from "@/app/_server/actions/data/notes-actions";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 import { useSharingStatus } from "@/app/_components/hooks/useSharingStatus";
+import { useRouter } from "next/navigation";
 
 interface NoteEditorProps {
   doc: Note;
@@ -58,6 +59,7 @@ export function NoteEditor({
   currentUsername,
   isAdmin = false,
 }: NoteEditorProps) {
+  const router = useRouter();
   const [docContent, setDocContent] = useState(doc.content || "");
   const [editorContent, setEditorContent] = useState("");
   const [isEditorInMarkdownMode, setIsEditorInMarkdownMode] = useState(false);
@@ -327,6 +329,7 @@ export function NoteEditor({
       };
 
       onUpdate(updatedDoc);
+      router.refresh();
     }
   };
 
@@ -494,15 +497,15 @@ export function NoteEditor({
                 {(doc.isShared
                   ? isAdmin || currentUsername === doc.owner
                   : true) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                  </Button>
-                )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDelete}
+                      className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                    </Button>
+                  )}
               </>
             )}
           </div>
@@ -542,9 +545,9 @@ export function NoteEditor({
             content={
               isEditing
                 ? getMarkdownPreviewContent(
-                    editorContent,
-                    isEditorInMarkdownMode
-                  )
+                  editorContent,
+                  isEditorInMarkdownMode
+                )
                 : docContent
             }
           />

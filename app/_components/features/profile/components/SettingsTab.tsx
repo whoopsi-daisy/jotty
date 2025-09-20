@@ -126,8 +126,8 @@ export function SettingsTab({
                 {isGenerating
                   ? "Generating..."
                   : apiKey
-                  ? "Regenerate"
-                  : "Generate"}
+                    ? "Regenerate"
+                    : "Generate"}
               </Button>
             </div>
           </div>

@@ -5,8 +5,8 @@ import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { findMatchingEmoji } from "@/app/_utils/emoji-utils";
 import { useSettings } from "@/app/_utils/settings-store";
+import { useEmojiCache } from "@/app/_components/hooks/useEmojiCache";
 import { useState, useEffect, useRef } from "react";
 
 interface Item {
@@ -43,18 +43,10 @@ export function ChecklistItem({
   } = useSortable({ id: item.id });
 
   const { showEmojis } = useSettings();
-  const [emoji, setEmoji] = useState<string>("");
+  const emoji = useEmojiCache(item.text, showEmojis);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(item.text);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (showEmojis) {
-      findMatchingEmoji(item.text).then(setEmoji);
-    } else {
-      setEmoji("");
-    }
-  }, [item.text, showEmojis]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {

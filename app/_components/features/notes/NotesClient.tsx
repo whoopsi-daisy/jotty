@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NotesHomeView } from "@/app/_components/features/notes/components/NotesHome";
 import { NoteEditor } from "@/app/_components/features/notes/components/NoteEditor";
 import { EditDocModal } from "@/app/_components/ui/modals/document/EditDoc";
@@ -30,9 +30,13 @@ export function NotesClient({
   const [editingDoc, setEditingDoc] = useState<Note | null>(null);
   const [localDocs, setLocalDocs] = useState<Note[]>(docs);
   const { selectedNote, setSelectedNote } = useAppMode();
+  const prevDocsLength = useRef(docs.length);
 
   useEffect(() => {
-    setLocalDocs(docs);
+    if (docs.length !== prevDocsLength.current) {
+      setLocalDocs(docs);
+      prevDocsLength.current = docs.length;
+    }
   }, [docs]);
 
   const handleModalClose = async () => {

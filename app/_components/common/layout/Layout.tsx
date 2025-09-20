@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { QuickNav } from "@/app/_components/features/header/QuickNav";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Checklist, Category, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
 interface LayoutProps {
   lists: Checklist[];
   docs?: Note[];
   categories: Category[];
+  sharingStatuses?: Record<string, SharingStatus>;
   onOpenSettings: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
@@ -24,6 +31,7 @@ export function Layout({
   lists,
   docs,
   categories,
+  sharingStatuses,
   onOpenSettings,
   onOpenCreateModal,
   onOpenCategoryModal,
@@ -35,6 +43,9 @@ export function Layout({
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { setMode, isInitialized } = useAppMode();
+
+  const stableDocs = useMemo(() => docs || [], [docs]);
+  const stableLists = useMemo(() => lists || [], [lists]);
 
   if (!isInitialized) {
     return (
@@ -54,8 +65,9 @@ export function Layout({
         onOpenCreateModal={onOpenCreateModal}
         onOpenCategoryModal={onOpenCategoryModal}
         categories={categories}
-        checklists={lists}
-        docs={docs}
+        checklists={stableLists}
+        docs={stableDocs}
+        sharingStatuses={sharingStatuses}
         username={username}
         isAdmin={isAdmin}
         onCategoryDeleted={onCategoryDeleted}
@@ -68,8 +80,8 @@ export function Layout({
           onSidebarToggle={() => setSidebarOpen(true)}
           onOpenSettings={onOpenSettings}
           isAdmin={isAdmin}
-          checklists={lists}
-          docs={docs || []}
+          checklists={stableLists}
+          docs={stableDocs}
           onModeChange={setMode}
         />
 

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getLists, getCategories } from "@/app/_server/actions/data/actions";
 import { getAllLists } from "@/app/_server/actions/data/list-queries";
+import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 import { ChecklistClient } from "@/app/_components/features/checklists/ChecklistClient";
 
@@ -44,11 +45,24 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
       ? categoriesResult.data
       : [];
 
+  const allItems = [...listsResult.data];
+  const itemsToCheck = allItems.map(item => ({
+    id: item.id,
+    type: "checklist" as const,
+    owner: item.owner || ""
+  }));
+
+  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
+  const sharingStatuses = sharingStatusesResult.success && sharingStatusesResult.data
+    ? sharingStatusesResult.data
+    : {};
+
   return (
     <ChecklistClient
       checklist={checklist}
       lists={listsResult.data}
       categories={categories}
+      sharingStatuses={sharingStatuses}
       username={username}
       isAdmin={isAdminUser}
     />

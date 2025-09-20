@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/utils";
@@ -26,6 +26,12 @@ import { CategoryList } from "./components/CategoryList";
 import { SharedItemsList } from "./components/SharedItemsList";
 import { SidebarActions } from "./components/SidebarActions";
 
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,6 +40,7 @@ interface SidebarProps {
   categories: Category[];
   checklists: Checklist[];
   docs?: Note[];
+  sharingStatuses?: Record<string, SharingStatus>;
   username: string;
   isAdmin: boolean;
   onCategoryDeleted?: (categoryName: string) => void;
@@ -48,6 +55,7 @@ export function Sidebar({
   categories,
   checklists,
   docs = [],
+  sharingStatuses = {},
   username,
   isAdmin,
   onCategoryDeleted,
@@ -69,6 +77,10 @@ export function Sidebar({
   const router = useRouter();
   const pathname = usePathname();
   const { mode, setMode, isInitialized } = useAppMode();
+
+  const getSharingStatus = (itemId: string) => {
+    return sharingStatuses[itemId] || null;
+  };
 
   const handleDeleteCategory = (categoryName: string) => {
     setCategoryToDelete(categoryName);
@@ -226,6 +238,7 @@ export function Sidebar({
               onEditItem={handleEditItem}
               isItemSelected={isItemSelected}
               mode={mode}
+              getSharingStatus={getSharingStatus}
             />
 
             <CategoryList
@@ -240,6 +253,7 @@ export function Sidebar({
               onEditItem={handleEditItem}
               isItemSelected={isItemSelected}
               mode={mode}
+              getSharingStatus={getSharingStatus}
             />
           </div>
 
@@ -294,7 +308,7 @@ export function Sidebar({
           onUpdated={() => {
             setShowEditChecklistModal(false);
             setItemToEdit(null);
-            window.location.reload();
+            router.refresh();
           }}
         />
       )}
@@ -310,7 +324,7 @@ export function Sidebar({
           onUpdated={() => {
             setShowEditNoteModal(false);
             setItemToEdit(null);
-            window.location.reload();
+            router.refresh();
           }}
         />
       )}

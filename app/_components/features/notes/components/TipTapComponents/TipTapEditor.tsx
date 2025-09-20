@@ -3,6 +3,10 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import CodeBlock from "@tiptap/extension-code-block";
 import Image from "@tiptap/extension-image";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import CodeBlockComponent from "./CodeBlockComponent";
 import { TiptapToolbar } from "./TipTapToolbar";
@@ -101,6 +105,27 @@ export const TiptapEditor = ({
       FileAttachmentExtension.configure({
         HTMLAttributes: {
           class: "file-attachment",
+        },
+      }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: "border-collapse w-full my-4",
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: "border-0",
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: "border border-border px-3 py-2",
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: "border border-border px-3 py-2 bg-muted font-semibold",
         },
       }),
     ],

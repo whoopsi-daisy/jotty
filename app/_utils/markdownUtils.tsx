@@ -50,6 +50,32 @@ export const createTurndownService = () => {
     },
   });
 
+  service.addRule("table", {
+    filter: "table",
+    replacement: (content, node) => {
+      const table = node as HTMLTableElement;
+      const rows = Array.from(table.querySelectorAll("tr"));
+
+      if (rows.length === 0) return "";
+
+      const markdownRows = rows.map((row, index) => {
+        const cells = Array.from(row.querySelectorAll("td, th"));
+        const cellContents = cells.map(cell => {
+          const text = cell.textContent?.trim() || "";
+          return text.replace(/\|/g, "\\|");
+        });
+        return "| " + cellContents.join(" | ") + " |";
+      });
+
+      if (markdownRows.length > 1) {
+        const headerSeparator = "|" + " --- |".repeat(markdownRows[0].split("|").length - 2);
+        return "\n" + markdownRows[0] + "\n" + headerSeparator + "\n" + markdownRows.slice(1).join("\n") + "\n";
+      }
+
+      return "\n" + markdownRows.join("\n") + "\n";
+    },
+  });
+
   service.escape = function (string) {
     return string
       .replace(/\\/g, "\\\\")
