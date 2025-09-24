@@ -203,6 +203,7 @@ export function ChecklistClient({
 
       {showCategoryModal && (
         <CreateCategoryModal
+          mode={mode}
           onClose={() => setShowCategoryModal(false)}
           onCreated={() => {
             setShowCategoryModal(false);

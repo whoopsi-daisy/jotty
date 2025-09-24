@@ -2,19 +2,23 @@
 
 import { useState } from "react";
 import { createCategoryAction } from "@/app/_server/actions/data/actions";
+import { createDocsCategoryAction } from "@/app/_server/actions/data/notes-actions";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Modal } from "@/app/_components/ui/elements/modal";
 import { Folder } from "lucide-react";
 import { useToast } from "@/app/_providers/ToastProvider";
+import { AppMode } from "@/app/_types";
 
 interface CreateCategoryModalProps {
   onClose: () => void;
   onCreated: (category?: { name: string; count: number }) => void;
+  mode?: AppMode;
 }
 
 export function CreateCategoryModal({
   onClose,
   onCreated,
+  mode = "checklists",
 }: CreateCategoryModalProps) {
   const [categoryName, setCategoryName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,14 +31,18 @@ export function CreateCategoryModal({
 
     const formData = new FormData();
     formData.append("name", categoryName.trim());
-    const result = await createCategoryAction(formData);
+
+    const result =
+      mode === "notes"
+        ? await createDocsCategoryAction(formData)
+        : await createCategoryAction(formData);
 
     if (result.success) {
       showToast({
         type: "success",
         title: "Category created successfully!",
       });
-      onCreated(result.data);
+      onCreated({ name: categoryName.trim(), count: 0 });
       onClose();
     } else {
       showToast({
