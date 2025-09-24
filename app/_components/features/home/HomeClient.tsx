@@ -41,7 +41,6 @@ export function HomeClient({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showCreateDocModal, setShowCreateDocModal] = useState(false);
-  const [showDocsCategoryModal, setShowDocsCategoryModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
   const { mode } = useAppMode();
@@ -57,11 +56,7 @@ export function HomeClient({
   };
 
   const handleOpenCategoryModal = () => {
-    if (mode === "notes") {
-      setShowDocsCategoryModal(true);
-    } else {
-      setShowCategoryModal(true);
-    }
+    setShowCategoryModal(true);
   };
 
   const handleCategoryDeleted = (categoryName: string) => {
@@ -145,21 +140,12 @@ export function HomeClient({
         />
       )}
 
-      {mode === "checklists" && showCategoryModal && (
+      {showCategoryModal && (
         <CreateCategoryModal
+          mode={mode}
           onClose={() => setShowCategoryModal(false)}
           onCreated={() => {
             setShowCategoryModal(false);
-            router.refresh();
-          }}
-        />
-      )}
-
-      {mode === "notes" && showDocsCategoryModal && (
-        <CreateCategoryModal
-          onClose={() => setShowDocsCategoryModal(false)}
-          onCreated={() => {
-            setShowDocsCategoryModal(false);
             router.refresh();
           }}
         />

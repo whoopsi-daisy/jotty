@@ -118,6 +118,7 @@ export function NoteClient({
 
       {showCategoryModal && (
         <CreateCategoryModal
+          mode="notes"
           onClose={() => setShowCategoryModal(false)}
           onCreated={() => {
             setShowCategoryModal(false);
