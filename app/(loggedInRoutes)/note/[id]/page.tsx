@@ -3,6 +3,7 @@ import {
   getDocs,
   getDocsCategories,
   getAllDocs,
+  CheckForNeedsMigration,
 } from "@/app/_server/actions/data/notes-actions";
 import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
@@ -20,6 +21,8 @@ export default async function NotePage({ params }: NotePageProps) {
   const { id } = params;
   const username = await getUsername();
   const isAdminUser = await isAdmin();
+
+  await CheckForNeedsMigration();
 
   const [docsResult, docsCategoriesResult] = await Promise.all([
     getDocs(username),

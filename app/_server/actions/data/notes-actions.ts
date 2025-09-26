@@ -16,8 +16,9 @@ import {
   getItemsSharedWithUser,
   removeSharedItem,
 } from "@/app/_server/actions/sharing/sharing-utils";
-import { readUsers, isAdmin } from "@/app/_server/actions/auth/utils";
+import { readUsers, isAdmin, isAuthenticated } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
+import { redirect } from "next/navigation";
 
 const USER_NOTES_DIR = (username: string) =>
   path.join(process.cwd(), "data", "notes", username);
@@ -459,4 +460,14 @@ export const checkForDocsFolder = async (): Promise<boolean> => {
   } catch {
     return false;
   }
+};
+
+export const CheckForNeedsMigration = async (): Promise<boolean> => {
+  const needsMigration = await checkForDocsFolder();
+  const isLoggedIn = await isAuthenticated();
+  if (needsMigration && isLoggedIn) {
+    redirect("/migration");
+  }
+
+  return false;
 };

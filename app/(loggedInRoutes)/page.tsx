@@ -2,6 +2,7 @@ import { getLists, getCategories } from "@/app/_server/actions/data/actions";
 import {
   getDocs,
   getDocsCategories,
+  CheckForNeedsMigration,
 } from "@/app/_server/actions/data/notes-actions";
 import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
 import { HomeClient } from "@/app/_components/features/home/HomeClient";
@@ -10,6 +11,8 @@ import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  await CheckForNeedsMigration();
+
   const [listsResult, categoriesResult, docsResult, docsCategoriesResult] =
     await Promise.all([
       getLists(),
