@@ -10,6 +10,7 @@ import { InstallPrompt } from "@/app/_components/ui/pwa/InstallPrompt";
 import { checkForDocsFolder } from "./_server/actions/data/notes-actions";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { isAuthenticated } from "./_server/actions/auth/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -57,14 +58,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "";
-
-  const needsMigration = await checkForDocsFolder();
-  if (needsMigration && pathname !== "/migration") {
-    redirect("/migration");
-  }
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

@@ -1,0 +1,91 @@
+{
+  "checklists": {
+    "fccview-1757949157004-checklist": {
+      "id": "1757949157004",
+      "type": "checklist",
+      "title": "Testing task",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-16T07:22:24.498Z",
+      "category": "Tasks",
+      "filePath": "fccview/Tasks/1757949157004.md",
+      "isPubliclyShared": true
+    },
+    "fccview-1757706436003-checklist": {
+      "id": "1757706436003",
+      "type": "checklist",
+      "title": "Uncategorized test",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-16T07:22:55.581Z",
+      "category": "Uncategorized",
+      "filePath": "fccview/Uncategorized/1757706436003.md"
+    },
+    "jodi-1758369163472-checklist": {
+      "id": "1758369163472",
+      "type": "checklist",
+      "title": "testing jodi",
+      "owner": "jodi",
+      "sharedWith": [
+        "fccview"
+      ],
+      "sharedAt": "2025-09-20T12:28:25.413Z",
+      "category": "Test category",
+      "filePath": "jodi/Test category/1758369163472.md",
+      "isPubliclyShared": true
+    },
+    "fccview-1754935655407-checklist": {
+      "id": "1754935655407",
+      "type": "checklist",
+      "title": "Checklist",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-20T14:28:02.254Z",
+      "category": "Uncategorized",
+      "filePath": "fccview/Uncategorized/1754935655407.md",
+      "isPubliclyShared": false
+    },
+    "fccview-1758378275852-checklist": {
+      "id": "1758378275852",
+      "type": "checklist",
+      "title": "Test Checklist",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-09-20T18:54:08.030Z",
+      "category": "Test Category",
+      "filePath": "fccview/Test Category/1758378275852.md",
+      "isPubliclyShared": true
+    }
+  },
+  "notes": {
+    "fccview-1754935952483-document": {
+      "id": "1754935952483",
+      "type": "document",
+      "title": "Lorem Ipsum Doc",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-16T07:23:05.905Z",
+      "category": "Lorem Ipsum",
+      "filePath": "fccview/Lorem Ipsum/1754935952483.md"
+    },
+    "fccview-1754935969667-document": {
+      "id": "1754935969667",
+      "type": "document",
+      "title": "Dolor sit amet",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-09-20T12:46:14.247Z",
+      "category": "Lorem Ipsum",
+      "filePath": "fccview/Lorem Ipsum/1754935969667.md",
+      "isPubliclyShared": true
+    }
+  }
+}
