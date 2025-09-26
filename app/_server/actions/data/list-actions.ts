@@ -149,7 +149,11 @@ export const deleteListAction = async (formData: FormData) => {
       await removeSharedItem(id, "checklist", list.owner);
     }
 
-    revalidatePath("/");
+    try {
+      revalidatePath("/");
+    } catch (error) {
+      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+    }
     return { success: true };
   } catch (error) {
     return { error: "Failed to delete list" };

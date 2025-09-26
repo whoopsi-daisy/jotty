@@ -128,7 +128,11 @@ export const bulkToggleItemsAction = async (formData: FormData) => {
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath("/");
+    try {
+      revalidatePath("/");
+    } catch (error) {
+      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+    }
     return { success: true, data: updatedList };
   } catch (error) {
     console.error("Error bulk toggling items:", error);

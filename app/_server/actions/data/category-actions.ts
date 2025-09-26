@@ -35,7 +35,11 @@ export const deleteCategoryAction = async (formData: FormData) => {
     const categoryDir = path.join(userDir, name);
     await deleteDir(categoryDir);
 
-    revalidatePath("/");
+    try {
+      revalidatePath("/");
+    } catch (error) {
+      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+    }
     return { success: true };
   } catch (error) {
     return { error: "Failed to delete category" };
@@ -87,7 +91,11 @@ export const renameCategoryAction = async (formData: FormData) => {
       }
     }
 
-    revalidatePath("/");
+    try {
+      revalidatePath("/");
+    } catch (error) {
+      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+    }
     return { success: true };
   } catch (error) {
     return { error: "Failed to rename category" };

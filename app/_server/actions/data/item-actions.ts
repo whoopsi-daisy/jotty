@@ -58,7 +58,11 @@ export const updateItemAction = async (
     await writeFile(filePath, listToMarkdown(updatedList));
 
     if (!skipRevalidation) {
-      revalidatePath("/");
+      try {
+        revalidatePath("/");
+      } catch (error) {
+        console.warn("Cache revalidation failed, but data was saved successfully:", error);
+      }
     }
 
     return { success: true };
@@ -136,7 +140,11 @@ export const createItemAction = async (
     await writeFile(filePath, listToMarkdown(updatedList));
 
     if (!skipRevalidation) {
-      revalidatePath("/");
+      try {
+        revalidatePath("/");
+      } catch (error) {
+        console.warn("Cache revalidation failed, but data was saved successfully:", error);
+      }
     }
 
     return { success: true, data: newItem };
@@ -319,7 +327,11 @@ export const updateItemStatusAction = async (formData: FormData) => {
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    revalidatePath("/");
+    try {
+      revalidatePath("/");
+    } catch (error) {
+      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+    }
     return { success: true };
   } catch (error) {
     console.error("Error updating item status:", error);
