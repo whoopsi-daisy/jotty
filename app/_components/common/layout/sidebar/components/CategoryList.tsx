@@ -12,6 +12,8 @@ import {
   Edit,
   Users,
   Globe,
+  FolderPlus,
+  FolderPlusIcon,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { cn } from "@/app/_utils/utils";
@@ -130,15 +132,15 @@ export function CategoryList({
           >
             <DropdownMenuItem
               onClick={() => onQuickCreate(category.path)}
-              icon={<Plus className="h-4 w-4" />}
+              icon={mode === "checklists" ? <CheckSquare className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
             >
               New {mode === "checklists" ? "Checklist" : "Note"}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onCreateSubcategory?.(category.path)}
-              icon={<Folder className="h-4 w-4" />}
+              icon={<FolderPlus className="h-4 w-4" />}
             >
-              Create Subcategory
+              New Category
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onRenameCategory(category.path)}>
               Rename Category
