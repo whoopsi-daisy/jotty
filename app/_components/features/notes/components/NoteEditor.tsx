@@ -324,6 +324,7 @@ export function NoteEditor({
 
       if (updatedDoc.id !== doc.id) {
         router.push(`/note/${updatedDoc.id}`);
+        router.refresh();
         return;
       }
 
@@ -496,15 +497,15 @@ export function NoteEditor({
                 {(doc.isShared
                   ? isAdmin || currentUsername === doc.owner
                   : true) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDelete}
-                      className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -544,9 +545,9 @@ export function NoteEditor({
             content={
               isEditing
                 ? getMarkdownPreviewContent(
-                  editorContent,
-                  isEditorInMarkdownMode
-                )
+                    editorContent,
+                    isEditorInMarkdownMode
+                  )
                 : docContent
             }
           />

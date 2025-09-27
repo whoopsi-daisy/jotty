@@ -51,7 +51,8 @@ export function ChecklistClient({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
-  const [initialParentCategory, setInitialParentCategory] = useState<string>("");
+  const [initialParentCategory, setInitialParentCategory] =
+    useState<string>("");
   const prevChecklistId = useRef(checklist.id);
 
   useEffect(() => {
@@ -197,6 +198,7 @@ export function ChecklistClient({
               router.push(`/checklist/${newChecklist.id}`);
             }
             setShowCreateModal(false);
+            router.refresh();
           }}
           categories={categories}
           initialCategory={initialCategory}

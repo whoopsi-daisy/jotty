@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import path from "path";
 import { Checklist, ChecklistType } from "@/app/_types";
-import { generateUniqueFilename } from "../../utils/filename-utils";
+import { generateUniqueFilename, sanitizeFilename } from "../../utils/filename-utils";
 import {
   getUserDir,
   ensureDir,
@@ -11,7 +11,10 @@ import {
   deleteFile,
 } from "@/app/_server/utils/files";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
-import { removeSharedItem } from "@/app/_server/actions/sharing/sharing-utils";
+import {
+  removeSharedItem,
+  updateSharedItem,
+} from "@/app/_server/actions/sharing/sharing-utils";
 import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
 import { isAdmin } from "@/app/_server/actions/auth/utils";
@@ -27,7 +30,7 @@ export const createListAction = async (formData: FormData) => {
     await ensureDir(categoryDir);
 
     const filename = await generateUniqueFilename(categoryDir, title);
-    const id = path.basename(filename, '.md');
+    const id = path.basename(filename, ".md");
     const filePath = path.join(categoryDir, filename);
 
     const newList: Checklist = {
@@ -78,14 +81,28 @@ export const updateListAction = async (formData: FormData) => {
       "checklists",
       currentList.owner!
     );
-    const categoryDir = path.join(ownerDir, updatedList.category || "Uncategorized");
+    const categoryDir = path.join(
+      ownerDir,
+      updatedList.category || "Uncategorized"
+    );
     await ensureDir(categoryDir);
 
-    // Generate new filename based on title
-    const newFilename = await generateUniqueFilename(categoryDir, title);
-    const newId = path.basename(newFilename, '.md');
+    let newFilename: string;
+    let newId = id;
 
-    // Update the ID if it changed
+    // Generate new filename if title has changed OR if current filename doesn't match sanitized title
+    const sanitizedTitle = sanitizeFilename(title);
+    const currentFilename = `${id}.md`;
+    const expectedFilename = `${sanitizedTitle}.md`;
+
+    if (title !== currentList.title || currentFilename !== expectedFilename) {
+      newFilename = await generateUniqueFilename(categoryDir, title);
+      newId = path.basename(newFilename, ".md");
+    } else {
+      // Keep the same filename if title hasn't changed and filename matches sanitized title
+      newFilename = `${id}.md`;
+    }
+
     if (newId !== id) {
       updatedList.id = newId;
     }
@@ -94,14 +111,12 @@ export const updateListAction = async (formData: FormData) => {
 
     let oldFilePath: string | null = null;
     if (category && category !== currentList.category) {
-      // Moving to different category
       oldFilePath = path.join(
         ownerDir,
         currentList.category || "Uncategorized",
         `${id}.md`
       );
     } else if (newId !== id) {
-      // Same category but filename changed
       oldFilePath = path.join(
         ownerDir,
         currentList.category || "Uncategorized",
@@ -111,8 +126,52 @@ export const updateListAction = async (formData: FormData) => {
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
+    const { getItemSharingMetadata } = await import("@/app/_server/actions/sharing/sharing-utils");
+    const sharingMetadata = await getItemSharingMetadata(id, "checklist", currentList.owner!);
+
+    if (sharingMetadata) {
+      const newFilePath = `${currentList.owner}/${updatedList.category || "Uncategorized"
+        }/${updatedList.id}.md`;
+
+      if (newId !== id) {
+        const { removeSharedItem, addSharedItem } = await import("@/app/_server/actions/sharing/sharing-utils");
+
+        await removeSharedItem(id, "checklist", currentList.owner!);
+
+        await addSharedItem(
+          updatedList.id,
+          "checklist",
+          updatedList.title,
+          currentList.owner!,
+          sharingMetadata.sharedWith,
+          updatedList.category,
+          newFilePath,
+          sharingMetadata.isPubliclyShared
+        );
+      } else {
+        await updateSharedItem(updatedList.id, "checklist", currentList.owner!, {
+          filePath: newFilePath,
+          category: updatedList.category,
+          title: updatedList.title,
+        });
+      }
+    }
+
     if (oldFilePath && oldFilePath !== filePath) {
       await deleteFile(oldFilePath);
+    }
+
+    try {
+      revalidatePath("/");
+      revalidatePath(`/checklist/${id}`);
+      if (newId !== id) {
+        revalidatePath(`/checklist/${newId}`);
+      }
+    } catch (error) {
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
     }
 
     return { success: true, data: updatedList };
@@ -169,8 +228,12 @@ export const deleteListAction = async (formData: FormData) => {
 
     try {
       revalidatePath("/");
+      revalidatePath(`/checklist/${id}`);
     } catch (error) {
-      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
     }
     return { success: true };
   } catch (error) {

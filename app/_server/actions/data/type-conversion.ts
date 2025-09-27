@@ -82,7 +82,10 @@ export const convertChecklistTypeAction = async (formData: FormData) => {
     try {
       revalidatePath("/");
     } catch (error) {
-      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
     }
     return { success: true, data: updatedList };
   } catch (error) {

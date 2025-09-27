@@ -67,7 +67,16 @@ export function CategoryList({
   };
 
   const getSubCategories = (parentPath: string) => {
-    return categories.filter(cat => cat.parent === parentPath);
+    return categories.filter((cat) => cat.parent === parentPath);
+  };
+
+  const getTotalItemsInCategory = (categoryPath: string): number => {
+    const directItems = getItemsInCategory(categoryPath).length;
+    const subCategories = getSubCategories(categoryPath);
+    const subCategoryItems = subCategories.reduce((total, subCategory) => {
+      return total + getTotalItemsInCategory(subCategory.path);
+    }, 0);
+    return directItems + subCategoryItems;
   };
 
   const renderCategory = (category: Category) => {
@@ -76,6 +85,7 @@ export function CategoryList({
     const hasItems = categoryItems.length > 0;
     const subCategories = getSubCategories(category.path);
     const hasSubCategories = subCategories.length > 0;
+    const totalItems = getTotalItemsInCategory(category.path);
 
     return (
       <div key={category.path} className="space-y-1">
@@ -84,13 +94,13 @@ export function CategoryList({
             onClick={() => onToggleCategory(category.path)}
             className={cn(
               "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors w-full text-left",
-              (hasItems || hasSubCategories)
+              hasItems || hasSubCategories
                 ? "hover:bg-muted/50 cursor-pointer"
                 : "text-muted-foreground cursor-default"
             )}
             style={{ paddingLeft: `${12 + category.level * 16}px` }}
           >
-            {(hasItems || hasSubCategories) ? (
+            {hasItems || hasSubCategories ? (
               isCollapsed ? (
                 <ChevronRight className="h-4 w-4" />
               ) : (
@@ -102,7 +112,7 @@ export function CategoryList({
             <Folder className="h-4 w-4" />
             <span className="truncate">{category.name}</span>
             <span className="text-xs text-muted-foreground ml-auto">
-              {categoryItems.length}
+              {totalItems}
             </span>
           </button>
 
@@ -130,9 +140,7 @@ export function CategoryList({
             >
               Create Subcategory
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onRenameCategory(category.path)}
-            >
+            <DropdownMenuItem onClick={() => onRenameCategory(category.path)}>
               Rename Category
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -147,12 +155,14 @@ export function CategoryList({
         {!isCollapsed && (
           <>
             {hasSubCategories && (
-              <div className="space-y-1">
-                {subCategories.map(subCategory => renderCategory(subCategory))}
+              <div className="space-y-1 ml-2 border-l border-border/30 pl-2">
+                {subCategories.map((subCategory) =>
+                  renderCategory(subCategory)
+                )}
               </div>
             )}
             {hasItems && (
-              <div className="space-y-1" style={{ paddingLeft: `${12 + (category.level + 1) * 16}px` }}>
+              <div className="space-y-0.5 ml-2 border-l border-border/30 pl-2">
                 {categoryItems.map((item) => (
                   <SidebarItem
                     key={item.id}
@@ -176,11 +186,11 @@ export function CategoryList({
     return null;
   }
 
-  const rootCategories = categories.filter(cat => !cat.parent);
+  const rootCategories = categories.filter((cat) => !cat.parent);
 
   return (
     <div className="space-y-1">
-      {rootCategories.map(category => renderCategory(category))}
+      {rootCategories.map((category) => renderCategory(category))}
     </div>
   );
 }

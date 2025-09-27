@@ -43,7 +43,8 @@ export function HomeClient({
   const [showCreateDocModal, setShowCreateDocModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
-  const [initialParentCategory, setInitialParentCategory] = useState<string>("");
+  const [initialParentCategory, setInitialParentCategory] =
+    useState<string>("");
   const { mode } = useAppMode();
 
   const handleOpenCreateModal = (initialCategory?: string) => {
@@ -122,6 +123,7 @@ export function HomeClient({
               router.push(`/checklist/${newChecklist.id}`);
             }
             setShowCreateModal(false);
+            router.refresh();
           }}
           categories={initialCategories}
           initialCategory={initialCategory}
@@ -136,6 +138,7 @@ export function HomeClient({
               router.push(`/note/${newDoc.id}`);
             }
             setShowCreateDocModal(false);
+            router.refresh();
           }}
           categories={initialDocsCategories}
           initialCategory={initialCategory}
@@ -145,7 +148,9 @@ export function HomeClient({
       {showCategoryModal && (
         <CreateCategoryModal
           mode={mode}
-          categories={mode === "notes" ? initialDocsCategories : initialCategories}
+          categories={
+            mode === "notes" ? initialDocsCategories : initialCategories
+          }
           initialParent={initialParentCategory}
           onClose={() => {
             setShowCategoryModal(false);

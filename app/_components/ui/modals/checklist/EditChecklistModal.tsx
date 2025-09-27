@@ -56,7 +56,6 @@ export function EditChecklistModal({
     checkOwnership();
   }, [checklist.owner]);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
@@ -73,13 +72,13 @@ export function EditChecklistModal({
 
     if (result.success && result.data) {
       const updatedChecklist = result.data;
-      
+
       // If the ID changed, redirect to the new URL
       if (updatedChecklist.id !== checklist.id) {
         router.push(`/checklist/${updatedChecklist.id}`);
         return;
       }
-      
+
       onUpdated();
     }
   };

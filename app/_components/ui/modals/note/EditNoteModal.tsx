@@ -41,7 +41,6 @@ export function EditNoteModal({
     checkOwnership();
   }, [note.owner]);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;

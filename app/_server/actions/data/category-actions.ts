@@ -40,7 +40,10 @@ export const deleteCategoryAction = async (formData: FormData) => {
     try {
       revalidatePath("/");
     } catch (error) {
-      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
     }
     return { success: true };
   } catch (error) {
@@ -60,9 +63,9 @@ export const renameCategoryAction = async (formData: FormData) => {
     const userDir = await getUserDir();
     const oldCategoryDir = path.join(userDir, oldPath);
 
-    const pathParts = oldPath.split('/');
+    const pathParts = oldPath.split("/");
     pathParts[pathParts.length - 1] = newName;
-    const newPath = pathParts.join('/');
+    const newPath = pathParts.join("/");
     const newCategoryDir = path.join(userDir, newPath);
 
     if (
@@ -100,7 +103,10 @@ export const renameCategoryAction = async (formData: FormData) => {
     try {
       revalidatePath("/");
     } catch (error) {
-      console.warn("Cache revalidation failed, but data was saved successfully:", error);
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
     }
     return { success: true };
   } catch (error) {
