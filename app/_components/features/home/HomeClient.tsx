@@ -43,6 +43,7 @@ export function HomeClient({
   const [showCreateDocModal, setShowCreateDocModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
+  const [initialParentCategory, setInitialParentCategory] = useState<string>("");
   const { mode } = useAppMode();
 
   const handleOpenCreateModal = (initialCategory?: string) => {
@@ -55,8 +56,9 @@ export function HomeClient({
     }
   };
 
-  const handleOpenCategoryModal = () => {
+  const handleOpenCategoryModal = (parentCategory?: string) => {
     setShowCategoryModal(true);
+    setInitialParentCategory(parentCategory || "");
   };
 
   const handleCategoryDeleted = (categoryName: string) => {
@@ -143,9 +145,15 @@ export function HomeClient({
       {showCategoryModal && (
         <CreateCategoryModal
           mode={mode}
-          onClose={() => setShowCategoryModal(false)}
+          categories={mode === "notes" ? initialDocsCategories : initialCategories}
+          initialParent={initialParentCategory}
+          onClose={() => {
+            setShowCategoryModal(false);
+            setInitialParentCategory("");
+          }}
           onCreated={() => {
             setShowCategoryModal(false);
+            setInitialParentCategory("");
             router.refresh();
           }}
         />

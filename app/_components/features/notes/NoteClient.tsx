@@ -42,6 +42,7 @@ export function NoteClient({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
+  const [initialParentCategory, setInitialParentCategory] = useState<string>("");
   const prevNoteId = useRef(note.id);
 
   useEffect(() => {
@@ -72,8 +73,9 @@ export function NoteClient({
     setShowCreateModal(true);
   };
 
-  const handleOpenCategoryModal = () => {
+  const handleOpenCategoryModal = (parentCategory?: string) => {
     setShowCategoryModal(true);
+    setInitialParentCategory(parentCategory || "");
   };
 
   const handleOpenSettings = () => {
@@ -119,9 +121,15 @@ export function NoteClient({
       {showCategoryModal && (
         <CreateCategoryModal
           mode="notes"
-          onClose={() => setShowCategoryModal(false)}
+          categories={categories}
+          initialParent={initialParentCategory}
+          onClose={() => {
+            setShowCategoryModal(false);
+            setInitialParentCategory("");
+          }}
           onCreated={() => {
             setShowCategoryModal(false);
+            setInitialParentCategory("");
             router.refresh();
           }}
         />

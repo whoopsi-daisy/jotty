@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import path from "path";
 import { Checklist, ChecklistType } from "@/app/_types";
+import { generateUniqueFilename } from "../../utils/filename-utils";
 import {
   getUserDir,
   ensureDir,
@@ -22,11 +23,12 @@ export const createListAction = async (formData: FormData) => {
     const type = (formData.get("type") as ChecklistType) || "simple";
 
     const userDir = await getUserDir();
-    const id = Date.now().toString();
     const categoryDir = path.join(userDir, category);
-    const filePath = path.join(categoryDir, `${id}.md`);
-
     await ensureDir(categoryDir);
+
+    const filename = await generateUniqueFilename(categoryDir, title);
+    const id = path.basename(filename, '.md');
+    const filePath = path.join(categoryDir, filename);
 
     const newList: Checklist = {
       id,
@@ -76,14 +78,30 @@ export const updateListAction = async (formData: FormData) => {
       "checklists",
       currentList.owner!
     );
-    const filePath = path.join(
-      ownerDir,
-      updatedList.category || "Uncategorized",
-      `${id}.md`
-    );
+    const categoryDir = path.join(ownerDir, updatedList.category || "Uncategorized");
+    await ensureDir(categoryDir);
+
+    // Generate new filename based on title
+    const newFilename = await generateUniqueFilename(categoryDir, title);
+    const newId = path.basename(newFilename, '.md');
+
+    // Update the ID if it changed
+    if (newId !== id) {
+      updatedList.id = newId;
+    }
+
+    const filePath = path.join(categoryDir, newFilename);
 
     let oldFilePath: string | null = null;
     if (category && category !== currentList.category) {
+      // Moving to different category
+      oldFilePath = path.join(
+        ownerDir,
+        currentList.category || "Uncategorized",
+        `${id}.md`
+      );
+    } else if (newId !== id) {
+      // Same category but filename changed
       oldFilePath = path.join(
         ownerDir,
         currentList.category || "Uncategorized",

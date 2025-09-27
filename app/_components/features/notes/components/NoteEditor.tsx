@@ -314,19 +314,18 @@ export function NoteEditor({
     const result = await updateDocAction(formData);
     setIsSaving(false);
 
-    if (result.success) {
+    if (result.success && result.data) {
       setDocContent(markdownOutput);
       setIsEditing(false);
       setLastSavedContent(markdownOutput);
       setHasUnsavedChanges(false);
 
-      const updatedDoc: Note = {
-        ...doc,
-        title,
-        content: markdownOutput,
-        category: isOwner ? category : doc.category,
-        updatedAt: new Date().toISOString(),
-      };
+      const updatedDoc: Note = result.data;
+
+      if (updatedDoc.id !== doc.id) {
+        router.push(`/note/${updatedDoc.id}`);
+        return;
+      }
 
       onUpdate(updatedDoc);
       router.refresh();
