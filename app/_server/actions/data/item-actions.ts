@@ -68,7 +68,7 @@ export const updateItemAction = async (
       }
     }
 
-    return { success: true };
+    return { success: true, data: updatedList };
   } catch (error) {
     console.error(
       "Error updating item:",
@@ -373,7 +373,7 @@ export const updateItemStatusAction = async (formData: FormData) => {
         error
       );
     }
-    return { success: true };
+    return { success: true, data: updatedList };
   } catch (error) {
     console.error("Error updating item status:", error);
     return { error: "Failed to update item status" };

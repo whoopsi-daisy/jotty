@@ -67,7 +67,10 @@ export function CategoryTreeSelector({
             selectedCategory === category.path && "bg-primary/10 text-primary"
           )}
           style={{ paddingLeft: `${12 + category.level * 20}px` }}
-          onClick={() => handleCategoryClick(category.path)}
+          onClick={(e) => {
+            e.preventDefault();
+            handleCategoryClick(category.path);
+          }}
         >
           {hasSubCategories ? (
             <button
@@ -128,7 +131,10 @@ export function CategoryTreeSelector({
         <>
           <div
             className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
+            onClick={(e) => {
+              e.preventDefault();
+              setIsOpen(false);
+            }}
           />
           <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-background border border-input rounded-md shadow-lg max-h-60 overflow-y-auto">
             <div className="p-2">
@@ -137,7 +143,10 @@ export function CategoryTreeSelector({
                   "flex items-center gap-2 px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-muted/50 transition-colors",
                   selectedCategory === "" && "bg-primary/10 text-primary"
                 )}
-                onClick={() => handleCategoryClick("")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCategoryClick("");
+                }}
               >
                 <div className="w-4" />
                 <Folder className="h-4 w-4 text-muted-foreground" />

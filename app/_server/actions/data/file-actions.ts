@@ -236,3 +236,16 @@ export async function deleteFileAction(formData: FormData) {
         return { success: false, error: "Failed to delete file" };
     }
 }
+
+export async function getSettings() {
+    try {
+        const settingsPath = path.join(process.cwd(), 'config', 'settings.json');
+        const settings = await fs.readFile(settingsPath, 'utf-8');
+        return JSON.parse(settings);
+    } catch (error) {
+        return {
+            appName: "",
+            appDescription: ""
+        };
+    }
+}

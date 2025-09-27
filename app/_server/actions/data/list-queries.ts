@@ -108,10 +108,6 @@ export const getLists = async (username?: string) => {
           )
         );
       } catch (error) {
-        console.error(
-          `Error reading shared checklist ${sharedItem.id}:`,
-          error
-        );
         continue;
       }
     }

@@ -164,9 +164,42 @@ yarn build
 yarn start
 ```
 
-## Custom Themes and Emojis
+## Configuration
 
-You can easily add custom themes and emojis by creating configuration files in a `config/` directory. These will be automatically loaded and merged with the built-in themes and emojis.
+The `config/` directory contains configuration files that customize various aspects of the application.
+
+### Application Settings
+
+Create or edit `config/settings.json` to customize basic application settings:
+
+```json
+{
+  "appName": "Your App Name",
+  "appDescription": "Your custom app description"
+}
+```
+
+These settings will:
+- Change the application name in the browser tab and PWA
+- Update the meta description for search engines
+- Modify the PWA (Progressive Web App) metadata
+
+If left empty or not set, the default "rwMarkable" name, description and app icon will be used.
+
+```json
+{
+  "appName": "", // The name of the app for pwa and search engines
+  "appDescription": "", // The description for the pwa app and search engines
+  "16x16Icon": "", // The pwa app 16x16 icon
+  "32x32Icon": "", // The pwa app 32x32 icon
+  "180x180Icon": "" // The pwa app 180x180 icon
+}
+
+```
+
+### Custom Themes and Emojis
+
+You can easily add custom themes and emojis by creating configuration files in the `config/` directory. These will be automatically loaded and merged with the built-in themes and emojis.
 
 ### Custom Themes
 

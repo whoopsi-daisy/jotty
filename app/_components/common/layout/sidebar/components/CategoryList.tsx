@@ -98,7 +98,7 @@ export function CategoryList({
                 ? "hover:bg-muted/50 cursor-pointer"
                 : "text-muted-foreground cursor-default"
             )}
-            style={{ paddingLeft: `${12 + category.level * 16}px` }}
+            style={{ paddingLeft: `${category.level * 16}px` }}
           >
             {hasItems || hasSubCategories ? (
               isCollapsed ? (
@@ -172,6 +172,7 @@ export function CategoryList({
                     onItemClick={onItemClick}
                     onEditItem={onEditItem}
                     sharingStatus={getSharingStatus(item.id)}
+                    style={{ paddingLeft: `${category.level * 16}px` }}
                   />
                 ))}
               </div>

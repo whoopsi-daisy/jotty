@@ -52,15 +52,9 @@ export function useChecklist({ list, onUpdate, onDelete }: UseChecklistProps) {
     formData.append("completed", String(completed));
     const result = await updateItemAction(formData);
 
-    if (result.success) {
-      const updatedList = {
-        ...localList,
-        items: localList.items.map((item) =>
-          item.id === itemId ? { ...item, completed } : item
-        ),
-      };
-      setLocalList(updatedList);
-      onUpdate(updatedList);
+    if (result.success && result.data) {
+      setLocalList(result.data);
+      onUpdate(result.data);
       setFocusKey((prev) => prev + 1);
     }
   };
@@ -206,12 +200,8 @@ export function useChecklist({ list, onUpdate, onDelete }: UseChecklistProps) {
     setIsLoading(false);
 
     if (result.success && result.data) {
-      const updatedList = {
-        ...localList,
-        items: [...localList.items, ...result.data],
-      };
-      setLocalList(updatedList);
-      onUpdate(updatedList);
+      setLocalList(result.data);
+      onUpdate(result.data);
     }
   };
 

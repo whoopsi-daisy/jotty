@@ -7,43 +7,49 @@ import { AppModeProvider } from "@/app/_providers/AppModeProvider";
 import { ToastProvider } from "@/app/_providers/ToastProvider";
 import { NavigationGuardProvider } from "@/app/_providers/NavigationGuardProvider";
 import { InstallPrompt } from "@/app/_components/ui/pwa/InstallPrompt";
-import { checkForDocsFolder } from "./_server/actions/data/notes-actions";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { isAuthenticated } from "./_server/actions/auth/utils";
+import { getSettings } from "@/app/_server/actions/data/file-actions";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "rwMarkable",
-  description: "A simple, fast, and lightweight checklist application",
-  manifest: "/app-icons/site.webmanifest",
-  icons: {
-    icon: [
-      {
-        url: "/app-icons/favicon-16x16.png",
-        sizes: "16x16",
-        type: "image/png",
-      },
-      {
-        url: "/app-icons/favicon-32x32.png",
-        sizes: "32x32",
-        type: "image/png",
-      },
-    ],
-    apple: [
-      {
-        url: "/app-icons/apple-touch-icon.png",
-        sizes: "180x180",
-        type: "image/png",
-      },
-    ],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "rwMarkable",
-  },
+export const generateMetadata = async (): Promise<Metadata> => {
+  const settings = await getSettings();
+  const appName = settings?.appName || "rwMarkable";
+  const appDescription = settings?.appDescription || "A simple, fast, and lightweight checklist and notes application";
+  const app16x16Icon = settings?.["16x16Icon"] || "/app-icons/favicon-16x16.png";
+  const app32x32Icon = settings?.["32x32Icon"] || "/app-icons/favicon-32x32.png";
+  const app180x180Icon = settings?.["180x180Icon"] || "/app-icons/apple-touch-icon.png";
+
+  return {
+    title: appName,
+    description: appDescription,
+    manifest: "/app-icons/site.webmanifest",
+    icons: {
+      icon: [
+        {
+          url: app16x16Icon,
+          sizes: "16x16",
+          type: "image/png",
+        },
+        {
+          url: app32x32Icon,
+          sizes: "32x32",
+          type: "image/png",
+        },
+      ],
+      apple: [
+        {
+          url: app180x180Icon,
+          sizes: "180x180",
+          type: "image/png",
+        },
+      ],
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: appName,
+    },
+  };
 };
 
 export const viewport: Viewport = {
@@ -58,13 +64,16 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSettings();
+  const appName = settings.appName || "rwMarkable";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/app-icons/favicon.ico" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="rwMarkable" />
+        <meta name="apple-mobile-web-app-title" content={appName} />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={inter.className}>

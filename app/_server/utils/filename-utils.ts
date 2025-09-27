@@ -34,22 +34,3 @@ export async function generateUniqueFilename(
 
     return filename;
 }
-
-export async function getFilesInDirectory(directory: string): Promise<string[]> {
-    try {
-        const files = await fs.readdir(directory);
-        return files.sort((a, b) => {
-            // Sort directories first, then files
-            const aIsDir = a.includes('.') === false;
-            const bIsDir = b.includes('.') === false;
-
-            if (aIsDir && !bIsDir) return -1;
-            if (!aIsDir && bIsDir) return 1;
-
-            // If both are same type, sort alphabetically
-            return a.localeCompare(b);
-        });
-    } catch {
-        return [];
-    }
-}

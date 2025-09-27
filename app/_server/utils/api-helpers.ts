@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/app/_server/utils/api-auth";
-import {
-  getLists,
-  updateItemAction,
-  createItemAction,
-} from "@/app/_server/actions/data/actions";
+import { getLists } from "@/app/_server/actions/data/actions";
 import { getDocs } from "@/app/_server/actions/data/notes-actions";
 
 export async function withApiAuth(

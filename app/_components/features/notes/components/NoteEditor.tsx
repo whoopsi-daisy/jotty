@@ -27,7 +27,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { Dropdown } from "@/app/_components/ui/elements/dropdown";
+import { CategoryTreeSelector } from "@/app/_components/ui/elements/category-tree-selector";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
 import { TableOfContents } from "./TableOfContents";
 import { Note, Category } from "@/app/_types";
@@ -91,16 +91,6 @@ export function NoteEditor({
 
   const turndownService = useMemo(() => createTurndownService(), []);
 
-  const categoryOptions = [
-    { id: "", name: "Uncategorized", icon: FolderOpen },
-    ...categories
-      .filter((cat) => cat.name !== "Uncategorized")
-      .map((cat) => ({
-        id: cat.name,
-        name: cat.name,
-        icon: Folder,
-      })),
-  ];
 
   useEffect(() => {
     const markdownContent = doc.content || "";
@@ -497,15 +487,15 @@ export function NoteEditor({
                 {(doc.isShared
                   ? isAdmin || currentUsername === doc.owner
                   : true) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
-                  </Button>
-                )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDelete}
+                      className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
+                    </Button>
+                  )}
               </>
             )}
           </div>
@@ -515,10 +505,10 @@ export function NoteEditor({
           <div className="mt-4">
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">Category:</span>
-              <Dropdown
-                value={category}
-                options={categoryOptions}
-                onChange={setCategory}
+              <CategoryTreeSelector
+                categories={categories}
+                selectedCategory={category}
+                onCategorySelect={setCategory}
                 className="w-full lg:w-1/2"
               />
             </div>
@@ -545,9 +535,9 @@ export function NoteEditor({
             content={
               isEditing
                 ? getMarkdownPreviewContent(
-                    editorContent,
-                    isEditorInMarkdownMode
-                  )
+                  editorContent,
+                  isEditorInMarkdownMode
+                )
                 : docContent
             }
           />

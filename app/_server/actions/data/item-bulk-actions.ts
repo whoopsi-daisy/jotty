@@ -64,7 +64,16 @@ export const createBulkItemsAction = async (formData: FormData) => {
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    return { success: true, data: newItems };
+    try {
+      revalidatePath("/");
+    } catch (error) {
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
+    }
+
+    return { success: true, data: updatedList };
   } catch (error) {
     return { error: "Failed to create bulk items" };
   }

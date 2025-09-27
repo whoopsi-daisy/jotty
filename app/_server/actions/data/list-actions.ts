@@ -90,7 +90,6 @@ export const updateListAction = async (formData: FormData) => {
     let newFilename: string;
     let newId = id;
 
-    // Generate new filename if title has changed OR if current filename doesn't match sanitized title
     const sanitizedTitle = sanitizeFilename(title);
     const currentFilename = `${id}.md`;
     const expectedFilename = `${sanitizedTitle}.md`;
@@ -99,7 +98,6 @@ export const updateListAction = async (formData: FormData) => {
       newFilename = await generateUniqueFilename(categoryDir, title);
       newId = path.basename(newFilename, ".md");
     } else {
-      // Keep the same filename if title hasn't changed and filename matches sanitized title
       newFilename = `${id}.md`;
     }
 

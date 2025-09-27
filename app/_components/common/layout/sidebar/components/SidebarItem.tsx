@@ -26,6 +26,7 @@ interface SidebarItemProps {
   onItemClick: (item: Checklist | Note) => void;
   onEditItem?: (item: Checklist | Note) => void;
   sharingStatus?: SharingStatus | null;
+  style?: React.CSSProperties;
 }
 
 export function SidebarItem({
@@ -35,10 +36,11 @@ export function SidebarItem({
   onItemClick,
   onEditItem,
   sharingStatus,
+  style,
 }: SidebarItemProps) {
 
   return (
-    <div className="flex items-center group/item">
+    <div className="flex items-center group/item" style={style}>
       <button
         onClick={() => onItemClick(item)}
         className={cn(

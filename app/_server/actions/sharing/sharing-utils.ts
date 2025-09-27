@@ -40,7 +40,7 @@ export async function writeSharingMetadata(
   );
 }
 
-export async function generateSharingId(
+async function generateSharingId(
   owner: string,
   itemId: string,
   type: "checklist" | "document"
@@ -168,23 +168,7 @@ export async function getItemsSharedByUser(username: string): Promise<{
   };
 }
 
-export async function isItemSharedWithUser(
-  itemId: string,
-  type: "checklist" | "document",
-  owner: string,
-  username: string
-): Promise<boolean> {
-  const metadata = await readSharingMetadata();
-  const sharingId = await generateSharingId(owner, itemId, type);
-
-  if (type === "checklist") {
-    return (
-      metadata.checklists[sharingId]?.sharedWith.includes(username) || false
-    );
-  } else {
-    return metadata.notes[sharingId]?.sharedWith.includes(username) || false;
-  }
-}
+// removed unused isItemSharedWithUser
 
 export async function getItemSharingMetadata(
   itemId: string,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState, useMemo, useEffect } from "react";
+import { useContext, useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/utils";
@@ -73,6 +73,45 @@ export function Sidebar({
   );
   const [sharedItemsCollapsed, setSharedItemsCollapsed] = useState(false);
   const [isLocalStorageInitialized, setIsLocalStorageInitialized] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(320);
+  const isResizing = useRef(false);
+
+  useEffect(() => {
+    const savedWidth = localStorage.getItem('sidebar-width');
+    if (savedWidth) {
+      const width = parseInt(savedWidth);
+      if (width >= 320 && width <= 800) {
+        setSidebarWidth(width);
+      }
+    }
+  }, []);
+
+  const startResizing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const doDrag = (e: MouseEvent) => {
+      const delta = e.clientX - startX;
+      const newWidth = Math.max(320, Math.min(800, startWidth + delta));
+      setSidebarWidth(newWidth);
+      localStorage.setItem('sidebar-width', newWidth.toString());
+    };
+
+    const stopDrag = () => {
+      document.removeEventListener('mousemove', doDrag);
+      document.removeEventListener('mouseup', stopDrag);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', stopDrag);
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  };
 
   useEffect(() => {
     const savedCollapsed = localStorage.getItem('sidebar-collapsed-categories');
@@ -240,15 +279,29 @@ export function Sidebar({
           "fixed inset-0 z-40 bg-black/50 lg:hidden transition-opacity",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
-        onClick={onClose}
+        onClick={(e) => {
+          e.preventDefault();
+          onClose();
+        }}
       />
 
       <aside
+        style={{
+          width: `${sidebarWidth}px`,
+          minWidth: `${sidebarWidth}px`,
+          maxWidth: `${sidebarWidth}px`,
+          transition: isResizing.current ? 'none' : undefined
+        }}
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-80 bg-background border-r border-border transition-transform lg:relative lg:translate-x-0 flex flex-col",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed left-0 top-0 z-50 h-full bg-background border-r border-border flex flex-col lg:static",
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          "flex-none"
         )}
       >
+        <div
+          className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hidden lg:block hover:bg-primary/10 transition-colors"
+          onMouseDown={startResizing}
+        />
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
