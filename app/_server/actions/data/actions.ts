@@ -20,3 +20,4 @@ export { createBulkItemsAction } from "./item-bulk-actions";
 export { bulkToggleItemsAction } from "./item-bulk-actions";
 
 export { convertChecklistTypeAction } from "./type-conversion";
+export { setCategoryOrderAction, setChecklistOrderInCategoryAction } from "./order-actions";

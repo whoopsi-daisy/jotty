@@ -22,6 +22,10 @@ import {
   DropdownMenuItem,
 } from "@/app/_components/ui/elements/dropdown-menu";
 import { Category, Checklist, Note } from "@/app/_types";
+import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { Draggable } from "./Draggable";
+import { setCategoryOrderAction, setChecklistOrderInCategoryAction } from "@/app/_server/actions/data/actions";
 import { SidebarItem } from "./SidebarItem";
 
 interface SharingStatus {
@@ -61,6 +65,11 @@ export function CategoryList({
   mode,
   getSharingStatus,
 }: CategoryListProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor)
+  );
+
   const getItemsInCategory = (categoryPath: string) => {
     return items.filter(
       (item) =>
@@ -157,27 +166,74 @@ export function CategoryList({
         {!isCollapsed && (
           <>
             {hasSubCategories && (
-              <div className="space-y-1 ml-2 border-l border-border/30 pl-2">
-                {subCategories.map((subCategory) =>
-                  renderCategory(subCategory)
-                )}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={async (event: DragEndEvent) => {
+                  const { active, over } = event;
+                  if (!over) return;
+                  if (active.id === over.id) return;
+                  const ids = subCategories.map((c) => c.name);
+                  const oldIndex = ids.indexOf(active.id as string);
+                  const newIndex = ids.indexOf(over.id as string);
+                  if (oldIndex === -1 || newIndex === -1) return;
+                  const newOrder = arrayMove(ids, oldIndex, newIndex);
+                  const formData = new FormData();
+                  formData.append("type", mode === "notes" ? "notes" : "checklists");
+                  formData.append("parent", category.path);
+                  formData.append("categories", JSON.stringify(newOrder));
+                  await setCategoryOrderAction(formData);
+                }}
+              >
+                <SortableContext items={subCategories.map((c) => c.name)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-1 ml-2 border-l border-border/30 pl-2">
+                    {subCategories.map((subCategory) => (
+                      <Draggable key={subCategory.name} id={subCategory.name} data={{ type: "category", parent: category.path }}>
+                        {renderCategory(subCategory)}
+                      </Draggable>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
             {hasItems && (
-              <div className="space-y-0.5 ml-2 border-l border-border/30 pl-2">
-                {categoryItems.map((item) => (
-                  <SidebarItem
-                    key={item.id}
-                    item={item}
-                    mode={mode}
-                    isSelected={isItemSelected(item)}
-                    onItemClick={onItemClick}
-                    onEditItem={onEditItem}
-                    sharingStatus={getSharingStatus(item.id)}
-                    style={{ paddingLeft: `${category.level * 16}px` }}
-                  />
-                ))}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={async (event: DragEndEvent) => {
+                  const { active, over } = event;
+                  if (!over) return;
+                  if (active.id === over.id) return;
+                  const ids = categoryItems.map((i) => i.id);
+                  const oldIndex = ids.indexOf(active.id as string);
+                  const newIndex = ids.indexOf(over.id as string);
+                  if (oldIndex === -1 || newIndex === -1) return;
+                  const newOrder = arrayMove(ids, oldIndex, newIndex);
+                  const formData = new FormData();
+                  formData.append("type", mode === "notes" ? "notes" : "checklists");
+                  formData.append("category", category.path);
+                  formData.append("items", JSON.stringify(newOrder));
+                  await setChecklistOrderInCategoryAction(formData);
+                }}
+              >
+                <SortableContext items={categoryItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-0.5 ml-2 border-l border-border/30 pl-2">
+                    {categoryItems.map((item) => (
+                      <Draggable key={item.id} id={item.id} data={{ type: "item", category: category.path }}>
+                        <SidebarItem
+                          item={item}
+                          mode={mode}
+                          isSelected={isItemSelected(item)}
+                          onItemClick={onItemClick}
+                          onEditItem={onEditItem}
+                          sharingStatus={getSharingStatus(item.id)}
+                          style={{ paddingLeft: `${category.level * 16}px` }}
+                        />
+                      </Draggable>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </>
         )}
@@ -192,8 +248,34 @@ export function CategoryList({
   const rootCategories = categories.filter((cat) => !cat.parent);
 
   return (
-    <div className="space-y-1">
-      {rootCategories.map((category) => renderCategory(category))}
-    </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={async (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over) return;
+        if (active.id === over.id) return;
+        const ids = rootCategories.map((c) => c.name);
+        const oldIndex = ids.indexOf(active.id as string);
+        const newIndex = ids.indexOf(over.id as string);
+        if (oldIndex === -1 || newIndex === -1) return;
+        const newOrder = arrayMove(ids, oldIndex, newIndex);
+        const formData = new FormData();
+        formData.append("type", mode === "notes" ? "notes" : "checklists");
+        formData.append("parent", "");
+        formData.append("categories", JSON.stringify(newOrder));
+        await setCategoryOrderAction(formData);
+      }}
+    >
+      <SortableContext items={rootCategories.map((c) => c.name)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-1">
+          {rootCategories.map((category) => (
+            <Draggable key={category.name} id={category.name} data={{ type: "category", parent: "" }}>
+              {renderCategory(category)}
+            </Draggable>
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

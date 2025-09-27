@@ -13,6 +13,7 @@ import { getItemsSharedWithUser } from "@/app/_server/actions/sharing/sharing-ut
 import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 import { parseMarkdown } from "./checklist-utils";
+import { readOrderFile } from "./file-actions";
 
 const readListsRecursively = async (
   dir: string,
@@ -22,43 +23,50 @@ const readListsRecursively = async (
   const lists: Checklist[] = [];
   const entries = await readDir(dir);
 
-  const sortedEntries = entries.sort((a, b) => {
-    if (a.isDirectory() && !b.isDirectory()) return -1;
-    if (!a.isDirectory() && b.isDirectory()) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  const order = await readOrderFile(dir);
+  const dirNames = entries.filter(e => e.isDirectory()).map(e => e.name);
+  const fileNames = entries.filter(e => e.isFile() && e.name.endsWith('.md')).map(e => e.name);
 
-  for (const entry of sortedEntries) {
-    if (entry.isDirectory()) {
-      const categoryPath = basePath ? `${basePath}/${entry.name}` : entry.name;
-      const categoryDir = path.join(dir, entry.name);
+  const orderedDirNames: string[] = order?.categories
+    ? [...order.categories.filter(n => dirNames.includes(n)), ...dirNames.filter(n => !order.categories!.includes(n)).sort((a, b) => a.localeCompare(b))]
+    : dirNames.sort((a, b) => a.localeCompare(b));
 
-      try {
-        const files = await readDir(categoryDir);
-        for (const file of files) {
-          if (file.isFile() && file.name.endsWith(".md")) {
-            const id = path.basename(file.name, ".md");
-            const filePath = path.join(categoryDir, file.name);
-            const content = await readFile(filePath);
-            const stats = await fs.stat(filePath);
-            lists.push(
-              parseMarkdown(content, id, categoryPath, owner, false, stats)
-            );
-          }
+  for (const dirName of orderedDirNames) {
+    const categoryPath = basePath ? `${basePath}/${dirName}` : dirName;
+    const categoryDir = path.join(dir, dirName);
+
+    try {
+      const files = await readDir(categoryDir);
+      const mdFiles = files.filter((f) => f.isFile() && f.name.endsWith(".md"));
+
+      const ids = mdFiles.map((f) => path.basename(f.name, ".md"));
+      const categoryOrder = await readOrderFile(categoryDir);
+      const orderedIds: string[] = categoryOrder?.items
+        ? [...categoryOrder.items.filter((id) => ids.includes(id)), ...ids.filter((id) => !categoryOrder.items!.includes(id)).sort((a, b) => a.localeCompare(b))]
+        : ids.sort((a, b) => a.localeCompare(b));
+
+      for (const id of orderedIds) {
+        const fileName = `${id}.md`;
+        const filePath = path.join(categoryDir, fileName);
+        try {
+          const content = await readFile(filePath);
+          const stats = await fs.stat(filePath);
+          lists.push(
+            parseMarkdown(content, id, categoryPath, owner, false, stats)
+          );
+        } catch {
         }
-      } catch (error) {
-        continue;
       }
-
-      const subLists = await readListsRecursively(
-        categoryDir,
-        categoryPath,
-        owner
-      );
-      lists.push(...subLists);
+    } catch {
     }
-  }
 
+    const subLists = await readListsRecursively(
+      categoryDir,
+      categoryPath,
+      owner
+    );
+    lists.push(...subLists);
+  }
   return lists;
 };
 
@@ -127,40 +135,37 @@ const buildChecklistCategoryTree = async (
   const categories: Category[] = [];
   const entries = await readDir(dir);
 
-  // Sort entries: directories first, then files, both alphabetically
-  const sortedEntries = entries.sort((a, b) => {
-    if (a.isDirectory() && !b.isDirectory()) return -1;
-    if (!a.isDirectory() && b.isDirectory()) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  const order = await readOrderFile(dir);
+  const dirNames = entries.filter(e => e.isDirectory()).map(e => e.name);
+  const orderedDirNames: string[] = order?.categories
+    ? [...order.categories.filter(n => dirNames.includes(n)), ...dirNames.filter(n => !order.categories!.includes(n)).sort((a, b) => a.localeCompare(b))]
+    : dirNames.sort((a, b) => a.localeCompare(b));
 
-  for (const entry of sortedEntries) {
-    if (entry.isDirectory()) {
-      const categoryPath = basePath ? `${basePath}/${entry.name}` : entry.name;
-      const categoryDir = path.join(dir, entry.name);
+  for (const dirName of orderedDirNames) {
+    const categoryPath = basePath ? `${basePath}/${dirName}` : dirName;
+    const categoryDir = path.join(dir, dirName);
 
-      const files = await readDir(categoryDir);
-      const count = files.filter(
-        (file) => file.isFile() && file.name.endsWith(".md")
-      ).length;
+    const files = await readDir(categoryDir);
+    const count = files.filter(
+      (file) => file.isFile() && file.name.endsWith(".md")
+    ).length;
 
-      const parent = basePath || undefined;
+    const parent = basePath || undefined;
 
-      categories.push({
-        name: entry.name,
-        count,
-        path: categoryPath,
-        parent,
-        level,
-      });
+    categories.push({
+      name: dirName,
+      count,
+      path: categoryPath,
+      parent,
+      level,
+    });
 
-      const subCategories: Category[] = await buildChecklistCategoryTree(
-        categoryDir,
-        categoryPath,
-        level + 1
-      );
-      categories.push(...subCategories);
-    }
+    const subCategories: Category[] = await buildChecklistCategoryTree(
+      categoryDir,
+      categoryPath,
+      level + 1
+    );
+    categories.push(...subCategories);
   }
 
   return categories;
