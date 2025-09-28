@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { hasUsers } from "@/app/_server/actions/auth/utils";
 import SetupForm from "@/app/(loggedOutRoutes)/auth/setup/setup-form";
+import { AuthShell } from "@/app/_components/features/auth/AuthShell";
 
 export const dynamic = "force-dynamic";
 
@@ -10,5 +11,9 @@ export default async function SetupPage() {
     redirect("/auth/login");
   }
 
-  return <SetupForm />;
+  return (
+    <AuthShell>
+      <SetupForm />
+    </AuthShell>
+  );
 }

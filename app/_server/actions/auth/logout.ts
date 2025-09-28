@@ -40,5 +40,9 @@ export async function logout() {
     cookies().delete("session");
   }
 
-  redirect("/auth/login");
+  if (process.env.SSO_MODE === "oidc") {
+    redirect("/api/oidc/logout");
+  } else {
+    redirect("/auth/login");
+  }
 }

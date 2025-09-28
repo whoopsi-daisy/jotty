@@ -1,3 +1,4 @@
+
 services:
   rwmarkable:
     image: ghcr.io/fccview/rwmarkable:latest
@@ -12,14 +13,24 @@ services:
       # This is needed for persistent data storage on YOUR host machine rather than inside the docker volume.
       - ./data:/app/data:rw
       - ./config:/app/config:ro
+      
       # --- MOUNT CACHE DIRECTORY (OPTIONAL)
       # This improves performance by persisting Next.js cache between restarts
-      # Comment out the next line if you don't want to use cache persistence
       - ./cache:/app/.next/cache:rw
     restart: unless-stopped
     environment:
       - NODE_ENV=production
       # Uncomment to enable HTTPS
       # - HTTPS=true
+
+      # --- SSO WITH OIDC (OPTIONAL) 
+      # - SSO_MODE=oidc
+      # - OIDC_ISSUER=<YOUR_SSO_ISSUER>
+      # - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
+
+      # --- ADMIN GROUP MAPPING, LOCAL FALLBACK AND APP URL (OPTIONAL)
+      #- APP_URL=https://your-rwmarkable-domain.com  # Override URL detection for SSO callbacks (defaults to http://localhost:1122)
+      #- SSO_FALLBACK_LOCAL=true  # Allow both SSO and normal login
+      #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
     # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
     #platform: linux/arm64

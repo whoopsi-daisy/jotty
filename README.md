@@ -81,6 +81,7 @@ The recommended way to run `rwMarkable` is with Docker.
           # This is needed for persistent data storage on YOUR host machine rather than inside the docker volume.
           - ./data:/app/data:rw
           - ./config:/app/config:ro
+          
           # --- MOUNT CACHE DIRECTORY (OPTIONAL)
           # This improves performance by persisting Next.js cache between restarts
           - ./cache:/app/.next/cache:rw
@@ -89,6 +90,16 @@ The recommended way to run `rwMarkable` is with Docker.
           - NODE_ENV=production
           # Uncomment to enable HTTPS
           # - HTTPS=true
+
+          # --- SSO WITH OIDC (OPTIONAL) 
+          # - SSO_MODE=oidc
+          # - OIDC_ISSUER=<YOUR_SSO_ISSUER>
+          # - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
+
+          # --- ADMIN GROUP MAPPING, LOCAL FALLBACK AND APP URL (OPTIONAL)
+          #- APP_URL=https://your-rwmarkable-domain.com  # Override URL detection for SSO callbacks (defaults to http://localhost:1122)
+          #- SSO_FALLBACK_LOCAL=true  # Allow both SSO and normal login
+          #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
         # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
         #platform: linux/arm64
     ```
@@ -172,10 +183,14 @@ The `config/` directory contains configuration files that customize various aspe
 
 Create or edit `config/settings.json` to customize basic application settings:
 
+
 ```json
 {
-  "appName": "Your App Name",
-  "appDescription": "Your custom app description"
+  "appName": "", // The name of the app for pwa and search engines
+  "appDescription": "", // The description for the pwa app and search engines
+  "16x16Icon": "", // The pwa app 16x16 icon
+  "32x32Icon": "", // The pwa app 32x32 icon
+  "180x180Icon": "" // The pwa app 180x180 icon
 }
 ```
 
@@ -186,16 +201,46 @@ These settings will:
 
 If left empty or not set, the default "rwMarkable" name, description and app icon will be used.
 
-```json
-{
-  "appName": "", // The name of the app for pwa and search engines
-  "appDescription": "", // The description for the pwa app and search engines
-  "16x16Icon": "", // The pwa app 16x16 icon
-  "32x32Icon": "", // The pwa app 32x32 icon
-  "180x180Icon": "" // The pwa app 180x180 icon
-}
 
+### Single Sign-On (SSO) with OIDC
+
+rwMarkable supports any OIDC provider (Authentik, Auth0, Keycloak, Okta, etc.) with these requirements:
+- Supports PKCE (most modern providers do)
+- Can be configured as a public client (no client secret needed)
+- Provides standard OIDC scopes (openid, profile, email)
+
+1) Configure your OIDC Provider:
+- Client Type: Public
+- Grant Type: Authorization Code with PKCE
+- Scopes: openid, profile, email
+- Redirect URI: https://YOUR_APP_HOST/api/oidc/callback
+- Post-logout URI: https://YOUR_APP_HOST/
+
+2) Get these values from your provider:
+- Client ID
+- OIDC Issuer URL (usually ends with .well-known/openid-configuration)
+
+3) Set environment variables:
+```yaml
+services:
+  rwmarkable:
+    environment:
+      - SSO_MODE=oidc
+      - OIDC_ISSUER=https://YOUR_SSO_HOST/issuer/path
+      - OIDC_CLIENT_ID=your_client_id
+      # Optional:
+      - APP_URL=https://your-app-domain.com  # Override automatic URL detection for SSO callbacks
+      - SSO_FALLBACK_LOCAL=true  # Allow both SSO and local login
+      - OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
 ```
+
+Dev verified Providers:
+- Auth0 (`OIDC_ISSUER=https://YOUR_TENANT.REGION.auth0.com`)
+- Authentik (`OIDC_ISSUER=https://YOUR_DOMAIN/application/o/APP_SLUG/`)
+
+Other providers will likely work, but I can at least guarantee these do as I have test them both locally.
+
+p.s. **First user to sign in via SSO when no local users exist becomes admin automatically.**
 
 ### Custom Themes and Emojis
 
@@ -268,28 +313,6 @@ For themes, you can use these icon names: `Sun`, `Moon`, `Sunset`, `Waves`, `Tre
 ### Configuration Validation
 
 The app validates your configuration files and will show warnings in the console if there are any format errors. Invalid configs will be ignored and the app will continue working with built-in themes and emojis.
-
-### Docker Setup for Custom Configs
-
-Update your `docker-compose.yml` to include the config volume:
-
-```yaml
-services:
-  app:
-    image: ghcr.io/fccview/rwmarkable:main
-    container_name: rwmarkable
-    user: "1000:1000"
-    ports:
-      - "1122:3000"
-    volumes:
-      - ./data:/app/data:rw
-      - ./config:/app/config:ro
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - HTTPS=false
-    init: true
-```
 
 **Important:** Make sure your local `config/` directory has the correct permissions:
 
