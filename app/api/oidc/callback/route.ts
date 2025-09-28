@@ -74,16 +74,27 @@ export async function GET(request: NextRequest) {
 
     const redirectUri = `${appUrl}/api/oidc/callback`;
 
+    const clientSecret = process.env.OIDC_CLIENT_SECRET;
     const body = new URLSearchParams();
     body.set("grant_type", "authorization_code");
     body.set("code", code);
     body.set("redirect_uri", redirectUri);
     body.set("client_id", clientId);
-    body.set("code_verifier", verifier);
+
+    if (clientSecret) {
+        body.set("client_secret", clientSecret);
+    } else {
+        body.set("code_verifier", verifier);
+    }
 
     const tokenRes = await fetch(tokenEndpoint, {
         method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
+        headers: {
+            "content-type": "application/x-www-form-urlencoded",
+            ...(clientSecret && {
+                "Authorization": `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
+            })
+        },
         body,
     });
     if (!tokenRes.ok) {

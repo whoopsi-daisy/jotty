@@ -27,9 +27,10 @@ services:
       # - SSO_MODE=oidc
       # - OIDC_ISSUER=<YOUR_SSO_ISSUER>
       # - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
+      # - APP_URL=https://your-rwmarkable-domain.com # if not set should default to http://localhost:<port>
 
-      # --- ADMIN GROUP MAPPING, LOCAL FALLBACK AND APP URL (OPTIONAL)
-      #- APP_URL=https://your-rwmarkable-domain.com  # Override URL detection for SSO callbacks (defaults to http://localhost:1122)
+      # --- ADDITIONAL SSO OPTIONS (OPTIONAL)
+      #- OIDC_CLIENT_SECRET=your_client_secret  # Enable confidential client mode with client authentication      
       #- SSO_FALLBACK_LOCAL=true  # Allow both SSO and normal login
       #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
     # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.

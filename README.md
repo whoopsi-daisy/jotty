@@ -66,7 +66,7 @@ The recommended way to run `rwMarkable` is with Docker.
 
 1.  Create a `docker-compose.yml` file:
 
-    ```yaml
+    ```yaml    
     services:
       rwmarkable:
         image: ghcr.io/fccview/rwmarkable:latest
@@ -95,9 +95,10 @@ The recommended way to run `rwMarkable` is with Docker.
           # - SSO_MODE=oidc
           # - OIDC_ISSUER=<YOUR_SSO_ISSUER>
           # - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
+          # - APP_URL=https://your-rwmarkable-domain.com # if not set sholuld default to http://localhost:<port>
 
-          # --- ADMIN GROUP MAPPING, LOCAL FALLBACK AND APP URL (OPTIONAL)
-          #- APP_URL=https://your-rwmarkable-domain.com  # Override URL detection for SSO callbacks (defaults to http://localhost:1122)
+          # --- ADDITIONAL SSO OPTIONS (OPTIONAL)
+          #- OIDC_CLIENT_SECRET=your_client_secret  # Enable confidential client mode with client authentication
           #- SSO_FALLBACK_LOCAL=true  # Allow both SSO and normal login
           #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
         # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
@@ -228,10 +229,13 @@ services:
       - SSO_MODE=oidc
       - OIDC_ISSUER=https://YOUR_SSO_HOST/issuer/path
       - OIDC_CLIENT_ID=your_client_id
-      # Optional:
-      - APP_URL=https://your-app-domain.com  # Override automatic URL detection for SSO callbacks
-      - SSO_FALLBACK_LOCAL=true  # Allow both SSO and local login
-      - OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
+      - APP_URL=https://your-rwmarkable-domain.com # if not set defaults to http://localhost:<port>
+      # Optional security enhancements:
+      - OIDC_CLIENT_SECRET=your_client_secret  # Enable confidential client mode (if your provider requires it)
+      - SSO_FALLBACK_LOCAL=true                # Allow both SSO and local login
+      - OIDC_ADMIN_GROUPS=admins               # Map provider groups to admin role
+
+Note: When OIDC_CLIENT_SECRET is set, rwMarkable switches to confidential client mode using client authentication instead of PKCE. This is more secure but requires provider support.
 ```
 
 Dev verified Providers:
