@@ -30,7 +30,7 @@ export function NoteCard({ note, onSelect }: NoteCardProps) {
           </h3>
           {note.category && (
             <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full flex-shrink-0 ml-2">
-              {note.category}
+              {note.category.split("/").pop()}
             </span>
           )}
         </div>

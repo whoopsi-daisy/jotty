@@ -28,7 +28,7 @@ export function ChecklistCard({ list, onSelect }: ChecklistCardProps) {
         </h3>
         {list.category && (
           <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full flex-shrink-0">
-            {list.category}
+            {list.category.split("/").pop()}
           </span>
         )}
       </div>

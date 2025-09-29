@@ -8,16 +8,22 @@ import { ToastProvider } from "@/app/_providers/ToastProvider";
 import { NavigationGuardProvider } from "@/app/_providers/NavigationGuardProvider";
 import { InstallPrompt } from "@/app/_components/ui/pwa/InstallPrompt";
 import { getSettings } from "@/app/_server/actions/data/file-actions";
+import { DynamicFavicon } from "@/app/_components/ui/elements/DynamicFavicon";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const settings = await getSettings();
   const appName = settings?.appName || "rwMarkable";
-  const appDescription = settings?.appDescription || "A simple, fast, and lightweight checklist and notes application";
-  const app16x16Icon = settings?.["16x16Icon"] || "/app-icons/favicon-16x16.png";
-  const app32x32Icon = settings?.["32x32Icon"] || "/app-icons/favicon-32x32.png";
-  const app180x180Icon = settings?.["180x180Icon"] || "/app-icons/apple-touch-icon.png";
+  const appDescription =
+    settings?.appDescription ||
+    "A simple, fast, and lightweight checklist and notes application";
+  const app16x16Icon =
+    settings?.["16x16Icon"] || "/app-icons/favicon-16x16.png";
+  const app32x32Icon =
+    settings?.["32x32Icon"] || "/app-icons/favicon-32x32.png";
+  const app180x180Icon =
+    settings?.["180x180Icon"] || "/app-icons/apple-touch-icon.png";
 
   return {
     title: appName,
@@ -83,6 +89,7 @@ export default async function RootLayout({
               <NavigationGuardProvider>
                 <ToastProvider>
                   <div className="min-h-screen bg-background text-foreground transition-colors">
+                    <DynamicFavicon />
                     {children}
                     <InstallPrompt />
                   </div>
