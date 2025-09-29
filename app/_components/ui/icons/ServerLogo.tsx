@@ -6,16 +6,24 @@ interface ServerLogoProps {
   size?: "16x16" | "32x32" | "180x180";
 }
 
-export async function ServerLogo({ className = "h-8 w-8", size = "32x32" }: ServerLogoProps) {
+export async function ServerLogo({
+  className = "h-8 w-8",
+  size = "32x32",
+}: ServerLogoProps) {
   try {
     const settings = await getSettings();
-    const iconKey = size === "16x16" ? "16x16Icon" : size === "32x32" ? "32x32Icon" : "180x180Icon";
+    const iconKey =
+      size === "16x16"
+        ? "16x16Icon"
+        : size === "32x32"
+        ? "32x32Icon"
+        : "180x180Icon";
     const iconUrl = settings[iconKey];
-    
+
     if (iconUrl) {
       return (
-        <img 
-          src={iconUrl} 
+        <img
+          src={iconUrl}
           alt="App Logo"
           className={`${className} object-contain`}
         />
@@ -25,6 +33,5 @@ export async function ServerLogo({ className = "h-8 w-8", size = "32x32" }: Serv
     console.error("Error loading custom icon:", error);
   }
 
-  // Fall back to default SVG logo
   return <Logo className={className} />;
 }

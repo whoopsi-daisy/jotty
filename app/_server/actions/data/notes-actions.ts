@@ -2,7 +2,10 @@
 
 import path from "path";
 import { Note, Category } from "@/app/_types";
-import { generateUniqueFilename, sanitizeFilename } from "../../utils/filename-utils";
+import {
+  generateUniqueFilename,
+  sanitizeFilename,
+} from "../../utils/filename-utils";
 import {
   getDocsUserDir,
   ensureDocsDir,
@@ -81,9 +84,16 @@ const readDocsRecursively = async (
   const excludedDirs = ["images", "files"];
 
   const order = await readOrderFile(dir);
-  const dirNames = entries.filter(e => e.isDirectory() && !excludedDirs.includes(e.name)).map(e => e.name);
+  const dirNames = entries
+    .filter((e) => e.isDirectory() && !excludedDirs.includes(e.name))
+    .map((e) => e.name);
   const orderedDirNames: string[] = order?.categories
-    ? [...order.categories.filter(n => dirNames.includes(n)), ...dirNames.filter(n => !order.categories!.includes(n)).sort((a, b) => a.localeCompare(b))]
+    ? [
+        ...order.categories.filter((n) => dirNames.includes(n)),
+        ...dirNames
+          .filter((n) => !order.categories!.includes(n))
+          .sort((a, b) => a.localeCompare(b)),
+      ]
     : dirNames.sort((a, b) => a.localeCompare(b));
 
   for (const dirName of orderedDirNames) {
@@ -96,7 +106,12 @@ const readDocsRecursively = async (
       const ids = mdFiles.map((f) => path.basename(f.name, ".md"));
       const categoryOrder = await readOrderFile(categoryDir);
       const orderedIds: string[] = categoryOrder?.items
-        ? [...categoryOrder.items.filter((id) => ids.includes(id)), ...ids.filter((id) => !categoryOrder.items!.includes(id)).sort((a, b) => a.localeCompare(b))]
+        ? [
+            ...categoryOrder.items.filter((id) => ids.includes(id)),
+            ...ids
+              .filter((id) => !categoryOrder.items!.includes(id))
+              .sort((a, b) => a.localeCompare(b)),
+          ]
         : ids.sort((a, b) => a.localeCompare(b));
 
       for (const id of orderedIds) {
@@ -108,15 +123,11 @@ const readDocsRecursively = async (
           docs.push(
             parseMarkdownDoc(content, id, categoryPath, owner, false, stats)
           );
-        } catch { }
+        } catch {}
       }
-    } catch { }
+    } catch {}
 
-    const subDocs = await readDocsRecursively(
-      categoryDir,
-      categoryPath,
-      owner
-    );
+    const subDocs = await readDocsRecursively(categoryDir, categoryPath, owner);
     docs.push(...subDocs);
   }
 
@@ -147,13 +158,13 @@ export const getDocs = async (username?: string) => {
       const sharedFilePath = sharedItem.filePath
         ? path.join(process.cwd(), "data", "notes", sharedItem.filePath)
         : path.join(
-          process.cwd(),
-          "data",
-          "notes",
-          sharedItem.owner,
-          sharedItem.category || "Uncategorized",
-          `${sharedItem.id}.md`
-        );
+            process.cwd(),
+            "data",
+            "notes",
+            sharedItem.owner,
+            sharedItem.category || "Uncategorized",
+            `${sharedItem.id}.md`
+          );
 
       try {
         const content = await fs.readFile(sharedFilePath, "utf-8");
@@ -192,9 +203,16 @@ const buildCategoryTree = async (
   const excludedDirs = ["images", "files"];
 
   const order = await readOrderFile(dir);
-  const dirNames = entries.filter(e => e.isDirectory() && !excludedDirs.includes(e.name)).map(e => e.name);
+  const dirNames = entries
+    .filter((e) => e.isDirectory() && !excludedDirs.includes(e.name))
+    .map((e) => e.name);
   const orderedDirNames: string[] = order?.categories
-    ? [...order.categories.filter(n => dirNames.includes(n)), ...dirNames.filter(n => !order.categories!.includes(n)).sort((a, b) => a.localeCompare(b))]
+    ? [
+        ...order.categories.filter((n) => dirNames.includes(n)),
+        ...dirNames
+          .filter((n) => !order.categories!.includes(n))
+          .sort((a, b) => a.localeCompare(b)),
+      ]
     : dirNames.sort((a, b) => a.localeCompare(b));
 
   for (const dirName of orderedDirNames) {
@@ -347,15 +365,24 @@ export const updateDocAction = async (formData: FormData) => {
 
     await writeDocsFile(filePath, docToMarkdown(updatedDoc));
 
-    const { getItemSharingMetadata } = await import("@/app/_server/actions/sharing/sharing-utils");
-    const sharingMetadata = await getItemSharingMetadata(id, "document", doc.owner!);
+    const { getItemSharingMetadata } = await import(
+      "@/app/_server/actions/sharing/sharing-utils"
+    );
+    const sharingMetadata = await getItemSharingMetadata(
+      id,
+      "document",
+      doc.owner!
+    );
 
     if (sharingMetadata) {
-      const newFilePath = `${doc.owner}/${updatedDoc.category || "Uncategorized"
-        }/${updatedDoc.id}.md`;
+      const newFilePath = `${doc.owner}/${
+        updatedDoc.category || "Uncategorized"
+      }/${updatedDoc.id}.md`;
 
       if (newId !== id) {
-        const { removeSharedItem, addSharedItem } = await import("@/app/_server/actions/sharing/sharing-utils");
+        const { removeSharedItem, addSharedItem } = await import(
+          "@/app/_server/actions/sharing/sharing-utils"
+        );
 
         await removeSharedItem(id, "document", doc.owner!);
 
@@ -370,7 +397,6 @@ export const updateDocAction = async (formData: FormData) => {
           sharingMetadata.isPubliclyShared
         );
       } else {
-        // ID didn't change, just update the existing sharing entry
         await updateSharedItem(updatedDoc.id, "document", doc.owner!, {
           filePath: newFilePath,
           category: updatedDoc.category,

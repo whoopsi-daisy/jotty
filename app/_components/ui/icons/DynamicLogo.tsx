@@ -42,7 +42,6 @@ export function DynamicLogo({
   }, [size]);
 
   if (loading) {
-    // Show a placeholder while loading
     return <div className={`${className} bg-muted animate-pulse rounded`} />;
   }
 
@@ -53,13 +52,11 @@ export function DynamicLogo({
         alt="App Logo"
         className={`${className} object-contain`}
         onError={() => {
-          // If custom icon fails to load, fall back to default
           setCustomIcon(null);
         }}
       />
     );
   }
 
-  // Fall back to default SVG logo
   return <Logo className={className} />;
 }

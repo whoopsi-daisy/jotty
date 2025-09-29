@@ -21,7 +21,6 @@ export async function GET(
     try {
       const file = await fs.readFile(filepath);
 
-      // Determine content type based on file extension
       const ext = path.extname(filename).toLowerCase();
       let contentType = "application/octet-stream";
 
@@ -44,7 +43,7 @@ export async function GET(
           break;
       }
 
-      return new NextResponse(file, {
+      return new NextResponse(file as any, {
         headers: {
           "Content-Type": contentType,
           "Cache-Control": "public, max-age=31536000, immutable",

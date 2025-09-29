@@ -30,19 +30,16 @@ export async function getAppSettingsAction(): Promise<Result<AppSettings>> {
 
     let settings: AppSettings;
     try {
-      // Try to read from data folder first (new location)
       const settingsContent = await fs.readFile(DATA_SETTINGS_PATH, "utf-8");
       settings = JSON.parse(settingsContent);
     } catch {
       try {
-        // Fallback to config folder (old location)
         const settingsContent = await fs.readFile(
           CONFIG_SETTINGS_PATH,
           "utf-8"
         );
         settings = JSON.parse(settingsContent);
       } catch {
-        // Default settings if no file exists
         settings = {
           appName: "",
           appDescription: "",
@@ -83,7 +80,6 @@ export async function updateAppSettingsAction(
       "180x180Icon": icon180x180,
     };
 
-    // Ensure data directory exists
     const dataDir = path.dirname(DATA_SETTINGS_PATH);
     try {
       await fs.access(dataDir);
@@ -91,10 +87,8 @@ export async function updateAppSettingsAction(
       await fs.mkdir(dataDir, { recursive: true });
     }
 
-    // Write to data folder (new persistent location)
     await fs.writeFile(DATA_SETTINGS_PATH, JSON.stringify(settings, null, 2));
 
-    // Revalidate relevant pages
     revalidatePath("/admin");
     revalidatePath("/");
 
@@ -125,17 +119,14 @@ export async function uploadAppIconAction(
       return { success: false, error: "Invalid icon type" };
     }
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       return { success: false, error: "File must be an image" };
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       return { success: false, error: "File size must be less than 5MB" };
     }
 
-    // Create uploads directory in data folder if it doesn't exist
     const uploadsDir = path.join(process.cwd(), "data", "uploads", "app-icons");
     try {
       await fs.access(uploadsDir);
@@ -143,18 +134,15 @@ export async function uploadAppIconAction(
       await fs.mkdir(uploadsDir, { recursive: true });
     }
 
-    // Generate filename with timestamp
     const timestamp = Date.now();
     const extension = path.extname(file.name);
     const filename = `${iconType}-${timestamp}${extension}`;
     const filepath = path.join(uploadsDir, filename);
 
-    // Save file
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await fs.writeFile(filepath, buffer);
 
-    // Return the file path that can be served directly from data folder
     const publicUrl = `/api/app-icons/${filename}`;
 
     return {

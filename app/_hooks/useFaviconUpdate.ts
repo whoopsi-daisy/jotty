@@ -8,7 +8,6 @@ export function useFaviconUpdate() {
     try {
       const settings = await getSettings();
 
-      // Update 16x16 favicon
       if (settings["16x16Icon"]) {
         let favicon16 = document.querySelector(
           'link[rel="icon"][sizes="16x16"]'
@@ -23,7 +22,6 @@ export function useFaviconUpdate() {
         favicon16.href = settings["16x16Icon"];
       }
 
-      // Update 32x32 favicon
       if (settings["32x32Icon"]) {
         let favicon32 = document.querySelector(
           'link[rel="icon"][sizes="32x32"]'
@@ -37,7 +35,6 @@ export function useFaviconUpdate() {
         }
         favicon32.href = settings["32x32Icon"];
 
-        // Also update the main favicon
         let mainFavicon = document.querySelector(
           'link[rel="icon"]:not([sizes])'
         ) as HTMLLinkElement;
@@ -50,7 +47,6 @@ export function useFaviconUpdate() {
         mainFavicon.href = settings["32x32Icon"];
       }
 
-      // Update Apple Touch Icon
       if (settings["180x180Icon"]) {
         let appleTouchIcon = document.querySelector(
           'link[rel="apple-touch-icon"]'
@@ -65,7 +61,6 @@ export function useFaviconUpdate() {
         appleTouchIcon.href = settings["180x180Icon"];
       }
 
-      // Update app title if custom name is set
       if (settings.appName) {
         document.title = settings.appName;
       }

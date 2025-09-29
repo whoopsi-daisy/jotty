@@ -168,8 +168,6 @@ export async function getItemsSharedByUser(username: string): Promise<{
   };
 }
 
-// removed unused isItemSharedWithUser
-
 export async function getItemSharingMetadata(
   itemId: string,
   type: "checklist" | "document",
