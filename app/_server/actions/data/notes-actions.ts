@@ -3,6 +3,10 @@
 import path from "path";
 import { Note, Category } from "@/app/_types";
 import {
+  generateUniqueFilename,
+  sanitizeFilename,
+} from "../../utils/filename-utils";
+import {
   getDocsUserDir,
   ensureDocsDir,
   readDocsFile,
@@ -15,10 +19,17 @@ import { getCurrentUser } from "@/app/_server/actions/users/current";
 import {
   getItemsSharedWithUser,
   removeSharedItem,
+  updateSharedItem,
 } from "@/app/_server/actions/sharing/sharing-utils";
-import { readUsers, isAdmin, isAuthenticated } from "@/app/_server/actions/auth/utils";
+import {
+  readUsers,
+  isAdmin,
+  isAuthenticated,
+} from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
+import { readOrderFile } from "./file-actions";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 const USER_NOTES_DIR = (username: string) =>
   path.join(process.cwd(), "data", "notes", username);
@@ -63,6 +74,66 @@ const docToMarkdown = (doc: Note): string => {
   return `${header}\n\n${content}`;
 };
 
+const readDocsRecursively = async (
+  dir: string,
+  basePath: string = "",
+  owner: string
+): Promise<Note[]> => {
+  const docs: Note[] = [];
+  const entries = await readDocsDir(dir);
+  const excludedDirs = ["images", "files"];
+
+  const order = await readOrderFile(dir);
+  const dirNames = entries
+    .filter((e) => e.isDirectory() && !excludedDirs.includes(e.name))
+    .map((e) => e.name);
+  const orderedDirNames: string[] = order?.categories
+    ? [
+        ...order.categories.filter((n) => dirNames.includes(n)),
+        ...dirNames
+          .filter((n) => !order.categories!.includes(n))
+          .sort((a, b) => a.localeCompare(b)),
+      ]
+    : dirNames.sort((a, b) => a.localeCompare(b));
+
+  for (const dirName of orderedDirNames) {
+    const categoryPath = basePath ? `${basePath}/${dirName}` : dirName;
+    const categoryDir = path.join(dir, dirName);
+
+    try {
+      const files = await readDocsDir(categoryDir);
+      const mdFiles = files.filter((f) => f.isFile() && f.name.endsWith(".md"));
+      const ids = mdFiles.map((f) => path.basename(f.name, ".md"));
+      const categoryOrder = await readOrderFile(categoryDir);
+      const orderedIds: string[] = categoryOrder?.items
+        ? [
+            ...categoryOrder.items.filter((id) => ids.includes(id)),
+            ...ids
+              .filter((id) => !categoryOrder.items!.includes(id))
+              .sort((a, b) => a.localeCompare(b)),
+          ]
+        : ids.sort((a, b) => a.localeCompare(b));
+
+      for (const id of orderedIds) {
+        const fileName = `${id}.md`;
+        const filePath = path.join(categoryDir, fileName);
+        try {
+          const content = await readDocsFile(filePath);
+          const stats = await fs.stat(filePath);
+          docs.push(
+            parseMarkdownDoc(content, id, categoryPath, owner, false, stats)
+          );
+        } catch {}
+      }
+    } catch {}
+
+    const subDocs = await readDocsRecursively(categoryDir, categoryPath, owner);
+    docs.push(...subDocs);
+  }
+
+  return docs;
+};
+
 export const getDocs = async (username?: string) => {
   try {
     let userDir: string;
@@ -80,50 +151,22 @@ export const getDocs = async (username?: string) => {
     }
     await ensureDocsDir(userDir);
 
-    const categories = await readDocsDir(userDir);
-    const docs: Note[] = [];
-
-    for (const category of categories) {
-      if (!category.isDirectory()) continue;
-
-      const categoryDir = path.join(userDir, category.name);
-      try {
-        const files = await readDocsDir(categoryDir);
-        for (const file of files) {
-          if (file.isFile() && file.name.endsWith(".md")) {
-            const id = path.basename(file.name, ".md");
-            const filePath = path.join(categoryDir, file.name);
-            const content = await readDocsFile(filePath);
-            const stats = await fs.stat(filePath);
-            docs.push(
-              parseMarkdownDoc(
-                content,
-                id,
-                category.name,
-                currentUser.username,
-                false,
-                stats
-              )
-            );
-          }
-        }
-      } catch (error) {
-        continue;
-      }
-    }
+    const docs = await readDocsRecursively(userDir, "", currentUser.username);
 
     const sharedItems = await getItemsSharedWithUser(currentUser.username);
     for (const sharedItem of sharedItems.notes) {
-      try {
-        const sharedFilePath = path.join(
-          process.cwd(),
-          "data",
-          "notes",
-          sharedItem.owner,
-          sharedItem.category || "Uncategorized",
-          `${sharedItem.id}.md`
-        );
+      const sharedFilePath = sharedItem.filePath
+        ? path.join(process.cwd(), "data", "notes", sharedItem.filePath)
+        : path.join(
+            process.cwd(),
+            "data",
+            "notes",
+            sharedItem.owner,
+            sharedItem.category || "Uncategorized",
+            `${sharedItem.id}.md`
+          );
 
+      try {
         const content = await fs.readFile(sharedFilePath, "utf-8");
         const stats = await fs.stat(sharedFilePath);
         docs.push(
@@ -138,6 +181,7 @@ export const getDocs = async (username?: string) => {
         );
       } catch (error) {
         console.error(`Error reading shared document ${sharedItem.id}:`, error);
+        console.error(`File path attempted:`, sharedFilePath);
         continue;
       }
     }
@@ -149,26 +193,64 @@ export const getDocs = async (username?: string) => {
   }
 };
 
+const buildCategoryTree = async (
+  dir: string,
+  basePath: string = "",
+  level: number = 0
+): Promise<Category[]> => {
+  const categories: Category[] = [];
+  const entries = await readDocsDir(dir);
+  const excludedDirs = ["images", "files"];
+
+  const order = await readOrderFile(dir);
+  const dirNames = entries
+    .filter((e) => e.isDirectory() && !excludedDirs.includes(e.name))
+    .map((e) => e.name);
+  const orderedDirNames: string[] = order?.categories
+    ? [
+        ...order.categories.filter((n) => dirNames.includes(n)),
+        ...dirNames
+          .filter((n) => !order.categories!.includes(n))
+          .sort((a, b) => a.localeCompare(b)),
+      ]
+    : dirNames.sort((a, b) => a.localeCompare(b));
+
+  for (const dirName of orderedDirNames) {
+    const categoryPath = basePath ? `${basePath}/${dirName}` : dirName;
+    const categoryDir = path.join(dir, dirName);
+
+    const files = await readDocsDir(categoryDir);
+    const count = files.filter(
+      (file) => file.isFile() && file.name.endsWith(".md")
+    ).length;
+
+    const parent = basePath || undefined;
+
+    categories.push({
+      name: dirName,
+      count,
+      path: categoryPath,
+      parent,
+      level,
+    });
+
+    const subCategories = await buildCategoryTree(
+      categoryDir,
+      categoryPath,
+      level + 1
+    );
+    categories.push(...subCategories);
+  }
+
+  return categories;
+};
+
 export const getDocsCategories = async () => {
   try {
     const userDir = await getDocsUserDir();
     await ensureDocsDir(userDir);
 
-    const entries = await readDocsDir(userDir);
-    const categories: Category[] = [];
-
-    const excludedDirs = ["images", "files"];
-
-    for (const entry of entries) {
-      if (entry.isDirectory() && !excludedDirs.includes(entry.name)) {
-        const categoryDir = path.join(userDir, entry.name);
-        const files = await readDocsDir(categoryDir);
-        const count = files.filter(
-          (file) => file.isFile() && file.name.endsWith(".md")
-        ).length;
-        categories.push({ name: entry.name, count });
-      }
-    }
+    const categories = await buildCategoryTree(userDir);
 
     return { success: true, data: categories };
   } catch (error) {
@@ -188,11 +270,12 @@ export const createDocAction = async (formData: FormData) => {
     }
 
     const userDir = await getDocsUserDir();
-    const id = Date.now().toString();
     const categoryDir = path.join(userDir, category);
-    const filePath = path.join(categoryDir, `${id}.md`);
-
     await ensureDocsDir(categoryDir);
+
+    const filename = await generateUniqueFilename(categoryDir, title);
+    const id = path.basename(filename, ".md");
+    const filePath = path.join(categoryDir, filename);
 
     const newDoc: Note = {
       id,
@@ -239,14 +322,40 @@ export const updateDocAction = async (formData: FormData) => {
     };
 
     const ownerDir = USER_NOTES_DIR(doc.owner!);
-    const filePath = path.join(
+    const categoryDir = path.join(
       ownerDir,
-      updatedDoc.category || "Uncategorized",
-      `${id}.md`
+      updatedDoc.category || "Uncategorized"
     );
+    await ensureDocsDir(categoryDir);
+
+    let newFilename: string;
+    let newId = id;
+
+    const sanitizedTitle = sanitizeFilename(title);
+    const currentFilename = `${id}.md`;
+    const expectedFilename = `${sanitizedTitle}.md`;
+
+    if (title !== doc.title || currentFilename !== expectedFilename) {
+      newFilename = await generateUniqueFilename(categoryDir, title);
+      newId = path.basename(newFilename, ".md");
+    } else {
+      newFilename = `${id}.md`;
+    }
+
+    if (newId !== id) {
+      updatedDoc.id = newId;
+    }
+
+    const filePath = path.join(categoryDir, newFilename);
 
     let oldFilePath: string | null = null;
     if (category && category !== doc.category) {
+      oldFilePath = path.join(
+        ownerDir,
+        doc.category || "Uncategorized",
+        `${id}.md`
+      );
+    } else if (newId !== id) {
       oldFilePath = path.join(
         ownerDir,
         doc.category || "Uncategorized",
@@ -256,8 +365,61 @@ export const updateDocAction = async (formData: FormData) => {
 
     await writeDocsFile(filePath, docToMarkdown(updatedDoc));
 
+    const { getItemSharingMetadata } = await import(
+      "@/app/_server/actions/sharing/sharing-utils"
+    );
+    const sharingMetadata = await getItemSharingMetadata(
+      id,
+      "document",
+      doc.owner!
+    );
+
+    if (sharingMetadata) {
+      const newFilePath = `${doc.owner}/${
+        updatedDoc.category || "Uncategorized"
+      }/${updatedDoc.id}.md`;
+
+      if (newId !== id) {
+        const { removeSharedItem, addSharedItem } = await import(
+          "@/app/_server/actions/sharing/sharing-utils"
+        );
+
+        await removeSharedItem(id, "document", doc.owner!);
+
+        await addSharedItem(
+          updatedDoc.id,
+          "document",
+          updatedDoc.title,
+          doc.owner!,
+          sharingMetadata.sharedWith,
+          updatedDoc.category,
+          newFilePath,
+          sharingMetadata.isPubliclyShared
+        );
+      } else {
+        await updateSharedItem(updatedDoc.id, "document", doc.owner!, {
+          filePath: newFilePath,
+          category: updatedDoc.category,
+          title: updatedDoc.title,
+        });
+      }
+    }
+
     if (oldFilePath && oldFilePath !== filePath) {
       await deleteDocsFile(oldFilePath);
+    }
+
+    try {
+      revalidatePath("/");
+      revalidatePath(`/note/${id}`);
+      if (newId !== id) {
+        revalidatePath(`/note/${newId}`);
+      }
+    } catch (error) {
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
     }
 
     return { success: true, data: updatedDoc };
@@ -307,6 +469,16 @@ export const deleteDocAction = async (formData: FormData) => {
       await removeSharedItem(id, "document", doc.owner);
     }
 
+    try {
+      revalidatePath("/");
+      revalidatePath(`/note/${id}`);
+    } catch (error) {
+      console.warn(
+        "Cache revalidation failed, but data was saved successfully:",
+        error
+      );
+    }
+
     return { success: true };
   } catch (error) {
     return { error: "Failed to delete document" };
@@ -316,9 +488,11 @@ export const deleteDocAction = async (formData: FormData) => {
 export const createDocsCategoryAction = async (formData: FormData) => {
   try {
     const name = formData.get("name") as string;
+    const parent = formData.get("parent") as string;
 
     const userDir = await getDocsUserDir();
-    const categoryDir = path.join(userDir, name);
+    const categoryPath = parent ? path.join(parent, name) : name;
+    const categoryDir = path.join(userDir, categoryPath);
     await ensureDocsDir(categoryDir);
 
     return { success: true };
@@ -329,10 +503,10 @@ export const createDocsCategoryAction = async (formData: FormData) => {
 
 export const deleteDocsCategoryAction = async (formData: FormData) => {
   try {
-    const name = formData.get("name") as string;
+    const categoryPath = formData.get("path") as string;
 
     const userDir = await getDocsUserDir();
-    const categoryDir = path.join(userDir, name);
+    const categoryDir = path.join(userDir, categoryPath);
     await deleteDocsDir(categoryDir);
 
     return { success: true };
@@ -343,16 +517,20 @@ export const deleteDocsCategoryAction = async (formData: FormData) => {
 
 export const renameDocsCategoryAction = async (formData: FormData) => {
   try {
-    const oldName = formData.get("oldName") as string;
+    const oldPath = formData.get("oldPath") as string;
     const newName = formData.get("newName") as string;
 
-    if (!oldName || !newName) {
-      return { error: "Both old and new names are required" };
+    if (!oldPath || !newName) {
+      return { error: "Both old path and new name are required" };
     }
 
     const userDir = await getDocsUserDir();
-    const oldCategoryDir = path.join(userDir, oldName);
-    const newCategoryDir = path.join(userDir, newName);
+    const oldCategoryDir = path.join(userDir, oldPath);
+
+    const pathParts = oldPath.split("/");
+    pathParts[pathParts.length - 1] = newName;
+    const newPath = pathParts.join("/");
+    const newCategoryDir = path.join(userDir, newPath);
 
     if (
       !(await fs
@@ -380,8 +558,8 @@ export const renameDocsCategoryAction = async (formData: FormData) => {
         const filePath = path.join(newCategoryDir, file.name);
         const content = await readDocsFile(filePath);
         const fileId = file.name.replace(".md", "");
-        const doc = parseMarkdownDoc(content, fileId, newName);
-        doc.category = newName;
+        const doc = parseMarkdownDoc(content, fileId, newPath);
+        doc.category = newPath;
         doc.updatedAt = new Date().toISOString();
         await writeDocsFile(filePath, docToMarkdown(doc));
       }
@@ -408,38 +586,8 @@ export const getAllDocs = async () => {
       const userDir = USER_NOTES_DIR(user.username);
 
       try {
-        const categories = await fs.readdir(userDir, { withFileTypes: true });
-
-        for (const category of categories) {
-          if (!category.isDirectory()) continue;
-
-          const categoryDir = path.join(userDir, category.name);
-          try {
-            const files = await fs.readdir(categoryDir, {
-              withFileTypes: true,
-            });
-            for (const file of files) {
-              if (file.isFile() && file.name.endsWith(".md")) {
-                const id = path.basename(file.name, ".md");
-                const content = await fs.readFile(
-                  path.join(categoryDir, file.name),
-                  "utf-8"
-                );
-                allDocs.push(
-                  parseMarkdownDoc(
-                    content,
-                    id,
-                    category.name,
-                    user.username,
-                    false
-                  )
-                );
-              }
-            }
-          } catch (error) {
-            continue;
-          }
-        }
+        const userDocs = await readDocsRecursively(userDir, "", user.username);
+        allDocs.push(...userDocs);
       } catch (error) {
         continue;
       }

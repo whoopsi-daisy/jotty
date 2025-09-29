@@ -27,7 +27,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { Dropdown } from "@/app/_components/ui/elements/dropdown";
+import { CategoryTreeSelector } from "@/app/_components/ui/elements/category-tree-selector";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
 import { TableOfContents } from "./TableOfContents";
 import { Note, Category } from "@/app/_types";
@@ -91,16 +91,6 @@ export function NoteEditor({
 
   const turndownService = useMemo(() => createTurndownService(), []);
 
-  const categoryOptions = [
-    { id: "", name: "Uncategorized", icon: FolderOpen },
-    ...categories
-      .filter((cat) => cat.name !== "Uncategorized")
-      .map((cat) => ({
-        id: cat.name,
-        name: cat.name,
-        icon: Folder,
-      })),
-  ];
 
   useEffect(() => {
     const markdownContent = doc.content || "";
@@ -314,19 +304,19 @@ export function NoteEditor({
     const result = await updateDocAction(formData);
     setIsSaving(false);
 
-    if (result.success) {
+    if (result.success && result.data) {
       setDocContent(markdownOutput);
       setIsEditing(false);
       setLastSavedContent(markdownOutput);
       setHasUnsavedChanges(false);
 
-      const updatedDoc: Note = {
-        ...doc,
-        title,
-        content: markdownOutput,
-        category: isOwner ? category : doc.category,
-        updatedAt: new Date().toISOString(),
-      };
+      const updatedDoc: Note = result.data;
+
+      if (updatedDoc.id !== doc.id) {
+        router.push(`/note/${updatedDoc.id}`);
+        router.refresh();
+        return;
+      }
 
       onUpdate(updatedDoc);
       router.refresh();
@@ -515,10 +505,10 @@ export function NoteEditor({
           <div className="mt-4">
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">Category:</span>
-              <Dropdown
-                value={category}
-                options={categoryOptions}
-                onChange={setCategory}
+              <CategoryTreeSelector
+                categories={categories}
+                selectedCategory={category}
+                onCategorySelect={setCategory}
                 className="w-full lg:w-1/2"
               />
             </div>

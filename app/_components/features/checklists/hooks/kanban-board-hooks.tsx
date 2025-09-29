@@ -88,22 +88,9 @@ export function useKanbanBoard({ checklist, onUpdate }: UseKanbanBoardProps) {
 
     const result = await updateItemStatusAction(formData);
 
-    if (result.success) {
-      const updatedItems = localChecklist.items.map((item) => {
-        if (item.id === activeId) {
-          return { ...item, status: newStatus };
-        }
-        return item;
-      });
-
-      const updatedChecklist = {
-        ...localChecklist,
-        items: updatedItems,
-        updatedAt: new Date().toISOString(),
-      };
-
-      setLocalChecklist(updatedChecklist);
-      onUpdate(updatedChecklist);
+    if (result.success && result.data) {
+      setLocalChecklist(result.data);
+      onUpdate(result.data);
     }
   };
 
@@ -137,13 +124,8 @@ export function useKanbanBoard({ checklist, onUpdate }: UseKanbanBoardProps) {
     setIsLoading(false);
 
     if (result.success && result.data) {
-      const updatedList = {
-        ...localChecklist,
-        items: [...localChecklist.items, ...result.data],
-        updatedAt: new Date().toISOString(),
-      };
-      setLocalChecklist(updatedList);
-      onUpdate(updatedList);
+      setLocalChecklist(result.data);
+      onUpdate(result.data);
     }
   };
 

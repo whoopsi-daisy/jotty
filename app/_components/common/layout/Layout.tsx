@@ -19,7 +19,7 @@ interface LayoutProps {
   sharingStatuses?: Record<string, SharingStatus>;
   onOpenSettings: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
-  onOpenCategoryModal: () => void;
+  onOpenCategoryModal: (parentCategory?: string) => void;
   onCategoryDeleted?: (categoryName: string) => void;
   onCategoryRenamed?: (oldName: string, newName: string) => void;
   children: React.ReactNode;
@@ -58,7 +58,7 @@ export function Layout({
   }
 
   return (
-    <div className="flex h-screen bg-background w-full">
+    <div className="flex h-screen bg-background w-full overflow-hidden relative">
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}

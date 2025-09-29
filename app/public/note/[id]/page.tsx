@@ -24,7 +24,6 @@ export default async function PublicNotePage({ params }: PublicNotePageProps) {
     redirect("/");
   }
 
-  // Check if this note is publicly shared
   const sharingMetadata = await getItemSharingMetadata(
     id,
     "document",
@@ -35,7 +34,5 @@ export default async function PublicNotePage({ params }: PublicNotePageProps) {
     redirect("/");
   }
 
-  return (
-    <PublicNoteView note={note} />
-  );
+  return <PublicNoteView note={note} />;
 }

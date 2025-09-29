@@ -24,7 +24,6 @@ export async function POST(
       formData.append("listId", params.listId);
       formData.append("text", text);
 
-      // Add optional task parameters if provided
       if (status) {
         formData.append("status", status);
       }

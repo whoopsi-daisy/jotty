@@ -44,13 +44,14 @@ export async function readSessions(): Promise<Record<string, string>> {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
+  const sso = process.env.SSO_MODE === "oidc";
+  const users = await readUsers();
+
   const sessionId = cookies().get("session")?.value;
   if (!sessionId) return null;
 
-  const users = await readUsers();
   const sessions = await readSessions();
   const username = sessions[sessionId];
-
   return users.find((u) => u.username === username) || null;
 }
 

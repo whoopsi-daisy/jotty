@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Settings, Users } from "lucide-react";
+import { LogOut, Menu, Settings, Shield, Users } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { SearchBar } from "@/app/_components/common/search/SearchBar";
 import { useRouter } from "next/navigation";
@@ -83,7 +83,7 @@ export function QuickNav({
               onClick={() => checkNavigation(() => router.push("/admin"))}
               className="h-8 w-8 md:h-10 md:w-10 p-0 text-muted-foreground hover:text-foreground"
             >
-              <Users className="h-4 w-4 md:h-5 md:w-5" />
+              <Shield className="h-4 w-4 md:h-5 md:w-5" />
             </Button>
           )}
 

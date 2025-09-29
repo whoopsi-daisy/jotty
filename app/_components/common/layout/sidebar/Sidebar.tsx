@@ -1,6 +1,13 @@
 "use client";
 
-import { useContext, useState, useMemo, useEffect } from "react";
+import {
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/utils";
@@ -17,7 +24,8 @@ import { DeleteCategoryModal } from "@/app/_components/ui/modals/category/Delete
 import { RenameCategoryModal } from "@/app/_components/ui/modals/category/RenameCategory";
 import { EditChecklistModal } from "@/app/_components/ui/modals/checklist/EditChecklistModal";
 import { EditNoteModal } from "@/app/_components/ui/modals/note/EditNoteModal";
-import { Logo } from "@/app/_components/ui/icons/logo";
+import { DynamicLogo } from "@/app/_components/ui/icons/DynamicLogo";
+import { AppName } from "@/app/_components/ui/elements/AppName";
 import { SettingsModal } from "@/app/_components/ui/modals/settings/Settings";
 import { Checklist, Category, Note, AppMode } from "@/app/_types";
 import { useAppMode } from "../../../../_providers/AppModeProvider";
@@ -36,7 +44,7 @@ interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenCreateModal: (initialCategory?: string) => void;
-  onOpenCategoryModal: () => void;
+  onOpenCategoryModal: (parentCategory?: string) => void;
   categories: Category[];
   checklists: Checklist[];
   docs?: Note[];
@@ -72,25 +80,73 @@ export function Sidebar({
     new Set()
   );
   const [sharedItemsCollapsed, setSharedItemsCollapsed] = useState(false);
-  const [isLocalStorageInitialized, setIsLocalStorageInitialized] = useState(false);
+  const [isLocalStorageInitialized, setIsLocalStorageInitialized] =
+    useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(320);
+  const isResizing = useRef(false);
 
   useEffect(() => {
-    const savedCollapsed = localStorage.getItem('sidebar-collapsed-categories');
+    const savedWidth = localStorage.getItem("sidebar-width");
+    if (savedWidth) {
+      const width = parseInt(savedWidth);
+      if (width >= 320 && width <= 800) {
+        setSidebarWidth(width);
+      }
+    }
+  }, []);
+
+  const startResizing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const doDrag = (e: MouseEvent) => {
+      const delta = e.clientX - startX;
+      const newWidth = Math.max(320, Math.min(800, startWidth + delta));
+      setSidebarWidth(newWidth);
+      localStorage.setItem("sidebar-width", newWidth.toString());
+    };
+
+    const stopDrag = () => {
+      document.removeEventListener("mousemove", doDrag);
+      document.removeEventListener("mouseup", stopDrag);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    document.addEventListener("mousemove", doDrag);
+    document.addEventListener("mouseup", stopDrag);
+    document.body.style.cursor = "ew-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  useEffect(() => {
+    const savedCollapsed = localStorage.getItem("sidebar-collapsed-categories");
     if (savedCollapsed) {
       try {
         const categories = JSON.parse(savedCollapsed);
         setCollapsedCategories(new Set(categories));
       } catch (error) {
-        console.error('Failed to parse collapsed categories from localStorage:', error);
+        console.error(
+          "Failed to parse collapsed categories from localStorage:",
+          error
+        );
       }
     }
 
-    const savedSharedItems = localStorage.getItem('sidebar-shared-items-collapsed');
+    const savedSharedItems = localStorage.getItem(
+      "sidebar-shared-items-collapsed"
+    );
     if (savedSharedItems) {
       try {
         setSharedItemsCollapsed(JSON.parse(savedSharedItems));
       } catch (error) {
-        console.error('Failed to parse shared items collapsed state from localStorage:', error);
+        console.error(
+          "Failed to parse shared items collapsed state from localStorage:",
+          error
+        );
       }
     }
 
@@ -101,13 +157,19 @@ export function Sidebar({
     if (!isLocalStorageInitialized) return;
 
     const categoriesArray = Array.from(collapsedCategories);
-    localStorage.setItem('sidebar-collapsed-categories', JSON.stringify(categoriesArray));
+    localStorage.setItem(
+      "sidebar-collapsed-categories",
+      JSON.stringify(categoriesArray)
+    );
   }, [collapsedCategories, isLocalStorageInitialized]);
 
   useEffect(() => {
     if (!isLocalStorageInitialized) return;
 
-    localStorage.setItem('sidebar-shared-items-collapsed', JSON.stringify(sharedItemsCollapsed));
+    localStorage.setItem(
+      "sidebar-shared-items-collapsed",
+      JSON.stringify(sharedItemsCollapsed)
+    );
   }, [sharedItemsCollapsed, isLocalStorageInitialized]);
 
   const [showSettings, setShowSettings] = useState(false);
@@ -120,8 +182,8 @@ export function Sidebar({
     return sharingStatuses[itemId] || null;
   };
 
-  const handleDeleteCategory = (categoryName: string) => {
-    setCategoryToDelete(categoryName);
+  const handleDeleteCategory = (categoryPath: string) => {
+    setCategoryToDelete(categoryPath);
     setShowDeleteCategoryModal(true);
   };
 
@@ -129,7 +191,7 @@ export function Sidebar({
     if (!categoryToDelete) return;
 
     const formData = new FormData();
-    formData.append("name", categoryToDelete);
+    formData.append("path", categoryToDelete);
 
     const result =
       mode === "notes"
@@ -143,17 +205,17 @@ export function Sidebar({
     }
   };
 
-  const handleRenameCategory = (categoryName: string) => {
-    setCategoryToRename(categoryName);
+  const handleRenameCategory = (categoryPath: string) => {
+    setCategoryToRename(categoryPath);
     setShowRenameCategoryModal(true);
   };
 
   const handleConfirmRenameCategory = async (
-    oldName: string,
+    oldPath: string,
     newName: string
   ) => {
     const formData = new FormData();
-    formData.append("oldName", oldName);
+    formData.append("oldPath", oldPath);
     formData.append("newName", newName);
 
     const result =
@@ -164,21 +226,25 @@ export function Sidebar({
     if (result.success) {
       setShowRenameCategoryModal(false);
       setCategoryToRename(null);
-      onCategoryRenamed?.(oldName, newName);
+      onCategoryRenamed?.(oldPath, newName);
     }
   };
 
-  const handleQuickCreate = (categoryName: string) => {
-    onOpenCreateModal(categoryName);
+  const handleQuickCreate = (categoryPath: string) => {
+    onOpenCreateModal(categoryPath);
   };
 
-  const toggleCategory = (categoryName: string) => {
+  const handleCreateSubcategory = (categoryPath: string) => {
+    onOpenCategoryModal(categoryPath);
+  };
+
+  const toggleCategory = (categoryPath: string) => {
     setCollapsedCategories((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(categoryName)) {
-        newSet.delete(categoryName);
+      if (newSet.has(categoryPath)) {
+        newSet.delete(categoryPath);
       } else {
-        newSet.add(categoryName);
+        newSet.add(categoryPath);
       }
       return newSet;
     });
@@ -236,24 +302,36 @@ export function Sidebar({
           "fixed inset-0 z-40 bg-black/50 lg:hidden transition-opacity",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
-        onClick={onClose}
+        onClick={(e) => {
+          e.preventDefault();
+          onClose();
+        }}
       />
 
       <aside
+        style={{
+          width: `${sidebarWidth}px`,
+          minWidth: `${sidebarWidth}px`,
+          maxWidth: `${sidebarWidth}px`,
+          transition: isResizing.current ? "none" : undefined,
+        }}
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-80 bg-background border-r border-border transition-transform lg:relative lg:translate-x-0 flex flex-col",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed left-0 top-0 z-50 h-full bg-background border-r border-border flex flex-col lg:static",
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          "flex-none"
         )}
       >
+        <div
+          className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hidden lg:block hover:bg-primary/10 transition-colors"
+          onMouseDown={startResizing}
+        />
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <a href="/" className="flex items-center gap-3">
-                  <Logo className="h-8 w-8" />
-                  <span className="text-xl font-bold text-foreground">
-                    <span className="text-primary">rw</span>Markable
-                  </span>
+                  <DynamicLogo className="h-8 w-8" size="32x32" />
+                  <AppName className="text-xl font-bold text-foreground" />
                 </a>
               </div>
               <button
@@ -287,6 +365,7 @@ export function Sidebar({
               onDeleteCategory={handleDeleteCategory}
               onRenameCategory={handleRenameCategory}
               onQuickCreate={handleQuickCreate}
+              onCreateSubcategory={handleCreateSubcategory}
               onItemClick={handleItemClick}
               onEditItem={handleEditItem}
               isItemSelected={isItemSelected}
@@ -309,7 +388,7 @@ export function Sidebar({
       {showDeleteCategoryModal && categoryToDelete && (
         <DeleteCategoryModal
           isOpen={showDeleteCategoryModal}
-          categoryName={categoryToDelete}
+          categoryPath={categoryToDelete}
           onClose={() => {
             setShowDeleteCategoryModal(false);
             setCategoryToDelete(null);
@@ -321,7 +400,7 @@ export function Sidebar({
       {showRenameCategoryModal && categoryToRename && (
         <RenameCategoryModal
           isOpen={showRenameCategoryModal}
-          categoryName={categoryToRename}
+          categoryPath={categoryToRename}
           onClose={() => {
             setShowRenameCategoryModal(false);
             setCategoryToRename(null);

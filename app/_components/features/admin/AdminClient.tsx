@@ -16,6 +16,7 @@ import { AdminOverview } from "./components/AdminOverview";
 import { AdminUsers } from "./components/AdminUsers";
 import { AdminContent } from "./components/AdminContent";
 import { AdminSharing } from "./components/AdminSharing";
+import { AppSettingsTab } from "./components/AppSettingsTab";
 
 interface AdminClientProps {
   username: string;
@@ -29,7 +30,7 @@ export function AdminClient({ username }: AdminClientProps) {
   const [globalSharing, setGlobalSharing] = useState<any>({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "content" | "sharing"
+    "overview" | "users" | "content" | "sharing" | "settings"
   >("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserModal, setShowUserModal] = useState(false);
@@ -176,6 +177,7 @@ export function AdminClient({ username }: AdminClientProps) {
         {activeTab === "sharing" && (
           <AdminSharing globalSharing={globalSharing} />
         )}
+        {activeTab === "settings" && <AppSettingsTab />}
       </div>
 
       <UserManagementModal

@@ -29,7 +29,6 @@ export default async function PublicChecklistPage({
     redirect("/");
   }
 
-  // Check if this checklist is publicly shared
   const sharingMetadata = await getItemSharingMetadata(
     id,
     "checklist",

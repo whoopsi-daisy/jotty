@@ -73,7 +73,7 @@ The recommended way to run `rwMarkable` is with Docker.
         container_name: rwmarkable
         user: "1000:1000"
         ports:
-          # Feel free to change the FIRST port, 3000 is very common 
+          # Feel free to change the FIRST port, 3000 is very common
           # so I like to map it to something else (in this case 1122)
           - "1122:3000"
         volumes:
@@ -81,11 +81,26 @@ The recommended way to run `rwMarkable` is with Docker.
           # This is needed for persistent data storage on YOUR host machine rather than inside the docker volume.
           - ./data:/app/data:rw
           - ./config:/app/config:ro
+
+          # --- MOUNT CACHE DIRECTORY (OPTIONAL)
+          # This improves performance by persisting Next.js cache between restarts
+          - ./cache:/app/.next/cache:rw
         restart: unless-stopped
         environment:
           - NODE_ENV=production
           # Uncomment to enable HTTPS
           # - HTTPS=true
+
+          # --- SSO WITH OIDC (OPTIONAL)
+          # - SSO_MODE=oidc
+          # - OIDC_ISSUER=<YOUR_SSO_ISSUER>
+          # - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
+          # - APP_URL=https://your-rwmarkable-domain.com # if not set sholuld default to http://localhost:<port>
+
+          # --- ADDITIONAL SSO OPTIONS (OPTIONAL)
+          #- OIDC_CLIENT_SECRET=your_client_secret  # Enable confidential client mode with client authentication
+          #- SSO_FALLBACK_LOCAL=true  # Allow both SSO and normal login
+          #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
         # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
         #platform: linux/arm64
     ```
@@ -93,9 +108,12 @@ The recommended way to run `rwMarkable` is with Docker.
 2.  Create the data directory and set permissions:
 
     ```bash
-    mkdir -p data/users data/checklists data/notes data/sharing
+    mkdir -p data/users data/checklists data/notes data/sharing cache
     sudo chown -R 1000:1000 data/
+    sudo chown -R 1000:1000 cache/
     ```
+
+    **Note:** The cache directory is optional. If you don't want cache persistence, you can comment out the cache volume line in your `docker-compose.yml`.
 
 3.  Start the container:
 
@@ -133,6 +151,8 @@ If you want to run the app locally for development:
 - `data/notes/`: Stores all notes as `.md` files.
 - `data/users/`: Contains `users.json` and `sessions.json`.
 - `data/sharing/`: Contains `shared-items.json`.
+- `data/settings.json`: App settings (name, description, custom icons).
+- `data/uploads/app-icons/`: Custom uploaded app icons.
 
 **Make sure you back up the `data` directory!**
 
@@ -158,9 +178,63 @@ yarn build
 yarn start
 ```
 
-## Custom Themes and Emojis
+## Configuration
 
-You can easily add custom themes and emojis by creating configuration files in a `config/` directory. These will be automatically loaded and merged with the built-in themes and emojis.
+The `config/` directory contains configuration files that customize various aspects of the application.
+
+### Single Sign-On (SSO) with OIDC
+
+rwMarkable supports any OIDC provider (Authentik, Auth0, Keycloak, Okta, etc.) with these requirements:
+
+- Supports PKCE (most modern providers do)
+- Can be configured as a public client (no client secret needed)
+- Provides standard OIDC scopes (openid, profile, email)
+
+1. Configure your OIDC Provider:
+
+- Client Type: Public
+- Grant Type: Authorization Code with PKCE
+- Scopes: openid, profile, email
+- Redirect URI: https://YOUR_APP_HOST/api/oidc/callback
+- Post-logout URI: https://YOUR_APP_HOST/
+
+2. Get these values from your provider:
+
+- Client ID
+- OIDC Issuer URL (usually ends with .well-known/openid-configuration)
+
+3. Set environment variables:
+
+```yaml
+services:
+  rwmarkable:
+    environment:
+      - SSO_MODE=oidc
+      - OIDC_ISSUER=https://YOUR_SSO_HOST/issuer/path
+      - OIDC_CLIENT_ID=your_client_id
+      - APP_URL=https://your-rwmarkable-domain.com # if not set defaults to http://localhost:<port>
+      # Optional security enhancements:
+      - OIDC_CLIENT_SECRET=your_client_secret # Enable confidential client mode (if your provider requires it)
+      - SSO_FALLBACK_LOCAL=true # Allow both SSO and local login
+      - OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
+
+Note: When OIDC_CLIENT_SECRET is set, rwMarkable switches to confidential client mode using client authentication instead of PKCE. This is more secure but requires provider support.
+```
+
+Dev verified Providers:
+
+- Auth0 (`OIDC_ISSUER=https://YOUR_TENANT.REGION.auth0.com`)
+- Authentik (`OIDC_ISSUER=https://YOUR_DOMAIN/application/o/APP_SLUG/`)
+
+Other providers will likely work, but I can at least guarantee these do as I have test them both locally.
+
+p.s. **First user to sign in via SSO when no local users exist becomes admin automatically.**
+
+### Custom Themes and Emojis
+
+You can easily add custom themes and emojis by creating configuration files in the `config/` directory. These will be automatically loaded and merged with the built-in themes and emojis.
+
+**Note**: While app settings (name, description, icons) are now managed through the admin UI, custom themes and emojis still use the `config/` directory approach below.
 
 ### Custom Themes
 
@@ -230,29 +304,7 @@ For themes, you can use these icon names: `Sun`, `Moon`, `Sunset`, `Waves`, `Tre
 
 The app validates your configuration files and will show warnings in the console if there are any format errors. Invalid configs will be ignored and the app will continue working with built-in themes and emojis.
 
-### Docker Setup for Custom Configs
-
-Update your `docker-compose.yml` to include the config volume:
-
-```yaml
-services:
-  app:
-    image: ghcr.io/fccview/rwmarkable:main
-    container_name: rwmarkable
-    user: "1000:1000"
-    ports:
-      - "1122:3000"
-    volumes:
-      - ./data:/app/data:rw
-      - ./config:/app/config:ro
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - HTTPS=false
-    init: true
-```
-
-**Important:** Make sure your local `config/` directory has the correct permissions:
+**Important:** If you want to use custom themes and emojis, make sure your local `config/` directory has the correct permissions:
 
 ```bash
 mkdir -p config
@@ -308,8 +360,10 @@ I would like to thank the following members for raising issues and help test/deb
         <a href="https://github.com/kn0rr0x"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/13623757?s=96&v=4&size=100"><br />kn0rr0x</a>
       </td>
       <td align="center" valign="top" width="20%">
+        <a href="https://github.com/mroovers"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/108073583?u=f28735093a4131be5876d8bfcee38e18d7293a13&v=4&size=100"><br />mroovers</a>
       </td>
       <td align="center" valign="top" width="20%">
+        <a href="https://github.com/Ryderjj89"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/1996734?u=b64c6cdaebfefe6dacfe4213663df60bb22ccf5f&v=4&size=100"><br />Ryderjj89</a>
       </td>
       <td align="center" valign="top" width="20%">
       </td>
