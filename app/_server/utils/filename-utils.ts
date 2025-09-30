@@ -7,7 +7,8 @@ export function sanitizeFilename(title: string): string {
     .replace(/[^a-z0-9\s-]/g, "") // Remove special characters except spaces and hyphens
     .replace(/\s+/g, "-") // Replace spaces with hyphens
     .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
-    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+    .replace(/^-|-$/g, "") // Remove leading/trailing hyphens
+    .replace(/^$/, '_'); // Ensure filename
 }
 
 export async function generateUniqueFilename(
