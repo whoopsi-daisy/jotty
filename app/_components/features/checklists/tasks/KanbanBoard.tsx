@@ -6,7 +6,7 @@ import { Checklist } from "@/app/_types";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanItem } from "./KanbanItem";
 import { ChecklistHeading } from "../../checklists/common/ChecklistHeading";
-import { BulkPasteModal } from "@/app/_components/ui/modals/bulk-paste/BulkPasteModal";
+import { BulkPasteModal } from "@/app/_components/ui/modals/BulkPasteModal/BulkPasteModal";
 import { useKanbanBoard } from "../hooks/kanban-board-hooks";
 
 interface KanbanBoardProps {

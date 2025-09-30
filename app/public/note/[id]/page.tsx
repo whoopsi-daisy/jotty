@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAllDocs } from "@/app/_server/actions/data/notes-actions";
 import { getItemSharingMetadata } from "@/app/_server/actions/sharing/sharing-utils";
-import { PublicNoteView } from "@/app/_components/features/public/PublicNoteView";
+import { PublicNoteView } from "@/app/_components/features/PublicView/PublicNoteView";
 
 interface PublicNotePageProps {
   params: {
@@ -24,11 +24,7 @@ export default async function PublicNotePage({ params }: PublicNotePageProps) {
     redirect("/");
   }
 
-  const sharingMetadata = await getItemSharingMetadata(
-    id,
-    "document",
-    note.owner!
-  );
+  const sharingMetadata = await getItemSharingMetadata(id, "note", note.owner!);
 
   if (!sharingMetadata || !sharingMetadata.isPubliclyShared) {
     redirect("/");

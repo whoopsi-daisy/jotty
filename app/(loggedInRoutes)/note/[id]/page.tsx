@@ -52,16 +52,17 @@ export default async function NotePage({ params }: NotePageProps) {
       : [];
 
   const allItems = [...docsResult.data];
-  const itemsToCheck = allItems.map(item => ({
+  const itemsToCheck = allItems.map((item) => ({
     id: item.id,
-    type: "document" as const,
-    owner: item.owner || ""
+    type: "note" as const,
+    owner: item.owner || "",
   }));
 
   const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
-  const sharingStatuses = sharingStatusesResult.success && sharingStatusesResult.data
-    ? sharingStatusesResult.data
-    : {};
+  const sharingStatuses =
+    sharingStatusesResult.success && sharingStatusesResult.data
+      ? sharingStatusesResult.data
+      : {};
 
   return (
     <NoteClient

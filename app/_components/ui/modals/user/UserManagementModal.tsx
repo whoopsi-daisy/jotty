@@ -17,7 +17,7 @@ import { User as UserType } from "@/app/_types";
 import { createUserAction } from "@/app/_server/actions/users/create-user";
 import { updateUserAction } from "@/app/_server/actions/users/update-user";
 import { deleteUserAction } from "@/app/_server/actions/users/delete-user";
-import { Modal } from "../../elements/modal";
+import { Modal } from "../Modal";
 import { useToast } from "@/app/_providers/ToastProvider";
 
 interface UserManagementModalProps {

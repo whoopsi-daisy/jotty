@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { QuickNav } from "@/app/_components/features/header/QuickNav";
-import { Sidebar } from "./sidebar/Sidebar";
+import { Sidebar } from "../../features/Sidebar/Sidebar";
 import { Checklist, Category, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 
@@ -44,8 +44,8 @@ export const Layout = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { setMode, isInitialized } = useAppMode();
 
-  const stableDocs = useMemo(() => docs || [], [docs]);
-  const stableLists = useMemo(() => lists || [], [lists]);
+  const notesMemo = useMemo(() => docs || [], [docs]);
+  const listsMemo = useMemo(() => lists || [], [lists]);
 
   if (!isInitialized) {
     return (
@@ -65,8 +65,8 @@ export const Layout = ({
         onOpenCreateModal={onOpenCreateModal}
         onOpenCategoryModal={onOpenCategoryModal}
         categories={categories}
-        checklists={stableLists}
-        docs={stableDocs}
+        checklists={listsMemo}
+        notes={notesMemo}
         sharingStatuses={sharingStatuses}
         username={username}
         isAdmin={isAdmin}
@@ -80,8 +80,8 @@ export const Layout = ({
           onSidebarToggle={() => setSidebarOpen(true)}
           onOpenSettings={onOpenSettings}
           isAdmin={isAdmin}
-          checklists={stableLists}
-          docs={stableDocs}
+          checklists={listsMemo}
+          notes={notesMemo}
           onModeChange={setMode}
         />
 
@@ -89,4 +89,4 @@ export const Layout = ({
       </main>
     </div>
   );
-}
+};

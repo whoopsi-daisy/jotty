@@ -2,18 +2,16 @@
 
 import { CheckCircle } from "lucide-react";
 import { Checklist } from "@/app/_types";
+import { ProgressBar } from "@/app/_components/ui/elements/ProgresssBar";
 
 interface ChecklistProgressProps {
   checklist: Checklist;
 }
 
-export function ChecklistProgress({ checklist }: ChecklistProgressProps) {
-  const completedCount = checklist.items.filter((item) => {
-    if (checklist.type === "task") {
-      return item.status === "completed";
-    }
-    return item.completed;
-  }).length;
+export const ChecklistProgress = ({ checklist }: ChecklistProgressProps) => {
+  const completedCount = checklist.items.filter(
+    (item) => item.completed
+  ).length;
   const totalCount = checklist.items.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
@@ -30,12 +28,8 @@ export function ChecklistProgress({ checklist }: ChecklistProgressProps) {
           {Math.round(progress)}%
         </span>
       </div>
-      <div className="mt-2 w-full bg-muted rounded-full h-2">
-        <div
-          className="bg-primary h-2 rounded-full transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+
+      <ProgressBar progress={progress} />
     </div>
   );
-}
+};

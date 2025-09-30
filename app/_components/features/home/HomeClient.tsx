@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { HomeView } from "@/app/_components/features/home/components/Home";
 import { NotesHomeView } from "@/app/_components/features/notes/components/NotesHome";
-import { CreateListModal } from "@/app/_components/ui/modals/checklist/CreateList";
-import { CreateCategoryModal } from "@/app/_components/ui/modals/category/CreateCategory";
-import { SettingsModal } from "@/app/_components/ui/modals/settings/Settings";
+import { CreateListModal } from "@/app/_components/ui/modals/ChecklistModals/CreateListModal";
+import { CreateCategoryModal } from "@/app/_components/ui/modals/CategoryModals/CreateCategoryModal";
+import { SettingsModal } from "@/app/_components/ui/modals/SettingsModals/Settings";
 import { Layout } from "@/app/_components/common/layout/Layout";
 import { Checklist, Category, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
-import { CreateDocModal } from "@/app/_components/ui/modals/document/CreateDoc";
+import { CreateNoteModal } from "@/app/_components/ui/modals/NotesModal/CreateNoteModal";
 
 interface SharingStatus {
   isShared: boolean;
@@ -40,7 +40,7 @@ export function HomeClient({
   const router = useRouter();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showCreateDocModal, setShowCreateDocModal] = useState(false);
+  const [showCreateNoteModal, setShowCreateNoteModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
   const [initialParentCategory, setInitialParentCategory] =
@@ -49,7 +49,7 @@ export function HomeClient({
 
   const handleOpenCreateModal = (initialCategory?: string) => {
     if (mode === "notes") {
-      setShowCreateDocModal(true);
+      setShowCreateNoteModal(true);
       setInitialCategory(initialCategory || "");
     } else {
       setShowCreateModal(true);
@@ -84,7 +84,7 @@ export function HomeClient({
         <NotesHomeView
           notes={initialDocs}
           categories={initialDocsCategories}
-          onCreateModal={() => setShowCreateDocModal(true)}
+          onCreateModal={() => setShowCreateNoteModal(true)}
           onSelectDoc={handleSelectNote}
         />
       );
@@ -130,14 +130,14 @@ export function HomeClient({
         />
       )}
 
-      {mode === "notes" && showCreateDocModal && (
-        <CreateDocModal
-          onClose={() => setShowCreateDocModal(false)}
-          onCreated={(newDoc) => {
-            if (newDoc) {
-              router.push(`/note/${newDoc.id}`);
+      {mode === "notes" && showCreateNoteModal && (
+        <CreateNoteModal
+          onClose={() => setShowCreateNoteModal(false)}
+          onCreated={(newNote) => {
+            if (newNote) {
+              router.push(`/note/${newNote.id}`);
             }
-            setShowCreateDocModal(false);
+            setShowCreateNoteModal(false);
             router.refresh();
           }}
           categories={initialDocsCategories}

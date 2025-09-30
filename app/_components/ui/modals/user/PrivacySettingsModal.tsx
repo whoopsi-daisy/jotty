@@ -17,7 +17,7 @@ import {
   getPrivacySettingsAction,
   updatePrivacySettingsAction,
 } from "@/app/_server/actions/users/privacy-settings";
-import { Modal } from "../../elements/modal";
+import { Modal } from "../Modal";
 
 interface PrivacySettingsModalProps {
   isOpen: boolean;

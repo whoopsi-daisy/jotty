@@ -8,7 +8,7 @@ import {
   updateSharedItem,
   getItemSharingMetadata,
 } from "./sharing-utils";
-import { Result } from "@/app/_types";
+import { ItemType, Result } from "@/app/_types";
 
 export async function shareItemAction(
   formData: FormData
@@ -20,7 +20,7 @@ export async function shareItemAction(
     }
 
     const itemId = formData.get("itemId") as string;
-    const type = formData.get("type") as "checklist" | "document";
+    const type = formData.get("type") as ItemType;
     const title = formData.get("title") as string;
     const category = formData.get("category") as string;
     const action = formData.get("action") as
@@ -34,7 +34,7 @@ export async function shareItemAction(
       return { success: false, error: "Missing required fields" };
     }
 
-    if (type !== "checklist" && type !== "document") {
+    if (type !== "checklist" && type !== "note") {
       return { success: false, error: "Invalid item type" };
     }
 
@@ -179,7 +179,7 @@ export async function unshareItemAction(
 
 export async function getItemSharingStatusAction(
   itemId: string,
-  type: "checklist" | "document",
+  type: ItemType,
   owner: string
 ): Promise<
   Result<{ isShared: boolean; sharedWith: string[]; isPubliclyShared: boolean }>
@@ -218,7 +218,7 @@ export async function getItemSharingStatusAction(
 }
 
 export async function getAllSharingStatusesAction(
-  items: Array<{ id: string; type: "checklist" | "document"; owner: string }>
+  items: Array<{ id: string; type: ItemType; owner: string }>
 ): Promise<
   Result<
     Record<

@@ -2,32 +2,32 @@
 
 import { LogOut, Menu, Settings, Shield, Users } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { SearchBar } from "@/app/_components/common/search/SearchBar";
+import { SearchBar } from "@/app/_components/features/Search/SearchBar";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/_server/actions/auth/logout";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Checklist, Note, AppMode } from "@/app/_types";
 
-interface HeaderProps {
+interface QuickNavProps {
   showSidebarToggle?: boolean;
   onSidebarToggle?: () => void;
   onOpenSettings?: () => void;
   isAdmin: boolean;
   checklists?: Checklist[];
-  docs?: Note[];
+  notes?: Note[];
   onModeChange?: (mode: AppMode) => void;
 }
 
-export function QuickNav({
+export const QuickNav = ({
   showSidebarToggle = false,
   onSidebarToggle,
   onOpenSettings,
   isAdmin,
   checklists = [],
-  docs = [],
+  notes = [],
   onModeChange,
-}: HeaderProps) {
+}: QuickNavProps) => {
   const router = useRouter();
   const { mode } = useAppMode();
   const { checkNavigation } = useNavigationGuard();
@@ -55,7 +55,7 @@ export function QuickNav({
           <SearchBar
             mode={mode}
             checklists={checklists}
-            docs={docs}
+            notes={notes}
             onModeChange={
               onModeChange
                 ? (mode) => checkNavigation(() => onModeChange(mode))
@@ -99,4 +99,4 @@ export function QuickNav({
       </div>
     </header>
   );
-}
+};

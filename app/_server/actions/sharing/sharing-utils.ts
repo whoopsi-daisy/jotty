@@ -2,7 +2,7 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { SharingMetadata, SharedItem } from "@/app/_types";
+import { SharingMetadata, SharedItem, ItemType } from "@/app/_types";
 
 const SHARING_DIR = path.join(process.cwd(), "data", "sharing");
 const SHARED_ITEMS_FILE = path.join(SHARING_DIR, "shared-items.json");
@@ -43,14 +43,14 @@ export async function writeSharingMetadata(
 async function generateSharingId(
   owner: string,
   itemId: string,
-  type: "checklist" | "document"
+  type: ItemType
 ): Promise<string> {
   return `${owner}-${itemId}-${type}`;
 }
 
 export async function addSharedItem(
   itemId: string,
-  type: "checklist" | "document",
+  type: ItemType,
   title: string,
   owner: string,
   sharedWith: string[],
@@ -85,7 +85,7 @@ export async function addSharedItem(
 
 export async function removeSharedItem(
   itemId: string,
-  type: "checklist" | "document",
+  type: ItemType,
   owner: string
 ): Promise<void> {
   const metadata = await readSharingMetadata();
@@ -102,7 +102,7 @@ export async function removeSharedItem(
 
 export async function updateSharedItem(
   itemId: string,
-  type: "checklist" | "document",
+  type: ItemType,
   owner: string,
   updates: Partial<SharedItem>
 ): Promise<void> {
@@ -170,7 +170,7 @@ export async function getItemsSharedByUser(username: string): Promise<{
 
 export async function getItemSharingMetadata(
   itemId: string,
-  type: "checklist" | "document",
+  type: ItemType,
   owner: string
 ): Promise<SharedItem | null> {
   const metadata = await readSharingMetadata();

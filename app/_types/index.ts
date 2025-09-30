@@ -7,6 +7,8 @@ export interface TimeEntry {
   duration?: number;
 }
 
+export type ItemType = "checklist" | "note";
+
 export interface Item {
   id: string;
   text: string;
@@ -16,6 +18,13 @@ export interface Item {
   timeEntries?: TimeEntry[];
   estimatedTime?: number;
   targetDate?: string;
+}
+
+export interface List {
+  id: string;
+  title: string;
+  category?: string;
+  items: Item[];
 }
 
 export interface Checklist {
@@ -39,6 +48,29 @@ export interface Note {
   updatedAt: string;
   owner?: string;
   isShared?: boolean;
+}
+
+export interface NoteEditorViewModel {
+  title: string;
+  setTitle: (title: string) => void;
+  category: string;
+  setCategory: (category: string) => void;
+  editorContent: string;
+  isEditing: boolean;
+  status: {
+    isSaving: boolean;
+    isAutoSaving: boolean;
+  };
+  handleEdit: () => void;
+  handleCancel: () => void;
+  handleSave: () => void;
+  handleDelete: () => void;
+  handleEditorContentChange: (content: string, isMarkdown: boolean) => void;
+  showUnsavedChangesModal: boolean;
+  setShowUnsavedChangesModal: (show: boolean) => void;
+  handleUnsavedChangesSave: () => void;
+  handleUnsavedChangesDiscard: () => void;
+  derivedMarkdownContent: string;
 }
 
 export interface Category {
@@ -67,7 +99,7 @@ export interface User {
 
 export interface SharedItem {
   id: string;
-  type: "checklist" | "document";
+  type: "checklist" | "note";
   title: string;
   owner: string;
   sharedWith: string[];
@@ -93,7 +125,6 @@ export interface EmojiDictionary {
 }
 
 export type AppMode = "checklists" | "notes";
-
 
 export interface MostActiveSharer {
   username: string;

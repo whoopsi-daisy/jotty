@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { NotesHomeView } from "@/app/_components/features/notes/components/NotesHome";
-import { NoteEditor } from "@/app/_components/features/notes/components/NoteEditor";
-import { EditDocModal } from "@/app/_components/ui/modals/document/EditDoc";
+import { NoteEditor } from "@/app/_components/features/notes/components/NoteEditor/NoteEditor";
+import { EditDocModal } from "@/app/_components/ui/modals/NotesModal/EditDoc";
 import { Note, Category } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 
@@ -62,7 +62,7 @@ export function NotesClient({
     <>
       {selectedDoc ? (
         <NoteEditor
-          doc={selectedDoc}
+          note={selectedDoc}
           categories={categories}
           onUpdate={handleDocUpdate}
           onBack={() => setSelectedNote(null)}
@@ -76,22 +76,6 @@ export function NotesClient({
           categories={categories}
           onCreateModal={onCreateModal}
           onSelectDoc={(id) => setSelectedNote(id)}
-        />
-      )}
-
-      {showEditModal && editingDoc && (
-        <EditDocModal
-          doc={editingDoc}
-          categories={categories}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditingDoc(null);
-          }}
-          onUpdated={() => {
-            setShowEditModal(false);
-            setEditingDoc(null);
-            handleModalClose();
-          }}
         />
       )}
     </>

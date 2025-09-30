@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Note, Category } from "@/app/_types";
-import { NoteEditor } from "./components/NoteEditor";
-import { CreateDocModal } from "@/app/_components/ui/modals/document/CreateDoc";
-import { CreateCategoryModal } from "@/app/_components/ui/modals/category/CreateCategory";
-import { SettingsModal } from "@/app/_components/ui/modals/settings/Settings";
+import { NoteEditor } from "./components/NoteEditor/NoteEditor";
+import { CreateNoteModal } from "@/app/_components/ui/modals/NotesModal/CreateNoteModal";
+import { CreateCategoryModal } from "@/app/_components/ui/modals/CategoryModals/CreateCategoryModal";
+import { SettingsModal } from "@/app/_components/ui/modals/SettingsModals/Settings";
 import { getDocsCategories } from "@/app/_server/actions/data/notes-actions";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/common/layout/Layout";
@@ -96,7 +96,7 @@ export function NoteClient({
       username={username}
     >
       <NoteEditor
-        doc={localNote}
+        note={localNote}
         categories={categories}
         onUpdate={handleUpdate}
         onBack={handleBack}
@@ -106,11 +106,11 @@ export function NoteClient({
       />
 
       {showCreateModal && (
-        <CreateDocModal
+        <CreateNoteModal
           onClose={() => setShowCreateModal(false)}
-          onCreated={(newDoc) => {
-            if (newDoc) {
-              router.push(`/note/${newDoc.id}`);
+          onCreated={(newNote) => {
+            if (newNote) {
+              router.push(`/note/${newNote.id}`);
             }
             setShowCreateModal(false);
             router.refresh();

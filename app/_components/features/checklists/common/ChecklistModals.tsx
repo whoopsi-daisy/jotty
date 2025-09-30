@@ -1,6 +1,6 @@
-import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
-import { ConversionConfirmModal } from "@/app/_components/ui/modals/confirmation/ConversionConfirmModal";
-import { BulkPasteModal } from "@/app/_components/ui/modals/bulk-paste/BulkPasteModal";
+import { ShareModal } from "@/app/_components/ui/modals/SharingModals/ShareModal";
+import { ConversionConfirmModal } from "@/app/_components/ui/modals/ConfirmationModals/ConversionConfirmModal";
+import { BulkPasteModal } from "@/app/_components/ui/modals/BulkPasteModal/BulkPasteModal";
 import { Checklist } from "@/app/_types";
 
 interface ChecklistModalsProps {

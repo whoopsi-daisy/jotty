@@ -14,7 +14,7 @@ import {
 import { Button } from "@/app/_components/ui/elements/button";
 import { deleteAccountAction } from "@/app/_server/actions/users/delete-account";
 import { useRouter } from "next/navigation";
-import { Modal } from "../../elements/modal";
+import { Modal } from "../Modal";
 
 interface DeleteAccountModalProps {
   isOpen: boolean;

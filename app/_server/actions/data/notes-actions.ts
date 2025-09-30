@@ -370,7 +370,7 @@ export const updateDocAction = async (formData: FormData) => {
     );
     const sharingMetadata = await getItemSharingMetadata(
       id,
-      "document",
+      "note",
       doc.owner!
     );
 
@@ -384,11 +384,11 @@ export const updateDocAction = async (formData: FormData) => {
           "@/app/_server/actions/sharing/sharing-utils"
         );
 
-        await removeSharedItem(id, "document", doc.owner!);
+        await removeSharedItem(id, "note", doc.owner!);
 
         await addSharedItem(
           updatedDoc.id,
-          "document",
+          "note",
           updatedDoc.title,
           doc.owner!,
           sharingMetadata.sharedWith,
@@ -397,7 +397,7 @@ export const updateDocAction = async (formData: FormData) => {
           sharingMetadata.isPubliclyShared
         );
       } else {
-        await updateSharedItem(updatedDoc.id, "document", doc.owner!, {
+        await updateSharedItem(updatedDoc.id, "note", doc.owner!, {
           filePath: newFilePath,
           category: updatedDoc.category,
           title: updatedDoc.title,
@@ -466,7 +466,7 @@ export const deleteDocAction = async (formData: FormData) => {
     await deleteDocsFile(filePath);
 
     if (doc.isShared && doc.owner) {
-      await removeSharedItem(id, "document", doc.owner);
+      await removeSharedItem(id, "note", doc.owner);
     }
 
     try {

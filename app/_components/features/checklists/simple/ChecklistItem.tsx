@@ -8,13 +8,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { useSettings } from "@/app/_utils/settings-store";
 import { useEmojiCache } from "@/app/_components/hooks/useEmojiCache";
 import { useState, useEffect, useRef } from "react";
-
-interface Item {
-  id: string;
-  text: string;
-  completed: boolean;
-  order: number;
-}
+import { Item } from "@/app/_types";
+import { TASK_STATUS_CONFIG } from "@/app/_consts/checklists";
 
 interface ChecklistItemProps {
   item: Item;
@@ -23,16 +18,20 @@ interface ChecklistItemProps {
   onDelete: (id: string) => void;
   onEdit?: (id: string, text: string) => void;
   completed?: boolean;
+  isPublicView?: boolean;
+  status?: string;
 }
 
-export function ChecklistItem({
+export const ChecklistItem = ({
   item,
   index,
   onToggle,
   onDelete,
   onEdit,
   completed = false,
-}: ChecklistItemProps) {
+  isPublicView = false,
+  status,
+}: ChecklistItemProps) => {
   const {
     attributes,
     listeners,
@@ -97,25 +96,31 @@ export function ChecklistItem({
         completed && "opacity-80"
       )}
     >
-      <button
-        type="button"
-        {...attributes}
-        {...listeners}
-        className="text-muted-foreground hover:text-foreground cursor-move touch-manipulation"
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
+      {!isPublicView && (
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="text-muted-foreground hover:text-foreground cursor-move touch-manipulation"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      )}
 
       <div className="relative flex items-center">
         <input
           type="checkbox"
-          checked={item.completed}
+          checked={
+            item.completed || status === TASK_STATUS_CONFIG.completed.title
+          }
           id={item.id}
           onChange={(e) => onToggle(item.id, e.target.checked)}
           className={cn(
             "h-5 w-5 rounded border-input focus:ring-2 focus:ring-offset-2 focus:ring-ring",
             "bg-background transition-colors duration-200",
-            item.completed && "bg-primary border-primary"
+            item.completed || status === TASK_STATUS_CONFIG.completed.title
+              ? "bg-primary border-primary"
+              : "bg-background border-input"
           )}
         />
       </div>
@@ -152,7 +157,7 @@ export function ChecklistItem({
           htmlFor={item.id}
           className={cn(
             "flex-1 text-sm transition-all duration-200 cursor-pointer",
-            item.completed
+            item.completed || status === TASK_STATUS_CONFIG.completed.title
               ? "line-through text-muted-foreground"
               : "text-foreground"
           )}
@@ -163,7 +168,7 @@ export function ChecklistItem({
 
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <span className="text-xs text-muted-foreground mr-1">#{index}</span>
-        {!isEditing && onEdit && (
+        {!isEditing && onEdit && !isPublicView && (
           <Button
             variant="ghost"
             size="sm"
@@ -173,15 +178,17 @@ export function ChecklistItem({
             <Edit2 className="h-4 w-4" />
           </Button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onDelete(item.id)}
-          className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-red-50"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        {!isPublicView && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(item.id)}
+            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
   );
-}
+};

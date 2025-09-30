@@ -6,7 +6,7 @@ import { Button } from "@/app/_components/ui/elements/button";
 import { Checklist } from "@/app/_types";
 import { isMobileDevice } from "@/app/_utils/utils";
 import { useChecklist } from "../hooks/simple-checklist-hooks";
-import { useSharingStatus } from "@/app/_components/hooks/useSharingStatus";
+import { useSharing } from "@/app/_components/hooks/useSharing";
 
 interface ChecklistHeadingProps {
   checklist: Checklist;
@@ -35,12 +35,16 @@ export const ChecklistHeading = ({
     list: checklist,
     onUpdate: () => {},
   });
-  const { sharingStatus } = useSharingStatus(
-    checklist.id,
-    "checklist",
-    checklist.owner || "",
-    true
-  );
+  const { sharingStatus } = useSharing({
+    itemId: checklist.id,
+    itemType: "checklist",
+    itemOwner: checklist.owner || "",
+    onClose: () => {},
+    enabled: true,
+    itemTitle: checklist.title,
+    itemCategory: checklist.category,
+    isOpen: true,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

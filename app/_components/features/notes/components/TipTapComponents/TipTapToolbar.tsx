@@ -9,12 +9,11 @@ import {
   Quote,
   Link as LinkIcon,
   Image as ImageIcon,
-  Upload,
   Paperclip,
   Table,
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
-import { FileModal } from "@/app/_components/ui/modals/file/FileModal";
+import { FileModal } from "@/app/_components/ui/modals/FilesModal/FileModal";
 import { CodeBlockDropdown } from "./CodeBlockDropdown";
 import { TableInsertModal } from "./TableInsertModal";
 import { useState } from "react";
@@ -43,7 +42,6 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
     editor.chain().focus().setLink({ href: url }).run();
   };
 
-
   const addImage = () => {
     const url = window.prompt("Image URL");
     if (url) {
@@ -51,18 +49,27 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
     }
   };
 
-  const handleFileSelect = (url: string, type: 'image' | 'file', fileName?: string, mimeType?: string) => {
-    if (type === 'image') {
+  const handleFileSelect = (
+    url: string,
+    type: "image" | "file",
+    fileName?: string,
+    mimeType?: string
+  ) => {
+    if (type === "image") {
       editor.chain().focus().setImage({ src: url }).run();
     } else {
-      const finalFileName = fileName || url.split('/').pop() || 'file';
-      const finalMimeType = mimeType || 'application/octet-stream';
-      editor.chain().focus().setFileAttachment({
-        url,
-        fileName: finalFileName,
-        mimeType: finalMimeType,
-        type: 'file'
-      }).run();
+      const finalFileName = fileName || url.split("/").pop() || "file";
+      const finalMimeType = mimeType || "application/octet-stream";
+      editor
+        .chain()
+        .focus()
+        .setFileAttachment({
+          url,
+          fileName: finalFileName,
+          mimeType: finalMimeType,
+          type: "file",
+        })
+        .run();
     }
   };
 
