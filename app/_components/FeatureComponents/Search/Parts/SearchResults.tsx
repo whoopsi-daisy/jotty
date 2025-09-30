@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckSquare, FileText, Users } from "lucide-react";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { ItemType } from "@/app/_types";
 
 interface SearchResult {

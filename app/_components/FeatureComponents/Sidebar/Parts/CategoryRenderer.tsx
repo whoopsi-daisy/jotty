@@ -10,7 +10,7 @@ import {
   FolderPlus,
 } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { DropdownMenu } from "@/app/_components/GlobalComponents/Dropdowns/DropdownMenu";
 import { AppMode, Category, Checklist, Note } from "@/app/_types";
 import {

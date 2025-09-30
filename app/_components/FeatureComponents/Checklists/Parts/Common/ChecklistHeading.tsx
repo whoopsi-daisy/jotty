@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Plus, ClipboardList, Users, Hash, Check, Globe } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Checklist } from "@/app/_types";
-import { isMobileDevice } from "@/app/_utils/utils";
+import { isMobileDevice } from "@/app/_utils/global-utils";
 import { useChecklist } from "../../../../../_hooks/useChecklist";
 import { useSharing } from "@/app/_hooks/useSharing";
 

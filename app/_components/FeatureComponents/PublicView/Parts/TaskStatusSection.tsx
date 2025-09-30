@@ -1,4 +1,4 @@
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { Item } from "@/app/_types";
 import { ChecklistItem } from "../../Checklists/Parts/Simple/ChecklistItem";
 import { TASK_STATUS_CONFIG } from "@/app/_consts/checklists";

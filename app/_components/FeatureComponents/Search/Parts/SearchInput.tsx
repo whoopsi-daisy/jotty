@@ -2,7 +2,7 @@
 
 import { Search, X } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 
 interface SearchInputProps {
   query: string;

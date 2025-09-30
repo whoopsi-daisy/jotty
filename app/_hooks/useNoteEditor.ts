@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import {
   convertMarkdownToHtml,
   convertHtmlToMarkdownUnified,
-} from "@/app/_utils/markdownUtils";
+} from "@/app/_utils/markdown-utils";
 import { useSettings } from "@/app/_utils/settings-store";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import {

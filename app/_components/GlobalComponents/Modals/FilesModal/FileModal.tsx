@@ -18,7 +18,7 @@ import {
   deleteFileAction,
   FileItem,
 } from "@/app/_server/actions/data/file-actions";
-import { getFileIcon, formatFileSize } from "@/app/_utils/fileIconUtils";
+import { getFileIcon, formatFileSize } from "@/app/_utils/file-icon-utils";
 import Image from "next/image";
 
 interface FileModalProps {

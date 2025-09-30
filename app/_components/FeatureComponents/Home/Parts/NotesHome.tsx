@@ -7,19 +7,19 @@ import { EmptyState } from "@/app/_components/GlobalComponents/Cards/EmptyState"
 import { NoteCard } from "@/app/_components/GlobalComponents/Cards/NoteCard";
 import { StatCard } from "@/app/_components/GlobalComponents/Cards/StatCard";
 
-interface NotesHomeViewProps {
+interface NotesHomeProps {
   notes: Note[];
   categories: Category[];
   onCreateModal: () => void;
-  onSelectDoc: (id: string) => void;
+  onSelectNote: (id: string) => void;
 }
 
-export const NotesHomeView = ({
+export const NotesHome = ({
   notes,
   categories,
   onCreateModal,
-  onSelectDoc,
-}: NotesHomeViewProps) => {
+  onSelectNote,
+}: NotesHomeProps) => {
   const recentDocs = [...notes]
     .sort(
       (a, b) =>
@@ -80,7 +80,7 @@ export const NotesHomeView = ({
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {recentDocs.map((doc) => (
-              <NoteCard key={doc.id} note={doc} onSelect={onSelectDoc} />
+              <NoteCard key={doc.id} note={doc} onSelect={onSelectNote} />
             ))}
           </div>
         </div>

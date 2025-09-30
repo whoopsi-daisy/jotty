@@ -1,9 +1,13 @@
 "use client";
 
-import { useMemo, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+import rehypeRaw from "rehype-raw";
 import { CodeBlockRenderer } from "./TipTapComponents/CodeBlockRenderer";
 import { FileAttachment } from "@/app/_components/GlobalComponents/FormElements/FileAttachment";
-import { parseMarkdownToHtml } from "@/app/_utils/markdownUtils";
+import type { Components } from "react-markdown";
 
 interface UnifiedMarkdownRendererProps {
   content: string;
@@ -65,157 +69,6 @@ export function UnifiedMarkdownRenderer({
     }
   }, [isClient, selectedQuote]);
 
-  useEffect(() => {
-    const addHeadingIds = () => {
-      const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
-      headings.forEach((heading) => {
-        if (!heading.id) {
-          const text = heading.textContent || "";
-          const id = text
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-")
-            .replace(/^-|-$/g, "");
-          heading.id = id;
-        }
-      });
-    };
-
-    const timeoutId = setTimeout(addHeadingIds, 100);
-    return () => clearTimeout(timeoutId);
-  }, [content]);
-
-  const parsedContent = useMemo(() => {
-    if (!content?.trim()) return [];
-
-    const codeBlockRegex = /```(\w*)\r?\n([\s\S]*?)```/g;
-    const fileAttachmentRegex = /\[📎 ([^\]]+)\]\((.+?)\)/g;
-    const parts: JSX.Element[] = [];
-    let lastIndex = 0;
-    let match;
-    let keyCounter = 0;
-
-    const processContent = (text: string) => {
-      const fileAttachmentMatches = Array.from(
-        text.matchAll(fileAttachmentRegex)
-      );
-
-      if (fileAttachmentMatches.length === 0) {
-        return (
-          <div
-            key={`text-${keyCounter++}`}
-            dangerouslySetInnerHTML={{
-              __html: parseMarkdownToHtml(text),
-            }}
-          />
-        );
-      }
-
-      const elements: JSX.Element[] = [];
-      let currentIndex = 0;
-
-      fileAttachmentMatches.forEach((fileMatch, index) => {
-        if (fileMatch.index! > currentIndex) {
-          const beforeText = text.slice(currentIndex, fileMatch.index);
-          if (beforeText.trim()) {
-            elements.push(
-              <div
-                key={`text-${keyCounter++}`}
-                dangerouslySetInnerHTML={{
-                  __html: parseMarkdownToHtml(beforeText),
-                }}
-              />
-            );
-          }
-        }
-
-        const fileName = fileMatch[1];
-        const fileUrl = fileMatch[2];
-        const isImage = fileUrl.includes("/api/image/");
-        const mimeType = isImage ? "image/jpeg" : "application/octet-stream";
-
-        elements.push(
-          <FileAttachment
-            key={`file-${keyCounter++}`}
-            url={fileUrl}
-            fileName={fileName}
-            mimeType={mimeType}
-            type={isImage ? "image" : "file"}
-            className="my-4"
-          />
-        );
-
-        currentIndex = fileMatch.index! + fileMatch[0].length;
-      });
-
-      if (currentIndex < text.length) {
-        const remainingText = text.slice(currentIndex);
-        if (remainingText.trim()) {
-          elements.push(
-            <div
-              key={`text-${keyCounter++}`}
-              dangerouslySetInnerHTML={{
-                __html: parseMarkdownToHtml(remainingText),
-              }}
-            />
-          );
-        }
-      }
-
-      return elements;
-    };
-
-    while ((match = codeBlockRegex.exec(content)) !== null) {
-      if (match.index > lastIndex) {
-        const beforeCode = content.slice(lastIndex, match.index);
-        if (beforeCode.trim()) {
-          const processedElements = processContent(beforeCode);
-          if (Array.isArray(processedElements)) {
-            parts.push(...processedElements);
-          } else {
-            parts.push(processedElements);
-          }
-        }
-      }
-
-      const language = match[1] || "";
-      const code = match[2];
-      parts.push(
-        <CodeBlockRenderer
-          key={`code-${keyCounter++}`}
-          code={code}
-          language={language}
-        />
-      );
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < content.length) {
-      const remaining = content.slice(lastIndex);
-      if (remaining.trim()) {
-        const processedElements = processContent(remaining);
-        if (Array.isArray(processedElements)) {
-          parts.push(...processedElements);
-        } else {
-          parts.push(processedElements);
-        }
-      }
-    }
-
-    if (parts.length === 0) {
-      const processedElements = processContent(content);
-      if (Array.isArray(processedElements)) {
-        parts.push(...processedElements);
-      } else {
-        parts.push(processedElements);
-      }
-    }
-
-    return parts;
-  }, [content]);
-
   if (!content?.trim()) {
     const displayQuote = selectedQuote || "Nothing... a whole lot of nothing.";
 
@@ -235,11 +88,123 @@ export function UnifiedMarkdownRenderer({
     );
   }
 
+  const components: Partial<Components> = {
+    code({ className, children, ...props }) {
+      const match = /language-(\w+)/.exec(className || "");
+      const language = match ? match[1] : "";
+      const codeContent = String(children).replace(/\n$/, "");
+      const inline = !className?.includes("language-");
+
+      if (!inline && language) {
+        return (
+          <CodeBlockRenderer
+            code={codeContent}
+            language={language}
+            showHeader={true}
+            showCopyButton={true}
+          />
+        );
+      }
+
+      return (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      );
+    },
+    a({ href, children, ...props }) {
+      const childText = String(children);
+      const isFileAttachment = childText.startsWith("📎 ") && href;
+
+      if (isFileAttachment) {
+        const fileName = childText.substring(2);
+        const isImage = href.includes("/api/image/");
+        const mimeType = isImage ? "image/jpeg" : "application/octet-stream";
+
+        return (
+          <FileAttachment
+            url={href}
+            fileName={fileName}
+            mimeType={mimeType}
+            type={isImage ? "image" : "file"}
+            className="my-4"
+          />
+        );
+      }
+
+      return (
+        <a href={href} {...props}>
+          {children}
+        </a>
+      );
+    },
+    input({ type, checked, ...props }) {
+      if (type === "checkbox") {
+        return (
+          <input
+            type="checkbox"
+            checked={checked}
+            disabled
+            className="mr-2 cursor-default"
+            {...props}
+          />
+        );
+      }
+      return <input type={type} {...props} />;
+    },
+    ul({ node, className, children, ...props }) {
+      const isTaskList = className?.includes("contains-task-list");
+
+      if (isTaskList) {
+        return (
+          <ul
+            className={`list-none !pl-0 space-y-1 ${className || ""}`}
+            {...props}
+          >
+            {children}
+          </ul>
+        );
+      }
+
+      return (
+        <ul className={className} {...props}>
+          {children}
+        </ul>
+      );
+    },
+    li({ node, className, children, ...props }) {
+      const isTaskItem = className?.includes("task-list-item");
+
+      if (isTaskItem) {
+        return (
+          <li
+            className={`flex items-center gap-1 ${className || ""}`}
+            {...props}
+          >
+            {children}
+          </li>
+        );
+      }
+
+      return (
+        <li className={className} {...props}>
+          {children}
+        </li>
+      );
+    },
+  };
+
   return (
     <div
       className={`prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal [&_table]:border-collapse [&_table]:w-full [&_table]:my-4 [&_th]:border [&_th]:border-border [&_th]:px-3 [&_th]:py-2 [&_th]:bg-muted [&_th]:font-semibold [&_th]:text-left [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_tr:nth-child(even)]:bg-muted/50 ${className}`}
     >
-      {parsedContent}
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeSlug, rehypeRaw]}
+        components={components}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }

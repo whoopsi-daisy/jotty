@@ -3,7 +3,7 @@
 import { Editor } from "@tiptap/react";
 import { ChevronDown, Code } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { codeBlockLanguages } from "@/app/_utils/markdownUtils";
+import { codeBlockLanguages } from "@/app/_utils/markdown-utils";
 import { useState, useRef, useEffect } from "react";
 
 interface CodeBlockDropdownProps {

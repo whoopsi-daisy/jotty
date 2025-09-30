@@ -17,36 +17,54 @@ import { isItemCompleted } from "@/app/_utils/checklist-utils";
 import { StatCard } from "@/app/_components/GlobalComponents/Cards/StatCard";
 import { TaskStatusLabels } from "@/app/_types/enums";
 
-interface HomeViewProps {
+interface ChecklistHomeProps {
   lists: Checklist[];
   onCreateModal: () => void;
   onSelectChecklist?: (id: string) => void;
 }
 
-export function HomeView({
+export const ChecklistHome = ({
   lists,
   onCreateModal,
   onSelectChecklist,
-}: HomeViewProps) {
-  const totalItems = lists.reduce((sum, list) => sum + list.items.length, 0);
-  const completedItems = lists.reduce(
-    (sum, list) =>
-      sum +
-      list.items.filter((item) => isItemCompleted(item, list.type)).length,
-    0
-  );
-  const completionRate =
-    totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+}: ChecklistHomeProps) => {
+  const useHomeStats = () => {
+    const totalItems = lists.reduce((sum, list) => sum + list.items.length, 0);
+    const completedItems = lists.reduce(
+      (sum, list) =>
+        sum +
+        list.items.filter((item) => isItemCompleted(item, list.type)).length,
+      0
+    );
+    const completionRate =
+      totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+    const recentLists = [...lists]
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
+      .slice(0, 12);
+    const taskLists = recentLists.filter((list) => list.type === "task");
+    const simpleLists = recentLists.filter((list) => list.type === "simple");
 
-  const recentLists = [...lists]
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    )
-    .slice(0, 12);
+    return {
+      totalItems,
+      completedItems,
+      completionRate,
+      recentLists,
+      taskLists,
+      simpleLists,
+    };
+  };
 
-  const taskLists = recentLists.filter((list) => list.type === "task");
-  const simpleLists = recentLists.filter((list) => list.type === "simple");
+  const {
+    totalItems,
+    completedItems,
+    completionRate,
+    recentLists,
+    taskLists,
+    simpleLists,
+  } = useHomeStats();
 
   if (lists.length === 0) {
     return (
@@ -150,4 +168,4 @@ export function HomeView({
       </div>
     </div>
   );
-}
+};

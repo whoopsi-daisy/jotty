@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { Checklist, Note, AppMode } from "@/app/_types";
 import { SearchInput } from "./Parts/SearchInput";
 import { SearchResults } from "./Parts/SearchResults";

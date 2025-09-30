@@ -1,5 +1,6 @@
 import TurndownService from "turndown";
 import { marked } from "marked";
+const turndownPluginGfm = require("turndown-plugin-gfm");
 import {
   FileCode,
   Terminal,
@@ -18,6 +19,8 @@ export const createTurndownService = () => {
     bulletListMarker: "-",
     br: "\n",
   });
+
+  service.use(turndownPluginGfm.gfm);
 
   const originalTurndown = service.turndown;
   service.turndown = function (html) {
@@ -49,47 +52,6 @@ export const createTurndownService = () => {
       }
     },
   });
-
-  service.addRule("table", {
-    filter: "table",
-    replacement: (content, node) => {
-      const table = node as HTMLTableElement;
-      const rows = Array.from(table.querySelectorAll("tr"));
-
-      if (rows.length === 0) return "";
-
-      const markdownRows = rows.map((row, index) => {
-        const cells = Array.from(row.querySelectorAll("td, th"));
-        const cellContents = cells.map(cell => {
-          const text = cell.textContent?.trim() || "";
-          return text.replace(/\|/g, "\\|");
-        });
-        return "| " + cellContents.join(" | ") + " |";
-      });
-
-      if (markdownRows.length > 1) {
-        const headerSeparator = "|" + " --- |".repeat(markdownRows[0].split("|").length - 2);
-        return "\n" + markdownRows[0] + "\n" + headerSeparator + "\n" + markdownRows.slice(1).join("\n") + "\n";
-      }
-
-      return "\n" + markdownRows.join("\n") + "\n";
-    },
-  });
-
-  service.escape = function (string) {
-    return string
-      .replace(/\\/g, "\\\\")
-      .replace(/\*/g, "\\*")
-      .replace(/^-/gm, "\\-")
-      .replace(/^\+ /gm, "\\+ ")
-      .replace(/^(\d+)\. /gm, "$1\\. ")
-      .replace(/^>/gm, "\\>")
-      .replace(/_/g, "\\_")
-      .replace(/^#/gm, "\\#")
-      .replace(/^(\s*)(#{1,6}\s+)/gm, "$1\\$2")
-      .replace(/`/g, "\\`")
-      .replace(/^~~~/gm, "\\~~~");
-  };
 
   return service;
 };

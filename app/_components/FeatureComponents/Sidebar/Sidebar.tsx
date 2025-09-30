@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import {
   deleteCategoryAction,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 
 interface DropdownItem {
   type?: "item" | "divider";

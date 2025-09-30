@@ -1,4 +1,4 @@
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { Button } from "../../../Buttons/Button";
 import { Loader2, MessageCircle, Facebook, Mail } from "lucide-react";
 import { Copy } from "lucide-react";

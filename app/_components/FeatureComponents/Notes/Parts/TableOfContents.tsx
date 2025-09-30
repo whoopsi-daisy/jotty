@@ -2,7 +2,7 @@
 
 import { useMemo, useEffect, useState } from "react";
 import { List } from "lucide-react";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 
 interface Heading {
   id: string;
@@ -16,7 +16,10 @@ interface TableOfContentsProps {
   className?: string;
 }
 
-export function TableOfContents({ content, className }: TableOfContentsProps) {
+export const TableOfContents = ({
+  content,
+  className,
+}: TableOfContentsProps) => {
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
   const [headings, setHeadings] = useState<Heading[]>([]);
 
@@ -149,4 +152,4 @@ export function TableOfContents({ content, className }: TableOfContentsProps) {
       </nav>
     </div>
   );
-}
+};

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { HomeView } from "@/app/_components/FeatureComponents/Home/Parts/Home";
-import { NotesHomeView } from "@/app/_components/FeatureComponents/Notes/Parts/NotesHome";
+import { ChecklistHome } from "@/app/_components/FeatureComponents/Home/Parts/ChecklistHome";
+import { NotesHome } from "@/app/_components/FeatureComponents/Home/Parts/NotesHome";
 import { CreateListModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/CreateListModal";
 import { CreateCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/CreateCategoryModal";
 import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
@@ -29,7 +29,7 @@ interface HomeClientProps {
   isAdmin: boolean;
 }
 
-export function HomeClient({
+export const HomeClient = ({
   initialLists,
   initialCategories,
   initialDocs,
@@ -37,7 +37,7 @@ export function HomeClient({
   sharingStatuses,
   username,
   isAdmin,
-}: HomeClientProps) {
+}: HomeClientProps) => {
   const router = useRouter();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -63,43 +63,6 @@ export function HomeClient({
     setInitialParentCategory(parentCategory || "");
   };
 
-  const handleCategoryDeleted = (categoryName: string) => {
-    router.refresh();
-  };
-
-  const handleCategoryRenamed = (oldName: string, newName: string) => {
-    router.refresh();
-  };
-
-  const handleSelectChecklist = (id: string) => {
-    router.push(`/checklist/${id}`);
-  };
-
-  const handleSelectNote = (id: string) => {
-    router.push(`/note/${id}`);
-  };
-
-  const renderContent = () => {
-    if (mode === Modes.NOTES) {
-      return (
-        <NotesHomeView
-          notes={initialDocs}
-          categories={initialDocsCategories}
-          onCreateModal={() => setShowCreateNoteModal(true)}
-          onSelectDoc={handleSelectNote}
-        />
-      );
-    }
-
-    return (
-      <HomeView
-        lists={initialLists}
-        onCreateModal={() => setShowCreateModal(true)}
-        onSelectChecklist={handleSelectChecklist}
-      />
-    );
-  };
-
   return (
     <Layout
       lists={initialLists}
@@ -113,39 +76,58 @@ export function HomeClient({
       onOpenCategoryModal={handleOpenCategoryModal}
       isAdmin={isAdmin}
       username={username}
-      onCategoryDeleted={handleCategoryDeleted}
-      onCategoryRenamed={handleCategoryRenamed}
+      onCategoryDeleted={() => router.refresh()}
+      onCategoryRenamed={() => router.refresh()}
     >
-      {renderContent()}
+      {mode === Modes.CHECKLISTS && (
+        <>
+          <ChecklistHome
+            lists={initialLists}
+            onCreateModal={() => setShowCreateModal(true)}
+            onSelectChecklist={(id) => router.push(`/checklist/${id}`)}
+          />
 
-      {mode === Modes.CHECKLISTS && showCreateModal && (
-        <CreateListModal
-          onClose={() => setShowCreateModal(false)}
-          onCreated={(newChecklist) => {
-            if (newChecklist) {
-              router.push(`/checklist/${newChecklist.id}`);
-            }
-            setShowCreateModal(false);
-            router.refresh();
-          }}
-          categories={initialCategories}
-          initialCategory={initialCategory}
-        />
+          {showCreateModal && (
+            <CreateListModal
+              onClose={() => setShowCreateModal(false)}
+              onCreated={(newChecklist) => {
+                if (newChecklist) {
+                  router.push(`/checklist/${newChecklist.id}`);
+                }
+                setShowCreateModal(false);
+                router.refresh();
+              }}
+              categories={initialCategories}
+              initialCategory={initialCategory}
+            />
+          )}
+        </>
       )}
 
-      {mode === Modes.NOTES && showCreateNoteModal && (
-        <CreateNoteModal
-          onClose={() => setShowCreateNoteModal(false)}
-          onCreated={(newNote) => {
-            if (newNote) {
-              router.push(`/note/${newNote.id}`);
-            }
-            setShowCreateNoteModal(false);
-            router.refresh();
-          }}
-          categories={initialDocsCategories}
-          initialCategory={initialCategory}
-        />
+      {mode === Modes.NOTES && (
+        <>
+          <NotesHome
+            notes={initialDocs}
+            categories={initialDocsCategories}
+            onCreateModal={() => setShowCreateNoteModal(true)}
+            onSelectNote={(id) => router.push(`/note/${id}`)}
+          />
+
+          {showCreateNoteModal && (
+            <CreateNoteModal
+              onClose={() => setShowCreateNoteModal(false)}
+              onCreated={(newNote) => {
+                if (newNote) {
+                  router.push(`/note/${newNote.id}`);
+                }
+                setShowCreateNoteModal(false);
+                router.refresh();
+              }}
+              categories={initialDocsCategories}
+              initialCategory={initialCategory}
+            />
+          )}
+        </>
       )}
 
       {showCategoryModal && (
@@ -173,4 +155,4 @@ export function HomeClient({
       />
     </Layout>
   );
-}
+};

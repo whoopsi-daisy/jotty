@@ -2,7 +2,7 @@
 
 import { Trash2, GripVertical, Edit2, Check, X } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useSettings } from "@/app/_utils/settings-store";

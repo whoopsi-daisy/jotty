@@ -20,7 +20,7 @@ import {
   convertMarkdownToHtml,
   convertHtmlToMarkdownUnified,
   getMarkdownPreviewContent,
-} from "@/app/_utils/markdownUtils";
+} from "@/app/_utils/markdown-utils";
 
 type TiptapEditorProps = {
   content: string;

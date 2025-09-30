@@ -7,7 +7,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Item } from "@/app/_types";
 import { KanbanItem } from "./KanbanItem";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { TaskStatus } from "@/app/_types/enums";
 
 interface KanbanColumnProps {

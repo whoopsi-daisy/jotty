@@ -1,4 +1,4 @@
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { AlertCircle, Check } from "lucide-react";
 
 interface FeedbackMessageProps {

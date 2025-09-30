@@ -2,7 +2,7 @@
 
 import { Users, FileText, Activity, Shield, Settings } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 
 type AdminTab = "overview" | "users" | "content" | "sharing" | "settings";
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Check, AlertCircle } from "lucide-react";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 
 export interface Toast {
   id: string;

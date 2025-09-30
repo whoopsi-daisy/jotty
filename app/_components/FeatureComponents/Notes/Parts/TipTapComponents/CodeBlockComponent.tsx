@@ -8,7 +8,7 @@ import {
   getLanguageFromCode,
   languageIcons,
   codeBlockLanguages,
-} from "@/app/_utils/markdownUtils";
+} from "@/app/_utils/markdown-utils";
 import { Code, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 

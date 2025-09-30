@@ -2,7 +2,7 @@
 
 import { Download, Eye } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { getFileIcon, getFileTypeDisplay } from "@/app/_utils/fileIconUtils";
+import { getFileIcon, getFileTypeDisplay } from "@/app/_utils/file-icon-utils";
 import Image from "next/image";
 
 interface FileAttachmentProps {

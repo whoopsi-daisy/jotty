@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { Category } from "@/app/_types";
 
 interface CategoryTreeSelectorProps {
@@ -21,24 +21,26 @@ export function CategoryTreeSelector({
   className,
 }: CategoryTreeSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set()
+  );
 
   const getRootCategories = () => {
-    return categories.filter(cat => !cat.parent);
+    return categories.filter((cat) => !cat.parent);
   };
 
   const getSubCategories = (parentPath: string) => {
-    return categories.filter(cat => cat.parent === parentPath);
+    return categories.filter((cat) => cat.parent === parentPath);
   };
 
   const getSelectedCategoryName = () => {
     if (!selectedCategory) return placeholder;
-    const category = categories.find(cat => cat.path === selectedCategory);
+    const category = categories.find((cat) => cat.path === selectedCategory);
     return category ? category.name : selectedCategory;
   };
 
   const toggleExpanded = (categoryPath: string) => {
-    setExpandedCategories(prev => {
+    setExpandedCategories((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(categoryPath)) {
         newSet.delete(categoryPath);
@@ -104,7 +106,9 @@ export function CategoryTreeSelector({
 
         {isExpanded && hasSubCategories && (
           <div className="ml-2">
-            {subCategories.map(subCategory => renderCategoryNode(subCategory))}
+            {subCategories.map((subCategory) =>
+              renderCategoryNode(subCategory)
+            )}
           </div>
         )}
       </div>
@@ -124,7 +128,12 @@ export function CategoryTreeSelector({
       >
         <Folder className="h-4 w-4 text-muted-foreground" />
         <span className="truncate">{getSelectedCategoryName()}</span>
-        <ChevronDown className={cn("h-4 w-4 ml-auto transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 ml-auto transition-transform",
+            isOpen && "rotate-180"
+          )}
+        />
       </button>
 
       {isOpen && (
@@ -153,7 +162,9 @@ export function CategoryTreeSelector({
                 <span>Uncategorized</span>
               </div>
 
-              {getRootCategories().map(category => renderCategoryNode(category))}
+              {getRootCategories().map((category) =>
+                renderCategoryNode(category)
+              )}
             </div>
           </div>
         </>

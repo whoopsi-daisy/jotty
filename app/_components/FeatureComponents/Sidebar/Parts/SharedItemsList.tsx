@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Users, User } from "lucide-react";
-import { cn } from "@/app/_utils/utils";
+import { cn } from "@/app/_utils/global-utils";
 import { AppMode, Checklist, Note } from "@/app/_types";
 import { SidebarItem } from "./SidebarItem";
 

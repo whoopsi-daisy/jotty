@@ -5,7 +5,10 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check, Code } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { languageIcons, getLanguageFromCode } from "@/app/_utils/markdownUtils";
+import {
+  languageIcons,
+  getLanguageFromCode,
+} from "@/app/_utils/markdown-utils";
 
 interface CodeBlockRendererProps {
   code: string;
