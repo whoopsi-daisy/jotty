@@ -4,7 +4,6 @@ import slugify from "slugify";
 
 export function sanitizeFilename(title: string): string {
   const ascii = slugify(title, { lower: true, strict: true, locale: "en" });
-
   return ascii.replace(/^[.-]+|[.-]+$/g, "").replace(/\.+/g, ".");
 }
 
