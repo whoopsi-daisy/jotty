@@ -1,13 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
+import slugify from "slugify";
 
 export function sanitizeFilename(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters except spaces and hyphens
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
-    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+  const ascii = slugify(title, { lower: true, strict: true, locale: "en" });
+
+  return ascii.replace(/^[.-]+|[.-]+$/g, "").replace(/\.+/g, ".");
 }
 
 export async function generateUniqueFilename(
@@ -15,7 +13,11 @@ export async function generateUniqueFilename(
   baseTitle: string,
   extension: string = ".md"
 ): Promise<string> {
-  const sanitizedTitle = sanitizeFilename(baseTitle);
+  let sanitizedTitle = sanitizeFilename(baseTitle);
+  if (!sanitizedTitle) {
+    const uid = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+    sanitizedTitle = uid;
+  }
   let filename = `${sanitizedTitle}${extension}`;
   let counter = 1;
 
