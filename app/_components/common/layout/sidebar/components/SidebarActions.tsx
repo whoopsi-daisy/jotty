@@ -10,19 +10,17 @@ interface SidebarActionsProps {
   mode: AppMode;
   onOpenCreateModal: (initialCategory?: string) => void;
   onOpenCategoryModal: () => void;
-  onOpenSettings: () => void;
   username: string;
   isAdmin: boolean;
 }
 
-export function SidebarActions({
+export const SidebarActions = ({
   mode,
   onOpenCreateModal,
   onOpenCategoryModal,
-  onOpenSettings,
   username,
   isAdmin,
-}: SidebarActionsProps) {
+}: SidebarActionsProps) => {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
 

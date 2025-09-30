@@ -11,7 +11,7 @@ interface AdminTabsProps {
   onTabChange: (tab: AdminTab) => void;
 }
 
-export function AdminTabs({ activeTab, onTabChange }: AdminTabsProps) {
+export const AdminTabs = ({ activeTab, onTabChange }: AdminTabsProps) => {
   const tabs = [
     {
       id: "overview" as AdminTab,
@@ -66,4 +66,4 @@ export function AdminTabs({ activeTab, onTabChange }: AdminTabsProps) {
       </div>
     </div>
   );
-}
+};

@@ -55,7 +55,7 @@ interface SidebarProps {
   onCategoryRenamed?: (oldName: string, newName: string) => void;
 }
 
-export function Sidebar({
+export const Sidebar = ({
   isOpen,
   onClose,
   onOpenCreateModal,
@@ -68,7 +68,7 @@ export function Sidebar({
   isAdmin,
   onCategoryDeleted,
   onCategoryRenamed,
-}: SidebarProps) {
+}: SidebarProps) => {
   const [showDeleteCategoryModal, setShowDeleteCategoryModal] = useState(false);
   const [showRenameCategoryModal, setShowRenameCategoryModal] = useState(false);
   const [showEditChecklistModal, setShowEditChecklistModal] = useState(false);
@@ -378,7 +378,6 @@ export function Sidebar({
             mode={mode}
             onOpenCreateModal={onOpenCreateModal}
             onOpenCategoryModal={onOpenCategoryModal}
-            onOpenSettings={() => setShowSettings(true)}
             username={username}
             isAdmin={isAdmin}
           />

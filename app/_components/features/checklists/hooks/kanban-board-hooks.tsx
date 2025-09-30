@@ -15,7 +15,10 @@ interface UseKanbanBoardProps {
   onUpdate: (updatedChecklist: Checklist) => void;
 }
 
-export function useKanbanBoard({ checklist, onUpdate }: UseKanbanBoardProps) {
+export const useKanbanBoard = ({
+  checklist,
+  onUpdate,
+}: UseKanbanBoardProps) => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [localChecklist, setLocalChecklist] = useState(checklist);
   const [isLoading, setIsLoading] = useState(false);
@@ -149,4 +152,4 @@ export function useKanbanBoard({ checklist, onUpdate }: UseKanbanBoardProps) {
     handleBulkPaste,
     activeItem,
   };
-}
+};

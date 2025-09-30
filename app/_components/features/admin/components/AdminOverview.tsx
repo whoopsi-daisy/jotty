@@ -1,6 +1,8 @@
 "use client";
 
 import { Users, FileText, CheckSquare, Shield, Share2 } from "lucide-react";
+import { StatCard } from "@/app/_components/ui/cards/StatCard";
+import { ReactNode } from "react";
 
 interface AdminStats {
   totalUsers: number;
@@ -16,42 +18,42 @@ interface AdminOverviewProps {
   stats: AdminStats;
 }
 
-export function AdminOverview({ stats }: AdminOverviewProps) {
+export const AdminOverview = ({ stats }: AdminOverviewProps) => {
   const statCards = [
     {
       title: "Total Users",
       value: stats.totalUsers,
-      icon: Users,
+      icon: <Users className="h-6 w-6 text-primary" />,
     },
     {
       title: "Admin Users",
       value: stats.adminUsers,
-      icon: Shield,
+      icon: <Shield className="h-6 w-6 text-primary" />,
     },
     {
       title: "Total Checklists",
       value: stats.totalChecklists,
-      icon: CheckSquare,
+      icon: <CheckSquare className="h-6 w-6 text-primary" />,
     },
     {
       title: "Total Notes",
       value: stats.totalNotes,
-      icon: FileText,
+      icon: <FileText className="h-6 w-6 text-primary" />,
     },
     {
       title: "Shared Checklists",
       value: stats.sharedChecklists,
-      icon: CheckSquare,
+      icon: <CheckSquare className="h-6 w-6 text-primary" />,
     },
     {
       title: "Shared Notes",
       value: stats.sharedNotes,
-      icon: FileText,
+      icon: <FileText className="h-6 w-6 text-primary" />,
     },
     {
       title: "Total Shares",
       value: stats.totalSharingRelationships,
-      icon: Share2,
+      icon: <Share2 className="h-6 w-6 text-primary" />,
     },
   ];
 
@@ -67,29 +69,9 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {statCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.title}
-              className="p-6 rounded-lg border border-border bg-card"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {card.title}
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {card.value.toLocaleString()}
-                  </p>
-                </div>
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Icon className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {statCards.map((card: { title: string; value: number; icon: ReactNode }) => (
+          <StatCard key={card.title} title={card.title} value={card.value} icon={card.icon} />
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -147,7 +129,7 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
                 className="bg-primary h-2 rounded-full"
                 style={{
                   width: `${((stats.sharedChecklists + stats.sharedNotes) /
-                      (stats.totalChecklists + stats.totalNotes)) *
+                    (stats.totalChecklists + stats.totalNotes)) *
                     100
                     }%`,
                 }}
@@ -158,4 +140,4 @@ export function AdminOverview({ stats }: AdminOverviewProps) {
       </div>
     </div>
   );
-}
+};

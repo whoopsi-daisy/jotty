@@ -20,12 +20,12 @@ interface SearchResultsProps {
     query: string;
 }
 
-export function SearchResults({
+export const SearchResults = ({
     results,
     selectedIndex,
     onSelectResult,
     query,
-}: SearchResultsProps) {
+}: SearchResultsProps) => {
     const getSnippet = (content: string | undefined, query: string) => {
         if (!content) return "";
 

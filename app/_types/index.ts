@@ -93,3 +93,29 @@ export interface EmojiDictionary {
 }
 
 export type AppMode = "checklists" | "notes";
+
+
+export interface MostActiveSharer {
+  username: string;
+  sharedCount: number;
+}
+
+export interface GlobalSharing {
+  allSharedChecklists: SharedItem[];
+  allSharedNotes: SharedItem[];
+  sharingStats: {
+    totalSharedChecklists: number;
+    totalSharedNotes: number;
+    totalSharingRelationships: number;
+    totalPublicShares: number;
+    mostActiveSharers: MostActiveSharer[];
+  };
+}
+
+export interface AppSettings {
+  appName: string;
+  appDescription: string;
+  "16x16Icon": string;
+  "32x32Icon": string;
+  "180x180Icon": string;
+}

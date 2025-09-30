@@ -6,7 +6,7 @@ interface AuthShellProps {
   children: ReactNode;
 }
 
-export function AuthShell({ children }: AuthShellProps) {
+export const AuthShell = ({ children }: AuthShellProps) => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center lg:p-6 bg-background">
       <div className="w-full max-w-md">
@@ -20,4 +20,4 @@ export function AuthShell({ children }: AuthShellProps) {
       </div>
     </div>
   );
-}
+};

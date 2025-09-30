@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  Plus,
-  ClipboardList,
-  Users,
-  Hash,
-  Copy,
-  Check,
-  Globe,
-} from "lucide-react";
+import { Plus, ClipboardList, Users, Hash, Check, Globe } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Checklist } from "@/app/_types";
 import { isMobileDevice } from "@/app/_utils/utils";
@@ -27,7 +19,7 @@ interface ChecklistHeadingProps {
   submitButtonText?: string;
 }
 
-export function ChecklistHeading({
+export const ChecklistHeading = ({
   checklist,
   onSubmit,
   onBulkSubmit,
@@ -36,7 +28,7 @@ export function ChecklistHeading({
   focusKey = 0,
   placeholder = "Add new item...",
   submitButtonText = "Add Item",
-}: ChecklistHeadingProps) {
+}: ChecklistHeadingProps) => {
   const [newItemText, setNewItemText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const { handleCopyId, copied } = useChecklist({
@@ -139,4 +131,4 @@ export function ChecklistHeading({
       </div>
     </>
   );
-}
+};

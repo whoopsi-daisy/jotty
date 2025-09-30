@@ -1,0 +1,65 @@
+import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
+import { ConversionConfirmModal } from "@/app/_components/ui/modals/confirmation/ConversionConfirmModal";
+import { BulkPasteModal } from "@/app/_components/ui/modals/bulk-paste/BulkPasteModal";
+import { Checklist } from "@/app/_types";
+
+interface ChecklistModalsProps {
+  localList: Checklist;
+  showShareModal: boolean;
+  setShowShareModal: (show: boolean) => void;
+  showConversionModal: boolean;
+  setShowConversionModal: (show: boolean) => void;
+  showBulkPasteModal: boolean;
+  setShowBulkPasteModal: (show: boolean) => void;
+  handleConfirmConversion: () => void;
+  getNewType: (type: "simple" | "task") => "simple" | "task";
+  handleBulkPaste: (itemsText: string) => void;
+  isLoading: boolean;
+}
+
+export const ChecklistModals = ({
+  localList,
+  showShareModal,
+  setShowShareModal,
+  showConversionModal,
+  setShowConversionModal,
+  handleConfirmConversion,
+  getNewType,
+  showBulkPasteModal,
+  setShowBulkPasteModal,
+  handleBulkPaste,
+  isLoading,
+}: ChecklistModalsProps) => {
+  return (
+    <>
+      {showShareModal && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          itemId={localList.id}
+          itemTitle={localList.title}
+          itemType="checklist"
+          itemCategory={localList.category}
+          itemOwner={localList.owner || ""}
+        />
+      )}
+      {showConversionModal && (
+        <ConversionConfirmModal
+          isOpen={showConversionModal}
+          onClose={() => setShowConversionModal(false)}
+          onConfirm={handleConfirmConversion}
+          currentType={localList.type}
+          newType={getNewType(localList.type)}
+        />
+      )}
+      {showBulkPasteModal && (
+        <BulkPasteModal
+          isOpen={showBulkPasteModal}
+          onClose={() => setShowBulkPasteModal(false)}
+          onSubmit={handleBulkPaste}
+          isLoading={isLoading}
+        />
+      )}
+    </>
+  );
+};

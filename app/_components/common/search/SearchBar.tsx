@@ -25,13 +25,13 @@ interface SearchBarProps {
   className?: string;
 }
 
-export function SearchBar({
+export const SearchBar = ({
   mode,
   checklists,
   docs,
   onModeChange,
   className,
-}: SearchBarProps) {
+}: SearchBarProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -137,7 +137,6 @@ export function SearchBar({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, results, selectedIndex]);
 
   useEffect(() => {

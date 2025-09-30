@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   FileText,
   CheckSquare,
@@ -29,7 +28,7 @@ interface SidebarItemProps {
   style?: React.CSSProperties;
 }
 
-export function SidebarItem({
+export const SidebarItem = ({
   item,
   mode,
   isSelected,
@@ -37,7 +36,7 @@ export function SidebarItem({
   onEditItem,
   sharingStatus,
   style,
-}: SidebarItemProps) {
+}: SidebarItemProps) => {
 
   return (
     <div className="flex items-center group/item" style={style}>
@@ -63,7 +62,6 @@ export function SidebarItem({
         )}
         <span className="truncate flex-1">{item.title}</span>
 
-        {/* Sharing Indicators */}
         <div className="flex items-center gap-1 flex-shrink-0">
           {sharingStatus?.isPubliclyShared && (
             <Globe className="h-3 w-3 text-primary" />

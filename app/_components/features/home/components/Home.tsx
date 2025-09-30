@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Checklist } from "@/app/_types";
-import { StatsCard } from "@/app/_components/ui/elements/statsCard";
 import { EmptyState } from "@/app/_components/ui/cards/EmptyState";
 import { ChecklistCard } from "@/app/_components/ui/cards/ChecklistCard";
 import { isItemCompleted } from "@/app/_utils/checklist-utils";
+import { StatCard } from "@/app/_components/ui/cards/StatCard";
 
 interface HomeViewProps {
   lists: Checklist[];
@@ -80,24 +80,24 @@ export function HomeView({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatsCard
+          <StatCard
             icon={<Folder className="h-6 w-6 text-primary" />}
-            header="Total Lists"
+            title="Total Lists"
             value={lists.length}
           />
-          <StatsCard
+          <StatCard
             icon={<CheckCircle className="h-6 w-6 text-primary" />}
-            header="Completed"
+            title="Completed"
             value={completedItems}
           />
-          <StatsCard
+          <StatCard
             icon={<TrendingUp className="h-6 w-6 text-primary" />}
-            header="Progress"
+            title="Progress"
             value={`${completionRate}%`}
           />
-          <StatsCard
+          <StatCard
             icon={<Clock className="h-6 w-6 text-primary" />}
-            header="Total Items"
+            title="Total Items"
             value={totalItems}
           />
         </div>

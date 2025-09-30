@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { getSettings } from "@/app/_server/actions/data/file-actions";
 
-export function useFaviconUpdate() {
+export const useFaviconUpdate = () => {
   const updateFavicons = useCallback(async () => {
     try {
       const settings = await getSettings();

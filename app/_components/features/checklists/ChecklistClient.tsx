@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Checklist, Category } from "@/app/_types";
-import { ChecklistView } from "./simple/Checklist";
+import { ChecklistView } from "./Checklist";
 import { KanbanBoard } from "./tasks/KanbanBoard";
 import { ChecklistHeader } from "./common/ChecklistHeader";
 import { ShareModal } from "@/app/_components/ui/modals/sharing/ShareModal";
@@ -32,14 +32,14 @@ interface ChecklistClientProps {
   isAdmin: boolean;
 }
 
-export function ChecklistClient({
+export const ChecklistClient = ({
   checklist,
   lists,
   categories,
   sharingStatuses,
   username,
   isAdmin,
-}: ChecklistClientProps) {
+}: ChecklistClientProps) => {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
   const { mode } = useAppMode();
@@ -96,16 +96,12 @@ export function ChecklistClient({
     setShowSettingsModal(true);
   };
 
-  const {
-    handleDeleteList,
-    handleConvertType,
-    getNewType,
-    handleConfirmConversion,
-  } = useChecklist({
-    list: localChecklist,
-    onUpdate: handleUpdate,
-    onDelete: handleDelete,
-  });
+  const { handleDeleteList, getNewType, handleConfirmConversion } =
+    useChecklist({
+      list: localChecklist,
+      onUpdate: handleUpdate,
+      onDelete: handleDelete,
+    });
 
   const renderContent = () => {
     if (localChecklist.type === "task") {
@@ -228,4 +224,4 @@ export function ChecklistClient({
       />
     </Layout>
   );
-}
+};

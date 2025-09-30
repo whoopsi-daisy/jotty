@@ -1,11 +1,11 @@
 "use client";
 
-import { Plus, FileText, FolderOpen, BookOpen } from "lucide-react";
+import { Plus, FileText, FolderOpen, BookOpen, Globe } from "lucide-react";
 import { Button } from "@/app/_components/ui/elements/button";
 import { Note, Category } from "@/app/_types";
-import { StatsCard } from "@/app/_components/ui/elements/statsCard";
 import { EmptyState } from "@/app/_components/ui/cards/EmptyState";
 import { NoteCard } from "@/app/_components/ui/cards/NoteCard";
+import { StatCard } from "@/app/_components/ui/cards/StatCard";
 
 interface NotesHomeViewProps {
   notes: Note[];
@@ -14,12 +14,12 @@ interface NotesHomeViewProps {
   onSelectDoc: (id: string) => void;
 }
 
-export function NotesHomeView({
+export const NotesHomeView = ({
   notes,
   categories,
   onCreateModal,
   onSelectDoc,
-}: NotesHomeViewProps) {
+}: NotesHomeViewProps) => {
   const recentDocs = [...notes]
     .sort(
       (a, b) =>
@@ -62,20 +62,15 @@ export function NotesHomeView({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-          <StatsCard
+          <StatCard
             icon={<FileText className="h-6 w-6 text-primary" />}
-            header="Total Docs"
+            title="Total notes"
             value={notes.length}
           />
-          <StatsCard
+          <StatCard
             icon={<FolderOpen className="h-6 w-6 text-primary" />}
-            header="Categories"
+            title="Categories"
             value={totalCategories}
-          />
-          <StatsCard
-            icon={<BookOpen className="h-6 w-6 text-primary" />}
-            header="Notes"
-            value="Active"
           />
         </div>
 
@@ -101,4 +96,4 @@ export function NotesHomeView({
       </div>
     </div>
   );
-}
+};

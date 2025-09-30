@@ -22,7 +22,7 @@ interface AdminClientProps {
   username: string;
 }
 
-export function AdminClient({ username }: AdminClientProps) {
+export const AdminClient = ({ username }: AdminClientProps) => {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [allLists, setAllLists] = useState<Checklist[]>([]);
@@ -189,4 +189,4 @@ export function AdminClient({ username }: AdminClientProps) {
       />
     </div>
   );
-}
+};

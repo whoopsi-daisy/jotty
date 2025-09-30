@@ -27,7 +27,7 @@ interface LayoutProps {
   username: string;
 }
 
-export function Layout({
+export const Layout = ({
   lists,
   docs,
   categories,
@@ -40,7 +40,7 @@ export function Layout({
   isAdmin,
   username,
   children,
-}: LayoutProps) {
+}: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { setMode, isInitialized } = useAppMode();
 

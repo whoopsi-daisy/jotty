@@ -21,7 +21,11 @@ interface UseChecklistProps {
   onDelete?: (deletedId: string) => void;
 }
 
-export function useChecklist({ list, onUpdate, onDelete }: UseChecklistProps) {
+export const useChecklist = ({
+  list,
+  onUpdate,
+  onDelete,
+}: UseChecklistProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showBulkPasteModal, setShowBulkPasteModal] = useState(false);
@@ -322,4 +326,4 @@ export function useChecklist({ list, onUpdate, onDelete }: UseChecklistProps) {
     completedItems,
     totalCount,
   };
-}
+};

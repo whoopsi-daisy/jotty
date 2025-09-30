@@ -17,7 +17,7 @@ interface AdminUsersProps {
   deletingUser: string | null;
 }
 
-export function AdminUsers({
+export const AdminUsers = ({
   users,
   searchQuery,
   onSearchChange,
@@ -28,7 +28,7 @@ export function AdminUsers({
   allDocs,
   username,
   deletingUser,
-}: AdminUsersProps) {
+}: AdminUsersProps) => {
   const filteredUsers = users.filter((user) =>
     user.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -149,4 +149,4 @@ export function AdminUsers({
       </div>
     </div>
   );
-}
+};

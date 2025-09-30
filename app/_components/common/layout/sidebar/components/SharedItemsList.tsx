@@ -23,7 +23,7 @@ interface SharedItemsListProps {
   getSharingStatus: (itemId: string) => SharingStatus | null;
 }
 
-export function SharedItemsList({
+export const SharedItemsList = ({
   items,
   collapsed,
   onToggleCollapsed,
@@ -32,7 +32,7 @@ export function SharedItemsList({
   isItemSelected,
   mode,
   getSharingStatus,
-}: SharedItemsListProps) {
+}: SharedItemsListProps) => {
   const [collapsedUsers, setCollapsedUsers] = useState<Set<string>>(new Set());
 
   const sharedItems = items.filter((item) => item.isShared);
@@ -137,4 +137,4 @@ export function SharedItemsList({
       )}
     </div>
   );
-}
+};
