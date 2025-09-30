@@ -5,6 +5,7 @@ import path from "path";
 import { getUserDir, writeFile } from "@/app/_server/utils/files";
 import { getLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
 
 export const createBulkItemsAction = async (formData: FormData) => {
   try {
@@ -45,7 +46,7 @@ export const createBulkItemsAction = async (formData: FormData) => {
       const ownerDir = path.join(
         process.cwd(),
         "data",
-        "checklists",
+        CHECKLISTS_FOLDER,
         list.owner!
       );
       filePath = path.join(
@@ -115,7 +116,7 @@ export const bulkToggleItemsAction = async (formData: FormData) => {
       const ownerDir = path.join(
         process.cwd(),
         "data",
-        "checklists",
+        CHECKLISTS_FOLDER,
         list.owner!
       );
       filePath = path.join(

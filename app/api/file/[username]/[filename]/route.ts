@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 import path from "path";
 import fs from "fs/promises";
+import { NOTES_FOLDER } from "@/app/_consts/globalConsts";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export async function GET(
     const filePath = path.join(
       process.cwd(),
       "data",
-      "notes",
+      NOTES_FOLDER,
       username,
       "files",
       filename

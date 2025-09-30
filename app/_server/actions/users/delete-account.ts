@@ -9,6 +9,7 @@ import { Result } from "@/app/_types";
 import fs from "fs/promises";
 import path from "path";
 import { removeAllSessionsForUser } from "./session-storage";
+import { CHECKLISTS_FOLDER, NOTES_FOLDER } from "@/app/_consts/globalConsts";
 
 export async function deleteAccountAction(
   formData: FormData
@@ -70,7 +71,7 @@ export async function deleteAccountAction(
       const checklistsDir = path.join(
         process.cwd(),
         "data",
-        "checklists",
+        CHECKLISTS_FOLDER,
         currentUser.username
       );
       await fs.rm(checklistsDir, { recursive: true, force: true });
@@ -78,7 +79,7 @@ export async function deleteAccountAction(
       const docsDir = path.join(
         process.cwd(),
         "data",
-        "notes",
+        NOTES_FOLDER,
         currentUser.username
       );
       await fs.rm(docsDir, { recursive: true, force: true });

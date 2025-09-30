@@ -6,6 +6,7 @@ import { getUserDir, writeFile, ensureDir } from "@/app/_server/utils/files";
 import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
 import { isAdmin } from "@/app/_server/actions/auth/utils";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
 
 export const updateItemAction = async (
   formData: FormData,
@@ -46,7 +47,7 @@ export const updateItemAction = async (
     const ownerDir = path.join(
       process.cwd(),
       "data",
-      "checklists",
+      CHECKLISTS_FOLDER,
       list.owner!
     );
     const categoryDir = path.join(ownerDir, list.category || "Uncategorized");
@@ -139,7 +140,7 @@ export const createItemAction = async (
     const ownerDir = path.join(
       process.cwd(),
       "data",
-      "checklists",
+      CHECKLISTS_FOLDER,
       list.owner!
     );
     const categoryDir = path.join(ownerDir, list.category || "Uncategorized");
@@ -204,7 +205,7 @@ export const deleteItemAction = async (formData: FormData) => {
       const ownerDir = path.join(
         process.cwd(),
         "data",
-        "checklists",
+        CHECKLISTS_FOLDER,
         list.owner!
       );
       filePath = path.join(
@@ -275,7 +276,7 @@ export const reorderItemsAction = async (formData: FormData) => {
     const ownerDir = path.join(
       process.cwd(),
       "data",
-      "checklists",
+      CHECKLISTS_FOLDER,
       list.owner!
     );
     const categoryDir = path.join(ownerDir, list.category || "Uncategorized");
@@ -354,7 +355,7 @@ export const updateItemStatusAction = async (formData: FormData) => {
     const ownerDir = path.join(
       process.cwd(),
       "data",
-      "checklists",
+      CHECKLISTS_FOLDER,
       list.owner!
     );
     const categoryDir = path.join(ownerDir, list.category || "Uncategorized");

@@ -5,6 +5,7 @@ import { createHash } from "crypto";
 import fs from "fs/promises";
 import path from "path";
 import { User } from "@/app/_types";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
 
 const USERS_FILE = path.join(process.cwd(), "data", "users", "users.json");
 
@@ -69,7 +70,7 @@ export async function createUser(formData: FormData) {
   const userChecklistDir = path.join(
     process.cwd(),
     "data",
-    "checklists",
+    CHECKLISTS_FOLDER,
     username
   );
   await fs.mkdir(userChecklistDir, { recursive: true });

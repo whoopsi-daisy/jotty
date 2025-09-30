@@ -4,9 +4,10 @@ import { readUsers, writeUsers } from "@/app/_server/actions/auth/utils";
 import { Result } from "@/app/_types";
 import fs from "fs/promises";
 import path from "path";
+import { CHECKLISTS_FOLDER, NOTES_FOLDER } from "@/app/_consts/globalConsts";
 
 const USER_NOTES_DIR = (username: string) =>
-  path.join(process.cwd(), "data", "notes", username);
+  path.join(process.cwd(), "data", NOTES_FOLDER, username);
 
 export async function deleteUserAction(
   formData: FormData
@@ -49,7 +50,7 @@ export async function deleteUserAction(
       const checklistsDir = path.join(
         process.cwd(),
         "data",
-        "checklists",
+        CHECKLISTS_FOLDER,
         username
       );
       await fs.rm(checklistsDir, { recursive: true, force: true });

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { hasUsers } from "@/app/_server/actions/auth/utils";
 import SetupForm from "@/app/(loggedOutRoutes)/auth/setup/setup-form";
-import { AuthShell } from "@/app/_components/features/auth/AuthShell";
+import { AuthShell } from "@/app/_components/GlobalComponents/Auth/AuthShell";
 
 export const dynamic = "force-dynamic";
 

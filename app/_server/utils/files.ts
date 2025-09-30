@@ -3,8 +3,9 @@
 import fs from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
 
-const DATA_DIR = path.join(process.cwd(), "data", "checklists");
+const DATA_DIR = path.join(process.cwd(), "data", CHECKLISTS_FOLDER);
 
 export async function getUserDir(): Promise<string> {
   const user = await getCurrentUser();

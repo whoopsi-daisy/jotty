@@ -30,9 +30,13 @@ import fs from "fs/promises";
 import { readOrderFile } from "./file-actions";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import {
+  DEPRECATED_DOCS_FOLDER,
+  NOTES_FOLDER,
+} from "@/app/_consts/globalConsts";
 
 const USER_NOTES_DIR = (username: string) =>
-  path.join(process.cwd(), "data", "notes", username);
+  path.join(process.cwd(), "data", NOTES_FOLDER, username);
 
 const parseMarkdownDoc = (
   content: string,
@@ -156,11 +160,11 @@ export const getDocs = async (username?: string) => {
     const sharedItems = await getItemsSharedWithUser(currentUser.username);
     for (const sharedItem of sharedItems.notes) {
       const sharedFilePath = sharedItem.filePath
-        ? path.join(process.cwd(), "data", "notes", sharedItem.filePath)
+        ? path.join(process.cwd(), "data", NOTES_FOLDER, sharedItem.filePath)
         : path.join(
             process.cwd(),
             "data",
-            "notes",
+            NOTES_FOLDER,
             sharedItem.owner,
             sharedItem.category || "Uncategorized",
             `${sharedItem.id}.md`
@@ -602,7 +606,7 @@ export const getAllDocs = async () => {
 
 export const checkForDocsFolder = async (): Promise<boolean> => {
   try {
-    const docsPath = path.join(process.cwd(), "data", "docs");
+    const docsPath = path.join(process.cwd(), "data", DEPRECATED_DOCS_FOLDER);
     await fs.access(docsPath);
     return true;
   } catch {

@@ -5,7 +5,7 @@ import {
   CheckForNeedsMigration,
 } from "@/app/_server/actions/data/notes-actions";
 import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
-import { HomeClient } from "@/app/_components/features/home/HomeClient";
+import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
 
 export const dynamic = "force-dynamic";

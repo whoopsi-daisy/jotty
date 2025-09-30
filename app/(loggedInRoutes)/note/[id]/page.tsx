@@ -7,7 +7,7 @@ import {
 } from "@/app/_server/actions/data/notes-actions";
 import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
-import { NoteClient } from "@/app/_components/features/notes/NoteClient";
+import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
 
 interface NotePageProps {
   params: {

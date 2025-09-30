@@ -14,6 +14,7 @@ import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 import { parseMarkdown } from "./checklist-utils";
 import { readOrderFile } from "./file-actions";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
 
 const readListsRecursively = async (
   dir: string,
@@ -24,11 +25,18 @@ const readListsRecursively = async (
   const entries = await readDir(dir);
 
   const order = await readOrderFile(dir);
-  const dirNames = entries.filter(e => e.isDirectory()).map(e => e.name);
-  const fileNames = entries.filter(e => e.isFile() && e.name.endsWith('.md')).map(e => e.name);
+  const dirNames = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+  const fileNames = entries
+    .filter((e) => e.isFile() && e.name.endsWith(".md"))
+    .map((e) => e.name);
 
   const orderedDirNames: string[] = order?.categories
-    ? [...order.categories.filter(n => dirNames.includes(n)), ...dirNames.filter(n => !order.categories!.includes(n)).sort((a, b) => a.localeCompare(b))]
+    ? [
+        ...order.categories.filter((n) => dirNames.includes(n)),
+        ...dirNames
+          .filter((n) => !order.categories!.includes(n))
+          .sort((a, b) => a.localeCompare(b)),
+      ]
     : dirNames.sort((a, b) => a.localeCompare(b));
 
   for (const dirName of orderedDirNames) {
@@ -42,7 +50,12 @@ const readListsRecursively = async (
       const ids = mdFiles.map((f) => path.basename(f.name, ".md"));
       const categoryOrder = await readOrderFile(categoryDir);
       const orderedIds: string[] = categoryOrder?.items
-        ? [...categoryOrder.items.filter((id) => ids.includes(id)), ...ids.filter((id) => !categoryOrder.items!.includes(id)).sort((a, b) => a.localeCompare(b))]
+        ? [
+            ...categoryOrder.items.filter((id) => ids.includes(id)),
+            ...ids
+              .filter((id) => !categoryOrder.items!.includes(id))
+              .sort((a, b) => a.localeCompare(b)),
+          ]
         : ids.sort((a, b) => a.localeCompare(b));
 
       for (const id of orderedIds) {
@@ -54,11 +67,9 @@ const readListsRecursively = async (
           lists.push(
             parseMarkdown(content, id, categoryPath, owner, false, stats)
           );
-        } catch {
-        }
+        } catch {}
       }
-    } catch {
-    }
+    } catch {}
 
     const subLists = await readListsRecursively(
       categoryDir,
@@ -76,7 +87,7 @@ export const getLists = async (username?: string) => {
     let currentUser: any = null;
 
     if (username) {
-      userDir = path.join(process.cwd(), "data", "checklists", username);
+      userDir = path.join(process.cwd(), "data", CHECKLISTS_FOLDER, username);
       currentUser = { username };
     } else {
       currentUser = await getCurrentUser();
@@ -93,15 +104,20 @@ export const getLists = async (username?: string) => {
     for (const sharedItem of sharedItems.checklists) {
       try {
         const sharedFilePath = sharedItem.filePath
-          ? path.join(process.cwd(), "data", "checklists", sharedItem.filePath)
+          ? path.join(
+              process.cwd(),
+              "data",
+              CHECKLISTS_FOLDER,
+              sharedItem.filePath
+            )
           : path.join(
-            process.cwd(),
-            "data",
-            "checklists",
-            sharedItem.owner,
-            sharedItem.category || "Uncategorized",
-            `${sharedItem.id}.md`
-          );
+              process.cwd(),
+              "data",
+              CHECKLISTS_FOLDER,
+              sharedItem.owner,
+              sharedItem.category || "Uncategorized",
+              `${sharedItem.id}.md`
+            );
 
         const content = await fs.readFile(sharedFilePath, "utf-8");
         const stats = await fs.stat(sharedFilePath);
@@ -136,9 +152,14 @@ const buildChecklistCategoryTree = async (
   const entries = await readDir(dir);
 
   const order = await readOrderFile(dir);
-  const dirNames = entries.filter(e => e.isDirectory()).map(e => e.name);
+  const dirNames = entries.filter((e) => e.isDirectory()).map((e) => e.name);
   const orderedDirNames: string[] = order?.categories
-    ? [...order.categories.filter(n => dirNames.includes(n)), ...dirNames.filter(n => !order.categories!.includes(n)).sort((a, b) => a.localeCompare(b))]
+    ? [
+        ...order.categories.filter((n) => dirNames.includes(n)),
+        ...dirNames
+          .filter((n) => !order.categories!.includes(n))
+          .sort((a, b) => a.localeCompare(b)),
+      ]
     : dirNames.sort((a, b) => a.localeCompare(b));
 
   for (const dirName of orderedDirNames) {
@@ -199,7 +220,7 @@ export const getAllLists = async () => {
       const userDir = path.join(
         process.cwd(),
         "data",
-        "checklists",
+        CHECKLISTS_FOLDER,
         user.username
       );
 

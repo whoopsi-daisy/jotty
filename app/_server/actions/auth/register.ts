@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createHash } from "crypto";
 import fs from "fs/promises";
 import path from "path";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
 
 interface User {
   username: string;
@@ -104,7 +105,7 @@ export async function register(formData: FormData) {
   const userChecklistDir = path.join(
     process.cwd(),
     "data",
-    "checklists",
+    CHECKLISTS_FOLDER,
     username
   );
   await fs.mkdir(userChecklistDir, { recursive: true });

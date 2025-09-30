@@ -7,7 +7,7 @@ import {
   getUsers,
 } from "@/app/_server/actions/users/manage";
 import { Users, UserPlus, Shield, ShieldOff, Crown } from "lucide-react";
-import { Button } from "@/app/_components/ui/elements/button";
+import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 
 interface User {
   username: string;
@@ -194,8 +194,8 @@ export default function UsersPage() {
                           {user.isSuperAdmin
                             ? "Super Admin"
                             : user.isAdmin
-                              ? "Administrator"
-                              : "Regular User"}
+                            ? "Administrator"
+                            : "Regular User"}
                         </p>
                       </div>
                     </div>

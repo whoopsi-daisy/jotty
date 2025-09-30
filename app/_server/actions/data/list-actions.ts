@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import path from "path";
 import { Checklist, ChecklistType } from "@/app/_types";
-import { generateUniqueFilename, sanitizeFilename } from "../../utils/filename-utils";
+import {
+  generateUniqueFilename,
+  sanitizeFilename,
+} from "../../utils/filename-utils";
 import {
   getUserDir,
   ensureDir,
@@ -18,6 +21,7 @@ import {
 import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
 import { isAdmin } from "@/app/_server/actions/auth/utils";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
 
 export const createListAction = async (formData: FormData) => {
   try {
@@ -78,7 +82,7 @@ export const updateListAction = async (formData: FormData) => {
     const ownerDir = path.join(
       process.cwd(),
       "data",
-      "checklists",
+      CHECKLISTS_FOLDER,
       currentList.owner!
     );
     const categoryDir = path.join(
@@ -124,15 +128,24 @@ export const updateListAction = async (formData: FormData) => {
 
     await writeFile(filePath, listToMarkdown(updatedList));
 
-    const { getItemSharingMetadata } = await import("@/app/_server/actions/sharing/sharing-utils");
-    const sharingMetadata = await getItemSharingMetadata(id, "checklist", currentList.owner!);
+    const { getItemSharingMetadata } = await import(
+      "@/app/_server/actions/sharing/sharing-utils"
+    );
+    const sharingMetadata = await getItemSharingMetadata(
+      id,
+      "checklist",
+      currentList.owner!
+    );
 
     if (sharingMetadata) {
-      const newFilePath = `${currentList.owner}/${updatedList.category || "Uncategorized"
-        }/${updatedList.id}.md`;
+      const newFilePath = `${currentList.owner}/${
+        updatedList.category || "Uncategorized"
+      }/${updatedList.id}.md`;
 
       if (newId !== id) {
-        const { removeSharedItem, addSharedItem } = await import("@/app/_server/actions/sharing/sharing-utils");
+        const { removeSharedItem, addSharedItem } = await import(
+          "@/app/_server/actions/sharing/sharing-utils"
+        );
 
         await removeSharedItem(id, "checklist", currentList.owner!);
 
@@ -147,11 +160,16 @@ export const updateListAction = async (formData: FormData) => {
           sharingMetadata.isPubliclyShared
         );
       } else {
-        await updateSharedItem(updatedList.id, "checklist", currentList.owner!, {
-          filePath: newFilePath,
-          category: updatedList.category,
-          title: updatedList.title,
-        });
+        await updateSharedItem(
+          updatedList.id,
+          "checklist",
+          currentList.owner!,
+          {
+            filePath: newFilePath,
+            category: updatedList.category,
+            title: updatedList.title,
+          }
+        );
       }
     }
 
@@ -209,7 +227,7 @@ export const deleteListAction = async (formData: FormData) => {
       const ownerDir = path.join(
         process.cwd(),
         "data",
-        "checklists",
+        CHECKLISTS_FOLDER,
         list.owner!
       );
       filePath = path.join(ownerDir, category, `${id}.md`);

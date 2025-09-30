@@ -1,0 +1,226 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Checklist, Category } from "@/app/_types";
+import { ChecklistView } from "@/app/_components/FeatureComponents/Checklists/Checklist";
+import { KanbanBoard } from "@/app/_components/FeatureComponents/Checklists/Parts/Kanban/KanbanBoard";
+import { ChecklistHeader } from "@/app/_components/FeatureComponents/Checklists/Parts/Common/ChecklistHeader";
+import { ShareModal } from "@/app/_components/GlobalComponents/Modals/SharingModals/ShareModal";
+import { ConversionConfirmModal } from "@/app/_components/GlobalComponents/Modals/ConfirmationModals/ConversionConfirmModal";
+import { EditChecklistModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/EditChecklistModal";
+import { CreateListModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/CreateListModal";
+import { CreateCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/CreateCategoryModal";
+import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
+import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
+import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
+import { useChecklist } from "@/app/_hooks/useChecklist";
+import { Modes } from "@/app/_consts/globalConsts";
+
+interface SharingStatus {
+  isShared: boolean;
+  isPubliclyShared: boolean;
+  sharedWith: string[];
+}
+
+interface ChecklistClientProps {
+  checklist: Checklist;
+  lists: Checklist[];
+  categories: Category[];
+  sharingStatuses?: Record<string, SharingStatus>;
+  username: string;
+  isAdmin: boolean;
+}
+
+export const ChecklistClient = ({
+  checklist,
+  lists,
+  categories,
+  sharingStatuses,
+  username,
+  isAdmin,
+}: ChecklistClientProps) => {
+  const router = useRouter();
+  const { checkNavigation } = useNavigationGuard();
+  const [localChecklist, setLocalChecklist] = useState<Checklist>(checklist);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showConversionModal, setShowConversionModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [initialCategory, setInitialCategory] = useState<string>("");
+  const [initialParentCategory, setInitialParentCategory] =
+    useState<string>("");
+  const prevChecklistId = useRef(checklist.id);
+
+  useEffect(() => {
+    if (checklist.id !== prevChecklistId.current) {
+      setLocalChecklist(checklist);
+      prevChecklistId.current = checklist.id;
+    }
+  }, [checklist]);
+
+  const handleUpdate = (updatedChecklist: Checklist) => {
+    setLocalChecklist(updatedChecklist);
+  };
+
+  const handleBack = () => {
+    checkNavigation(() => {
+      router.push("/");
+    });
+  };
+
+  const handleEdit = () => {
+    setShowEditModal(true);
+  };
+
+  const handleDelete = (deletedId: string) => {
+    checkNavigation(() => {
+      router.push("/");
+    });
+  };
+
+  const handleOpenCreateModal = (initialCategory?: string) => {
+    setInitialCategory(initialCategory || "");
+    setShowCreateModal(true);
+  };
+
+  const handleOpenCategoryModal = (parentCategory?: string) => {
+    setShowCategoryModal(true);
+    setInitialParentCategory(parentCategory || "");
+  };
+
+  const handleOpenSettings = () => {
+    setShowSettingsModal(true);
+  };
+
+  const { handleDeleteList, getNewType, handleConfirmConversion } =
+    useChecklist({
+      list: localChecklist,
+      onUpdate: handleUpdate,
+      onDelete: handleDelete,
+    });
+
+  const renderContent = () => {
+    if (localChecklist.type === "task") {
+      return (
+        <div className="h-full flex flex-col bg-background">
+          <ChecklistHeader
+            checklist={localChecklist}
+            onBack={handleBack}
+            onEdit={handleEdit}
+            onDelete={
+              localChecklist.isShared
+                ? isAdmin || username === localChecklist.owner
+                  ? handleDeleteList
+                  : undefined
+                : handleDeleteList
+            }
+            onShare={() => setShowShareModal(true)}
+            onConvertType={() => setShowConversionModal(true)}
+          />
+          <KanbanBoard checklist={localChecklist} onUpdate={handleUpdate} />
+        </div>
+      );
+    }
+
+    return (
+      <ChecklistView
+        list={localChecklist}
+        onUpdate={handleUpdate}
+        onBack={handleBack}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        currentUsername={username}
+        isAdmin={isAdmin}
+      />
+    );
+  };
+
+  return (
+    <Layout
+      lists={lists}
+      categories={categories}
+      sharingStatuses={sharingStatuses}
+      onOpenSettings={handleOpenSettings}
+      onOpenCreateModal={handleOpenCreateModal}
+      onOpenCategoryModal={handleOpenCategoryModal}
+      isAdmin={isAdmin}
+      username={username}
+    >
+      {renderContent()}
+
+      {showShareModal && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          itemId={localChecklist.id}
+          itemTitle={localChecklist.title}
+          itemType="checklist"
+          itemCategory={localChecklist.category}
+          itemOwner={localChecklist.owner || ""}
+        />
+      )}
+
+      {showConversionModal && (
+        <ConversionConfirmModal
+          isOpen={showConversionModal}
+          onClose={() => setShowConversionModal(false)}
+          onConfirm={handleConfirmConversion}
+          currentType={localChecklist.type}
+          newType={getNewType(localChecklist.type)}
+        />
+      )}
+
+      {showEditModal && (
+        <EditChecklistModal
+          checklist={localChecklist}
+          categories={categories}
+          onClose={() => setShowEditModal(false)}
+          onUpdated={() => {
+            setShowEditModal(false);
+            router.refresh();
+          }}
+        />
+      )}
+
+      {showCreateModal && (
+        <CreateListModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={(newChecklist) => {
+            if (newChecklist) {
+              router.push(`/checklist/${newChecklist.id}`);
+            }
+            setShowCreateModal(false);
+            router.refresh();
+          }}
+          categories={categories}
+          initialCategory={initialCategory}
+        />
+      )}
+
+      {showCategoryModal && (
+        <CreateCategoryModal
+          mode={Modes.CHECKLISTS}
+          categories={categories}
+          initialParent={initialParentCategory}
+          onClose={() => {
+            setShowCategoryModal(false);
+            setInitialParentCategory("");
+          }}
+          onCreated={() => {
+            setShowCategoryModal(false);
+            setInitialParentCategory("");
+            router.refresh();
+          }}
+        />
+      )}
+
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
+    </Layout>
+  );
+};

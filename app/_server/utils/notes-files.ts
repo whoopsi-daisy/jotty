@@ -3,13 +3,14 @@
 import fs from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { Modes, NOTES_FOLDER } from "@/app/_consts/globalConsts";
 
-const DOCS_DATA_DIR = path.join(process.cwd(), "data", "notes");
+const NOTES_DATA_DIR = path.join(process.cwd(), "data", NOTES_FOLDER);
 
 export async function getDocsUserDir(): Promise<string> {
   const user = await getCurrentUser();
   if (!user) throw new Error("Not authenticated");
-  return path.join(DOCS_DATA_DIR, user.username);
+  return path.join(NOTES_DATA_DIR, user.username);
 }
 
 export async function ensureDocsDir(dir: string) {
