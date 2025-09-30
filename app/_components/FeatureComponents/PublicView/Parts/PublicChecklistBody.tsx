@@ -3,6 +3,7 @@ import { CheckSquare } from "lucide-react";
 import { TaskStatusSection } from "./TaskStatusSection";
 import { ChecklistItem } from "../../Checklists/Parts/Simple/ChecklistItem";
 import { useMemo } from "react";
+import { TaskStatus } from "@/app/_types/enums";
 
 export const PublicChecklistBody = ({
   checklist,
@@ -26,7 +27,7 @@ export const PublicChecklistBody = ({
       completed: [],
     };
     return checklist.items.reduce((acc, item) => {
-      const status = item.status || "todo";
+      const status = item.status || TaskStatus.TODO;
       if (acc[status]) acc[status].push(item);
       return acc;
     }, initialAcc);

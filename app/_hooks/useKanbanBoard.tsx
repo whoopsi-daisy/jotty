@@ -9,6 +9,7 @@ import {
   getLists,
   createBulkItemsAction,
 } from "@/app/_server/actions/data/actions";
+import { TaskStatus } from "@/app/_types/enums";
 
 interface UseKanbanBoardProps {
   checklist: Checklist;
@@ -43,9 +44,7 @@ export const useKanbanBoard = ({
     }
   };
 
-  const getItemsByStatus = (
-    status: "todo" | "in_progress" | "completed" | "paused"
-  ) => {
+  const getItemsByStatus = (status: TaskStatus) => {
     return localChecklist.items.filter((item) => item.status === status);
   };
 
@@ -67,19 +66,19 @@ export const useKanbanBoard = ({
     );
     if (!activeItem) return;
 
-    let newStatus: "todo" | "in_progress" | "completed" | "paused";
+    let newStatus: TaskStatus;
 
     if (
-      overId === "todo" ||
-      overId === "in_progress" ||
-      overId === "completed" ||
-      overId === "paused"
+      overId === TaskStatus.TODO ||
+      overId === TaskStatus.IN_PROGRESS ||
+      overId === TaskStatus.COMPLETED ||
+      overId === TaskStatus.PAUSED
     ) {
       newStatus = overId;
     } else {
       const overItem = localChecklist.items.find((item) => item.id === overId);
       if (!overItem) return;
-      newStatus = overItem.status || "todo";
+      newStatus = overItem.status || TaskStatus.TODO;
     }
 
     if (activeItem.status === newStatus) return;
@@ -92,8 +91,8 @@ export const useKanbanBoard = ({
     const result = await updateItemStatusAction(formData);
 
     if (result.success && result.data) {
-      setLocalChecklist(result.data);
-      onUpdate(result.data);
+      setLocalChecklist(result.data as Checklist);
+      onUpdate(result.data as Checklist);
     }
   };
 
@@ -112,8 +111,8 @@ export const useKanbanBoard = ({
         items: [...localChecklist.items, result.data],
         updatedAt: new Date().toISOString(),
       };
-      setLocalChecklist(updatedList);
-      onUpdate(updatedList);
+      setLocalChecklist(updatedList as Checklist);
+      onUpdate(updatedList as Checklist);
       setFocusKey((prev) => prev + 1);
     }
   };
@@ -127,8 +126,8 @@ export const useKanbanBoard = ({
     setIsLoading(false);
 
     if (result.success && result.data) {
-      setLocalChecklist(result.data);
-      onUpdate(result.data);
+      setLocalChecklist(result.data as Checklist);
+      onUpdate(result.data as Checklist);
     }
   };
 

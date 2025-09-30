@@ -7,6 +7,7 @@ import { ChecklistProgress } from "./ChecklistProgress";
 import { ChecklistItemsWrapper } from "./ChecklistItemsWrapper";
 import { ChecklistItem } from "./ChecklistItem";
 import { Checklist, Item } from "@/app/_types";
+import { TaskStatusLabels } from "@/app/_types/enums";
 
 interface ChecklistBodyProps {
   localList: Checklist;
@@ -64,7 +65,7 @@ export const ChecklistBody = ({
             <div className="w-full space-y-4">
               {incompleteItems.length > 0 && (
                 <ChecklistItemsWrapper
-                  title="To Do"
+                  title={TaskStatusLabels.TODO}
                   count={incompleteItems.length}
                   onBulkToggle={() => handleBulkToggle(true)}
                   isLoading={isLoading}
@@ -83,7 +84,7 @@ export const ChecklistBody = ({
               )}
               {completedItems.length > 0 && (
                 <ChecklistItemsWrapper
-                  title="Completed"
+                  title={TaskStatusLabels.COMPLETED}
                   count={completedItems.length}
                   onBulkToggle={() => handleBulkToggle(false)}
                   isLoading={isLoading}

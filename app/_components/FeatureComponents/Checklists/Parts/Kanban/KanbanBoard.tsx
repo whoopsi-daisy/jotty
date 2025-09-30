@@ -8,6 +8,7 @@ import { KanbanItem } from "./KanbanItem";
 import { ChecklistHeading } from "../Common/ChecklistHeading";
 import { BulkPasteModal } from "@/app/_components/GlobalComponents/Modals/BulkPasteModal/BulkPasteModal";
 import { useKanbanBoard } from "../../../../../_hooks/useKanbanBoard";
+import { TaskStatus, TaskStatusLabels } from "@/app/_types/enums";
 
 interface KanbanBoardProps {
   checklist: Checklist;
@@ -15,13 +16,29 @@ interface KanbanBoardProps {
 }
 
 const columns = [
-  { id: "todo", title: "Todo", status: "todo" as const },
-  { id: "in_progress", title: "In Progress", status: "in_progress" as const },
-  { id: "completed", title: "Completed", status: "completed" as const },
-  { id: "paused", title: "Paused", status: "paused" as const },
+  {
+    id: TaskStatus.TODO,
+    title: TaskStatusLabels.TODO,
+    status: TaskStatus.TODO as const,
+  },
+  {
+    id: TaskStatus.IN_PROGRESS,
+    title: TaskStatusLabels.IN_PROGRESS,
+    status: TaskStatus.IN_PROGRESS as const,
+  },
+  {
+    id: TaskStatus.COMPLETED,
+    title: TaskStatusLabels.COMPLETED,
+    status: TaskStatus.COMPLETED as const,
+  },
+  {
+    id: TaskStatus.PAUSED,
+    title: TaskStatusLabels.PAUSED,
+    status: TaskStatus.PAUSED as const,
+  },
 ];
 
-export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
+export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
   const [isClient, setIsClient] = useState(false);
 
   const {
@@ -118,4 +135,4 @@ export function KanbanBoard({ checklist, onUpdate }: KanbanBoardProps) {
       )}
     </div>
   );
-}
+};

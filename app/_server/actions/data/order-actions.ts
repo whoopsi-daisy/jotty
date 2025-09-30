@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getUserDir } from "@/app/_server/utils/files";
 import { getDocsUserDir } from "@/app/_server/utils/notes-files";
 import { writeOrderFile, readOrderFile } from "./file-actions";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 export const setCategoryOrderAction = async (formData: FormData) => {
   try {

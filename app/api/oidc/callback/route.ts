@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
-import { CHECKLISTS_FOLDER, NOTES_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 function base64UrlEncode(buffer: Buffer) {
   return buffer

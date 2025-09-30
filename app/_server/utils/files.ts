@@ -3,7 +3,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 const DATA_DIR = path.join(process.cwd(), "data", CHECKLISTS_FOLDER);
 

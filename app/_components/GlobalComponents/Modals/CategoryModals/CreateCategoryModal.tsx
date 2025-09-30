@@ -9,7 +9,7 @@ import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";
 import { Folder } from "lucide-react";
 import { useToast } from "@/app/_providers/ToastProvider";
 import { AppMode, Category } from "@/app/_types";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface CreateCategoryModalProps {
   onClose: () => void;

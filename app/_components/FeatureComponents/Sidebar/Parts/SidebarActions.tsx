@@ -5,7 +5,7 @@ import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { AppMode } from "@/app/_types";
 import { useRouter } from "next/navigation";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SidebarActionsProps {
   mode: AppMode;

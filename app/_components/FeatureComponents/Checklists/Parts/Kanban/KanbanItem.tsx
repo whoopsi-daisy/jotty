@@ -29,6 +29,7 @@ import {
   updateItemAction,
   deleteItemAction,
 } from "@/app/_server/actions/data/actions";
+import { TaskStatus, TaskStatusLabels } from "@/app/_types/enums";
 
 interface TimeEntriesAccordionProps {
   timeEntries: any[];
@@ -105,12 +106,12 @@ interface KanbanItemProps {
   onUpdate?: () => void;
 }
 
-export function KanbanItem({
+export const KanbanItem = ({
   item,
   isDragging,
   checklistId,
   onUpdate,
-}: KanbanItemProps) {
+}: KanbanItemProps) => {
   const [isRunning, setIsRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -209,9 +210,7 @@ export function KanbanItem({
     onUpdate?.();
   };
 
-  const handleStatusChange = async (
-    newStatus: "todo" | "in_progress" | "completed" | "paused"
-  ) => {
+  const handleStatusChange = async (newStatus: TaskStatus) => {
     const formData = new FormData();
     formData.append("listId", checklistId);
     formData.append("itemId", item.id);
@@ -261,10 +260,18 @@ export function KanbanItem({
   };
 
   const statusOptions = [
-    { id: "todo" as const, name: "Todo", icon: Circle },
-    { id: "in_progress" as const, name: "In Progress", icon: Play },
-    { id: "completed" as const, name: "Completed", icon: CheckCircle2 },
-    { id: "paused" as const, name: "Paused", icon: PauseCircle },
+    { id: TaskStatus.TODO, name: TaskStatusLabels.TODO, icon: Circle },
+    {
+      id: TaskStatus.IN_PROGRESS,
+      name: TaskStatusLabels.IN_PROGRESS,
+      icon: Play,
+    },
+    {
+      id: TaskStatus.COMPLETED,
+      name: TaskStatusLabels.COMPLETED,
+      icon: CheckCircle2,
+    },
+    { id: TaskStatus.PAUSED, name: TaskStatusLabels.PAUSED, icon: PauseCircle },
   ];
 
   const formatTimerTime = (seconds: number) => {
@@ -282,13 +289,13 @@ export function KanbanItem({
 
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case "todo":
+      case TaskStatus.TODO:
         return "bg-muted/50 border-border";
-      case "in_progress":
+      case TaskStatus.IN_PROGRESS:
         return "bg-primary/10 border-primary/30";
-      case "completed":
+      case TaskStatus.COMPLETED:
         return "bg-green-500/10 border-green-500/30";
-      case "paused":
+      case TaskStatus.PAUSED:
         return "bg-yellow-500/10 border-yellow-500/30";
       default:
         return "bg-muted/50 border-border";
@@ -297,13 +304,13 @@ export function KanbanItem({
 
   const getStatusIcon = (status?: string) => {
     switch (status) {
-      case "in_progress":
+      case TaskStatus.IN_PROGRESS:
         return <Play className="h-3 w-3 text-primary" />;
-      case "completed":
+      case TaskStatus.COMPLETED:
         return (
           <Target className="h-3 w-3 text-green-600 dark:text-green-400" />
         );
-      case "paused":
+      case TaskStatus.PAUSED:
         return (
           <Clock className="h-3 w-3 text-yellow-600 dark:text-yellow-400" />
         );
@@ -456,9 +463,9 @@ export function KanbanItem({
         </div>
         <div className="sm:hidden w-full">
           <Dropdown
-            value={item.status || "todo"}
+            value={item.status || TaskStatus.TODO}
             options={statusOptions}
-            onChange={(newStatus) => {
+            onChange={(newStatus: TaskStatus) => {
               handleStatusChange(newStatus);
             }}
             className="text-xs"
@@ -467,4 +474,4 @@ export function KanbanItem({
       </div>
     </div>
   );
-}
+};

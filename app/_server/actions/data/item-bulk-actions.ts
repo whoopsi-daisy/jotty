@@ -5,7 +5,9 @@ import path from "path";
 import { getUserDir, writeFile } from "@/app/_server/utils/files";
 import { getLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { Checklist } from "@/app/_types";
+import { TaskStatus } from "@/app/_types/enums";
 
 export const createBulkItemsAction = async (formData: FormData) => {
   try {
@@ -29,7 +31,7 @@ export const createBulkItemsAction = async (formData: FormData) => {
       completed: false,
       order: list.items.length + index,
       ...(list.type === "task" && {
-        status: "todo" as const,
+        status: TaskStatus.TODO,
         timeEntries: [],
       }),
     }));
@@ -63,7 +65,7 @@ export const createBulkItemsAction = async (formData: FormData) => {
       );
     }
 
-    await writeFile(filePath, listToMarkdown(updatedList));
+    await writeFile(filePath, listToMarkdown(updatedList as Checklist));
 
     try {
       revalidatePath("/");

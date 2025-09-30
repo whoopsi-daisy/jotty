@@ -4,10 +4,7 @@ import { rename, rmdir } from "fs/promises";
 import { join } from "path";
 import { existsSync, readdirSync, statSync } from "fs";
 import { Result } from "@/app/_types";
-import {
-  DEPRECATED_DOCS_FOLDER,
-  NOTES_FOLDER,
-} from "@/app/_consts/globalConsts";
+import { DEPRECATED_DOCS_FOLDER, NOTES_FOLDER } from "@/app/_consts/notes";
 
 function hasMarkdownFiles(dirPath: string): boolean {
   try {

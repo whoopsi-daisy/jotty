@@ -15,6 +15,7 @@ import { EmptyState } from "@/app/_components/GlobalComponents/Cards/EmptyState"
 import { ChecklistCard } from "@/app/_components/GlobalComponents/Cards/ChecklistCard";
 import { isItemCompleted } from "@/app/_utils/checklist-utils";
 import { StatCard } from "@/app/_components/GlobalComponents/Cards/StatCard";
+import { TaskStatusLabels } from "@/app/_types/enums";
 
 interface HomeViewProps {
   lists: Checklist[];
@@ -87,7 +88,7 @@ export function HomeView({
           />
           <StatCard
             icon={<CheckCircle className="h-6 w-6 text-primary" />}
-            title="Completed"
+            title={TaskStatusLabels.COMPLETED}
             value={completedItems}
           />
           <StatCard

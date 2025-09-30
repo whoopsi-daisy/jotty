@@ -26,7 +26,7 @@ import { SidebarNavigation } from "./Parts/SidebarNavigation";
 import { CategoryList } from "./Parts/CategoryList";
 import { SharedItemsList } from "./Parts/SharedItemsList";
 import { SidebarActions } from "./Parts/SidebarActions";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SharingStatus {
   isShared: boolean;

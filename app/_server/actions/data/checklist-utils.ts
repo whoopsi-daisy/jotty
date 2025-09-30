@@ -1,4 +1,5 @@
 import { Checklist, ChecklistType } from "@/app/_types";
+import { TaskStatus } from "@/app/_types/enums";
 
 const parseMarkdown = (
   content: string,
@@ -35,24 +36,23 @@ const parseMarkdown = (
         const itemText = parts[0].replace(/∣/g, "|");
         const metadata = parts.slice(1);
 
-        let status: "todo" | "in_progress" | "completed" | "paused" = "todo";
+        let status: TaskStatus = TaskStatus.TODO;
         let timeEntries: any[] = [];
         let estimatedTime: number | undefined;
         let targetDate: string | undefined;
 
         metadata.forEach((meta) => {
           if (meta.startsWith("status:")) {
-            const statusValue = meta.substring(7);
+            const statusValue = meta.substring(7) as TaskStatus;
             if (
-              ["todo", "in_progress", "completed", "paused"].includes(
-                statusValue
-              )
+              [
+                TaskStatus.TODO,
+                TaskStatus.IN_PROGRESS,
+                TaskStatus.COMPLETED,
+                TaskStatus.PAUSED,
+              ].includes(statusValue)
             ) {
-              status = statusValue as
-                | "todo"
-                | "in_progress"
-                | "completed"
-                | "paused";
+              status = statusValue;
             }
           } else if (meta.startsWith("time:")) {
             const timeValue = meta.substring(5);
@@ -120,7 +120,7 @@ const listToMarkdown = (list: Checklist): string => {
       if (list.type === "task") {
         const metadata: string[] = [];
 
-        if (item.status && item.status !== "todo") {
+        if (item.status && item.status !== TaskStatus.TODO) {
           metadata.push(`status:${item.status}`);
         }
 

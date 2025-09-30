@@ -21,7 +21,7 @@ import {
 import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
 import { isAdmin } from "@/app/_server/actions/auth/utils";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 export const createListAction = async (formData: FormData) => {
   try {

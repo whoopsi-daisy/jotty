@@ -14,7 +14,7 @@ import { readUsers } from "@/app/_server/actions/auth/utils";
 import fs from "fs/promises";
 import { parseMarkdown } from "./checklist-utils";
 import { readOrderFile } from "./file-actions";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 const readListsRecursively = async (
   dir: string,

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createHash } from "crypto";
 import fs from "fs/promises";
 import path from "path";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 interface User {
   username: string;

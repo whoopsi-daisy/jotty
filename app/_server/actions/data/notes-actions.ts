@@ -30,10 +30,7 @@ import fs from "fs/promises";
 import { readOrderFile } from "./file-actions";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import {
-  DEPRECATED_DOCS_FOLDER,
-  NOTES_FOLDER,
-} from "@/app/_consts/globalConsts";
+import { DEPRECATED_DOCS_FOLDER, NOTES_FOLDER } from "@/app/_consts/notes";
 
 const USER_NOTES_DIR = (username: string) =>
   path.join(process.cwd(), "data", NOTES_FOLDER, username);

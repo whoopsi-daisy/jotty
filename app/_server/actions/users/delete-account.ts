@@ -9,7 +9,8 @@ import { Result } from "@/app/_types";
 import fs from "fs/promises";
 import path from "path";
 import { removeAllSessionsForUser } from "./session-storage";
-import { CHECKLISTS_FOLDER, NOTES_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 export async function deleteAccountAction(
   formData: FormData

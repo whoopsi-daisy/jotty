@@ -4,7 +4,8 @@ import { readUsers, writeUsers } from "@/app/_server/actions/auth/utils";
 import { Result } from "@/app/_types";
 import fs from "fs/promises";
 import path from "path";
-import { CHECKLISTS_FOLDER, NOTES_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 const USER_NOTES_DIR = (username: string) =>
   path.join(process.cwd(), "data", NOTES_FOLDER, username);

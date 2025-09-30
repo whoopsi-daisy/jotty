@@ -4,7 +4,7 @@ import { CheckSquare, FileText } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { cn } from "@/app/_utils/utils";
 import { AppMode } from "@/app/_types";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SidebarNavigationProps {
   mode: AppMode;

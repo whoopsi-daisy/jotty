@@ -6,7 +6,8 @@ import { ChecklistType } from "@/app/_types";
 import { getUserDir, writeFile } from "@/app/_server/utils/files";
 import { getLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { TaskStatus } from "@/app/_types/enums";
 
 export const convertChecklistTypeAction = async (formData: FormData) => {
   try {
@@ -59,7 +60,7 @@ export const convertChecklistTypeAction = async (formData: FormData) => {
     if (newType === "task") {
       convertedItems = list.items.map((item) => ({
         ...item,
-        status: item.completed ? "completed" : "todo",
+        status: item.completed ? TaskStatus.COMPLETED : TaskStatus.TODO,
         timeEntries: [],
       }));
     } else {

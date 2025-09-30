@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 import path from "path";
 import fs from "fs/promises";
-import { NOTES_FOLDER } from "@/app/_consts/globalConsts";
+import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 export const dynamic = "force-dynamic";
 

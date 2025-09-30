@@ -15,7 +15,7 @@ import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/Setting
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
 import { useChecklist } from "@/app/_hooks/useChecklist";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SharingStatus {
   isShared: boolean;

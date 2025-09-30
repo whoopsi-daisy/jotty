@@ -8,7 +8,7 @@ import {
   useEffect,
 } from "react";
 import { AppMode } from "@/app/_types";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface AppModeContextType {
   mode: AppMode;

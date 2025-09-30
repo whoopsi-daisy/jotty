@@ -11,7 +11,7 @@ import {
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { cn } from "@/app/_utils/utils";
 import { AppMode, Checklist, Note } from "@/app/_types";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SharingStatus {
   isShared: boolean;

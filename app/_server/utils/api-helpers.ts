@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/app/_server/utils/api-auth";
 import { getLists } from "@/app/_server/actions/data/actions";
 import { getDocs } from "@/app/_server/actions/data/notes-actions";
+import { TaskStatus } from "@/app/_types/enums";
 
 export async function withApiAuth(
   request: NextRequest,
@@ -48,7 +49,7 @@ export async function getChecklistsForUser(username: string) {
       if (list.type === "task") {
         return {
           ...baseItem,
-          status: item.status || "todo",
+          status: item.status || TaskStatus.TODO,
           time:
             item.timeEntries && item.timeEntries.length > 0
               ? item.timeEntries

@@ -11,7 +11,7 @@ import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
 import { Checklist, Category, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { CreateNoteModal } from "@/app/_components/GlobalComponents/Modals/NotesModal/CreateNoteModal";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SharingStatus {
   isShared: boolean;

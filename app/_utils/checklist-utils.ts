@@ -1,8 +1,9 @@
 import { Item } from "@/app/_types";
+import { TaskStatus } from "../_types/enums";
 
 export const isItemCompleted = (item: Item, checklistType: string): boolean => {
   if (checklistType === "task") {
-    return item.status === "completed";
+    return item.status === TaskStatus.COMPLETED;
   }
   return !!item.completed;
 };

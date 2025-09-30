@@ -173,7 +173,7 @@ export const useChecklist = ({
           ...localList,
           items: newItems,
         };
-        setLocalList(updatedList);
+        setLocalList(updatedList as Checklist);
 
         const itemIds = newItems.map((item) => item.id);
 
@@ -204,8 +204,8 @@ export const useChecklist = ({
     setIsLoading(false);
 
     if (result.success && result.data) {
-      setLocalList(result.data);
-      onUpdate(result.data);
+      setLocalList(result.data as Checklist);
+      onUpdate(result.data as Checklist);
     }
   };
 
@@ -228,8 +228,8 @@ export const useChecklist = ({
     setIsLoading(false);
 
     if (result.success && result.data) {
-      setLocalList(result.data);
-      onUpdate(result.data);
+      setLocalList(result.data as Checklist);
+      onUpdate(result.data as Checklist);
     }
   };
 
@@ -250,8 +250,8 @@ export const useChecklist = ({
     setIsLoading(false);
 
     if (result.success && result.data) {
-      setLocalList(result.data);
-      onUpdate(result.data);
+      setLocalList(result.data as Checklist);
+      onUpdate(result.data as Checklist);
       setFocusKey((prev) => prev + 1);
     }
   };
@@ -269,8 +269,8 @@ export const useChecklist = ({
         ...localList,
         items: [...localList.items, result.data],
       };
-      setLocalList(updatedList);
-      onUpdate(updatedList);
+      setLocalList(updatedList as Checklist);
+      onUpdate(updatedList as Checklist);
       setFocusKey((prev) => prev + 1);
     }
   };

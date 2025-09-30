@@ -9,7 +9,7 @@ import { CreateCategoryModal } from "@/app/_components/GlobalComponents/Modals/C
 import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SharingStatus {
   isShared: boolean;

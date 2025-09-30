@@ -3,7 +3,7 @@ import { getLists, getCategories } from "@/app/_server/actions/data/actions";
 import { getAllLists } from "@/app/_server/actions/data/list-queries";
 import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
 import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
-import { ChecklistClient } from "@/app/_components/features/Checklists/ChecklistClient";
+import { ChecklistClient } from "@/app/_components/FeatureComponents/Checklists/Parts/ChecklistClient";
 
 interface ChecklistPageProps {
   params: {

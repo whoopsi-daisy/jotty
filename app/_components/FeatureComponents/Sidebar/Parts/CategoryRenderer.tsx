@@ -33,7 +33,7 @@ import {
   setChecklistOrderInCategoryAction,
 } from "@/app/_server/actions/data/actions";
 import { SidebarItem } from "./SidebarItem";
-import { Modes } from "@/app/_consts/globalConsts";
+import { Modes } from "@/app/_types/enums";
 
 interface SharingStatus {
   isShared: boolean;

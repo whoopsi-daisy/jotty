@@ -5,7 +5,7 @@ import { createHash } from "crypto";
 import fs from "fs/promises";
 import path from "path";
 import { User } from "@/app/_types";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 const USERS_FILE = path.join(process.cwd(), "data", "users", "users.json");
 

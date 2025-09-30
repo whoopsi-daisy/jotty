@@ -1,6 +1,7 @@
 import { Timer } from "lucide-react";
 import { Item } from "@/app/_types";
 import { formatTime } from "@/app/_utils/checklist-utils";
+import { TaskStatus } from "@/app/_types/enums";
 
 interface TaskSpecificDetailsProps {
   items: Item[];
@@ -9,7 +10,7 @@ interface TaskSpecificDetailsProps {
 export function TaskSpecificDetails({ items }: TaskSpecificDetailsProps) {
   const statusCounts = items.reduce(
     (acc, item) => {
-      const status = item.status || "todo";
+      const status = item.status || TaskStatus.TODO;
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     },

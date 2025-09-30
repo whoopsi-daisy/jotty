@@ -1,3 +1,5 @@
+import { TaskStatus } from "./enums";
+
 export type ChecklistType = "simple" | "task";
 
 export interface TimeEntry {
@@ -14,7 +16,7 @@ export interface Item {
   text: string;
   completed: boolean;
   order: number;
-  status?: "todo" | "in_progress" | "completed" | "paused";
+  status?: TaskStatus;
   timeEntries?: TimeEntry[];
   estimatedTime?: number;
   targetDate?: string;

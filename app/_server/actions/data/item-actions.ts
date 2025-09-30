@@ -6,7 +6,9 @@ import { getUserDir, writeFile, ensureDir } from "@/app/_server/utils/files";
 import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
 import { isAdmin } from "@/app/_server/actions/auth/utils";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/globalConsts";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { Checklist } from "@/app/_types";
+import { TaskStatus } from "@/app/_types/enums";
 
 export const updateItemAction = async (
   formData: FormData,
@@ -125,8 +127,7 @@ export const createItemAction = async (
       completed: false,
       order: list.items.length,
       ...(list.type === "task" && {
-        status:
-          (status as "todo" | "in_progress" | "completed" | "paused") || "todo",
+        status: (status as TaskStatus) || TaskStatus.TODO,
         timeEntries,
       }),
     };
@@ -149,7 +150,7 @@ export const createItemAction = async (
 
     const filePath = path.join(categoryDir, `${listId}.md`);
 
-    await writeFile(filePath, listToMarkdown(updatedList));
+    await writeFile(filePath, listToMarkdown(updatedList as Checklist));
 
     if (!skipRevalidation) {
       try {
@@ -310,7 +311,7 @@ export const updateItemStatusAction = async (formData: FormData) => {
   try {
     const listId = formData.get("listId") as string;
     const itemId = formData.get("itemId") as string;
-    const status = formData.get("status") as string;
+    const status = formData.get("status") as TaskStatus;
     const timeEntriesStr = formData.get("timeEntries") as string;
 
     if (!listId || !itemId) {
@@ -337,7 +338,7 @@ export const updateItemStatusAction = async (formData: FormData) => {
       items: list.items.map((item) => {
         if (item.id === itemId) {
           const updates: any = {};
-          if (status) updates.status = status as any;
+          if (status) updates.status = status;
           if (timeEntriesStr) {
             try {
               updates.timeEntries = JSON.parse(timeEntriesStr);
