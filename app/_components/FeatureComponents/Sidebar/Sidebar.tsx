@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/global-utils";
@@ -172,6 +172,38 @@ export const Sidebar = ({
   const pathname = usePathname();
   const { mode, setMode, isInitialized } = useAppMode();
 
+  const { allCollapsiblePaths, areAnyCollapsed } = useMemo(() => {
+    const items = mode === Modes.CHECKLISTS ? checklists : notes;
+
+    const pathsOfParentsToCategories = new Set(
+      categories.map((c) => c.parent).filter(Boolean)
+    );
+
+    const pathsOfParentsToItems = new Set(
+      items.map((item) => item.category).filter(Boolean)
+    );
+
+    const allPaths = new Set(
+      Array.from(pathsOfParentsToCategories).concat(
+        Array.from(pathsOfParentsToItems)
+      )
+    );
+
+    const anyCollapsed = Array.from(allPaths).some((path) =>
+      collapsedCategories.has(path || "")
+    );
+
+    return { allCollapsiblePaths: allPaths, areAnyCollapsed: anyCollapsed };
+  }, [categories, checklists, notes, mode, collapsedCategories]);
+
+  const handleToggleAllCategories = () => {
+    if (areAnyCollapsed) {
+      setCollapsedCategories(new Set());
+    } else {
+      setCollapsedCategories(allCollapsiblePaths as Set<string>);
+    }
+  };
+
   const getSharingStatus = (itemId: string) => {
     return sharingStatuses[itemId] || null;
   };
@@ -232,7 +264,9 @@ export const Sidebar = ({
     onOpenCategoryModal(categoryPath);
   };
 
-  const toggleCategory = (categoryPath: string) => {
+  const toggleCategory: (categoryPath: string) => void = (
+    categoryPath: string
+  ) => {
     setCollapsedCategories((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(categoryPath)) {
@@ -340,6 +374,21 @@ export const Sidebar = ({
           <SidebarNavigation mode={mode} onModeChange={handleModeSwitch} />
 
           <div className="flex-1 overflow-y-auto p-2 space-y-4">
+            <div className="px-2 pt-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-wider">
+                  Categories
+                </h3>
+
+                <button
+                  onClick={handleToggleAllCategories}
+                  className="text-xs font-medium text-primary hover:underline focus:outline-none"
+                >
+                  {areAnyCollapsed ? "Expand All" : "Collapse All"}
+                </button>
+              </div>
+            </div>
+
             <SharedItemsList
               items={mode === Modes.CHECKLISTS ? checklists : notes}
               collapsed={sharedItemsCollapsed}
