@@ -203,7 +203,6 @@ export const TiptapToolbar = ({ editor }: ToolbarProps) => {
         isOpen={showFileModal}
         onClose={() => setShowFileModal(false)}
         onSelectFile={handleFileSelect}
-        category=""
       />
       <TableInsertModal
         isOpen={showTableModal}

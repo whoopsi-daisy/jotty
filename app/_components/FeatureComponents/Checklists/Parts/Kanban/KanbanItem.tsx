@@ -465,8 +465,8 @@ export const KanbanItem = ({
           <Dropdown
             value={item.status || TaskStatus.TODO}
             options={statusOptions}
-            onChange={(newStatus: TaskStatus) => {
-              handleStatusChange(newStatus);
+            onChange={(newStatus) => {
+              handleStatusChange(newStatus as TaskStatus);
             }}
             className="text-xs"
           />
