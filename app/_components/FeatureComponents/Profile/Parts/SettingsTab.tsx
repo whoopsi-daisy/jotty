@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { Trash2, Shield, Key, Copy, Eye, EyeOff } from "lucide-react";
+import { Key, Copy, Eye, EyeOff } from "lucide-react";
 import {
   generateApiKeyAction,
   getApiKeyAction,
@@ -10,17 +10,12 @@ import {
 
 interface SettingsTabProps {
   setShowDeleteModal: (show: boolean) => void;
-  setShowPrivacyModal: (show: boolean) => void;
 }
 
-export function SettingsTab({
-  setShowDeleteModal,
-  setShowPrivacyModal,
-}: SettingsTabProps) {
+export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadApiKey();
@@ -34,8 +29,6 @@ export function SettingsTab({
       }
     } catch (error) {
       console.error("Error loading API key:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -151,44 +144,8 @@ export function SettingsTab({
               Delete Account
             </Button>
           </div>
-
-          {/** @todo: add export data functionality */}
-          {/*
-          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div>
-                    <h3 className="font-medium">Export Data</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Download all your checklists and notes
-                    </p>
-                </div>
-                <Button
-                    variant="outline"
-                    onClick={handleExportData}
-                >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Data
-                </Button>
-            </div> 
-          */}
-
-          {/** @todo: add privacy settings functionality */}
-          {/* <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div>
-                      <h3 className="font-medium">Privacy Settings</h3>
-                      <p className="text-sm text-muted-foreground">
-                          Manage your privacy and sharing preferences
-                      </p>
-                  </div>
-                  <Button
-                      variant="outline"
-                      onClick={() => setShowPrivacyModal(true)}
-                  >
-                      Manage Privacy
-                  </Button>
-              </div> 
-            */}
         </div>
       </div>
     </div>
   );
-}
+};

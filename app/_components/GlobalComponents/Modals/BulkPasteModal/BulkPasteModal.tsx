@@ -12,12 +12,12 @@ interface BulkPasteModalProps {
   isLoading?: boolean;
 }
 
-export function BulkPasteModal({
+export const BulkPasteModal = ({
   isOpen,
   onClose,
   onSubmit,
   isLoading = false,
-}: BulkPasteModalProps) {
+}: BulkPasteModalProps) => {
   const [itemsText, setItemsText] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,4 +88,4 @@ Item 3...`}
       </form>
     </Modal>
   );
-}
+};

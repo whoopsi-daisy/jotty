@@ -5,19 +5,21 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeRaw from "rehype-raw";
-import { CodeBlockRenderer } from "./TipTapComponents/CodeBlockRenderer";
+import { CodeBlockRenderer } from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockRenderer";
 import { FileAttachment } from "@/app/_components/GlobalComponents/FormElements/FileAttachment";
 import type { Components } from "react-markdown";
+import { QUOTES } from "@/app/_consts/notes";
+import { ImageAttachment } from "@/app/_components/GlobalComponents/FormElements/ImageAttachment";
 
 interface UnifiedMarkdownRendererProps {
   content: string;
   className?: string;
 }
 
-export function UnifiedMarkdownRenderer({
+export const UnifiedMarkdownRenderer = ({
   content,
   className = "",
-}: UnifiedMarkdownRendererProps) {
+}: UnifiedMarkdownRendererProps) => {
   const [isClient, setIsClient] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<string | null>(null);
 
@@ -27,45 +29,8 @@ export function UnifiedMarkdownRenderer({
 
   useEffect(() => {
     if (isClient && !selectedQuote) {
-      const quotes = [
-        "Nothing... a whole lot of nothing.",
-        "What's in the box?!",
-        "Hello? Is there anybody in there?",
-        "You've got nothing. I've got nothing. Let's do nothing.",
-        "The journey of a thousand miles begins with a single step.",
-        "Silence is golden.",
-        "There's nothing to see here.",
-        "Empty.",
-        "Hello darkness, my old friend.",
-        "I'll be back.",
-        "Just start.",
-        "This is not the note you are looking for.",
-        "I feel like a blank canvas.",
-        "Alright, alright, alright.",
-        "There is no spoon.",
-        "Waiting.",
-        "// TODO: Add content here",
-        "Error 404: Note not found.",
-        "Make it so.",
-        "Hello, world!",
-        "The rest is still unwritten.",
-        "A note about nothing.",
-        "What... is your quest?",
-        "Where we're going, we don't need roads.",
-        "The Nothing is spreading.",
-        "This page intentionally left blank.",
-        "And now for something completely different.",
-        "I'm sorry, Dave. I'm afraid I can't do that.",
-        "Space: the final frontier.",
-        "Get on with it!",
-        "Are you the Keymaster?",
-        "All work and no play makes Jack a dull boy.",
-        "The sleeper must awaken.",
-        "In the beginning...",
-        "An enigma, wrapped in a riddle, inside a mystery.",
-      ];
-      const quoteIndex = Math.floor(Math.random() * quotes.length);
-      setSelectedQuote(quotes[quoteIndex]);
+      const quoteIndex = Math.floor(Math.random() * QUOTES.length);
+      setSelectedQuote(QUOTES[quoteIndex]);
     }
   }, [isClient, selectedQuote]);
 
@@ -96,14 +61,7 @@ export function UnifiedMarkdownRenderer({
       const inline = !className?.includes("language-");
 
       if (!inline && language) {
-        return (
-          <CodeBlockRenderer
-            code={codeContent}
-            language={language}
-            showHeader={true}
-            showCopyButton={true}
-          />
-        );
+        return <CodeBlockRenderer code={codeContent} language={language} />;
       }
 
       return (
@@ -121,12 +79,13 @@ export function UnifiedMarkdownRenderer({
         const isImage = href.includes("/api/image/");
         const mimeType = isImage ? "image/jpeg" : "application/octet-stream";
 
-        return (
+        return isImage ? (
+          <ImageAttachment url={href} fileName={fileName} className="my-4" />
+        ) : (
           <FileAttachment
             url={href}
             fileName={fileName}
             mimeType={mimeType}
-            type={isImage ? "image" : "file"}
             className="my-4"
           />
         );
@@ -207,4 +166,4 @@ export function UnifiedMarkdownRenderer({
       </ReactMarkdown>
     </div>
   );
-}
+};

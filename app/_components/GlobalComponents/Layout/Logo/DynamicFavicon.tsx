@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useFaviconUpdate } from "@/app/_hooks/useFaviconUpdate";
 
-export function DynamicFavicon() {
+export const DynamicFavicon = () => {
   const { updateFavicons } = useFaviconUpdate();
 
   useEffect(() => {
@@ -11,4 +11,4 @@ export function DynamicFavicon() {
   }, [updateFavicons]);
 
   return null;
-}
+};

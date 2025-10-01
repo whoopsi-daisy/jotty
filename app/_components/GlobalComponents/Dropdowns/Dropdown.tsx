@@ -4,25 +4,25 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/app/_utils/global-utils";
 
-interface DropdownOption<T extends string> {
-  id: T;
+interface DropdownOption {
+  id: string;
   name: string;
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-interface DropdownProps<T extends string> {
-  value: T;
-  options: DropdownOption<T>[];
-  onChange: (value: T) => void;
+interface DropdownProps {
+  value: string;
+  options: DropdownOption[];
+  onChange: (value: string) => void;
   className?: string;
 }
 
-export function Dropdown<T extends string>({
+export const Dropdown = ({
   value,
   options,
   onChange,
   className = "",
-}: DropdownProps<T>) {
+}: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +42,7 @@ export function Dropdown<T extends string>({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelect = (e: React.MouseEvent, optionId: T) => {
+  const handleSelect = (e: React.MouseEvent, optionId: string) => {
     e.preventDefault();
     e.stopPropagation();
     onChange(optionId);
@@ -92,4 +92,4 @@ export function Dropdown<T extends string>({
       )}
     </div>
   );
-}
+};

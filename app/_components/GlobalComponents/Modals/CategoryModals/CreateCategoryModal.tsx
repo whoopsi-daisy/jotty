@@ -19,13 +19,13 @@ interface CreateCategoryModalProps {
   initialParent?: string;
 }
 
-export function CreateCategoryModal({
+export const CreateCategoryModal = ({
   onClose,
   onCreated,
   mode,
   categories = [],
   initialParent = "",
-}: CreateCategoryModalProps) {
+}: CreateCategoryModalProps) => {
   const [categoryName, setCategoryName] = useState("");
   const [parentCategory, setParentCategory] = useState(initialParent);
   const [isLoading, setIsLoading] = useState(false);
@@ -122,4 +122,4 @@ export function CreateCategoryModal({
       </form>
     </Modal>
   );
-}
+};

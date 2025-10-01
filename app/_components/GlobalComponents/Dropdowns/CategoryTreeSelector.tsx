@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { ChevronDown, Folder } from "lucide-react";
 import { cn } from "@/app/_utils/global-utils";
 import { Category } from "@/app/_types";
+import { CategoryTreeNode } from "./CategoryTreeNode";
 
 interface CategoryTreeSelectorProps {
   categories: Category[];
@@ -13,40 +14,63 @@ interface CategoryTreeSelectorProps {
   className?: string;
 }
 
-export function CategoryTreeSelector({
+export const CategoryTreeSelector = ({
   categories,
   selectedCategory,
   onCategorySelect,
   placeholder = "Select category...",
   className,
-}: CategoryTreeSelectorProps) {
+}: CategoryTreeSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set()
   );
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const getRootCategories = () => {
-    return categories.filter((cat) => !cat.parent);
-  };
+  const rootCategories = useMemo(
+    () => categories.filter((cat) => !cat.parent),
+    [categories]
+  );
+  const getSubCategories = useCallback(
+    (parentPath: string) =>
+      categories.filter((cat) => cat.parent === parentPath),
+    [categories]
+  );
 
-  const getSubCategories = (parentPath: string) => {
-    return categories.filter((cat) => cat.parent === parentPath);
-  };
-
-  const getSelectedCategoryName = () => {
+  const selectedCategoryName = useMemo(() => {
     if (!selectedCategory) return placeholder;
     const category = categories.find((cat) => cat.path === selectedCategory);
     return category ? category.name : selectedCategory;
-  };
+  }, [selectedCategory, categories, placeholder]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    const handleEscape = (event: KeyboardEvent) =>
+      event.key === "Escape" && setIsOpen(false);
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen]);
 
   const toggleExpanded = (categoryPath: string) => {
     setExpandedCategories((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(categoryPath)) {
-        newSet.delete(categoryPath);
-      } else {
-        newSet.add(categoryPath);
-      }
+      newSet.has(categoryPath)
+        ? newSet.delete(categoryPath)
+        : newSet.add(categoryPath);
       return newSet;
     });
   };
@@ -56,119 +80,49 @@ export function CategoryTreeSelector({
     setIsOpen(false);
   };
 
-  const renderCategoryNode = (category: Category) => {
-    const subCategories = getSubCategories(category.path);
-    const isExpanded = expandedCategories.has(category.path);
-    const hasSubCategories = subCategories.length > 0;
-
-    return (
-      <div key={category.path} className="select-none">
-        <div
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-muted/50 transition-colors",
-            selectedCategory === category.path && "bg-primary/10 text-primary"
-          )}
-          style={{ paddingLeft: `${12 + category.level * 20}px` }}
-          onClick={(e) => {
-            e.preventDefault();
-            handleCategoryClick(category.path);
-          }}
-        >
-          {hasSubCategories ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpanded(category.path);
-              }}
-              className="p-0.5 hover:bg-muted rounded"
-            >
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </button>
-          ) : (
-            <div className="w-4" />
-          )}
-
-          {isExpanded ? (
-            <FolderOpen className="h-4 w-4 text-primary" />
-          ) : (
-            <Folder className="h-4 w-4 text-muted-foreground" />
-          )}
-
-          <span className="truncate">{category.name}</span>
-          <span className="text-xs text-muted-foreground ml-auto">
-            {category.count}
-          </span>
-        </div>
-
-        {isExpanded && hasSubCategories && (
-          <div className="ml-2">
-            {subCategories.map((subCategory) =>
-              renderCategoryNode(subCategory)
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
-    <div className={cn("relative", className)}>
+    <div ref={containerRef} className={cn("relative", className)}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          "w-full px-3 py-2 text-left text-sm bg-background border border-input rounded-md",
-          "hover:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
-          "flex items-center gap-2"
-        )}
+        className="w-full px-3 py-2 text-left text-sm bg-background border border-input rounded-md hover:border-ring focus:outline-none focus:ring-2 focus:ring-ring flex items-center gap-2"
       >
         <Folder className="h-4 w-4 text-muted-foreground" />
-        <span className="truncate">{getSelectedCategoryName()}</span>
+        <span className="truncate flex-1">{selectedCategoryName}</span>
         <ChevronDown
-          className={cn(
-            "h-4 w-4 ml-auto transition-transform",
-            isOpen && "rotate-180"
-          )}
+          className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")}
         />
       </button>
 
       {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={(e) => {
-              e.preventDefault();
-              setIsOpen(false);
-            }}
-          />
-          <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-background border border-input rounded-md shadow-lg max-h-60 overflow-y-auto">
-            <div className="p-2">
-              <div
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-muted/50 transition-colors",
-                  selectedCategory === "" && "bg-primary/10 text-primary"
-                )}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleCategoryClick("");
-                }}
-              >
-                <div className="w-4" />
-                <Folder className="h-4 w-4 text-muted-foreground" />
-                <span>Uncategorized</span>
-              </div>
-
-              {getRootCategories().map((category) =>
-                renderCategoryNode(category)
+        <div className="absolute top-full w-full z-20 mt-1 bg-background border border-input rounded-md shadow-lg max-h-60 overflow-y-auto">
+          <div className="p-2">
+            <div
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-muted/50",
+                !selectedCategory && "bg-primary/10 text-primary"
               )}
+              onClick={() => handleCategoryClick("")}
+            >
+              <div className="w-5" /> {/* Spacer */}
+              <Folder className="h-4 w-4 text-muted-foreground" />
+              <span>Uncategorized</span>
             </div>
+            {rootCategories.map((category) => (
+              <CategoryTreeNode
+                key={category.path}
+                category={category}
+                level={0}
+                getSubCategories={getSubCategories}
+                selectedCategory={selectedCategory}
+                expandedCategories={expandedCategories}
+                onCategoryClick={handleCategoryClick}
+                onToggleExpanded={toggleExpanded}
+              />
+            ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
-}
+};

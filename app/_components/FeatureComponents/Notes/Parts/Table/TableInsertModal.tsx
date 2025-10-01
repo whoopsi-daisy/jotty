@@ -12,11 +12,11 @@ interface TableInsertModalProps {
   editor: Editor;
 }
 
-export function TableInsertModal({
+export const TableInsertModal = ({
   isOpen,
   onClose,
   editor,
-}: TableInsertModalProps) {
+}: TableInsertModalProps) => {
   const [rows, setRows] = useState(3);
   const [cols, setCols] = useState(3);
 
@@ -86,4 +86,4 @@ export function TableInsertModal({
       </div>
     </Modal>
   );
-}
+};

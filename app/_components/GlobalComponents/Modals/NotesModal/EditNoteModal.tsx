@@ -50,7 +50,7 @@ export const EditNoteModal = ({
     if (isOwner) {
       formData.append("category", category || "");
     }
-    const result = await updateDocAction(formData);
+    const result = await updateDocAction(formData, false);
     setIsLoading(false);
 
     if (result.success) {

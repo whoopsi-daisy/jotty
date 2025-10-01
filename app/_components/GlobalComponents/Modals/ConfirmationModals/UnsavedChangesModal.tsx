@@ -12,13 +12,13 @@ interface UnsavedChangesModalProps {
   noteTitle?: string;
 }
 
-export function UnsavedChangesModal({
+export const UnsavedChangesModal = ({
   isOpen,
   onClose,
   onSave,
   onDiscard,
   noteTitle = "this note",
-}: UnsavedChangesModalProps) {
+}: UnsavedChangesModalProps) => {
   return (
     <Modal
       isOpen={isOpen}
@@ -71,4 +71,4 @@ export function UnsavedChangesModal({
       </div>
     </Modal>
   );
-}
+};

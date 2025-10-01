@@ -1,30 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import {
-  X,
-  Trash2,
-  AlertTriangle,
-  Eye,
-  EyeOff,
-  Save,
-  AlertCircle,
-  Check,
-} from "lucide-react";
+import { Trash2, Eye, EyeOff, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { deleteAccountAction } from "@/app/_server/actions/users/delete-account";
 import { useRouter } from "next/navigation";
 import { Modal } from "../Modal";
+import { InfoCardVariant } from "@/app/_components/GlobalComponents/Cards/InfoCard";
+import { InfoBox } from "../../Cards/InfoBox";
 
 interface DeleteAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function DeleteAccountModal({
+export const DeleteAccountModal = ({
   isOpen,
   onClose,
-}: DeleteAccountModalProps) {
+}: DeleteAccountModalProps) => {
   const router = useRouter();
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -95,24 +88,16 @@ export function DeleteAccountModal({
         )}
 
         <div className="space-y-4">
-          <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
-              <div>
-                <h3 className="font-medium text-destructive mb-2">
-                  Warning: This action cannot be undone
-                </h3>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>
-                    • All your checklists and notes will be permanently deleted
-                  </li>
-                  <li>• All shared content will be removed</li>
-                  <li>• Your account and session data will be erased</li>
-                  <li>• This action is irreversible</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <InfoBox
+            title="Warning: This action cannot be undone"
+            variant={InfoCardVariant.WARNING}
+            items={[
+              "All your checklists and notes will be permanently deleted",
+              "All shared content will be removed",
+              "Your account and session data will be erased",
+              "This action is irreversible",
+            ]}
+          ></InfoBox>
 
           <div>
             <label className="block text-sm font-medium mb-2">
@@ -168,4 +153,4 @@ export function DeleteAccountModal({
       </div>
     </Modal>
   );
-}
+};

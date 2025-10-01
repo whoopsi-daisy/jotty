@@ -8,7 +8,10 @@ interface AppNameProps {
   fallback?: string;
 }
 
-export function AppName({ className, fallback = "rwMarkable" }: AppNameProps) {
+export const AppName = ({
+  className,
+  fallback = "rwMarkable",
+}: AppNameProps) => {
   const [appName, setAppName] = useState<string>(fallback);
   const [loading, setLoading] = useState(true);
 
@@ -47,4 +50,4 @@ export function AppName({ className, fallback = "rwMarkable" }: AppNameProps) {
       )}
     </span>
   );
-}
+};

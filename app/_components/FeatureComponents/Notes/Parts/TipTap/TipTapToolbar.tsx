@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { FileModal } from "@/app/_components/GlobalComponents/Modals/FilesModal/FileModal";
-import { CodeBlockDropdown } from "./CodeBlockDropdown";
-import { TableInsertModal } from "./TableInsertModal";
+import { CodeBlockDropdown } from "../CodeBlock/CodeBlockDropdown";
+import { TableInsertModal } from "../Table/TableInsertModal";
 import { useState } from "react";
 
 type ToolbarProps = {

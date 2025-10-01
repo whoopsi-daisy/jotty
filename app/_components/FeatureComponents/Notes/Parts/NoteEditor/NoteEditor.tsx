@@ -16,7 +16,7 @@ export interface NoteEditorProps {
   isAdmin?: boolean;
 }
 
-export function NoteEditor({
+export const NoteEditor = ({
   note,
   categories,
   onUpdate,
@@ -24,11 +24,11 @@ export function NoteEditor({
   onDelete,
   currentUsername,
   isAdmin = false,
-}: NoteEditorProps) {
+}: NoteEditorProps) => {
   const viewModel = useNoteEditor({
     note,
     onUpdate,
-    onDelete: onDelete || (() => {}),
+    onDelete: onDelete || (() => { }),
     onBack,
   });
   const isOwner = note.owner === currentUsername;
@@ -62,4 +62,4 @@ export function NoteEditor({
       />
     </div>
   );
-}
+};

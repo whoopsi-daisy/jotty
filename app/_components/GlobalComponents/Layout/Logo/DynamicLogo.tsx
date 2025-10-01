@@ -9,10 +9,10 @@ interface DynamicLogoProps {
   size?: "16x16" | "32x32" | "180x180";
 }
 
-export function DynamicLogo({
+export const DynamicLogo = ({
   className = "h-8 w-8",
   size = "32x32",
-}: DynamicLogoProps) {
+}: DynamicLogoProps) => {
   const [customIcon, setCustomIcon] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -59,4 +59,4 @@ export function DynamicLogo({
   }
 
   return <Logo className={className} />;
-}
+};

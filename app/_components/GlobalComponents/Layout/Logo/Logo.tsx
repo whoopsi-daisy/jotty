@@ -1,6 +1,6 @@
 "use client";
 
-export function Logo({ className = "h-8 w-8" }: { className?: string }) {
+export const Logo = ({ className = "h-8 w-8" }: { className?: string }) => {
   return (
     <svg
       width="100"
@@ -27,4 +27,4 @@ export function Logo({ className = "h-8 w-8" }: { className?: string }) {
       />
     </svg>
   );
-}
+};

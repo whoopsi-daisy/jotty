@@ -8,18 +8,16 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import CodeBlockComponent from "./CodeBlockComponent";
-import { TiptapToolbar } from "./TipTapToolbar";
-import { FileAttachmentExtension } from "./FileAttachmentExtension";
-import { useState, useEffect, useMemo, useRef } from "react";
+import CodeBlockComponent from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockComponent";
+import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapToolbar";
+import { FileAttachmentExtension } from "@/app/_components/FeatureComponents/Notes/Parts/FileAttachment/FileAttachmentExtension";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Eye, FileText } from "lucide-react";
 import { InputRule } from "@tiptap/core";
 import {
-  createTurndownService,
   convertMarkdownToHtml,
   convertHtmlToMarkdownUnified,
-  getMarkdownPreviewContent,
 } from "@/app/_utils/markdown-utils";
 
 type TiptapEditorProps = {

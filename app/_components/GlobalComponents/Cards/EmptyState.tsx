@@ -1,4 +1,4 @@
-import { Plus, Folder, FileText } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 
 interface EmptyStateProps {
@@ -9,13 +9,13 @@ interface EmptyStateProps {
   onButtonClick: () => void;
 }
 
-export function EmptyState({
+export const EmptyState = ({
   icon,
   title,
   description,
   buttonText,
   onButtonClick,
-}: EmptyStateProps) {
+}: EmptyStateProps) => {
   return (
     <div className="h-full flex flex-col items-center justify-center p-4">
       <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
@@ -31,4 +31,4 @@ export function EmptyState({
       </Button>
     </div>
   );
-}
+};

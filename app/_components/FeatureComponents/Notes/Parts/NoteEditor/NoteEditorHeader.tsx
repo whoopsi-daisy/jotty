@@ -45,6 +45,7 @@ export const NoteEditorHeader = ({
     setTitle,
     category,
     isEditing,
+    setIsEditing,
     status,
     handleEdit,
     handleCancel,
@@ -125,7 +126,10 @@ export const NoteEditorHeader = ({
                 </Button>
                 <Button
                   size="sm"
-                  onClick={handleSave}
+                  onClick={() => {
+                    handleSave();
+                    setIsEditing(false);
+                  }}
                   disabled={status.isSaving || status.isAutoSaving}
                 >
                   {status.isSaving ? (

@@ -17,7 +17,7 @@ interface ToastProps {
   onRemove: (id: string) => void;
 }
 
-export function Toast({ toast, onRemove }: ToastProps) {
+export const Toast = ({ toast, onRemove }: ToastProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -84,19 +84,4 @@ export function Toast({ toast, onRemove }: ToastProps) {
       </button>
     </div>
   );
-}
-
-interface ToastContainerProps {
-  toasts: Toast[];
-  onRemove: (id: string) => void;
-}
-
-export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
-  return (
-    <div className="fixed bottom-4 right-4 z-50 space-y-2">
-      {toasts.map((toast) => (
-        <Toast key={toast.id} toast={toast} onRemove={onRemove} />
-      ))}
-    </div>
-  );
-}
+};

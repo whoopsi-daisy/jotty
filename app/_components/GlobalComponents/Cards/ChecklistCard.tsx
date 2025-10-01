@@ -9,7 +9,7 @@ interface ChecklistCardProps {
   onSelect: (id: string) => void;
 }
 
-export function ChecklistCard({ list, onSelect }: ChecklistCardProps) {
+export const ChecklistCard = ({ list, onSelect }: ChecklistCardProps) => {
   const totalItems = list.items.length;
   const completedItems = list.items.filter((item) =>
     isItemCompleted(item, list.type)
@@ -62,4 +62,4 @@ export function ChecklistCard({ list, onSelect }: ChecklistCardProps) {
       </div>
     </div>
   );
-}
+};

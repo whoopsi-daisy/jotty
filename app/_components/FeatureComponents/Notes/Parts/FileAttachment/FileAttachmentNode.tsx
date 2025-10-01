@@ -2,8 +2,9 @@
 
 import { NodeViewWrapper, ReactNodeViewProps } from "@tiptap/react";
 import { FileAttachment } from "@/app/_components/GlobalComponents/FormElements/FileAttachment";
+import { ImageAttachment } from "@/app/_components/GlobalComponents/FormElements/ImageAttachment";
 
-export function FileAttachmentNode({ node }: ReactNodeViewProps) {
+export const FileAttachmentNode = ({ node }: ReactNodeViewProps) => {
   const { url, fileName, mimeType, type } = node.attrs as {
     url: string;
     fileName: string;
@@ -20,13 +21,16 @@ export function FileAttachmentNode({ node }: ReactNodeViewProps) {
       data-mime-type={mimeType}
       data-type={type}
     >
-      <FileAttachment
-        url={url}
-        fileName={fileName}
-        mimeType={mimeType}
-        type={type}
-        className="my-4"
-      />
+      {type === "image" ? (
+        <ImageAttachment url={url} fileName={fileName} className="my-4" />
+      ) : (
+        <FileAttachment
+          url={url}
+          fileName={fileName}
+          mimeType={mimeType}
+          className="my-4"
+        />
+      )}
     </NodeViewWrapper>
   );
-}
+};

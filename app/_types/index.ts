@@ -59,6 +59,7 @@ export interface NoteEditorViewModel {
   setCategory: (category: string) => void;
   editorContent: string;
   isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
   status: {
     isSaving: boolean;
     isAutoSaving: boolean;
@@ -151,4 +152,12 @@ export interface AppSettings {
   "16x16Icon": string;
   "32x32Icon": string;
   "180x180Icon": string;
+}
+
+export interface Session {
+  id: string;
+  userAgent: string;
+  ipAddress: string;
+  lastActivity: string;
+  isCurrent: boolean;
 }

@@ -4,10 +4,10 @@ import { getLists } from "@/app/_server/actions/data/actions";
 import { getDocs } from "@/app/_server/actions/data/notes-actions";
 import { TaskStatus } from "@/app/_types/enums";
 
-export async function withApiAuth(
+export const withApiAuth = async (
   request: NextRequest,
   handler: (user: any, request: NextRequest) => Promise<NextResponse>
-) {
+) => {
   try {
     const apiKey = request.headers.get("x-api-key");
     const user = await authenticateApiKey(apiKey || "");
@@ -24,9 +24,9 @@ export async function withApiAuth(
       { status: 500 }
     );
   }
-}
+};
 
-export async function getChecklistsForUser(username: string) {
+export const getChecklistsForUser = async (username: string) => {
   const lists = await getLists(username);
   if (!lists.success || !lists.data) {
     throw new Error(lists.error || "Failed to fetch checklists");
@@ -62,9 +62,9 @@ export async function getChecklistsForUser(username: string) {
     createdAt: list.createdAt,
     updatedAt: list.updatedAt,
   }));
-}
+};
 
-export async function getNotesForUser(username: string) {
+export const getNotesForUser = async (username: string) => {
   const docs = await getDocs(username);
   if (!docs.success || !docs.data) {
     throw new Error(docs.error || "Failed to fetch notes");
@@ -80,13 +80,13 @@ export async function getNotesForUser(username: string) {
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   }));
-}
+};
 
-export async function findItemByIndex(
+export const findItemByIndex = async (
   listId: string,
   itemIndex: number,
   username: string
-) {
+) => {
   const lists = await getLists(username);
   if (!lists.success || !lists.data) {
     throw new Error(lists.error || "Failed to fetch lists");
@@ -102,4 +102,4 @@ export async function findItemByIndex(
   }
 
   return list.items[itemIndex];
-}
+};

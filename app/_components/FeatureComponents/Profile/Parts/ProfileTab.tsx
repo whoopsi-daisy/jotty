@@ -27,7 +27,7 @@ interface ProfileTabProps {
   setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
 }
 
-export function ProfileTab({
+export const ProfileTab = ({
   user,
   username,
   isAdmin,
@@ -47,7 +47,7 @@ export function ProfileTab({
   success,
   setSuccess,
   setUser,
-}: ProfileTabProps) {
+}: ProfileTabProps) => {
   const handleSaveProfile = async () => {
     if (!editedUsername.trim()) {
       setError("Username is required");
@@ -249,4 +249,4 @@ export function ProfileTab({
       )}
     </div>
   );
-}
+};

@@ -1,5 +1,5 @@
-import { TiptapEditor } from "../TipTapComponents/TipTapEditor";
-import { UnifiedMarkdownRenderer } from "../UnifiedMarkdownRenderer";
+import { TiptapEditor } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapEditor";
+import { UnifiedMarkdownRenderer } from "@/app/_components/FeatureComponents/Notes/Parts/UnifiedMarkdownRenderer";
 
 interface NoteEditorContentProps {
   isEditing: boolean;

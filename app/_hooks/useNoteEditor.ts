@@ -73,32 +73,44 @@ export const useNoteEditor = ({
     setHasUnsavedChanges(contentChanged || titleChanged || categoryChanged);
   }, [derivedMarkdownContent, title, category, note, isEditing]);
 
-  const handleSave = useCallback(async () => {
-    setStatus((prev) => ({ ...prev, isSaving: true }));
-    const formData = new FormData();
-    formData.append("id", note.id);
-    formData.append("title", title);
-    formData.append("content", derivedMarkdownContent);
-    formData.append("category", category);
-
-    const result = await updateDocAction(formData);
-    setStatus((prev) => ({ ...prev, isSaving: false }));
-
-    if (result.success && result.data) {
-      onUpdate(result.data);
-      setIsEditing(false);
-      if (result.data.id !== note.id) {
-        router.push(`/note/${result.data.id}`);
+  const handleSave = useCallback(
+    async (autosaveNotes = false) => {
+      const useAutosave = autosaveNotes ? true : false;
+      if (!useAutosave) {
+        setStatus((prev) => ({ ...prev, isSaving: true }));
       }
-    }
-  }, [note.id, title, derivedMarkdownContent, category, onUpdate, router]);
+      const formData = new FormData();
+      formData.append("id", note.id);
+      formData.append("title", title);
+      formData.append("content", derivedMarkdownContent);
+      formData.append("category", category);
+
+      const result = await updateDocAction(formData, useAutosave);
+
+      if (useAutosave && result.success && result.data) {
+        return;
+      } else {
+        setStatus((prev) => ({ ...prev, isSaving: false }));
+      }
+
+      if (result.success && result.data) {
+        onUpdate(result.data);
+        setIsEditing(false);
+        if (result.data.id !== note.id) {
+          router.push(`/note/${result.data.id}`);
+        }
+      }
+    },
+    [note.id, title, derivedMarkdownContent, category, onUpdate, router]
+  );
 
   useEffect(() => {
     if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current);
     if (autosaveNotes && isEditing && hasUnsavedChanges) {
       autosaveTimeoutRef.current = setTimeout(() => {
         setStatus((prev) => ({ ...prev, isAutoSaving: true }));
-        handleSave().finally(() =>
+        const isAutosave = autosaveNotes ? true : false;
+        handleSave(isAutosave).finally(() =>
           setStatus((prev) => ({ ...prev, isAutoSaving: false }))
         );
       }, 5000);
@@ -154,6 +166,7 @@ export const useNoteEditor = ({
     setCategory,
     editorContent,
     isEditing,
+    setIsEditing,
     status,
     hasUnsavedChanges,
     handleEdit,

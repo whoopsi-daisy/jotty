@@ -1,13 +1,13 @@
 import { Timer } from "lucide-react";
 import { Item } from "@/app/_types";
 import { formatTime } from "@/app/_utils/checklist-utils";
-import { TaskStatus } from "@/app/_types/enums";
+import { TaskStatus, TaskStatusLabels } from "@/app/_types/enums";
 
 interface TaskSpecificDetailsProps {
   items: Item[];
 }
 
-export function TaskSpecificDetails({ items }: TaskSpecificDetailsProps) {
+export const TaskSpecificDetails = ({ items }: TaskSpecificDetailsProps) => {
   const statusCounts = items.reduce(
     (acc, item) => {
       const status = item.status || TaskStatus.TODO;
@@ -15,10 +15,10 @@ export function TaskSpecificDetails({ items }: TaskSpecificDetailsProps) {
       return acc;
     },
     {
-      todo: 0,
-      in_progress: 0,
-      completed: 0,
-      paused: 0,
+      [TaskStatus.TODO]: 0,
+      [TaskStatus.IN_PROGRESS]: 0,
+      [TaskStatus.COMPLETED]: 0,
+      [TaskStatus.PAUSED]: 0,
     } as Record<string, number>
   );
 
@@ -37,26 +37,27 @@ export function TaskSpecificDetails({ items }: TaskSpecificDetailsProps) {
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
           <span className="text-muted-foreground">
-            {statusCounts.todo} Todo
+            {statusCounts[TaskStatus.TODO]} {TaskStatusLabels.TODO}
           </span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
           <span className="text-muted-foreground">
-            {statusCounts.in_progress} In Progress
+            {statusCounts[TaskStatus.IN_PROGRESS]}{" "}
+            {TaskStatusLabels.IN_PROGRESS}
           </span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           <span className="text-muted-foreground">
-            {statusCounts.completed} Done
+            {statusCounts[TaskStatus.COMPLETED]} {TaskStatusLabels.COMPLETED}
           </span>
         </div>
         {statusCounts.paused > 0 && (
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
             <span className="text-muted-foreground">
-              {statusCounts.paused} Paused
+              {statusCounts[TaskStatus.PAUSED]} {TaskStatusLabels.PAUSED}
             </span>
           </div>
         )}
@@ -75,4 +76,4 @@ export function TaskSpecificDetails({ items }: TaskSpecificDetailsProps) {
       )}
     </div>
   );
-}
+};

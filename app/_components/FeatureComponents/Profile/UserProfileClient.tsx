@@ -5,11 +5,9 @@ import { User, Settings, Monitor, ArrowLeft } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { User as UserType } from "@/app/_types";
 import { getUserProfileAction } from "@/app/_server/actions/users/get-user-profile";
-import { exportUserDataAction } from "@/app/_server/actions/users/export-data";
 import { useRouter } from "next/navigation";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { DeleteAccountModal } from "@/app/_components/GlobalComponents/Modals/UserModals/DeleteAccountModal";
-import { PrivacySettingsModal } from "@/app/_components/GlobalComponents/Modals/UserModals/PrivacySettingsModal";
 import { ProfileTab } from "./Parts/ProfileTab";
 import { SessionsTab } from "./Parts/SessionsTab";
 import { SettingsTab } from "./Parts/SettingsTab";
@@ -19,10 +17,10 @@ interface UserProfileClientProps {
   isAdmin: boolean;
 }
 
-export function UserProfileClient({
+export const UserProfileClient = ({
   username,
   isAdmin,
-}: UserProfileClientProps) {
+}: UserProfileClientProps) => {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
   const [user, setUser] = useState<UserType | null>(null);
@@ -38,7 +36,6 @@ export function UserProfileClient({
     "profile" | "sessions" | "settings"
   >("profile");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   useEffect(() => {
     loadUserProfile();
@@ -66,34 +63,6 @@ export function UserProfileClient({
       console.error("Error loading user profile:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleExportData = async () => {
-    try {
-      const result = await exportUserDataAction();
-
-      if (result.success && result.data) {
-        const dataStr = JSON.stringify(result.data, null, 2);
-        const dataBlob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `user-data-${username}-${
-          new Date().toISOString().split("T")[0]
-        }.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        setSuccess("Data exported successfully!");
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        setError(result.error || "Failed to export data");
-      }
-    } catch (error) {
-      setError("Failed to export data");
     }
   };
 
@@ -179,12 +148,9 @@ export function UserProfileClient({
             setUser={setUser}
           />
         )}
-        {activeTab === "sessions" && <SessionsTab username={username} />}
+        {activeTab === "sessions" && <SessionsTab />}
         {activeTab === "settings" && (
-          <SettingsTab
-            setShowDeleteModal={setShowDeleteModal}
-            setShowPrivacyModal={setShowPrivacyModal}
-          />
+          <SettingsTab setShowDeleteModal={setShowDeleteModal} />
         )}
       </div>
 
@@ -192,11 +158,6 @@ export function UserProfileClient({
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
       />
-
-      <PrivacySettingsModal
-        isOpen={showPrivacyModal}
-        onClose={() => setShowPrivacyModal(false)}
-      />
     </div>
   );
-}
+};

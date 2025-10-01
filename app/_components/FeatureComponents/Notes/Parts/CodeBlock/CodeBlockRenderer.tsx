@@ -9,22 +9,19 @@ import {
   languageIcons,
   getLanguageFromCode,
 } from "@/app/_utils/markdown-utils";
+import { cn } from "@/app/_utils/global-utils";
 
 interface CodeBlockRendererProps {
   code: string;
   language?: string;
-  showHeader?: boolean;
-  showCopyButton?: boolean;
   className?: string;
 }
 
-export function CodeBlockRenderer({
+export const CodeBlockRenderer = ({
   code,
   language,
-  showHeader = true,
-  showCopyButton = true,
   className = "",
-}: CodeBlockRendererProps) {
+}: CodeBlockRendererProps) => {
   const [copied, setCopied] = useState(false);
   const detectedLanguage =
     language === "text" || !language ? getLanguageFromCode(code) : language;
@@ -38,7 +35,6 @@ export function CodeBlockRenderer({
         textArea.value = code;
         textArea.style.position = "fixed";
         textArea.style.left = "-999999px";
-        textArea.style.top = "-999999px";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
@@ -52,12 +48,14 @@ export function CodeBlockRenderer({
     }
   };
 
+  const showHeader = detectedLanguage !== "text";
+
   return (
     <div
-      className={`relative group my-4 overflow-hidden ${className}`}
+      className={cn("relative group my-4 overflow-hidden", className)}
       style={{ backgroundColor: "#1a1a1a" }}
     >
-      {showHeader && detectedLanguage !== "text" && (
+      {showHeader && (
         <div
           className="flex items-center justify-between px-3 py-1"
           style={{
@@ -65,7 +63,7 @@ export function CodeBlockRenderer({
             borderBottom: "1px solid #4a5568",
           }}
         >
-          <div></div>
+          <div />
           <div
             className="flex items-center gap-1.5 text-xs font-mono"
             style={{ color: "#a0aec0" }}
@@ -73,31 +71,32 @@ export function CodeBlockRenderer({
             {languageIcons[detectedLanguage] || <Code className="h-3 w-3" />}
             <span className="uppercase tracking-wide">{detectedLanguage}</span>
           </div>
-          {showCopyButton && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={copyToClipboard}
-              className="opacity-50 hover:opacity-100 transition-opacity h-5 w-5 p-0"
-              style={{ color: "#a0aec0" }}
-            >
-              {copied ? (
-                <Check className="h-3 w-3 text-green-500" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
-            </Button>
-          )}
-        </div>
-      )}
-
-      <div className="relative">
-        {showCopyButton && detectedLanguage === "text" && (
           <Button
             variant="ghost"
             size="sm"
             onClick={copyToClipboard}
-            className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+            className={cn("opacity-50 hover:opacity-100 h-5 w-5 p-0")}
+            style={{ color: "#a0aec0" }}
+          >
+            {copied ? (
+              <Check className="h-4 w-4 text-green-500" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      )}
+
+      <div className="relative">
+        {!showHeader && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={copyToClipboard}
+            className={cn(
+              "transition-opacity",
+              "absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+            )}
             style={{ color: "#a0aec0" }}
           >
             {copied ? (
@@ -108,7 +107,7 @@ export function CodeBlockRenderer({
           </Button>
         )}
 
-        {/* @ts-ignore - react-syntax-highlighter has type issues with Next.js */}
+        {/* @ts-ignore - react-syntax-highlighter has type issues with modern React/Next.js */}
         <SyntaxHighlighter
           language={detectedLanguage}
           style={oneDark}
@@ -116,23 +115,20 @@ export function CodeBlockRenderer({
             margin: 0,
             borderRadius: 0,
             fontSize: "0.875rem",
-            background: "#1a1a1a",
+            background: "transparent",
             padding: "0.75rem",
             border: "none",
           }}
           codeTagProps={{
             style: {
               background: "transparent",
+              fontFamily: "var(--font-geist-mono)",
             },
           }}
           PreTag={({ children, ...props }) => (
             <pre
               {...props}
-              style={{
-                ...props.style,
-                background: "#1a1a1a",
-                caretColor: "rgb(var(--foreground))",
-              }}
+              style={{ ...props.style, background: "transparent" }}
             >
               {children}
             </pre>
@@ -145,4 +141,4 @@ export function CodeBlockRenderer({
       </div>
     </div>
   );
-}
+};

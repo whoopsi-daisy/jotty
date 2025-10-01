@@ -16,7 +16,8 @@ export async function GET(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { username, filename } = params;
+    const { username } = params;
+    const filename = decodeURIComponent(params.filename);
 
     if (username !== user.username) {
       return new NextResponse("Forbidden", { status: 403 });

@@ -33,6 +33,19 @@ function getFileExtension(fileName: string): string {
   return path.extname(fileName).toLowerCase();
 }
 
+function sanitizeBaseName(name: string): string {
+  const normalized = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  const replaced = normalized.replace(/[^a-zA-Z0-9._-]+/g, "-");
+  const collapsed = replaced.replace(/-+/g, "-");
+  return collapsed.replace(/^[.-]+|[.-]+$/g, "");
+}
+
+function encodePathSegmentStrict(segment: string): string {
+  return encodeURIComponent(segment)
+    .replace(/\(/g, "%28")
+    .replace(/\)/g, "%29");
+}
+
 export async function uploadFileAction(formData: FormData) {
   try {
     const user = await getCurrentUser();
@@ -54,7 +67,10 @@ export async function uploadFileAction(formData: FormData) {
 
     await fs.mkdir(targetDir, { recursive: true });
 
-    let fileName = file.name;
+    const originalExt = path.extname(file.name).toLowerCase();
+    const originalBase = path.basename(file.name, originalExt);
+    const sanitizedBase = sanitizeBaseName(originalBase);
+    let fileName = `${sanitizedBase}${originalExt}`;
     let counter = 1;
 
     while (
@@ -63,9 +79,7 @@ export async function uploadFileAction(formData: FormData) {
         .then(() => true)
         .catch(() => false)
     ) {
-      const ext = path.extname(file.name);
-      const nameWithoutExt = path.basename(file.name, ext);
-      fileName = `${nameWithoutExt} (${counter})${ext}`;
+      fileName = `${sanitizedBase}-${counter}${originalExt}`;
       counter++;
     }
 
@@ -76,9 +90,10 @@ export async function uploadFileAction(formData: FormData) {
 
     await fs.writeFile(filePath, buffer);
 
+    const safeFileName = encodePathSegmentStrict(fileName);
     const fileUrl = isImage
-      ? `/api/image/${user.username}/${fileName}`
-      : `/api/file/${user.username}/${fileName}`;
+      ? `/api/image/${user.username}/${safeFileName}`
+      : `/api/file/${user.username}/${safeFileName}`;
 
     return {
       success: true,
@@ -146,7 +161,9 @@ export async function getFilesAction() {
             return {
               fileName: file,
               name: file,
-              url: `/api/image/${user.username}/${file}`,
+              url: `/api/image/${user.username}/${encodePathSegmentStrict(
+                file
+              )}`,
               type: "image" as const,
               mimeType,
               size: stats.size,
@@ -204,7 +221,7 @@ export async function getFilesAction() {
           return {
             fileName: file,
             name: file,
-            url: `/api/file/${user.username}/${file}`,
+            url: `/api/file/${user.username}/${encodePathSegmentStrict(file)}`,
             type: "file" as const,
             mimeType,
             size: stats.size,

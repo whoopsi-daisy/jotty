@@ -13,14 +13,14 @@ interface ModalProps {
   titleIcon?: React.ReactNode;
 }
 
-export function Modal({
+export const Modal = ({
   isOpen,
   onClose,
   title,
   children,
   className = "",
   titleIcon,
-}: ModalProps) {
+}: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,7 +55,6 @@ export function Modal({
         `}
       >
         <div className="flex items-center justify-between mb-6">
-          {/* Mobile drag indicator */}
           <div className="lg:hidden absolute top-2.5 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-muted-foreground/20" />
 
           <div className="text-xl font-bold text-foreground flex items-center">
@@ -79,4 +78,4 @@ export function Modal({
       </div>
     </div>
   );
-}
+};

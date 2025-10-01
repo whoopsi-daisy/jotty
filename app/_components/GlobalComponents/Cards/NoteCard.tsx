@@ -7,7 +7,7 @@ interface NoteCardProps {
   onSelect: (id: string) => void;
 }
 
-export function NoteCard({ note, onSelect }: NoteCardProps) {
+export const NoteCard = ({ note, onSelect }: NoteCardProps) => {
   const getPreview = (content: string) => {
     const plainText = content
       .replace(/[#*_`~]/g, "")
@@ -54,4 +54,4 @@ export function NoteCard({ note, onSelect }: NoteCardProps) {
       </div>
     </div>
   );
-}
+};

@@ -2,20 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Folder, ListTodo } from "lucide-react";
+import { ListTodo } from "lucide-react";
 import { updateListAction } from "@/app/_server/actions/data/actions";
 import { getCurrentUser } from "@/app/_server/actions/users/current";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
 import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";
-
-interface Category {
-  name: string;
-  count: number;
-  path: string;
-  parent?: string;
-  level: number;
-}
+import { Category } from "@/app/_types";
 
 interface EditChecklistModalProps {
   checklist: {
@@ -30,24 +23,22 @@ interface EditChecklistModalProps {
   onUpdated: () => void;
 }
 
-export function EditChecklistModal({
+export const EditChecklistModal = ({
   checklist,
   categories,
   onClose,
   onUpdated,
-}: EditChecklistModalProps) {
+}: EditChecklistModalProps) => {
   const router = useRouter();
   const [title, setTitle] = useState(checklist.title);
   const [category, setCategory] = useState(checklist.category || "");
   const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     const checkOwnership = async () => {
       try {
         const user = await getCurrentUser();
-        setCurrentUser(user?.username || null);
         setIsOwner(user?.username === checklist.owner);
       } catch (error) {
         console.error("Error checking ownership:", error);
@@ -73,7 +64,6 @@ export function EditChecklistModal({
     if (result.success && result.data) {
       const updatedChecklist = result.data;
 
-      // If the ID changed, redirect to the new URL
       if (updatedChecklist.id !== checklist.id) {
         router.push(`/checklist/${updatedChecklist.id}`);
         return;
@@ -141,4 +131,4 @@ export function EditChecklistModal({
       </form>
     </Modal>
   );
-}
+};
