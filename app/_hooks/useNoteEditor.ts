@@ -149,6 +149,7 @@ export const useNoteEditor = ({
     if (window.confirm(`Are you sure you want to delete "${note.title}"?`)) {
       const formData = new FormData();
       formData.append("id", note.id);
+      formData.append("category", note.category || "");
       await deleteDocAction(formData);
       onDelete?.(note.id);
       onBack();

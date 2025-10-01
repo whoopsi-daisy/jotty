@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Download, X } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 
-export function InstallPrompt() {
+export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -96,4 +96,4 @@ export function InstallPrompt() {
       </div>
     </div>
   );
-}
+};

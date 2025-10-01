@@ -15,7 +15,10 @@ import {
   Palmtree,
   Building,
 } from "lucide-react";
-import { loadCustomThemes, processCustomThemes } from "@/app/_utils/config-loader";
+import {
+  loadCustomThemes,
+  processCustomThemes,
+} from "@/app/_utils/config-loader";
 
 const ICON_MAP = {
   Sun,
@@ -35,7 +38,7 @@ const ICON_MAP = {
   Building,
 };
 
-const BUILT_IN_THEMES = [
+export const BUILT_IN_THEMES = [
   { id: "light" as const, name: "Light", icon: Sun },
   { id: "dark" as const, name: "Dark", icon: Moon },
   { id: "sunset" as const, name: "Sunset", icon: Sunset },
@@ -58,12 +61,13 @@ export const getAllThemes = async () => {
 
   const allThemes = [...BUILT_IN_THEMES];
 
-  customThemes.forEach(customTheme => {
-    const iconComponent = ICON_MAP[customTheme.icon as keyof typeof ICON_MAP] || Palette;
+  customThemes.forEach((customTheme) => {
+    const iconComponent =
+      ICON_MAP[customTheme.icon as keyof typeof ICON_MAP] || Palette;
     allThemes.push({
       id: customTheme.id as any,
       name: customTheme.name,
-      icon: iconComponent
+      icon: iconComponent,
     });
   });
 
@@ -75,13 +79,13 @@ export const getBuiltInThemes = () => BUILT_IN_THEMES;
 export const getCustomThemeColors = async () => {
   const customConfig = await loadCustomThemes();
 
-  if (!customConfig || !customConfig['custom-themes']) {
+  if (!customConfig || !customConfig["custom-themes"]) {
     return {};
   }
 
   const colors: { [key: string]: any } = {};
 
-  Object.entries(customConfig['custom-themes']).forEach(([themeId, theme]) => {
+  Object.entries(customConfig["custom-themes"]).forEach(([themeId, theme]) => {
     colors[themeId] = theme.colors;
   });
 

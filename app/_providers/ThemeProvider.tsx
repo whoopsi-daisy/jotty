@@ -1,71 +1,58 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useSettings } from "@/app/_utils/settings-store"
-import { getCustomThemeColors } from "@/app/_consts/themes"
+import { useEffect, useState } from "react";
+import { useSettings } from "@/app/_utils/settings-store";
+import { BUILT_IN_THEMES, getCustomThemeColors } from "@/app/_consts/themes";
 
-const BUILT_IN_THEMES = [
-  'light',
-  'dark',
-  'sunset',
-  'ocean',
-  'forest',
-  'nord',
-  'dracula',
-  'monokai',
-  'github-dark',
-  'tokyo-night',
-  'catppuccin',
-  'rose-pine',
-  'gruvbox',
-  'solarized-dark'
-] as const
+const themeIDs = BUILT_IN_THEMES.map((theme) => theme.id);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { theme } = useSettings()
-  const [customThemeColors, setCustomThemeColors] = useState<{ [key: string]: any }>({})
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const { theme } = useSettings();
+  const [customThemeColors, setCustomThemeColors] = useState<{
+    [key: string]: any;
+  }>({});
 
   useEffect(() => {
     const loadCustomColors = async () => {
       try {
-        const colors = await getCustomThemeColors()
-        setCustomThemeColors(colors)
+        const colors = await getCustomThemeColors();
+        setCustomThemeColors(colors);
       } catch (error) {
-        console.error('Failed to load custom theme colors:', error)
+        console.error("Failed to load custom theme colors:", error);
       }
-    }
+    };
 
-    loadCustomColors()
-  }, [])
+    loadCustomColors();
+  }, []);
 
   useEffect(() => {
-    const allThemes = [...BUILT_IN_THEMES, ...Object.keys(customThemeColors)]
-    document.documentElement.classList.remove(...allThemes)
-    document.documentElement.classList.add(theme)
+    const allThemes = [...themeIDs, ...Object.keys(customThemeColors)];
+    document.documentElement.classList.remove(...allThemes);
+    document.documentElement.classList.add(theme);
 
     if (customThemeColors[theme]) {
-      const styleId = 'custom-theme-styles'
-      let styleElement = document.getElementById(styleId) as HTMLStyleElement
+      const styleId = "custom-theme-styles";
+      let styleElement = document.getElementById(styleId) as HTMLStyleElement;
 
       if (!styleElement) {
-        styleElement = document.createElement('style')
-        styleElement.id = styleId
-        document.head.appendChild(styleElement)
+        styleElement = document.createElement("style");
+        styleElement.id = styleId;
+        document.head.appendChild(styleElement);
       }
 
       const cssVariables = Object.entries(customThemeColors[theme])
         .map(([key, value]) => `${key}: ${value};`)
-        .join('\n        ')
+        .join("\n        ");
 
       const cssContent = `
         .${theme} {
           ${cssVariables}
         }
-      `
+      `;
 
-      styleElement.textContent = cssContent
+      styleElement.textContent = cssContent;
     }
-  }, [theme, customThemeColors])
+  }, [theme, customThemeColors]);
 
-  return <>{children}</>
-} 
+  return <>{children}</>;
+};

@@ -47,6 +47,7 @@ export const EditNoteModal = ({
     const formData = new FormData();
     formData.append("id", note.id);
     formData.append("title", title.trim());
+    formData.append("content", note.content);
     if (isOwner) {
       formData.append("category", category || "");
     }

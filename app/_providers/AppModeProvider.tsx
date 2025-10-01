@@ -20,7 +20,7 @@ interface AppModeContextType {
 
 const AppModeContext = createContext<AppModeContextType | undefined>(undefined);
 
-export function AppModeProvider({ children }: { children: ReactNode }) {
+export const AppModeProvider = ({ children }: { children: ReactNode }) => {
   const [mode, setMode] = useState<AppMode>(Modes.CHECKLISTS);
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -51,12 +51,12 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
       {children}
     </AppModeContext.Provider>
   );
-}
+};
 
-export function useAppMode() {
+export const useAppMode = () => {
   const context = useContext(AppModeContext);
   if (context === undefined) {
     throw new Error("useAppMode must be used within an AppModeProvider");
   }
   return context;
-}
+};

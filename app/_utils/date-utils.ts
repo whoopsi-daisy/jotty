@@ -1,4 +1,4 @@
-export function formatRelativeTime(dateString: string): string {
+export const formatRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInMs = now.getTime() - date.getTime();
@@ -26,11 +26,11 @@ export function formatRelativeTime(dateString: string): string {
   } else {
     return `${years} year${years === 1 ? "" : "s"} ago`;
   }
-}
+};
 
-export function formatDate(dateString: string): string {
+export const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString();
-}
+};
 
 export const formatTimeAgo = (dateString: string): string => {
   const diffMs = new Date().getTime() - new Date(dateString).getTime();
