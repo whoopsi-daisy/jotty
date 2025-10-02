@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { login } from "@/app/_server/actions/auth/login";
+import { login } from "@/app/_server/actions/auth";
 
 export default function LoginForm() {
   const [error, setError] = useState<string>("");

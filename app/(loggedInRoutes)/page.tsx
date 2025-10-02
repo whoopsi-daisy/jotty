@@ -4,9 +4,9 @@ import {
   getDocsCategories,
   CheckForNeedsMigration,
 } from "@/app/_server/actions/data/notes-actions";
-import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
+import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
+import { isAdmin, getUsername } from "@/app/_server/actions/users";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +46,7 @@ export default async function HomePage() {
     owner: item.owner || "",
   }));
 
-  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
+  const sharingStatusesResult = await getAllSharingStatuses(itemsToCheck);
   const sharingStatuses =
     sharingStatusesResult.success && sharingStatusesResult.data
       ? sharingStatusesResult.data

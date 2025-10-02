@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getLists, getCategories } from "@/app/_server/actions/data/actions";
 import { getAllLists } from "@/app/_server/actions/data/list-queries";
-import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
+import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
+import { isAdmin, getUsername } from "@/app/_server/actions/users";
 import { ChecklistClient } from "@/app/_components/FeatureComponents/Checklists/Parts/ChecklistClient";
 
 interface ChecklistPageProps {
@@ -52,7 +52,7 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
     owner: item.owner || "",
   }));
 
-  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
+  const sharingStatusesResult = await getAllSharingStatuses(itemsToCheck);
   const sharingStatuses =
     sharingStatusesResult.success && sharingStatusesResult.data
       ? sharingStatusesResult.data

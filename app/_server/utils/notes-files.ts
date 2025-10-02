@@ -2,7 +2,7 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 const NOTES_DATA_DIR = path.join(process.cwd(), "data", NOTES_FOLDER);

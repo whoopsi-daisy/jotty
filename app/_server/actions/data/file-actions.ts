@@ -2,9 +2,8 @@
 
 import path from "path";
 import fs from "fs/promises";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { getDocsUserDir } from "@/app/_server/utils/notes-files";
-import { getUserDir } from "@/app/_server/utils/files";
 
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",

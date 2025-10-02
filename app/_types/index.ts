@@ -123,17 +123,6 @@ export interface SharingPermissions {
   canShare: boolean;
 }
 
-export interface EmojiDictionary {
-  [key: string]: string;
-}
-
-export type AppMode = "checklists" | "notes";
-
-export interface MostActiveSharer {
-  username: string;
-  sharedCount: number;
-}
-
 export interface GlobalSharing {
   allSharedChecklists: SharedItem[];
   allSharedNotes: SharedItem[];
@@ -144,6 +133,23 @@ export interface GlobalSharing {
     totalPublicShares: number;
     mostActiveSharers: MostActiveSharer[];
   };
+}
+
+export interface GlobalSharingReturn {
+  data: GlobalSharing;
+  success: boolean;
+  error?: string;
+}
+
+export interface EmojiDictionary {
+  [key: string]: string;
+}
+
+export type AppMode = "checklists" | "notes";
+
+export interface MostActiveSharer {
+  username: string;
+  sharedCount: number;
 }
 
 export interface AppSettings {

@@ -2,7 +2,7 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 const DATA_DIR = path.join(process.cwd(), "data", CHECKLISTS_FOLDER);
@@ -21,11 +21,14 @@ export async function ensureDir(dir: string) {
   }
 }
 
-export async function readFile(filePath: string): Promise<string> {
+export async function readFile(
+  filePath: string,
+  customReturn?: any
+): Promise<string> {
   try {
     return await fs.readFile(filePath, "utf-8");
   } catch (error) {
-    return "";
+    return customReturn || "";
   }
 }
 

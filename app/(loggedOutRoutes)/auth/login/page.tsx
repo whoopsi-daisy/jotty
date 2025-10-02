@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { hasUsers } from "@/app/_server/actions/auth/utils";
+import { hasUsers } from "@/app/_server/actions/users";
 import LoginForm from "@/app/(loggedOutRoutes)/auth/login/login-form";
 import { AuthShell } from "@/app/_components/GlobalComponents/Auth/AuthShell";
 

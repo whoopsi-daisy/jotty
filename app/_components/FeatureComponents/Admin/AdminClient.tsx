@@ -5,11 +5,10 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { UserManagementModal } from "@/app/_components/GlobalComponents/Modals/UserModals/UserManagementModal";
 import { User, Checklist, Note } from "@/app/_types";
-import { readUsers } from "@/app/_server/actions/auth/utils";
+import { deleteUser } from "@/app/_server/actions/users";
 import { getAllLists } from "@/app/_server/actions/data/actions";
 import { getAllDocs } from "@/app/_server/actions/data/notes-actions";
-import { getGlobalSharingAction } from "@/app/_server/actions/sharing/get-global-sharing";
-import { deleteUserAction } from "@/app/_server/actions/users/delete-user";
+import { getGlobalSharing } from "@/app/_server/actions/sharing";
 import { useRouter } from "next/navigation";
 import { AdminTabs } from "./Parts/AdminTabs";
 import { AdminOverview } from "./Parts/AdminOverview";
@@ -17,6 +16,8 @@ import { AdminUsers } from "./Parts/AdminUsers";
 import { AdminContent } from "./Parts/AdminContent";
 import { AdminSharing } from "./Parts/AdminSharing";
 import { AppSettingsTab } from "./Parts/AppSettingsTab";
+import { readJsonFile } from "@/app/_server/actions/file";
+import { USERS_FILE } from "@/app/_consts/files";
 
 interface AdminClientProps {
   username: string;
@@ -46,10 +47,10 @@ export const AdminClient = ({ username }: AdminClientProps) => {
     setIsLoading(true);
     try {
       const [usersData, listsData, docsData, sharingData] = await Promise.all([
-        readUsers(),
+        readJsonFile(USERS_FILE),
         getAllLists(),
         getAllDocs(),
-        getGlobalSharingAction(),
+        getGlobalSharing(),
       ]);
 
       setUsers(usersData);
@@ -91,7 +92,7 @@ export const AdminClient = ({ username }: AdminClientProps) => {
       const formData = new FormData();
       formData.append("username", user.username);
 
-      const result = await deleteUserAction(formData);
+      const result = await deleteUser(formData);
 
       if (result.success) {
         setUsers((prev) => prev.filter((u) => u.username !== user.username));

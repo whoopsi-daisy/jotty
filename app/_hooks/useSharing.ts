@@ -2,11 +2,9 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { ItemType, User } from "@/app/_types";
-import {
-  shareItemAction,
-  getItemSharingStatusAction,
-} from "@/app/_server/actions/sharing/share-item";
-import { readUsers } from "@/app/_server/actions/auth/utils";
+import { shareItem, getItemSharingStatus } from "@/app/_server/actions/sharing";
+import { readJsonFile } from "@/app/_server/actions/file";
+import { USERS_FILE } from "@/app/_consts/files";
 
 interface SharingStatus {
   isShared: boolean;
@@ -62,11 +60,7 @@ export const useSharing = ({
     const loadSharingStatus = async () => {
       setIsLoading(true);
       try {
-        const result = await getItemSharingStatusAction(
-          itemId,
-          itemType,
-          itemOwner
-        );
+        const result = await getItemSharingStatus(itemId, itemType, itemOwner);
         if (result.success && result.data) {
           setSharingStatus({
             isShared: result.data.isShared,
@@ -110,7 +104,7 @@ export const useSharing = ({
         formData.append("action", action);
         if (targetUsers) formData.append("targetUsers", targetUsers);
 
-        const result = await shareItemAction(formData);
+        const result = await shareItem(formData);
         if (!result.success)
           throw new Error(result.error || "An unknown error occurred.");
 
@@ -133,8 +127,8 @@ export const useSharing = ({
     setStatus({ isLoading: true, error: null, success: null });
     try {
       const [usersData, sharingStatus] = await Promise.all([
-        readUsers(),
-        getItemSharingStatusAction(itemId, itemType, itemOwner),
+        readJsonFile(USERS_FILE),
+        getItemSharingStatus(itemId, itemType, itemOwner),
       ]);
       setUsers(usersData);
       if (sharingStatus.success && sharingStatus.data) {

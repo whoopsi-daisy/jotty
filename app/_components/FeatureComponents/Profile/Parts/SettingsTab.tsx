@@ -6,7 +6,7 @@ import { Key, Copy, Eye, EyeOff } from "lucide-react";
 import {
   generateApiKeyAction,
   getApiKeyAction,
-} from "@/app/_server/actions/api/api-key-actions";
+} from "@/app/_server/actions/api";
 
 interface SettingsTabProps {
   setShowDeleteModal: (show: boolean) => void;

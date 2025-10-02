@@ -5,8 +5,8 @@ import {
   getAllDocs,
   CheckForNeedsMigration,
 } from "@/app/_server/actions/data/notes-actions";
-import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
+import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
+import { isAdmin, getUsername } from "@/app/_server/actions/users";
 import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
 
 interface NotePageProps {
@@ -58,7 +58,7 @@ export default async function NotePage({ params }: NotePageProps) {
     owner: item.owner || "",
   }));
 
-  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
+  const sharingStatusesResult = await getAllSharingStatuses(itemsToCheck);
   const sharingStatuses =
     sharingStatusesResult.success && sharingStatusesResult.data
       ? sharingStatusesResult.data

@@ -1,20 +1,21 @@
 "use server";
 
 import path from "path";
-import { Checklist, Category } from "@/app/_types";
+import { Checklist, Category, User } from "@/app/_types";
 import {
   getUserDir,
   ensureDir,
   readFile,
   readDir,
 } from "@/app/_server/utils/files";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
-import { getItemsSharedWithUser } from "@/app/_server/actions/sharing/sharing-utils";
-import { readUsers } from "@/app/_server/actions/auth/utils";
+import { getCurrentUser } from "@/app/_server/actions/users";
+import { getItemsSharedWithUser } from "@/app/_server/actions/sharing";
+import { readJsonFile } from "../file";
 import fs from "fs/promises";
 import { parseMarkdown } from "./checklist-utils";
 import { readOrderFile } from "./file-actions";
 import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { USERS_FILE } from "@/app/_consts/files";
 
 const readListsRecursively = async (
   dir: string,
@@ -214,7 +215,7 @@ export const getAllLists = async () => {
 
     const allLists: Checklist[] = [];
 
-    const users = await readUsers();
+    const users: User[] = await readJsonFile(USERS_FILE);
 
     for (const user of users) {
       const userDir = path.join(

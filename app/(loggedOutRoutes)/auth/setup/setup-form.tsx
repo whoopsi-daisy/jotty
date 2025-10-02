@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { register } from "@/app/_server/actions/auth/register";
+import { register } from "@/app/_server/actions/auth";
 
 export default function SetupForm() {
   const [error, setError] = useState<string>("");

@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { User, Settings, Monitor, ArrowLeft } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { User as UserType } from "@/app/_types";
-import { getUserProfileAction } from "@/app/_server/actions/users/get-user-profile";
 import { useRouter } from "next/navigation";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { DeleteAccountModal } from "@/app/_components/GlobalComponents/Modals/UserModals/DeleteAccountModal";
 import { ProfileTab } from "./Parts/ProfileTab";
 import { SessionsTab } from "./Parts/SessionsTab";
 import { SettingsTab } from "./Parts/SettingsTab";
+import { getCurrentUser } from "@/app/_server/actions/users";
 
 interface UserProfileClientProps {
   username: string;
@@ -44,20 +44,20 @@ export const UserProfileClient = ({
   const loadUserProfile = async () => {
     setIsLoading(true);
     try {
-      const result = await getUserProfileAction();
+      const result = await getCurrentUser();
 
-      if (result.success && result.data) {
+      if (result?.username) {
         const profileUser: UserType = {
-          username: result.data.username,
-          isAdmin: result.data.isAdmin,
+          username: result.username,
+          isAdmin: result.isAdmin,
           passwordHash: "",
-          createdAt: result.data.createdAt,
-          lastLogin: result.data.lastLogin,
+          createdAt: result.createdAt,
+          lastLogin: result.lastLogin,
         };
         setUser(profileUser);
-        setEditedUsername(result.data.username);
+        setEditedUsername(result.username);
       } else {
-        console.error("Error loading user profile:", result.error);
+        console.error("Error loading user profile:", result);
       }
     } catch (error) {
       console.error("Error loading user profile:", error);

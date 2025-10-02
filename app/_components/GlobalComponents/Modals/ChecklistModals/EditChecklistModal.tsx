@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ListTodo } from "lucide-react";
 import { updateListAction } from "@/app/_server/actions/data/actions";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
 import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";

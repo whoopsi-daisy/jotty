@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { AdminClient } from "@/app/_components/FeatureComponents/Admin/AdminClient";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
+import { isAdmin, getUsername } from "@/app/_server/actions/users";
 
 export default async function AdminPage() {
   const admin = await isAdmin();

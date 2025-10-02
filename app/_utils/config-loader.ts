@@ -1,4 +1,7 @@
-import { loadCustomThemes as loadThemesServer, loadCustomEmojis as loadEmojisServer } from "@/app/_server/actions/config-actions";
+import {
+  loadCustomThemes as loadThemesServer,
+  loadCustomEmojis as loadEmojisServer,
+} from "@/app/_server/actions/config";
 
 export interface CustomTheme {
   name: string;
@@ -24,15 +27,17 @@ export interface EmojiConfig {
 
 const getDefaultIcon = (themeName: string) => {
   const lowerName = themeName.toLowerCase();
-  if (lowerName.includes('dark')) return 'Moon';
-  if (lowerName.includes('light')) return 'Sun';
-  if (lowerName.includes('blue')) return 'Waves';
-  if (lowerName.includes('green')) return 'Trees';
-  if (lowerName.includes('red')) return 'Flame';
-  if (lowerName.includes('purple')) return 'Palette';
-  if (lowerName.includes('corporate') || lowerName.includes('business')) return 'Building';
-  if (lowerName.includes('sunset') || lowerName.includes('orange')) return 'Sunset';
-  return 'Palette';
+  if (lowerName.includes("dark")) return "Moon";
+  if (lowerName.includes("light")) return "Sun";
+  if (lowerName.includes("blue")) return "Waves";
+  if (lowerName.includes("green")) return "Trees";
+  if (lowerName.includes("red")) return "Flame";
+  if (lowerName.includes("purple")) return "Palette";
+  if (lowerName.includes("corporate") || lowerName.includes("business"))
+    return "Building";
+  if (lowerName.includes("sunset") || lowerName.includes("orange"))
+    return "Sunset";
+  return "Palette";
 };
 
 export const loadCustomThemes = async (): Promise<ThemeConfig | null> => {
@@ -54,20 +59,20 @@ export const loadCustomEmojis = async (): Promise<EmojiConfig | null> => {
 };
 
 export const processCustomThemes = (config: ThemeConfig | null) => {
-  if (!config || !config['custom-themes']) {
+  if (!config || !config["custom-themes"]) {
     return [];
   }
 
-  const themes = Object.entries(config['custom-themes']).map(([id, theme]) => ({
+  const themes = Object.entries(config["custom-themes"]).map(([id, theme]) => ({
     id,
     name: theme.name,
-    icon: theme.icon || getDefaultIcon(theme.name)
+    icon: theme.icon || getDefaultIcon(theme.name),
   }));
 
   return themes;
 };
 
 export const processCustomEmojis = (config: EmojiConfig | null) => {
-  if (!config || !config['custom-emojis']) return {};
-  return config['custom-emojis'];
+  if (!config || !config["custom-emojis"]) return {};
+  return config["custom-emojis"];
 };

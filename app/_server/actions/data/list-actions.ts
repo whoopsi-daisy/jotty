@@ -13,14 +13,14 @@ import {
   writeFile,
   deleteFile,
 } from "@/app/_server/utils/files";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import {
   removeSharedItem,
   updateSharedItem,
-} from "@/app/_server/actions/sharing/sharing-utils";
+} from "@/app/_server/actions/sharing";
 import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
-import { isAdmin } from "@/app/_server/actions/auth/utils";
+import { isAdmin } from "@/app/_server/actions/users";
 import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 export const createListAction = async (formData: FormData) => {
@@ -129,7 +129,7 @@ export const updateListAction = async (formData: FormData) => {
     await writeFile(filePath, listToMarkdown(updatedList));
 
     const { getItemSharingMetadata } = await import(
-      "@/app/_server/actions/sharing/sharing-utils"
+      "@/app/_server/actions/sharing"
     );
     const sharingMetadata = await getItemSharingMetadata(
       id,
@@ -144,7 +144,7 @@ export const updateListAction = async (formData: FormData) => {
 
       if (newId !== id) {
         const { removeSharedItem, addSharedItem } = await import(
-          "@/app/_server/actions/sharing/sharing-utils"
+          "@/app/_server/actions/sharing"
         );
 
         await removeSharedItem(id, "checklist", currentList.owner!);

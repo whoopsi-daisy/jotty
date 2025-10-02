@@ -1,5 +1,5 @@
 import { UserProfileClient } from "@/app/_components/FeatureComponents/Profile/UserProfileClient";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
+import { isAdmin, getUsername } from "@/app/_server/actions/users";
 
 export default async function ProfilePage() {
   const admin = await isAdmin();

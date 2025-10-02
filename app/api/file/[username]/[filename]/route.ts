@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import path from "path";
 import fs from "fs/promises";
 import { NOTES_FOLDER } from "@/app/_consts/notes";

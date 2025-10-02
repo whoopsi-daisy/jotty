@@ -1,7 +1,7 @@
 "use server";
 
 import path from "path";
-import { Note, Category } from "@/app/_types";
+import { Note, Category, User } from "@/app/_types";
 import {
   generateUniqueFilename,
   sanitizeFilename,
@@ -15,22 +15,20 @@ import {
   readDocsDir,
   deleteDocsDir,
 } from "@/app/_server/utils/notes-files";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import {
   getItemsSharedWithUser,
   removeSharedItem,
   updateSharedItem,
-} from "@/app/_server/actions/sharing/sharing-utils";
-import {
-  readUsers,
-  isAdmin,
-  isAuthenticated,
-} from "@/app/_server/actions/auth/utils";
+} from "@/app/_server/actions/sharing";
+import { isAdmin, isAuthenticated } from "@/app/_server/actions/users";
 import fs from "fs/promises";
 import { readOrderFile } from "./file-actions";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { DEPRECATED_DOCS_FOLDER, NOTES_FOLDER } from "@/app/_consts/notes";
+import { readJsonFile } from "../file";
+import { USERS_FILE } from "@/app/_consts/files";
 
 const USER_NOTES_DIR = (username: string) =>
   path.join(process.cwd(), "data", NOTES_FOLDER, username);
@@ -370,7 +368,7 @@ export const updateDocAction = async (
     await writeDocsFile(filePath, docToMarkdown(updatedDoc));
 
     const { getItemSharingMetadata } = await import(
-      "@/app/_server/actions/sharing/sharing-utils"
+      "@/app/_server/actions/sharing"
     );
     const sharingMetadata = await getItemSharingMetadata(
       id,
@@ -385,7 +383,7 @@ export const updateDocAction = async (
 
       if (newId !== id) {
         const { removeSharedItem, addSharedItem } = await import(
-          "@/app/_server/actions/sharing/sharing-utils"
+          "@/app/_server/actions/sharing"
         );
 
         await removeSharedItem(id, "note", doc.owner!);
@@ -587,7 +585,7 @@ export const getAllDocs = async () => {
 
     const allDocs: Note[] = [];
 
-    const users = await readUsers();
+    const users: User[] = await readJsonFile(USERS_FILE);
 
     for (const user of users) {
       const userDir = USER_NOTES_DIR(user.username);

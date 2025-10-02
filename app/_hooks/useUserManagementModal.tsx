@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { User as UserType } from "@/app/_types";
-import { createUserAction } from "@/app/_server/actions/users/create-user";
 import { updateUserAction } from "@/app/_server/actions/users/update-user";
-import { deleteUserAction } from "@/app/_server/actions/users/delete-user";
+import { createUser, deleteUser } from "@/app/_server/actions/users";
 import { useToast } from "@/app/_providers/ToastProvider";
 
 interface UserManagementModalProps {
@@ -29,7 +28,6 @@ export const useUserManagementModal = ({
   const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
 
-  // FIX: Added 'isOpen' to the destructured props and dependency array.
   useEffect(() => {
     if (isOpen) {
       if (mode === "edit" && user) {
@@ -75,7 +73,7 @@ export const useUserManagementModal = ({
         formData.append("password", password);
         formData.append("confirmPassword", confirmPassword);
         formData.append("isAdmin", String(isAdmin));
-        result = await createUserAction(formData);
+        result = await createUser(formData);
       } else {
         const formData = new FormData();
         formData.append("username", user!.username);
@@ -117,7 +115,7 @@ export const useUserManagementModal = ({
     try {
       const formData = new FormData();
       formData.append("username", user.username);
-      const result = await deleteUserAction(formData);
+      const result = await deleteUser(formData);
 
       if (result.success) {
         showToast({ type: "success", title: "User deleted successfully!" });

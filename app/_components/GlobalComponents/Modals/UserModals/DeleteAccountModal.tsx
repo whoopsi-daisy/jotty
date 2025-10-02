@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { Trash2, Eye, EyeOff, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { deleteAccountAction } from "@/app/_server/actions/users/delete-account";
 import { useRouter } from "next/navigation";
 import { Modal } from "../Modal";
 import { InfoCardVariant } from "@/app/_components/GlobalComponents/Cards/InfoCard";
 import { InfoBox } from "../../Cards/InfoBox";
+import { deleteAccount } from "@/app/_server/actions/users";
 
 interface DeleteAccountModalProps {
   isOpen: boolean;
@@ -38,7 +38,7 @@ export const DeleteAccountModal = ({
       const formData = new FormData();
       formData.append("confirmPassword", confirmPassword);
 
-      const result = await deleteAccountAction(formData);
+      const result = await deleteAccount(formData);
 
       if (result.success) {
         setSuccess("Account deleted successfully. Redirecting to login...");

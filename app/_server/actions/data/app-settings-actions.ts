@@ -3,7 +3,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { revalidatePath } from "next/cache";
-import { isAdmin } from "@/app/_server/actions/auth/utils";
+import { isAdmin } from "@/app/_server/actions/users";
 import { Result } from "@/app/_types";
 
 interface AppSettings {

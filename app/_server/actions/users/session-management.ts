@@ -1,8 +1,12 @@
 "use server";
 
-import { getCurrentUser, readSessions } from "@/app/_server/actions/auth/utils";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { Result } from "@/app/_types";
-import { getSessionsForUser, removeSession, removeAllSessionsForUser } from "./session-storage";
+import {
+  getSessionsForUser,
+  removeSession,
+  removeAllSessionsForUser,
+} from "../session";
 import { cookies } from "next/headers";
 
 interface Session {
@@ -30,7 +34,7 @@ export async function getSessionsAction(): Promise<Result<Session[]>> {
 
     const realSessions = await getSessionsForUser(currentUser.username);
 
-    const sessions: Session[] = realSessions.map(session => ({
+    const sessions: Session[] = realSessions.map((session) => ({
       id: session.id,
       username: session.username,
       userAgent: session.userAgent,
@@ -53,7 +57,9 @@ export async function getSessionsAction(): Promise<Result<Session[]>> {
   }
 }
 
-export async function terminateSessionAction(formData: FormData): Promise<Result<null>> {
+export async function terminateSessionAction(
+  formData: FormData
+): Promise<Result<null>> {
   try {
     const currentUser = await getCurrentUser();
 

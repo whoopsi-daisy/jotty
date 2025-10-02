@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { renameDocsFolderAction } from "@/app/_server/actions/migration/rename-docs-folder";
-import { clearAllSessionsAction } from "@/app/_server/actions/migration/clear-all-sessions";
-import { migrateSharingMetadataAction } from "@/app/_server/actions/migration/migrate-sharing-metadata";
-import { logout } from "@/app/_server/actions/auth/logout";
-import { isAdmin as checkIsAdmin } from "@/app/_server/actions/auth/utils";
+import {
+  renameDocsFolder,
+  migrateSharingMetadata,
+} from "@/app/_server/actions/migration/index";
+import { logout } from "@/app/_server/actions/auth";
+import { isAdmin as checkIsAdmin } from "@/app/_server/actions/users";
 import { MigrationAdminView } from "@/app/_components/FeatureComponents/Migration/Parts/MigrationAdminView";
 import { AdminRequiredView } from "@/app/_components/FeatureComponents/Migration/Parts/MIgrationAdminRequired";
+import { clearAllSessions } from "@/app/_server/actions/session";
 
 const LoadingView = () => (
   <div className="min-h-screen bg-background-secondary flex items-center justify-center p-4">
@@ -36,22 +38,28 @@ export const MigrationPage = () => {
     setError(null);
     try {
       const [folderResult, sharingResult] = await Promise.all([
-        renameDocsFolderAction(),
-        migrateSharingMetadataAction(),
+        renameDocsFolder(),
+        migrateSharingMetadata(),
       ]);
 
       if (folderResult.success && sharingResult.success) {
-        await clearAllSessionsAction();
+        await clearAllSessions();
         await logout();
       } else {
         const errors = [
-          !folderResult.success && (folderResult.error || "Failed to rename folder"),
-          !sharingResult.success && (sharingResult.error || "Failed to migrate sharing metadata")
-        ].filter(Boolean).join('; ');
+          !folderResult.success &&
+            (folderResult.error || "Failed to rename folder"),
+          !sharingResult.success &&
+            (sharingResult.error || "Failed to migrate sharing metadata"),
+        ]
+          .filter(Boolean)
+          .join("; ");
         throw new Error(errors);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
       setIsRefreshing(false);
     }
   };
@@ -59,5 +67,11 @@ export const MigrationPage = () => {
   if (isLoading) return <LoadingView />;
   if (isAdmin === false) return <AdminRequiredView />;
 
-  return <MigrationAdminView onMigrate={handleRefresh} isMigrating={isRefreshing} error={error} />;
-}
+  return (
+    <MigrationAdminView
+      onMigrate={handleRefresh}
+      isMigrating={isRefreshing}
+      error={error}
+    />
+  );
+};

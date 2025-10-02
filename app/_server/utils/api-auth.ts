@@ -1,4 +1,5 @@
-import { readUsers } from "@/app/_server/actions/auth/utils";
+import { readJsonFile } from "@/app/_server/actions/file";
+import { USERS_FILE } from "@/app/_consts/files";
 import { User } from "@/app/_types";
 
 export const authenticateApiKey = async (
@@ -9,8 +10,8 @@ export const authenticateApiKey = async (
       return null;
     }
 
-    const users = await readUsers();
-    const user = users.find((u) => u.apiKey === apiKey);
+    const users = await readJsonFile(USERS_FILE);
+    const user = users.find((u: User) => u.apiKey === apiKey);
 
     return user || null;
   } catch (error) {

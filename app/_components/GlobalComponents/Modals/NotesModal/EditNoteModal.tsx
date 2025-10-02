@@ -6,8 +6,8 @@ import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
 import { updateDocAction } from "@/app/_server/actions/data/notes-actions";
-import { getCurrentUser } from "@/app/_server/actions/auth/utils";
 import { Note, Category } from "@/app/_types";
+import { getCurrentUser } from "@/app/_server/actions/users";
 
 interface EditNoteModalProps {
   note: Note;

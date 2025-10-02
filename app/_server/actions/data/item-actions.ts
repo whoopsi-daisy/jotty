@@ -5,7 +5,7 @@ import path from "path";
 import { getUserDir, writeFile, ensureDir } from "@/app/_server/utils/files";
 import { getLists, getAllLists } from "./list-queries";
 import { listToMarkdown } from "./checklist-utils";
-import { isAdmin } from "@/app/_server/actions/auth/utils";
+import { isAdmin } from "@/app/_server/actions/users";
 import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 import { Checklist } from "@/app/_types";
 import { TaskStatus } from "@/app/_types/enums";

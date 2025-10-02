@@ -1,10 +1,10 @@
 "use client";
 
-import { LogOut, Menu, Settings, Shield, Users } from "lucide-react";
+import { LogOut, Menu, Settings, Shield } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { SearchBar } from "@/app/_components/FeatureComponents/Search/SearchBar";
 import { useRouter } from "next/navigation";
-import { logout } from "@/app/_server/actions/auth/logout";
+import { logout } from "@/app/_server/actions/auth";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Checklist, Note, AppMode } from "@/app/_types";

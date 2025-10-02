@@ -1,9 +1,10 @@
 "use server";
 
 import { createHash } from "crypto";
-import { readUsers, writeUsers } from "@/app/_server/actions/auth/utils";
 import { User } from "@/app/_types";
 import { Result } from "@/app/_types";
+import { readJsonFile, writeJsonFile } from "../file";
+import { USERS_FILE } from "@/app/_consts/files";
 
 type UserWithoutPassword = Omit<User, "passwordHash">;
 
@@ -52,9 +53,9 @@ export async function updateUserAction(
       };
     }
 
-    const existingUsers = await readUsers();
+    const existingUsers = await readJsonFile(USERS_FILE);
     const userIndex = existingUsers.findIndex(
-      (user) => user.username === username
+      (user: User) => user.username === username
     );
 
     if (userIndex === -1) {
@@ -66,7 +67,7 @@ export async function updateUserAction(
 
     if (newUsername !== username) {
       const usernameExists = existingUsers.find(
-        (user) => user.username === newUsername
+        (user: User) => user.username === newUsername
       );
       if (usernameExists) {
         return {
@@ -91,7 +92,7 @@ export async function updateUserAction(
 
     existingUsers[userIndex] = updatedUser;
 
-    await writeUsers(existingUsers);
+    await writeJsonFile(existingUsers, USERS_FILE);
 
     const { passwordHash: _, ...userWithoutPassword } = updatedUser;
 
