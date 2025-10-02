@@ -1,6 +1,6 @@
 {
-    "name": "checklist-app",
-    "version": "0.1.0",
+    "name": "rwMarkable",
+    "version": "1.5.1",
     "private": true,
     "scripts": {
         "dev": "next dev",

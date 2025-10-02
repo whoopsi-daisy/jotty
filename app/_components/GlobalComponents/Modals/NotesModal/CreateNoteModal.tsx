@@ -10,6 +10,7 @@ import {
 import { Category, Note } from "@/app/_types";
 import { Modal } from "../Modal";
 import { CategoryInput } from "@/app/_components/GlobalComponents/FormElements/CategoryInput";
+import { Modes } from "@/app/_types/enums";
 
 interface CreateNoteModalProps {
   onClose: () => void;
@@ -46,6 +47,7 @@ export const CreateNoteModal = ({
         const newCatTrimmed = newCategory.trim();
         const categoryFormData = new FormData();
         categoryFormData.append("name", newCatTrimmed);
+        categoryFormData.append("mode", Modes.NOTES);
         if (category) {
           categoryFormData.append("parent", category);
         }

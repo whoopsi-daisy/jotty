@@ -4,16 +4,9 @@ import { useState, useEffect } from "react";
 import { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Checklist } from "@/app/_types";
-import {
-  deleteListAction,
-  createItemAction,
-  updateItemAction,
-  deleteItemAction,
-  reorderItemsAction,
-  createBulkItemsAction,
-  convertChecklistTypeAction,
-  bulkToggleItemsAction,
-} from "@/app/_server/actions/data/actions";
+import { deleteList, convertChecklistType } from "@/app/_server/actions/checklist";
+import { createItem, updateItem, deleteItem, reorderItems, createBulkItems, bulkToggleItems } from "@/app/_server/actions/checklist-item";
+import { useRouter } from "next/navigation";
 
 interface UseChecklistProps {
   list: Checklist;
@@ -26,6 +19,7 @@ export const useChecklist = ({
   onUpdate,
   onDelete,
 }: UseChecklistProps) => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showBulkPasteModal, setShowBulkPasteModal] = useState(false);
@@ -44,7 +38,7 @@ export const useChecklist = ({
       const formData = new FormData();
       formData.append("id", localList.id);
       formData.append("category", localList.category || "Uncategorized");
-      await deleteListAction(formData);
+      await deleteList(formData);
       onDelete?.(localList.id);
     }
   };
@@ -54,7 +48,7 @@ export const useChecklist = ({
     formData.append("listId", localList.id);
     formData.append("itemId", itemId);
     formData.append("completed", String(completed));
-    const result = await updateItemAction(formData);
+    const result = await updateItem(formData);
 
     if (result.success && result.data) {
       setLocalList(result.data);
@@ -68,7 +62,7 @@ export const useChecklist = ({
     formData.append("listId", localList.id);
     formData.append("itemId", itemId);
     formData.append("text", text);
-    const result = await updateItemAction(formData);
+    const result = await updateItem(formData);
 
     if (result.success) {
       const updatedList = {
@@ -94,7 +88,7 @@ export const useChecklist = ({
     const formData = new FormData();
     formData.append("listId", localList.id);
     formData.append("itemId", itemId);
-    const result = await deleteItemAction(formData);
+    const result = await deleteItem(formData);
 
     if (!result.success) {
       setLocalList(localList);
@@ -139,7 +133,7 @@ export const useChecklist = ({
         formData.append("listId", localList.id);
         formData.append("itemIds", JSON.stringify(itemIds));
         formData.append("currentItems", JSON.stringify(newItems));
-        const result = await reorderItemsAction(formData);
+        const result = await reorderItems(formData);
 
         if (!result.success) {
           setLocalList((prev) => ({
@@ -181,7 +175,7 @@ export const useChecklist = ({
         formData.append("listId", localList.id);
         formData.append("itemIds", JSON.stringify(itemIds));
         formData.append("currentItems", JSON.stringify(newItems));
-        const result = await reorderItemsAction(formData);
+        const result = await reorderItems(formData);
 
         if (!result.success) {
           setLocalList((prev) => ({
@@ -200,7 +194,7 @@ export const useChecklist = ({
     const formData = new FormData();
     formData.append("listId", localList.id);
     formData.append("itemsText", itemsText);
-    const result = await createBulkItemsAction(formData);
+    const result = await createBulkItems(formData);
     setIsLoading(false);
 
     if (result.success && result.data) {
@@ -224,7 +218,7 @@ export const useChecklist = ({
     formData.append("listId", localList.id);
     formData.append("newType", newType);
 
-    const result = await convertChecklistTypeAction(formData);
+    const result = await convertChecklistType(formData);
     setIsLoading(false);
 
     if (result.success && result.data) {
@@ -246,7 +240,7 @@ export const useChecklist = ({
       JSON.stringify(targetItems.map((item) => item.id))
     );
 
-    const result = await bulkToggleItemsAction(formData);
+    const result = await bulkToggleItems(formData);
     setIsLoading(false);
 
     if (result.success && result.data) {
@@ -261,7 +255,7 @@ export const useChecklist = ({
     const formData = new FormData();
     formData.append("listId", localList.id);
     formData.append("text", text);
-    const result = await createItemAction(formData);
+    const result = await createItem(formData);
     setIsLoading(false);
 
     if (result.success && result.data) {
@@ -271,6 +265,7 @@ export const useChecklist = ({
       };
       setLocalList(updatedList as Checklist);
       onUpdate(updatedList as Checklist);
+      router.refresh();
       setFocusKey((prev) => prev + 1);
     }
   };

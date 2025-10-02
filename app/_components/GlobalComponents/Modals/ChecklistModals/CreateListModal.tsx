@@ -3,14 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { ListTodo } from "lucide-react";
 import { Checklist, ChecklistType, Category } from "@/app/_types";
-import {
-  createListAction,
-  createCategoryAction,
-} from "@/app/_server/actions/data/actions";
+import { createCategory } from "@/app/_server/actions/category";
+import { createList } from "@/app/_server/actions/checklist";
 import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryInput } from "@/app/_components/GlobalComponents/FormElements/CategoryInput";
 import { ChecklistTypeSelector } from "../../../FeatureComponents/Checklists/Parts/ChecklistTypeSelector";
+import { Modes } from "@/app/_types/enums";
 
 interface CreateListModalProps {
   onClose: () => void;
@@ -48,10 +47,11 @@ export const CreateListModal = ({
         const newCatTrimmed = newCategory.trim();
         const categoryFormData = new FormData();
         categoryFormData.append("name", newCatTrimmed);
+        categoryFormData.append("mode", Modes.CHECKLISTS);
         if (category) {
           categoryFormData.append("parent", category);
         }
-        await createCategoryAction(categoryFormData);
+        await createCategory(categoryFormData);
         finalCategoryPath = category
           ? `${category}/${newCatTrimmed}`
           : newCatTrimmed;
@@ -61,7 +61,7 @@ export const CreateListModal = ({
       formData.append("title", title.trim());
       formData.append("category", finalCategoryPath);
       formData.append("type", type);
-      const result = await createListAction(formData);
+      const result = await createList(formData);
 
       if (result.success) onCreated(result.data);
     } finally {

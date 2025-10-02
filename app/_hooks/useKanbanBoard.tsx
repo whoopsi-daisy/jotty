@@ -3,12 +3,8 @@
 import { useState, useEffect } from "react";
 import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { Checklist } from "@/app/_types";
-import {
-  createItemAction,
-  updateItemStatusAction,
-  getLists,
-  createBulkItemsAction,
-} from "@/app/_server/actions/data/actions";
+import { createItem, updateItemStatus, createBulkItems } from "@/app/_server/actions/checklist-item";
+import { getLists } from "@/app/_server/actions/checklist";
 import { TaskStatus } from "@/app/_types/enums";
 
 interface UseKanbanBoardProps {
@@ -88,7 +84,7 @@ export const useKanbanBoard = ({
     formData.append("itemId", activeId);
     formData.append("status", newStatus);
 
-    const result = await updateItemStatusAction(formData);
+    const result = await updateItemStatus(formData);
 
     if (result.success && result.data) {
       setLocalChecklist(result.data as Checklist);
@@ -102,7 +98,7 @@ export const useKanbanBoard = ({
     formData.append("listId", localChecklist.id);
     formData.append("text", text);
 
-    const result = await createItemAction(formData);
+    const result = await createItem(formData);
     setIsLoading(false);
 
     if (result.success && result.data) {
@@ -122,7 +118,7 @@ export const useKanbanBoard = ({
     const formData = new FormData();
     formData.append("listId", localChecklist.id);
     formData.append("itemsText", itemsText);
-    const result = await createBulkItemsAction(formData);
+    const result = await createBulkItems(formData);
     setIsLoading(false);
 
     if (result.success && result.data) {

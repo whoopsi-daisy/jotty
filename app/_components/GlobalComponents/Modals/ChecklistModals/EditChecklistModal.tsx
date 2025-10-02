@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ListTodo } from "lucide-react";
-import { updateListAction } from "@/app/_server/actions/data/actions";
+import { updateList } from "@/app/_server/actions/checklist";
 import { getCurrentUser } from "@/app/_server/actions/users";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
@@ -58,7 +58,7 @@ export const EditChecklistModal = ({
     if (isOwner) {
       formData.append("category", category || "");
     }
-    const result = await updateListAction(formData);
+    const result = await updateList(formData);
     setIsLoading(false);
 
     if (result.success && result.data) {

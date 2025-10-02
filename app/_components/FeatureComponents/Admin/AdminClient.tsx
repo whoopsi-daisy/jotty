@@ -6,7 +6,7 @@ import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { UserManagementModal } from "@/app/_components/GlobalComponents/Modals/UserModals/UserManagementModal";
 import { User, Checklist, Note } from "@/app/_types";
 import { deleteUser } from "@/app/_server/actions/users";
-import { getAllLists } from "@/app/_server/actions/data/actions";
+import { getAllLists } from "@/app/_server/actions/checklist";
 import { getAllDocs } from "@/app/_server/actions/data/notes-actions";
 import { getGlobalSharing } from "@/app/_server/actions/sharing";
 import { useRouter } from "next/navigation";

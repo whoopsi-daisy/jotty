@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateApiKey } from "@/app/_server/utils/api-auth";
-import { getLists } from "@/app/_server/actions/data/actions";
+import { getLists } from "@/app/_server/actions/checklist";
 import { getDocs } from "@/app/_server/actions/data/notes-actions";
 import { TaskStatus } from "@/app/_types/enums";
 

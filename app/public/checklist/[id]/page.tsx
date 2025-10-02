@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getAllLists } from "@/app/_server/actions/data/list-queries";
+import { getAllLists } from "@/app/_server/actions/checklist";
 import { getItemSharingMetadata } from "@/app/_server/actions/sharing";
 import { PublicChecklistView } from "@/app/_components/FeatureComponents/PublicView/PublicChecklistView";
 import { CheckForNeedsMigration } from "@/app/_server/actions/data/notes-actions";

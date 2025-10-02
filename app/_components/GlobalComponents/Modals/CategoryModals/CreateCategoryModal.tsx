@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createCategoryAction } from "@/app/_server/actions/data/actions";
+import { createCategory } from "@/app/_server/actions/category";
 import { createDocsCategoryAction } from "@/app/_server/actions/data/notes-actions";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
@@ -38,14 +38,12 @@ export const CreateCategoryModal = ({
 
     const formData = new FormData();
     formData.append("name", categoryName.trim());
+    formData.append("mode", mode);
     if (parentCategory) {
       formData.append("parent", parentCategory);
     }
 
-    const result =
-      mode === Modes.NOTES
-        ? await createDocsCategoryAction(formData)
-        : await createCategoryAction(formData);
+    const result = await createCategory(formData);
 
     if (result.success) {
       showToast({

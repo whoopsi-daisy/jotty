@@ -1,24 +1,25 @@
-import { getLists, getCategories } from "@/app/_server/actions/data/actions";
+import { getLists } from "@/app/_server/actions/checklist";
+import { getCategories } from "@/app/_server/actions/category";
 import {
   getDocs,
-  getDocsCategories,
   CheckForNeedsMigration,
 } from "@/app/_server/actions/data/notes-actions";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/users";
+import { Modes } from "@/app/_types/enums";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   await CheckForNeedsMigration();
 
-  const [listsResult, categoriesResult, docsResult, docsCategoriesResult] =
+  const [listsResult, docsResult, categoriesResult, docsCategoriesResult] =
     await Promise.all([
       getLists(),
-      getCategories(),
       getDocs(),
-      getDocsCategories(),
+      getCategories(Modes.CHECKLISTS),
+      getCategories(Modes.NOTES),
     ]);
 
   const lists = listsResult.success && listsResult.data ? listsResult.data : [];
@@ -41,8 +42,8 @@ export default async function HomePage() {
       "type" in item && item.type === "task"
         ? ("checklist" as const)
         : "type" in item
-        ? ("checklist" as const)
-        : ("note" as const),
+          ? ("checklist" as const)
+          : ("note" as const),
     owner: item.owner || "",
   }));
 

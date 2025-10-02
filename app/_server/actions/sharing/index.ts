@@ -1,12 +1,16 @@
 "use server";
 
-import { GlobalSharing, Result, User } from "@/app/_types";
+import {
+  Result,
+  User,
+  GlobalSharingReturn,
+  SharedItem,
+  SharingMetadata,
+} from "@/app/_types";
 import { getCurrentUser } from "@/app/_server/actions/users";
 import { ItemType } from "@/app/_types";
-import { ensureDir } from "@/app/_server/utils/files";
-import { readFile } from "@/app/_server/utils/files";
+import { ensureDir, serverReadFile } from "@/app/_server/actions/file";
 import { readJsonFile, writeJsonFile } from "@/app/_server/actions/file";
-import { SharedItem, SharingMetadata, GlobalSharingReturn } from "@/app/_types";
 import {
   SHARING_DIR,
   SHARED_ITEMS_FILE,
@@ -248,7 +252,7 @@ const generateSharingId = async (
 export const readSharingMetadata = async (): Promise<SharingMetadata> => {
   await ensureDir(SHARING_DIR);
 
-  const content = await readFile(SHARED_ITEMS_FILE, {
+  const content = await serverReadFile(SHARED_ITEMS_FILE, {
     checklists: {},
     notes: {},
   });

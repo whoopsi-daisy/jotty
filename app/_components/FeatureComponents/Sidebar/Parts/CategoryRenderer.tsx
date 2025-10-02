@@ -29,9 +29,9 @@ import {
 } from "@dnd-kit/sortable";
 import { Draggable } from "./Draggable";
 import {
-  setCategoryOrderAction,
-  setChecklistOrderInCategoryAction,
-} from "@/app/_server/actions/data/actions";
+  setCategoryOrder,
+  setChecklistOrderInCategory,
+} from "@/app/_server/actions/category";
 import { SidebarItem } from "./SidebarItem";
 import { Modes } from "@/app/_types/enums";
 
@@ -114,10 +114,7 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
     if (!over || active.id === over.id) return;
 
     const formData = new FormData();
-    formData.append(
-      "type",
-      mode === Modes.NOTES ? Modes.NOTES : Modes.CHECKLISTS
-    );
+    formData.append("mode", mode);
 
     if (type === "category") {
       const ids = subCategories.map((c) => c.name);
@@ -127,7 +124,7 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
       const newOrder = arrayMove(ids, oldIndex, newIndex);
       formData.append("parent", category.path);
       formData.append("categories", JSON.stringify(newOrder));
-      await setCategoryOrderAction(formData);
+      await setCategoryOrder(formData);
     } else {
       const ids = categoryItems.map((i) => i.id);
       const oldIndex = ids.indexOf(active.id as string);
@@ -136,7 +133,7 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
       const newOrder = arrayMove(ids, oldIndex, newIndex);
       formData.append("category", category.path);
       formData.append("items", JSON.stringify(newOrder));
-      await setChecklistOrderInCategoryAction(formData);
+      await setChecklistOrderInCategory(formData);
     }
   };
 

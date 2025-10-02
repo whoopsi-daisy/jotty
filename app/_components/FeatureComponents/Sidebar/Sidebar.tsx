@@ -5,14 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/global-utils";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
-import {
-  deleteCategoryAction,
-  renameCategoryAction,
-} from "@/app/_server/actions/data/actions";
-import {
-  deleteDocsCategoryAction,
-  renameDocsCategoryAction,
-} from "@/app/_server/actions/data/notes-actions";
+import { renameCategory, deleteCategory } from "@/app/_server/actions/category";
 import { DeleteCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/DeleteCategoryModal";
 import { RenameCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/RenameCategoryModal";
 import { EditChecklistModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/EditChecklistModal";
@@ -218,11 +211,9 @@ export const Sidebar = ({
 
     const formData = new FormData();
     formData.append("path", categoryToDelete);
+    formData.append("mode", mode);
 
-    const result =
-      mode === Modes.NOTES
-        ? await deleteDocsCategoryAction(formData)
-        : await deleteCategoryAction(formData);
+    const result = await deleteCategory(formData);
 
     if (result.success) {
       setShowDeleteCategoryModal(false);
@@ -243,11 +234,9 @@ export const Sidebar = ({
     const formData = new FormData();
     formData.append("oldPath", oldPath);
     formData.append("newName", newName);
+    formData.append("mode", mode);
 
-    const result =
-      mode === Modes.NOTES
-        ? await renameDocsCategoryAction(formData)
-        : await renameCategoryAction(formData);
+    const result = await renameCategory(formData);
 
     if (result.success) {
       setShowRenameCategoryModal(false);

@@ -24,12 +24,9 @@ import {
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Dropdown } from "@/app/_components/GlobalComponents/Dropdowns/Dropdown";
 import { useState, useEffect, useRef } from "react";
-import {
-  updateItemStatusAction,
-  updateItemAction,
-  deleteItemAction,
-} from "@/app/_server/actions/data/actions";
+import { updateItemStatus } from "@/app/_server/actions/checklist-item";
 import { TaskStatus, TaskStatusLabels } from "@/app/_types/enums";
+import { updateItem, deleteItem } from "@/app/_server/actions/checklist-item";
 
 interface TimeEntriesAccordionProps {
   timeEntries: any[];
@@ -183,7 +180,7 @@ export const KanbanItem = ({
         formData.append("listId", checklistId);
         formData.append("itemId", item.id);
         formData.append("timeEntries", JSON.stringify(updatedTimeEntries));
-        await updateItemStatusAction(formData);
+        await updateItemStatus(formData);
 
         setTotalTime(
           (prev) =>
@@ -205,7 +202,7 @@ export const KanbanItem = ({
     formData.append("listId", checklistId);
     formData.append("itemId", item.id);
     formData.append("timeEntries", JSON.stringify([]));
-    await updateItemStatusAction(formData);
+    await updateItemStatus(formData);
     setTotalTime(0);
     onUpdate?.();
   };
@@ -215,7 +212,7 @@ export const KanbanItem = ({
     formData.append("listId", checklistId);
     formData.append("itemId", item.id);
     formData.append("status", newStatus);
-    await updateItemStatusAction(formData);
+    await updateItemStatus(formData);
     onUpdate?.();
   };
 
@@ -230,7 +227,7 @@ export const KanbanItem = ({
       formData.append("listId", checklistId);
       formData.append("itemId", item.id);
       formData.append("text", editText.trim());
-      await updateItemAction(formData);
+      await updateItem(formData);
       onUpdate?.();
     }
     setIsEditing(false);
@@ -246,7 +243,7 @@ export const KanbanItem = ({
       const formData = new FormData();
       formData.append("listId", checklistId);
       formData.append("itemId", item.id);
-      await deleteItemAction(formData);
+      await deleteItem(formData);
       onUpdate?.();
     }
   };
@@ -337,7 +334,7 @@ export const KanbanItem = ({
         "group relative bg-background border rounded-lg p-3 transition-all duration-200 hover:shadow-md",
         getStatusColor(item.status),
         (isDragging || isSortableDragging) &&
-          "opacity-50 scale-95 rotate-1 shadow-lg z-50"
+        "opacity-50 scale-95 rotate-1 shadow-lg z-50"
       )}
     >
       <div

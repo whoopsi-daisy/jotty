@@ -15,7 +15,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { setCategoryOrderAction } from "@/app/_server/actions/data/actions";
+import { setCategoryOrder } from "@/app/_server/actions/category";
 import { CategoryRenderer } from "./CategoryRenderer";
 import { Draggable } from "./Draggable";
 import { Modes } from "@/app/_types/enums";
@@ -72,9 +72,13 @@ export const CategoryList = (props: CategoryListProps) => {
       "type",
       mode === Modes.NOTES ? Modes.NOTES : Modes.CHECKLISTS
     );
+    formData.append(
+      "mode",
+      mode === Modes.NOTES ? Modes.NOTES : Modes.CHECKLISTS
+    );
     formData.append("parent", "");
     formData.append("categories", JSON.stringify(newOrder));
-    await setCategoryOrderAction(formData);
+    await setCategoryOrder(formData);
   };
 
   return (

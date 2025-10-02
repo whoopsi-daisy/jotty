@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import {
   getDocs,
-  getDocsCategories,
   getAllDocs,
   CheckForNeedsMigration,
 } from "@/app/_server/actions/data/notes-actions";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { isAdmin, getUsername } from "@/app/_server/actions/users";
 import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
+import { Modes } from "@/app/_types/enums";
+import { getCategories } from "@/app/_server/actions/category";
 
 interface NotePageProps {
   params: {
@@ -24,9 +25,9 @@ export default async function NotePage({ params }: NotePageProps) {
 
   await CheckForNeedsMigration();
 
-  const [docsResult, docsCategoriesResult] = await Promise.all([
+  const [docsResult, categoriesResult] = await Promise.all([
     getDocs(username),
-    getDocsCategories(),
+    getCategories(Modes.NOTES),
   ]);
 
   if (!docsResult.success || !docsResult.data) {
@@ -47,8 +48,8 @@ export default async function NotePage({ params }: NotePageProps) {
   }
 
   const docsCategories =
-    docsCategoriesResult.success && docsCategoriesResult.data
-      ? docsCategoriesResult.data
+    categoriesResult.success && categoriesResult.data
+      ? categoriesResult.data
       : [];
 
   const allItems = [...docsResult.data];

@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
-import { getLists, getCategories } from "@/app/_server/actions/data/actions";
-import { getAllLists } from "@/app/_server/actions/data/list-queries";
+import { getLists } from "@/app/_server/actions/checklist";
+import { getCategories } from "@/app/_server/actions/category";
+import { getAllLists } from "@/app/_server/actions/checklist";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { isAdmin, getUsername } from "@/app/_server/actions/users";
 import { ChecklistClient } from "@/app/_components/FeatureComponents/Checklists/Parts/ChecklistClient";
+import { Modes } from "@/app/_types/enums";
 
 interface ChecklistPageProps {
   params: {
@@ -20,7 +22,7 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
 
   const [listsResult, categoriesResult] = await Promise.all([
     getLists(username),
-    getCategories(),
+    getCategories(Modes.CHECKLISTS),
   ]);
 
   if (!listsResult.success || !listsResult.data) {
