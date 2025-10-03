@@ -5,6 +5,8 @@ import { UnsavedChangesModal } from "@/app/_components/GlobalComponents/Modals/C
 import { useNoteEditor } from "@/app/_hooks/useNoteEditor";
 import { NoteEditorHeader } from "@/app/_components/FeatureComponents/Notes/Parts/NoteEditor/NoteEditorHeader";
 import { NoteEditorContent } from "@/app/_components/FeatureComponents/Notes/Parts/NoteEditor/NoteEditorContent";
+import { useState } from "react";
+import { TableOfContents } from "../TableOfContents";
 
 export interface NoteEditorProps {
   note: Note;
@@ -28,10 +30,11 @@ export const NoteEditor = ({
   const viewModel = useNoteEditor({
     note,
     onUpdate,
-    onDelete: onDelete || (() => { }),
+    onDelete: onDelete || (() => {}),
     onBack,
   });
   const isOwner = note.owner === currentUsername;
+  const [showTOC, setShowTOC] = useState(false);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
@@ -43,15 +46,29 @@ export const NoteEditor = ({
         currentUsername={currentUsername}
         onBack={onBack}
         viewModel={viewModel}
+        showTOC={showTOC}
+        setShowTOC={setShowTOC}
       />
 
-      <NoteEditorContent
-        isEditing={viewModel.isEditing}
-        noteContent={note.content}
-        editorContent={viewModel.editorContent}
-        onEditorContentChange={viewModel.handleEditorContentChange}
-        category={viewModel.category}
-      />
+      <div className="flex-1 flex">
+        <NoteEditorContent
+          isEditing={viewModel.isEditing}
+          noteContent={note.content}
+          editorContent={viewModel.editorContent}
+          onEditorContentChange={viewModel.handleEditorContentChange}
+          category={viewModel.category}
+        />
+
+        {showTOC && (
+          <TableOfContents
+            content={
+              viewModel.isEditing
+                ? viewModel.derivedMarkdownContent
+                : note.content || ""
+            }
+          />
+        )}
+      </div>
 
       <UnsavedChangesModal
         isOpen={viewModel.showUnsavedChangesModal}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
-import { getSettings } from "@/app/_server/actions/data/file-actions";
+import { getSettings } from "@/app/_server/actions/config";
 
 interface DynamicLogoProps {
   className?: string;

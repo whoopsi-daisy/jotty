@@ -3,7 +3,7 @@ import { FC, useState } from "react";
 import { Label } from "@/app/_components/GlobalComponents/FormElements/label";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { X, Image as ImageIcon, Loader2 } from "lucide-react";
-import { uploadAppIconAction } from "@/app/_server/actions/data/app-settings-actions";
+import { uploadAppIconAction } from "@/app/_server/actions/config";
 
 interface AppSettings {
   appName: string;

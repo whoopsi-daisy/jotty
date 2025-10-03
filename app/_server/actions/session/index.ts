@@ -20,15 +20,17 @@ export interface Session {
   [key: string]: string;
 }
 
-export async function readSessionData(): Promise<Record<string, SessionData>> {
+export const readSessionData = async (): Promise<
+  Record<string, SessionData>
+> => {
   return await readJsonFile(SESSION_DATA_FILE);
-}
+};
 
-export async function writeSessionData(
+export const writeSessionData = async (
   sessions: Record<string, SessionData>
-): Promise<void> {
+): Promise<void> => {
   await writeJsonFile(sessions, SESSION_DATA_FILE);
-}
+};
 
 export const writeSessions = async (sessions: Session): Promise<void> => {
   await writeJsonFile(sessions, SESSIONS_FILE);
@@ -38,10 +40,10 @@ export const readSessions = async (): Promise<Session> => {
   return await readJsonFile(SESSIONS_FILE);
 };
 
-export async function createSession(
+export const createSession = async (
   sessionId: string,
   username: string
-): Promise<void> {
+): Promise<void> => {
   const headersList = headers();
   const userAgent = headersList.get("user-agent") || "Unknown";
   const forwarded = headersList.get("x-forwarded-for");
@@ -63,42 +65,44 @@ export async function createSession(
   sessions[sessionId] = username;
   await writeSessions(sessions);
   await writeSessionData(sessionsData);
-}
+};
 
-export async function updateSessionActivity(sessionId: string): Promise<void> {
+export const updateSessionActivity = async (
+  sessionId: string
+): Promise<void> => {
   const sessionsData = await readSessionData();
   if (sessionsData[sessionId]) {
     sessionsData[sessionId].lastActivity = new Date().toISOString();
     await writeSessionData(sessionsData);
   }
-}
+};
 
-export async function removeSession(sessionId: string): Promise<void> {
+export const removeSession = async (sessionId: string): Promise<void> => {
   const sessionsData = await readSessionData();
   const sessions = await readSessions();
   delete sessionsData[sessionId];
   delete sessions[sessionId];
   await writeSessionData(sessionsData);
   await writeSessions(sessions);
-}
+};
 
-export async function getSessionsForUser(
+export const getSessionsForUser = async (
   username: string
-): Promise<SessionData[]> {
+): Promise<SessionData[]> => {
   const sessions = await readSessionData();
   return Object.values(sessions).filter(
     (session) => session.username === username
   );
-}
+};
 
 export const getSessionId = async (): Promise<string> => {
   return cookies().get("session")?.value || "";
 };
 
-export async function removeAllSessionsForUser(
+export const removeAllSessionsForUser = async (
   username: string,
   exceptSessionId?: string
-): Promise<void> {
+): Promise<void> => {
   const sessionsData = await readSessionData();
   const sessions = await readSessions();
   const sessionsToRemove = Object.entries(sessionsData)
@@ -116,9 +120,9 @@ export async function removeAllSessionsForUser(
 
   await writeSessionData(sessionsData);
   await writeSessions(sessions);
-}
+};
 
-export async function clearAllSessions(): Promise<Result<null>> {
+export const clearAllSessions = async (): Promise<Result<null>> => {
   try {
     await fs.writeFile(SESSIONS_FILE, JSON.stringify({}), "utf-8");
     await fs.writeFile(SESSION_DATA_FILE, JSON.stringify({}), "utf-8");
@@ -131,11 +135,11 @@ export async function clearAllSessions(): Promise<Result<null>> {
       error: "Failed to clear all sessions",
     };
   }
-}
+};
 
-export async function terminateSession(
+export const terminateSession = async (
   formData: FormData
-): Promise<Result<null>> {
+): Promise<Result<null>> => {
   try {
     const currentUser = await getCurrentUser();
 
@@ -168,9 +172,9 @@ export async function terminateSession(
       error: "Failed to terminate session",
     };
   }
-}
+};
 
-export async function terminateAllOtherSessions(): Promise<Result<null>> {
+export const terminateAllOtherSessions = async (): Promise<Result<null>> => {
   try {
     const currentUser = await getCurrentUser();
 
@@ -196,4 +200,4 @@ export async function terminateAllOtherSessions(): Promise<Result<null>> {
       error: "Failed to terminate sessions",
     };
   }
-}
+};

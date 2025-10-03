@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { createCategory } from "@/app/_server/actions/category";
-import { createDocsCategoryAction } from "@/app/_server/actions/data/notes-actions";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
 import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";

@@ -28,6 +28,8 @@ interface NoteEditorHeaderProps {
   isAdmin: boolean;
   currentUsername?: string;
   onBack: () => void;
+  showTOC: boolean;
+  setShowTOC: (show: boolean) => void;
   viewModel: NoteEditorViewModel;
 }
 
@@ -39,6 +41,8 @@ export const NoteEditorHeader = ({
   currentUsername,
   onBack,
   viewModel,
+  showTOC,
+  setShowTOC,
 }: NoteEditorHeaderProps) => {
   const {
     title,
@@ -53,7 +57,6 @@ export const NoteEditorHeader = ({
     handleDelete,
   } = viewModel;
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showTOC, setShowTOC] = useState(false);
   const { sharingStatus } = useSharing({
     itemId: note.id,
     itemType: "note",
@@ -205,13 +208,6 @@ export const NoteEditorHeader = ({
           </div>
         )}
       </div>
-      {showTOC && (
-        <TableOfContents
-          content={
-            isEditing ? viewModel.derivedMarkdownContent : note.content || ""
-          }
-        />
-      )}
       {showShareModal && (
         <ShareModal
           isOpen={showShareModal}

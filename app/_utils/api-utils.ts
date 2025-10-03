@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateApiKey } from "@/app/_server/utils/api-auth";
+import { authenticateApiKey } from "@/app/_server/actions/api";
 import { getLists } from "@/app/_server/actions/checklist";
-import { getDocs } from "@/app/_server/actions/data/notes-actions";
+import { getNotes } from "@/app/_server/actions/note";
 import { TaskStatus } from "@/app/_types/enums";
 
 export const withApiAuth = async (
@@ -65,7 +65,7 @@ export const getChecklistsForUser = async (username: string) => {
 };
 
 export const getNotesForUser = async (username: string) => {
-  const docs = await getDocs(username);
+  const docs = await getNotes(username);
   if (!docs.success || !docs.data) {
     throw new Error(docs.error || "Failed to fetch notes");
   }

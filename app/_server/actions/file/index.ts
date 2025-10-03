@@ -6,13 +6,18 @@ import fs from "fs/promises";
 import path from "path";
 import { Modes } from "@/app/_types/enums";
 
-export async function ensureDir(dir: string) {
+export interface OrderData {
+  categories?: string[];
+  items?: string[];
+}
+
+export const ensureDir = async (dir: string) => {
   try {
     await fs.access(dir);
   } catch {
     await fs.mkdir(dir, { recursive: true });
   }
-}
+};
 
 export const readJsonFile = async (filePath: string): Promise<any> => {
   try {
@@ -56,11 +61,11 @@ export const readFile = async (filePath: string): Promise<string> => {
   }
 };
 
-export async function getUserModeDir(mode: Modes): Promise<string> {
+export const getUserModeDir = async (mode: Modes): Promise<string> => {
   const user = await getCurrentUser();
   if (!user) throw new Error("Not authenticated");
   return path.join(process.cwd(), DATA_DIR, mode, user.username);
-}
+};
 
 /**
  * @todo figure this out eventually, but for now it's too messy and I want this pull request to go through
@@ -68,42 +73,80 @@ export async function getUserModeDir(mode: Modes): Promise<string> {
  * From this comment on it's passed in via filePath/dirPath as these are ONLY called from server components.
  */
 
-export async function serverReadFile(
+export const serverReadFile = async (
   filePath: string,
   customReturn?: any
-): Promise<string> {
+): Promise<string> => {
   try {
     return await fs.readFile(filePath, "utf-8");
   } catch (error) {
     return customReturn || "";
   }
-}
+};
 
-export async function serverWriteFile(filePath: string, content: string) {
+export const serverWriteFile = async (filePath: string, content: string) => {
   await ensureDir(path.dirname(filePath));
   await fs.writeFile(filePath, content, "utf-8");
-}
+};
 
-export async function serverDeleteFile(filePath: string) {
+export const serverDeleteFile = async (filePath: string) => {
   try {
     await fs.unlink(filePath);
   } catch (error) {
     // Ignore if file doesn't exist
   }
-}
+};
 
-export async function serverReadDir(dirPath: string) {
+export const serverReadDir = async (dirPath: string) => {
   try {
     return await fs.readdir(dirPath, { withFileTypes: true });
   } catch (error) {
     return [];
   }
-}
+};
 
-export async function serverDeleteDir(dirPath: string) {
+export const serverDeleteDir = async (dirPath: string) => {
   try {
     await fs.rm(dirPath, { recursive: true });
   } catch (error) {
     // Ignore if directory doesn't exist
   }
-}
+};
+
+export const readOrderFile = async (
+  dirPath: string
+): Promise<OrderData | null> => {
+  try {
+    const filePath = path.join(dirPath, ".order.json");
+    const content = await fs.readFile(filePath, "utf-8");
+    const data = JSON.parse(content) as OrderData;
+    const categories = Array.isArray(data.categories)
+      ? data.categories
+      : undefined;
+    const items = Array.isArray(data.items) ? data.items : undefined;
+    return { categories, items };
+  } catch {
+    return null;
+  }
+};
+
+export const writeOrderFile = async (
+  dirPath: string,
+  data: OrderData
+): Promise<{ success: boolean }> => {
+  try {
+    await fs.mkdir(dirPath, { recursive: true });
+    const filePath = path.join(dirPath, ".order.json");
+    const toWrite: OrderData = {};
+    if (data.categories && data.categories.length > 0) {
+      toWrite.categories = data.categories;
+    }
+    if (data.items && data.items.length > 0) {
+      toWrite.items = data.items;
+    }
+    await fs.writeFile(filePath, JSON.stringify(toWrite, null, 2), "utf-8");
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+};

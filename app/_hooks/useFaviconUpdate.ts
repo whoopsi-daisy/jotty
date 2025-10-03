@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { getSettings } from "@/app/_server/actions/data/file-actions";
+import { getSettings } from "@/app/_server/actions/config";
 
 export const useFaviconUpdate = () => {
   const updateFavicons = useCallback(async () => {
@@ -70,4 +70,4 @@ export const useFaviconUpdate = () => {
   }, []);
 
   return { updateFavicons };
-}
+};

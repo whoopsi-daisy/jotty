@@ -6,10 +6,7 @@ import {
 } from "@/app/_utils/markdown-utils";
 import { useSettings } from "@/app/_utils/settings-store";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
-import {
-  deleteDocAction,
-  updateDocAction,
-} from "@/app/_server/actions/data/notes-actions";
+import { deleteNote, updateNote } from "@/app/_server/actions/note";
 import { Note } from "@/app/_types";
 
 interface UseNoteEditorProps {
@@ -85,7 +82,7 @@ export const useNoteEditor = ({
       formData.append("content", derivedMarkdownContent);
       formData.append("category", category);
 
-      const result = await updateDocAction(formData, useAutosave);
+      const result = await updateNote(formData, useAutosave);
 
       if (useAutosave && result.success && result.data) {
         return;
@@ -150,7 +147,7 @@ export const useNoteEditor = ({
       const formData = new FormData();
       formData.append("id", note.id);
       formData.append("category", note.category || "");
-      await deleteDocAction(formData);
+      await deleteNote(formData);
       onDelete?.(note.id);
       onBack();
     }

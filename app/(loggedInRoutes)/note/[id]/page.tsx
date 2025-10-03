@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import {
-  getDocs,
-  getAllDocs,
+  getNotes,
+  getAllNotes,
   CheckForNeedsMigration,
-} from "@/app/_server/actions/data/notes-actions";
+} from "@/app/_server/actions/note";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { isAdmin, getUsername } from "@/app/_server/actions/users";
 import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
@@ -26,7 +26,7 @@ export default async function NotePage({ params }: NotePageProps) {
   await CheckForNeedsMigration();
 
   const [docsResult, categoriesResult] = await Promise.all([
-    getDocs(username),
+    getNotes(username),
     getCategories(Modes.NOTES),
   ]);
 
@@ -37,7 +37,7 @@ export default async function NotePage({ params }: NotePageProps) {
   let note = docsResult.data.find((doc) => doc.id === id);
 
   if (!note && isAdminUser) {
-    const allDocsResult = await getAllDocs();
+    const allDocsResult = await getAllNotes();
     if (allDocsResult.success && allDocsResult.data) {
       note = allDocsResult.data.find((doc) => doc.id === id);
     }

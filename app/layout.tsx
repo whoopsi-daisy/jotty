@@ -7,7 +7,7 @@ import { AppModeProvider } from "@/app/_providers/AppModeProvider";
 import { ToastProvider } from "@/app/_providers/ToastProvider";
 import { NavigationGuardProvider } from "@/app/_providers/NavigationGuardProvider";
 import { InstallPrompt } from "@/app/_components/GlobalComponents/Pwa/InstallPrompt";
-import { getSettings } from "@/app/_server/actions/data/file-actions";
+import { getSettings } from "@/app/_server/actions/config";
 import { DynamicFavicon } from "@/app/_components/GlobalComponents/Layout/Logo/DynamicFavicon";
 
 const inter = Inter({ subsets: ["latin"] });

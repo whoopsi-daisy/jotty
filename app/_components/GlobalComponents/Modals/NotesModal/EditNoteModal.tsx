@@ -5,7 +5,7 @@ import { FileText } from "lucide-react";
 import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
-import { updateDocAction } from "@/app/_server/actions/data/notes-actions";
+import { updateNote } from "@/app/_server/actions/note";
 import { Note, Category } from "@/app/_types";
 import { getCurrentUser } from "@/app/_server/actions/users";
 
@@ -51,7 +51,7 @@ export const EditNoteModal = ({
     if (isOwner) {
       formData.append("category", category || "");
     }
-    const result = await updateDocAction(formData, false);
+    const result = await updateNote(formData, false);
     setIsLoading(false);
 
     if (result.success) {

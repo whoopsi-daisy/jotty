@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getAllDocs } from "@/app/_server/actions/data/notes-actions";
+import { getAllNotes } from "@/app/_server/actions/note";
 import { getItemSharingMetadata } from "@/app/_server/actions/sharing";
 import { PublicNoteView } from "@/app/_components/FeatureComponents/PublicView/PublicNoteView";
 
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export default async function PublicNotePage({ params }: PublicNotePageProps) {
   const { id } = params;
 
-  const docsResult = await getAllDocs();
+  const docsResult = await getAllNotes();
   if (!docsResult.success || !docsResult.data) {
     redirect("/");
   }

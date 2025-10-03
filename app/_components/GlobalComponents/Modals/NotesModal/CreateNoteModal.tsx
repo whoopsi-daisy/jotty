@@ -3,14 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import { FileText as DocIcon } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import {
-  createDocAction,
-  createDocsCategoryAction,
-} from "@/app/_server/actions/data/notes-actions";
+import { createNote } from "@/app/_server/actions/note";
 import { Category, Note } from "@/app/_types";
 import { Modal } from "../Modal";
 import { CategoryInput } from "@/app/_components/GlobalComponents/FormElements/CategoryInput";
 import { Modes } from "@/app/_types/enums";
+import { createCategory } from "@/app/_server/actions/category";
 
 interface CreateNoteModalProps {
   onClose: () => void;
@@ -51,7 +49,7 @@ export const CreateNoteModal = ({
         if (category) {
           categoryFormData.append("parent", category);
         }
-        await createDocsCategoryAction(categoryFormData);
+        await createCategory(categoryFormData);
         finalCategoryPath = category
           ? `${category}/${newCatTrimmed}`
           : newCatTrimmed;
@@ -61,7 +59,7 @@ export const CreateNoteModal = ({
       formData.append("title", title.trim());
       formData.append("category", finalCategoryPath);
       formData.append("content", "");
-      const result = await createDocAction(formData);
+      const result = await createNote(formData);
 
       if (result.success) onCreated(result.data);
     } finally {

@@ -3,10 +3,9 @@
 import { USERS_FILE } from "@/app/_consts/files";
 import { readJsonFile, writeJsonFile } from "../file";
 import { getCurrentUser } from "@/app/_server/actions/users";
-import { generateApiKey } from "@/app/_server/utils/api-auth";
 import { Result, User } from "@/app/_types";
 
-export async function generateApiKeyAction(): Promise<Result<string>> {
+export const generateApiKeyAction = async (): Promise<Result<string>> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -22,7 +21,12 @@ export async function generateApiKeyAction(): Promise<Result<string>> {
       return { success: false, error: "User not found" };
     }
 
-    const newApiKey = generateApiKey();
+    const prefix = "ck_";
+    const randomBytes = Array.from({ length: 32 }, () =>
+      Math.floor(Math.random() * 16).toString(16)
+    ).join("");
+    const newApiKey = prefix + randomBytes;
+
     users[userIndex].apiKey = newApiKey;
 
     await writeJsonFile(users, USERS_FILE);
@@ -32,9 +36,9 @@ export async function generateApiKeyAction(): Promise<Result<string>> {
     console.error("Error generating API key:", error);
     return { success: false, error: "Failed to generate API key" };
   }
-}
+};
 
-export async function getApiKeyAction(): Promise<Result<string | null>> {
+export const getApiKeyAction = async (): Promise<Result<string | null>> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -53,4 +57,22 @@ export async function getApiKeyAction(): Promise<Result<string | null>> {
     console.error("Error getting API key:", error);
     return { success: false, error: "Failed to get API key" };
   }
-}
+};
+
+export const authenticateApiKey = async (
+  apiKey: string
+): Promise<User | null> => {
+  try {
+    if (!apiKey) {
+      return null;
+    }
+
+    const users = await readJsonFile(USERS_FILE);
+    const user = users.find((u: User) => u.apiKey === apiKey);
+
+    return user || null;
+  } catch (error) {
+    console.error("Error authenticating API key:", error);
+    return null;
+  }
+};

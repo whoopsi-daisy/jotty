@@ -1,9 +1,6 @@
 import { getLists } from "@/app/_server/actions/checklist";
 import { getCategories } from "@/app/_server/actions/category";
-import {
-  getDocs,
-  CheckForNeedsMigration,
-} from "@/app/_server/actions/data/notes-actions";
+import { getNotes, CheckForNeedsMigration } from "@/app/_server/actions/note";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
 import { isAdmin, getUsername } from "@/app/_server/actions/users";
@@ -17,7 +14,7 @@ export default async function HomePage() {
   const [listsResult, docsResult, categoriesResult, docsCategoriesResult] =
     await Promise.all([
       getLists(),
-      getDocs(),
+      getNotes(),
       getCategories(Modes.CHECKLISTS),
       getCategories(Modes.NOTES),
     ]);
@@ -42,8 +39,8 @@ export default async function HomePage() {
       "type" in item && item.type === "task"
         ? ("checklist" as const)
         : "type" in item
-          ? ("checklist" as const)
-          : ("note" as const),
+        ? ("checklist" as const)
+        : ("note" as const),
     owner: item.owner || "",
   }));
 

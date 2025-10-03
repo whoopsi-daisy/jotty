@@ -7,7 +7,7 @@ import { UserManagementModal } from "@/app/_components/GlobalComponents/Modals/U
 import { User, Checklist, Note } from "@/app/_types";
 import { deleteUser } from "@/app/_server/actions/users";
 import { getAllLists } from "@/app/_server/actions/checklist";
-import { getAllDocs } from "@/app/_server/actions/data/notes-actions";
+import { getAllNotes } from "@/app/_server/actions/note";
 import { getGlobalSharing } from "@/app/_server/actions/sharing";
 import { useRouter } from "next/navigation";
 import { AdminTabs } from "./Parts/AdminTabs";
@@ -49,7 +49,7 @@ export const AdminClient = ({ username }: AdminClientProps) => {
       const [usersData, listsData, docsData, sharingData] = await Promise.all([
         readJsonFile(USERS_FILE),
         getAllLists(),
-        getAllDocs(),
+        getAllNotes(),
         getGlobalSharing(),
       ]);
 

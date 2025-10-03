@@ -1,15 +1,15 @@
 import { Logo } from "./Logo";
-import { getSettings } from "@/app/_server/actions/data/file-actions";
+import { getSettings } from "@/app/_server/actions/config";
 
 interface ServerLogoProps {
   className?: string;
   size?: "16x16" | "32x32" | "180x180";
 }
 
-export async function ServerLogo({
+export const ServerLogo = async ({
   className = "h-8 w-8",
   size = "32x32",
-}: ServerLogoProps) {
+}: ServerLogoProps) => {
   try {
     const settings = await getSettings();
     const iconKey =
@@ -34,4 +34,4 @@ export async function ServerLogo({
   }
 
   return <Logo className={className} />;
-}
+};

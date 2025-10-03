@@ -1,10 +1,10 @@
 import { useState, useCallback, useMemo } from "react";
-import { FileItem } from "@/app/_server/actions/data/file-actions";
 import {
-  getFilesAction,
-  uploadFileAction,
-  deleteFileAction,
-} from "@/app/_server/actions/data/file-actions";
+  getFiles,
+  uploadFile,
+  deleteFile,
+  FileItem,
+} from "@/app/_server/actions/upload";
 
 export const useFileManager = () => {
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -16,7 +16,7 @@ export const useFileManager = () => {
   const loadFiles = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await getFilesAction();
+      const result = await getFiles();
       if (result.success && result.data) setFiles(result.data);
     } finally {
       setIsLoading(false);
@@ -29,7 +29,7 @@ export const useFileManager = () => {
     const formData = new FormData();
     formData.append("file", selectedFile as Blob);
     try {
-      const result = await uploadFileAction(formData);
+      const result = await uploadFile(formData);
       if (result.success) {
         setSelectedFile(null);
         await loadFiles();
@@ -51,7 +51,7 @@ export const useFileManager = () => {
     const formData = new FormData();
     formData.append("fileName", fileName);
     formData.append("fileType", fileType);
-    const result = await deleteFileAction(formData);
+    const result = await deleteFile(formData);
     if (result.success) await loadFiles();
     else alert(result.error || "Failed to delete file");
   };

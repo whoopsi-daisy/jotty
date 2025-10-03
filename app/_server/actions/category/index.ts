@@ -9,12 +9,13 @@ import {
   serverWriteFile,
   serverReadDir,
   getUserModeDir,
+  readOrderFile,
+  writeOrderFile,
 } from "@/app/_server/actions/file";
 import fs from "fs/promises";
 import { parseMarkdown, listToMarkdown } from "@/app/_utils/checklist-utils";
 import { Modes } from "@/app/_types/enums";
 import { buildCategoryTree } from "@/app/_utils/category-utils";
-import { readOrderFile, writeOrderFile } from "@/app/_server/actions/data/file-actions";
 
 export const createCategory = async (formData: FormData) => {
   try {
@@ -150,7 +151,7 @@ export const setCategoryOrder = async (formData: FormData) => {
 
     try {
       revalidatePath("/");
-    } catch { }
+    } catch {}
     return { success: true };
   } catch {
     return { error: "Failed to set category order" };
@@ -174,7 +175,7 @@ export const setChecklistOrderInCategory = async (formData: FormData) => {
 
     try {
       revalidatePath("/");
-    } catch { }
+    } catch {}
     return { success: true };
   } catch {
     return { error: "Failed to set item order" };

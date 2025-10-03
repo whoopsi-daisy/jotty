@@ -7,7 +7,7 @@ import { useToast } from "@/app/_providers/ToastProvider";
 import {
   getAppSettingsAction,
   updateAppSettingsAction,
-} from "@/app/_server/actions/data/app-settings-actions";
+} from "@/app/_server/actions/config";
 import { useFaviconUpdate } from "@/app/_hooks/useFaviconUpdate";
 import { ImageUpload } from "@/app/_components/GlobalComponents/FormElements/ImageUpload";
 import { LoadingSpinner } from "@/app/_components/GlobalComponents/Layout/LoadingSpinner";

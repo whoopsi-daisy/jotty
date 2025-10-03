@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withApiAuth, findItemByIndex } from "@/app/_server/utils/api-helpers";
+import { withApiAuth, findItemByIndex } from "@/app/_utils/api-utils";
 import { updateItem } from "@/app/_server/actions/checklist-item";
 
 export const dynamic = "force-dynamic";

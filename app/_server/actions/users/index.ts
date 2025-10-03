@@ -91,9 +91,9 @@ async function _updateUserCore(
   return { success: true, data: userWithoutPassword };
 }
 
-export async function createUser(
+export const createUser = async (
   formData: FormData
-): Promise<Result<Omit<User, "passwordHash">>> {
+): Promise<Result<Omit<User, "passwordHash">>> => {
   try {
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
@@ -167,9 +167,9 @@ export async function createUser(
       error: "Failed to create user",
     };
   }
-}
+};
 
-export async function getCurrentUser(): Promise<User | null> {
+export const getCurrentUser = async (): Promise<User | null> => {
   const users = await readJsonFile(USERS_FILE);
 
   const sessionId = cookies().get("session")?.value;
@@ -178,9 +178,9 @@ export async function getCurrentUser(): Promise<User | null> {
   const sessions = await readSessions();
   const username = sessions[sessionId];
   return users.find((u: User) => u.username === username) || null;
-}
+};
 
-export async function deleteUser(formData: FormData): Promise<Result<null>> {
+export const deleteUser = async (formData: FormData): Promise<Result<null>> => {
   try {
     const adminUser = await getCurrentUser();
     if (!adminUser?.isAdmin) {
@@ -197,9 +197,11 @@ export async function deleteUser(formData: FormData): Promise<Result<null>> {
     console.error("Error in deleteUser:", error);
     return { success: false, error: "Failed to delete user" };
   }
-}
+};
 
-export async function deleteAccount(formData: FormData): Promise<Result<null>> {
+export const deleteAccount = async (
+  formData: FormData
+): Promise<Result<null>> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -231,18 +233,20 @@ export async function deleteAccount(formData: FormData): Promise<Result<null>> {
     console.error("Error in deleteAccount:", error);
     return { success: false, error: "Failed to delete account" };
   }
-}
+};
 
-export async function hasUsers(): Promise<boolean> {
+export const hasUsers = async (): Promise<boolean> => {
   try {
     const users = await readJsonFile(USERS_FILE);
     return users.length > 0;
   } catch (error) {
     return false;
   }
-}
+};
 
-export async function updateProfile(formData: FormData): Promise<Result<null>> {
+export const updateProfile = async (
+  formData: FormData
+): Promise<Result<null>> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -309,11 +313,11 @@ export async function updateProfile(formData: FormData): Promise<Result<null>> {
     console.error("Error updating profile:", error);
     return { success: false, error: "Failed to update profile" };
   }
-}
+};
 
-export async function updateUser(
+export const updateUser = async (
   formData: FormData
-): Promise<Result<Omit<User, "passwordHash">>> {
+): Promise<Result<Omit<User, "passwordHash">>> => {
   try {
     const adminUser = await getCurrentUser();
     if (!adminUser?.isAdmin) {
@@ -355,24 +359,24 @@ export async function updateUser(
     console.error("Error updating user:", error);
     return { success: false, error: "Failed to update user" };
   }
-}
+};
 
-export async function isAuthenticated(): Promise<boolean> {
+export const isAuthenticated = async (): Promise<boolean> => {
   const user = await getCurrentUser();
   return user !== null;
-}
+};
 
-export async function isAdmin(): Promise<boolean> {
+export const isAdmin = async (): Promise<boolean> => {
   const user = await getCurrentUser();
   return user?.isAdmin || false;
-}
+};
 
-export async function getUsername(): Promise<string> {
+export const getUsername = async (): Promise<string> => {
   const user = await getCurrentUser();
   return user?.username || "";
-}
+};
 
-export async function getUsers() {
+export const getUsers = async () => {
   const adminCheck = await isAdmin();
   if (!adminCheck) {
     return { error: "Unauthorized" };
@@ -384,9 +388,9 @@ export async function getUsers() {
     isAdmin,
     isSuperAdmin,
   }));
-}
+};
 
-export async function toggleAdmin(formData: FormData) {
+export const toggleAdmin = async (formData: FormData) => {
   const adminCheck = await isAdmin();
   if (!adminCheck) {
     return { error: "Unauthorized" };
@@ -408,4 +412,4 @@ export async function toggleAdmin(formData: FormData) {
   await writeJsonFile(users, USERS_FILE);
 
   return { success: true };
-}
+};

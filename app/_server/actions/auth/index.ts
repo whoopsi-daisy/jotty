@@ -132,7 +132,7 @@ export const login = async (formData: FormData) => {
   redirect("/");
 };
 
-export async function logout() {
+export const logout = async () => {
   const sessionId = cookies().get("session")?.value;
 
   if (sessionId) {
@@ -150,4 +150,4 @@ export async function logout() {
   } else {
     redirect("/auth/login");
   }
-}
+};

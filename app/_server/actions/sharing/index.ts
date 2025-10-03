@@ -236,10 +236,12 @@ export const shareItem = async (formData: FormData): Promise<Result<null>> => {
   }
 };
 
-export async function unshareItem(formData: FormData): Promise<Result<null>> {
+export const unshareItem = async (
+  formData: FormData
+): Promise<Result<null>> => {
   formData.set("action", "unshare");
   return shareItem(formData);
-}
+};
 
 const generateSharingId = async (
   owner: string,
@@ -398,13 +400,13 @@ export const getItemSharingMetadata = async (
   }
 };
 
-export async function getItemSharingStatus(
+export const getItemSharingStatus = async (
   itemId: string,
   type: ItemType,
   owner: string
 ): Promise<
   Result<{ isShared: boolean; sharedWith: string[]; isPubliclyShared: boolean }>
-> {
+> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -436,9 +438,9 @@ export async function getItemSharingStatus(
     console.error("Error in getItemSharingStatus:", error);
     return { success: false, error: "Failed to get sharing status" };
   }
-}
+};
 
-export async function getAllSharingStatuses(
+export const getAllSharingStatuses = async (
   items: Array<{ id: string; type: ItemType; owner: string }>
 ): Promise<
   Result<
@@ -447,7 +449,7 @@ export async function getAllSharingStatuses(
       { isShared: boolean; sharedWith: string[]; isPubliclyShared: boolean }
     >
   >
-> {
+> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -507,4 +509,4 @@ export async function getAllSharingStatuses(
     console.error("Error in getAllSharingStatuses:", error);
     return { success: false, error: "Failed to get sharing statuses" };
   }
-}
+};
