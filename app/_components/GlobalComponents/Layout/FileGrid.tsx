@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { FileItem } from "@/app/_server/actions/data/file-actions";
+import { FileItem } from "@/app/_server/actions/upload";
 import { FileCard } from "../Cards/FileCard";
 import { ImageIcon, File } from "lucide-react";
 

@@ -1,4 +1,4 @@
-import { FileItem } from "@/app/_server/actions/data/file-actions";
+import { FileItem } from "@/app/_server/actions/upload";
 import { getFileIcon, formatFileSize } from "@/app/_utils/file-icon-utils";
 import Image from "next/image";
 import { Button } from "../Buttons/Button";
