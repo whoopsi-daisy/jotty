@@ -3,7 +3,7 @@
 import { Edit3, Save, AlertCircle, Check, X, Shield, User } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { User as UserType } from "@/app/_types";
-import { updateProfileAction } from "@/app/_server/actions/users/update-profile";
+import { updateProfile } from "@/app/_server/actions/users";
 
 interface ProfileTabProps {
   user: UserType | null;
@@ -71,7 +71,7 @@ export const ProfileTab = ({
         formData.append("newPassword", newPassword);
       }
 
-      const result = await updateProfileAction(formData);
+      const result = await updateProfile(formData);
 
       if (result.success) {
         setSuccess("Profile updated successfully!");

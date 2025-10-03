@@ -9,6 +9,88 @@ import fs from "fs/promises";
 import { cookies } from "next/headers";
 import { createHash } from "crypto";
 
+export type UserUpdatePayload = {
+  username?: string;
+  passwordHash?: string;
+  isAdmin?: boolean;
+};
+
+async function _deleteUserCore(username: string): Promise<Result<null>> {
+  const allUsers = await readJsonFile(USERS_FILE);
+  const userIndex = allUsers.findIndex(
+    (user: User) => user.username === username
+  );
+
+  if (userIndex === -1) {
+    return { success: false, error: "User not found" };
+  }
+
+  const userToDelete = allUsers[userIndex];
+  if (userToDelete.isAdmin) {
+    const adminCount = allUsers.filter((user: User) => user.isAdmin).length;
+    if (adminCount === 1) {
+      return { success: false, error: "Cannot delete the last admin user" };
+    }
+  }
+
+  await removeAllSessionsForUser(username);
+
+  try {
+    await fs.rm(CHECKLISTS_DIR(username), { recursive: true, force: true });
+
+    const docsDir = NOTES_DIR(username);
+    await fs.rm(docsDir, { recursive: true, force: true });
+  } catch (error) {
+    console.warn(
+      `Warning: Could not clean up data files for ${username}:`,
+      error
+    );
+  }
+
+  allUsers.splice(userIndex, 1);
+  await writeJsonFile(allUsers, USERS_FILE);
+
+  return { success: true, data: null };
+}
+
+async function _updateUserCore(
+  targetUsername: string,
+  updates: UserUpdatePayload
+): Promise<Result<Omit<User, "passwordHash">>> {
+  if (Object.keys(updates).length === 0) {
+    return { success: false, error: "No updates provided." };
+  }
+
+  const allUsers = await readJsonFile(USERS_FILE);
+  const userIndex = allUsers.findIndex(
+    (user: User) => user.username === targetUsername
+  );
+
+  if (userIndex === -1) {
+    return { success: false, error: "User not found" };
+  }
+
+  if (updates.username && updates.username !== targetUsername) {
+    const usernameExists = allUsers.some(
+      (user: User) => user.username === updates.username
+    );
+    if (usernameExists) {
+      return { success: false, error: "Username already exists" };
+    }
+  }
+
+  const updatedUser: User = {
+    ...allUsers[userIndex],
+    ...updates,
+  };
+
+  allUsers[userIndex] = updatedUser;
+  await writeJsonFile(allUsers, USERS_FILE);
+
+  const { passwordHash: _, ...userWithoutPassword } = updatedUser;
+  return { success: true, data: userWithoutPassword };
+}
+
 export async function createUser(
   formData: FormData
 ): Promise<Result<Omit<User, "passwordHash">>> {
@@ -98,44 +180,6 @@ export async function getCurrentUser(): Promise<User | null> {
   return users.find((u: User) => u.username === username) || null;
 }
 
-async function _deleteUserCore(username: string): Promise<Result<null>> {
-  const allUsers = await readJsonFile(USERS_FILE);
-  const userIndex = allUsers.findIndex(
-    (user: User) => user.username === username
-  );
-
-  if (userIndex === -1) {
-    return { success: false, error: "User not found" };
-  }
-
-  const userToDelete = allUsers[userIndex];
-  if (userToDelete.isAdmin) {
-    const adminCount = allUsers.filter((user: User) => user.isAdmin).length;
-    if (adminCount === 1) {
-      return { success: false, error: "Cannot delete the last admin user" };
-    }
-  }
-
-  await removeAllSessionsForUser(username);
-
-  try {
-    await fs.rm(CHECKLISTS_DIR(username), { recursive: true, force: true });
-
-    const docsDir = NOTES_DIR(username);
-    await fs.rm(docsDir, { recursive: true, force: true });
-  } catch (error) {
-    console.warn(
-      `Warning: Could not clean up data files for ${username}:`,
-      error
-    );
-  }
-
-  allUsers.splice(userIndex, 1);
-  await writeJsonFile(allUsers, USERS_FILE);
-
-  return { success: true, data: null };
-}
-
 export async function deleteUser(formData: FormData): Promise<Result<null>> {
   try {
     const adminUser = await getCurrentUser();
@@ -195,6 +239,121 @@ export async function hasUsers(): Promise<boolean> {
     return users.length > 0;
   } catch (error) {
     return false;
+  }
+}
+
+export async function updateProfile(formData: FormData): Promise<Result<null>> {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const newUsername = formData.get("newUsername") as string;
+    const currentPassword = formData.get("currentPassword") as string;
+    const newPassword = formData.get("newPassword") as string;
+    const updates: UserUpdatePayload = {};
+
+    if (!newUsername || newUsername.length < 3) {
+      return {
+        success: false,
+        error: "Username must be at least 3 characters long",
+      };
+    }
+    if (newUsername !== currentUser.username) {
+      updates.username = newUsername;
+    }
+
+    if (newPassword) {
+      if (newPassword.length < 6) {
+        return {
+          success: false,
+          error: "New password must be at least 6 characters long",
+        };
+      }
+      if (!currentPassword) {
+        return {
+          success: false,
+          error: "Current password is required to change password",
+        };
+      }
+
+      const users = await readJsonFile(USERS_FILE);
+      const userRecord = users.find(
+        (u: User) => u.username === currentUser.username
+      );
+      const currentPasswordHash = createHash("sha256")
+        .update(currentPassword)
+        .digest("hex");
+
+      if (userRecord?.passwordHash !== currentPasswordHash) {
+        return { success: false, error: "Current password is incorrect" };
+      }
+
+      updates.passwordHash = createHash("sha256")
+        .update(newPassword)
+        .digest("hex");
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return { success: true, data: null };
+    }
+
+    const result = await _updateUserCore(currentUser.username, updates);
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+
+    return { success: true, data: null };
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return { success: false, error: "Failed to update profile" };
+  }
+}
+
+export async function updateUser(
+  formData: FormData
+): Promise<Result<Omit<User, "passwordHash">>> {
+  try {
+    const adminUser = await getCurrentUser();
+    if (!adminUser?.isAdmin) {
+      return { success: false, error: "Unauthorized: Admin access required" };
+    }
+
+    const targetUsername = formData.get("username") as string;
+    const newUsername = formData.get("newUsername") as string;
+    const password = formData.get("password") as string;
+    const isAdmin = formData.get("isAdmin") === "true";
+    const updates: UserUpdatePayload = {};
+
+    if (!targetUsername || !newUsername || newUsername.length < 3) {
+      return {
+        success: false,
+        error: "Valid current and new username are required",
+      };
+    }
+
+    if (newUsername !== targetUsername) {
+      updates.username = newUsername;
+    }
+    updates.isAdmin = isAdmin;
+
+    if (password) {
+      if (password.length < 6) {
+        return {
+          success: false,
+          error: "Password must be at least 6 characters long",
+        };
+      }
+      updates.passwordHash = createHash("sha256")
+        .update(password)
+        .digest("hex");
+    }
+
+    return await _updateUserCore(targetUsername, updates);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return { success: false, error: "Failed to update user" };
   }
 }
 

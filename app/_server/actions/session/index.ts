@@ -1,10 +1,11 @@
 "use server";
 
 import fs from "fs/promises";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Result } from "@/app/_types";
 import { readJsonFile, writeJsonFile } from "../file";
 import { SESSION_DATA_FILE, SESSIONS_FILE } from "@/app/_consts/files";
+import { getCurrentUser } from "../users";
 
 export interface SessionData {
   id: string;
@@ -56,23 +57,29 @@ export async function createSession(
     lastActivity: new Date().toISOString(),
   };
 
-  const sessions = await readSessionData();
-  sessions[sessionId] = sessionData;
-  await writeSessionData(sessions);
+  const sessionsData = await readSessionData();
+  const sessions = await readSessions();
+  sessionsData[sessionId] = sessionData;
+  sessions[sessionId] = username;
+  await writeSessions(sessions);
+  await writeSessionData(sessionsData);
 }
 
 export async function updateSessionActivity(sessionId: string): Promise<void> {
-  const sessions = await readSessionData();
-  if (sessions[sessionId]) {
-    sessions[sessionId].lastActivity = new Date().toISOString();
-    await writeSessionData(sessions);
+  const sessionsData = await readSessionData();
+  if (sessionsData[sessionId]) {
+    sessionsData[sessionId].lastActivity = new Date().toISOString();
+    await writeSessionData(sessionsData);
   }
 }
 
 export async function removeSession(sessionId: string): Promise<void> {
-  const sessions = await readSessionData();
+  const sessionsData = await readSessionData();
+  const sessions = await readSessions();
+  delete sessionsData[sessionId];
   delete sessions[sessionId];
-  await writeSessionData(sessions);
+  await writeSessionData(sessionsData);
+  await writeSessions(sessions);
 }
 
 export async function getSessionsForUser(
@@ -84,24 +91,31 @@ export async function getSessionsForUser(
   );
 }
 
+export const getSessionId = async (): Promise<string> => {
+  return cookies().get("session")?.value || "";
+};
+
 export async function removeAllSessionsForUser(
   username: string,
   exceptSessionId?: string
 ): Promise<void> {
-  const sessions = await readSessionData();
-  const sessionsToRemove = Object.entries(sessions)
+  const sessionsData = await readSessionData();
+  const sessions = await readSessions();
+  const sessionsToRemove = Object.entries(sessionsData)
     .filter(
-      ([id, session]) =>
-        session.username === username &&
+      ([id, sessionData]) =>
+        sessionData.username === username &&
         (!exceptSessionId || id !== exceptSessionId)
     )
     .map(([id]) => id);
 
   for (const sessionId of sessionsToRemove) {
+    delete sessionsData[sessionId];
     delete sessions[sessionId];
   }
 
-  await writeSessionData(sessions);
+  await writeSessionData(sessionsData);
+  await writeSessions(sessions);
 }
 
 export async function clearAllSessions(): Promise<Result<null>> {
@@ -115,6 +129,71 @@ export async function clearAllSessions(): Promise<Result<null>> {
     return {
       success: false,
       error: "Failed to clear all sessions",
+    };
+  }
+}
+
+export async function terminateSession(
+  formData: FormData
+): Promise<Result<null>> {
+  try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return {
+        success: false,
+        error: "Not authenticated",
+      };
+    }
+
+    const sessionId = formData.get("sessionId") as string;
+
+    if (!sessionId) {
+      return {
+        success: false,
+        error: "Session ID is required",
+      };
+    }
+
+    await removeSession(sessionId);
+
+    return {
+      success: true,
+      data: null,
+    };
+  } catch (error) {
+    console.error("Error terminating session:", error);
+    return {
+      success: false,
+      error: "Failed to terminate session",
+    };
+  }
+}
+
+export async function terminateAllOtherSessions(): Promise<Result<null>> {
+  try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return {
+        success: false,
+        error: "Not authenticated",
+      };
+    }
+
+    const sessionId = cookies().get("session")?.value;
+
+    await removeAllSessionsForUser(currentUser.username, sessionId);
+
+    return {
+      success: true,
+      data: null,
+    };
+  } catch (error) {
+    console.error("Error terminating all other sessions:", error);
+    return {
+      success: false,
+      error: "Failed to terminate sessions",
     };
   }
 }

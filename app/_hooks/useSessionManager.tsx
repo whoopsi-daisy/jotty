@@ -1,10 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { Session } from "@/app/_types";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import {
-  getSessionsAction,
-  terminateSessionAction,
-  terminateAllOtherSessionsAction,
-} from "@/app/_server/actions/users/session-management";
+  getSessionsForUser,
+  SessionData,
+  getSessionId,
+  terminateSession,
+  terminateAllOtherSessions,
+} from "@/app/_server/actions/session";
 
 export const useSessionManager = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -21,9 +24,19 @@ export const useSessionManager = () => {
   const loadSessions = useCallback(async () => {
     setStatus({ isLoading: true, error: null, success: null });
     try {
-      const result = await getSessionsAction();
-      if (result.success && result.data) setSessions(result.data);
-      else throw new Error(result.error || "Failed to load sessions");
+      const currentUser = await getCurrentUser();
+      const sessionId = await getSessionId();
+      if (!currentUser) throw new Error("Not authenticated");
+      const result = await getSessionsForUser(currentUser.username);
+      const updatedSessions = result?.map((session: SessionData) => {
+        return {
+          ...session,
+          isCurrent: session.id === sessionId,
+        };
+      });
+
+      if (result) setSessions(updatedSessions);
+      else throw new Error("Failed to load sessions");
     } catch (err) {
       setStatus((prev) => ({
         ...prev,
@@ -45,7 +58,7 @@ export const useSessionManager = () => {
     try {
       const formData = new FormData();
       formData.append("sessionId", sessionId);
-      const result = await terminateSessionAction(formData);
+      const result = await terminateSession(formData);
       if (result.success) {
         setSessions((prev) => prev.filter((s) => s.id !== sessionId));
         setStatus((prev) => ({ ...prev, success: "Session terminated!" }));
@@ -71,7 +84,7 @@ export const useSessionManager = () => {
       return;
     setTerminating({ id: null, all: true });
     try {
-      const result = await terminateAllOtherSessionsAction();
+      const result = await terminateAllOtherSessions();
       if (result.success) {
         setSessions((prev) => prev.filter((s) => s.isCurrent));
         setStatus((prev) => ({

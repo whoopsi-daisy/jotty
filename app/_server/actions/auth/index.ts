@@ -15,6 +15,7 @@ import {
 import { readJsonFile, writeJsonFile } from "../file";
 import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 import fs from "fs/promises";
+import { USERS_FILE } from "@/app/_consts/files";
 
 interface User {
   username: string;
@@ -24,8 +25,6 @@ interface User {
   createdAt?: string;
   lastLogin?: string;
 }
-
-const USERS_FILE = path.join(process.cwd(), "data", "users", "users.json");
 
 const hashPassword = (password: string): string => {
   return createHash("sha256").update(password).digest("hex");

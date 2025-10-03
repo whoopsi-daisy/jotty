@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { User as UserType } from "@/app/_types";
-import { updateUserAction } from "@/app/_server/actions/users/update-user";
-import { createUser, deleteUser } from "@/app/_server/actions/users";
+import {
+  createUser,
+  deleteUser,
+  updateUser,
+} from "@/app/_server/actions/users";
 import { useToast } from "@/app/_providers/ToastProvider";
 
 interface UserManagementModalProps {
@@ -83,7 +86,7 @@ export const useUserManagementModal = ({
           formData.append("confirmPassword", confirmPassword);
         }
         formData.append("isAdmin", String(isAdmin));
-        result = await updateUserAction(formData);
+        result = await updateUser(formData);
       }
 
       if (result.success) {
