@@ -173,10 +173,11 @@ export const getCurrentUser = async (): Promise<User | null> => {
   const users = await readJsonFile(USERS_FILE);
 
   const sessionId = cookies().get("session")?.value;
-  if (!sessionId) return null;
-
   const sessions = await readSessions();
-  const username = sessions[sessionId];
+  const username = sessions[sessionId || ""];
+
+  if (!username) return null;
+
   return users.find((u: User) => u.username === username) || null;
 };
 

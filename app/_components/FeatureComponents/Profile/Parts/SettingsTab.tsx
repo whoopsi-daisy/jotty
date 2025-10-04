@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Key, Copy, Eye, EyeOff } from "lucide-react";
 import {
-  generateApiKeyAction,
-  getApiKeyAction,
+  generateApiKey,
+  getApiKey,
 } from "@/app/_server/actions/api";
 
 interface SettingsTabProps {
@@ -23,7 +23,7 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
 
   const loadApiKey = async () => {
     try {
-      const result = await getApiKeyAction();
+      const result = await getApiKey();
       if (result.success) {
         setApiKey(result.data || null);
       }
@@ -35,7 +35,7 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
   const handleGenerateApiKey = async () => {
     setIsGenerating(true);
     try {
-      const result = await generateApiKeyAction();
+      const result = await generateApiKey();
       if (result.success && result.data) {
         setApiKey(result.data);
         setShowApiKey(true);
@@ -119,8 +119,8 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
                 {isGenerating
                   ? "Generating..."
                   : apiKey
-                  ? "Regenerate"
-                  : "Generate"}
+                    ? "Regenerate"
+                    : "Generate"}
               </Button>
             </div>
           </div>

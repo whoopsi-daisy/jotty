@@ -3,7 +3,7 @@ import { FC, useState } from "react";
 import { Label } from "@/app/_components/GlobalComponents/FormElements/label";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { X, Image as ImageIcon, Loader2 } from "lucide-react";
-import { uploadAppIconAction } from "@/app/_server/actions/config";
+import { uploadAppIcon } from "@/app/_server/actions/config";
 
 interface AppSettings {
   appName: string;
@@ -57,7 +57,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
     formData.append("iconType", iconType);
 
     try {
-      const result = await uploadAppIconAction(formData);
+      const result = await uploadAppIcon(formData);
       if (result.success && result.data) {
         onUpload(iconType, result.data.url);
         showToast({
@@ -92,11 +92,10 @@ export const ImageUpload: FC<ImageUploadProps> = ({
       <Label className="text-sm font-medium">{label}</Label>
       <p className="text-xs text-muted-foreground">{description}</p>
       <div
-        className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${
-          dragOver
+        className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${dragOver
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-muted-foreground/50"
-        }`}
+          }`}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);

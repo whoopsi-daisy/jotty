@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import { Checklist } from "@/app/_types";
-import { createItem, updateItemStatus, createBulkItems } from "@/app/_server/actions/checklist-item";
+import { createItem, updateItemStatus, createBulkItems, reorderItems } from "@/app/_server/actions/checklist-item";
 import { getLists } from "@/app/_server/actions/checklist";
 import { TaskStatus } from "@/app/_types/enums";
 
@@ -57,12 +58,15 @@ export const useKanbanBoard = ({
     const activeId = active.id as string;
     const overId = over.id as string;
 
+    if (activeId === overId) return;
+
     const activeItem = localChecklist.items.find(
       (item) => item.id === activeId
     );
     if (!activeItem) return;
 
     let newStatus: TaskStatus;
+    let isReordering = false;
 
     if (
       overId === TaskStatus.TODO ||
@@ -75,20 +79,60 @@ export const useKanbanBoard = ({
       const overItem = localChecklist.items.find((item) => item.id === overId);
       if (!overItem) return;
       newStatus = overItem.status || TaskStatus.TODO;
+
+      if (activeItem.status === newStatus) {
+        isReordering = true;
+      }
     }
 
-    if (activeItem.status === newStatus) return;
+    if (isReordering) {
+      const itemsWithStatus = localChecklist.items.filter(
+        (item) => item.status === newStatus
+      );
+      const oldIndex = itemsWithStatus.findIndex((item) => item.id === activeId);
+      const newIndex = itemsWithStatus.findIndex((item) => item.id === overId);
 
-    const formData = new FormData();
-    formData.append("listId", localChecklist.id);
-    formData.append("itemId", activeId);
-    formData.append("status", newStatus);
+      if (oldIndex === -1 || newIndex === -1) return;
 
-    const result = await updateItemStatus(formData);
+      const reorderedItems = arrayMove(itemsWithStatus, oldIndex, newIndex);
 
-    if (result.success && result.data) {
-      setLocalChecklist(result.data as Checklist);
-      onUpdate(result.data as Checklist);
+      const otherItems = localChecklist.items.filter(
+        (item) => item.status !== newStatus
+      );
+
+      const allItems = [...otherItems, ...reorderedItems];
+
+      const optimisticChecklist = {
+        ...localChecklist,
+        items: allItems,
+        updatedAt: new Date().toISOString(),
+      };
+      setLocalChecklist(optimisticChecklist);
+
+      const formData = new FormData();
+      formData.append("listId", localChecklist.id);
+      formData.append("itemIds", JSON.stringify(allItems.map(item => item.id)));
+      formData.append("currentItems", JSON.stringify(allItems));
+
+      const result = await reorderItems(formData);
+
+      if (result.success) {
+        await refreshChecklist();
+      }
+    } else {
+      if (activeItem.status === newStatus) return;
+
+      const formData = new FormData();
+      formData.append("listId", localChecklist.id);
+      formData.append("itemId", activeId);
+      formData.append("status", newStatus);
+
+      const result = await updateItemStatus(formData);
+
+      if (result.success && result.data) {
+        setLocalChecklist(result.data as Checklist);
+        onUpdate(result.data as Checklist);
+      }
     }
   };
 

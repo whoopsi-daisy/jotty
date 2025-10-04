@@ -8,7 +8,6 @@ interface Heading {
   id: string;
   text: string;
   level: number;
-  element?: HTMLElement;
 }
 
 interface TableOfContentsProps {
@@ -16,140 +15,92 @@ interface TableOfContentsProps {
   className?: string;
 }
 
-export const TableOfContents = ({
-  content,
-  className,
-}: TableOfContentsProps) => {
+const useTableOfContents = (content: string) => {
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
-  const [headings, setHeadings] = useState<Heading[]>([]);
 
-  const extractHeadings = useMemo(() => {
+  const headings = useMemo(() => {
     if (!content?.trim()) return [];
-
     const headingRegex = /^(#{1,6})\s+(.+)$/gm;
     const extractedHeadings: Heading[] = [];
     let match;
-
     while ((match = headingRegex.exec(content)) !== null) {
       const level = match[1].length;
       const text = match[2].trim();
-      const id = text
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
-
-      extractedHeadings.push({
-        id,
-        text,
-        level,
-      });
+      const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
+      extractedHeadings.push({ id, text, level });
     }
-
     return extractedHeadings;
   }, [content]);
-
-  useEffect(() => {
-    setHeadings(extractHeadings);
-  }, [extractHeadings]);
 
   useEffect(() => {
     if (headings.length === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const visibleHeadings = entries
-          .filter((entry) => entry.isIntersecting)
-          .map((entry) => entry.target.id);
-
-        if (visibleHeadings.length > 0) {
-          setActiveHeading(visibleHeadings[0]);
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveHeading(entry.target.id);
+            return;
+          }
         }
       },
-      {
-        rootMargin: "-10% 0% -70% 0%",
-        threshold: 0.1,
-      }
+      { rootMargin: "-85px 0px -70% 0px" }
     );
 
-    const timeoutId = setTimeout(() => {
-      headings.forEach((heading) => {
-        const element = document.getElementById(heading.id);
-        if (element) {
-          observer.observe(element);
-        }
-      });
-    }, 100);
+    const elements = headings.map(h => document.getElementById(h.id)).filter(Boolean);
+    elements.forEach(el => observer.observe(el!));
 
-    return () => {
-      clearTimeout(timeoutId);
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, [headings]);
 
-  const scrollToHeading = (headingId: string) => {
-    const element = document.getElementById(headingId);
+  return { headings, activeHeading, setActiveHeading };
+};
+
+export const TableOfContents = ({ content, className }: TableOfContentsProps) => {
+  const { headings, activeHeading, setActiveHeading } = useTableOfContents(content);
+
+  const scrollToHeading = (id: string) => {
+    const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveHeading(id);
     }
   };
 
-  if (headings.length === 0) {
+  const renderContent = () => {
+    if (headings.length === 0) {
+      return <p className="text-sm text-muted-foreground">No headings found</p>;
+    }
     return (
-      <div
-        className={cn(
-          "hidden lg:flex w-64 bg-background border-l border-border flex-col",
-          className
-        )}
-      >
-        <div className="p-3 border-b border-border">
-          <h3 className="text-sm font-medium text-foreground">Contents</h3>
-        </div>
-        <div className="flex-1 p-3">
-          <p className="text-sm text-muted-foreground">No headings found</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        "hidden lg:flex w-64 bg-background border-l border-border flex-col",
-        className
-      )}
-    >
-      <div className="p-3 border-b border-border">
-        <h3 className="text-sm font-medium text-foreground">Contents</h3>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto p-3">
+      <nav className="flex-1 overflow-y-auto">
         {headings.map((heading) => (
           <button
             key={heading.id}
-            onClick={() => {
-              scrollToHeading(heading.id);
-              setActiveHeading(heading.id);
-            }}
+            onClick={() => scrollToHeading(heading.id)}
             className={cn(
-              "block w-full text-left text-sm py-1 hover:text-foreground",
-              "focus:outline-none",
-              activeHeading === heading.id
-                ? "text-primary font-medium"
-                : "text-muted-foreground"
+              "block w-full text-left text-sm py-1 hover:text-foreground transition-colors focus:outline-none",
+              activeHeading === heading.id ? "text-primary font-medium" : "text-muted-foreground"
             )}
-            style={{
-              paddingLeft: `${(heading.level - 1) * 16}px`,
-            }}
+            style={{ paddingLeft: `${(heading.level - 1) * 16}px` }}
           >
             {heading.text}
           </button>
         ))}
       </nav>
-    </div>
+    );
+  };
+
+  return (
+    <aside className={cn("hidden lg:flex w-64 bg-background border-l border-border flex-col sticky h-[92vh] top-0", className)}>
+      <div className="p-3 border-b border-border">
+        <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+          <List className="h-4 w-4" />
+          Contents
+        </h3>
+      </div>
+      <div className="p-3 flex-1 overflow-hidden flex flex-col">
+        {renderContent()}
+      </div>
+    </aside>
   );
 };

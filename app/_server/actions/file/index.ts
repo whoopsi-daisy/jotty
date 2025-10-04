@@ -1,7 +1,7 @@
 "use server";
 
 import { getCurrentUser } from "@/app/_server/actions/users";
-import { DATA_DIR } from "@/app/_consts/files";
+import { DATA_DIR, SESSION_DATA_FILE, SESSIONS_FILE, SHARED_ITEMS_FILE, SHARING_DIR, USERS_DIR, USERS_FILE } from "@/app/_consts/files";
 import fs from "fs/promises";
 import path from "path";
 import { Modes } from "@/app/_types/enums";
@@ -11,11 +11,47 @@ export interface OrderData {
   items?: string[];
 }
 
+export const ensureCorDirsAndFiles = async (): Promise<{ success: boolean, error?: string }> => {
+  const coreDirAndFiles = {
+    dirs: [
+      USERS_DIR,
+      SHARING_DIR,
+    ],
+    files: [
+      USERS_FILE,
+      SESSIONS_FILE,
+      SESSION_DATA_FILE,
+      SHARED_ITEMS_FILE,
+    ],
+  }
+
+  try {
+    for (const dir of coreDirAndFiles.dirs) {
+      await ensureDir(path.join(process.cwd(), dir));
+    }
+    for (const file of coreDirAndFiles.files) {
+      await ensureFile(path.join(process.cwd(), file));
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error ensuring core dirs and files:", error);
+    return { success: false, error: "Failed to ensure core dirs and files" };
+  }
+};
+
 export const ensureDir = async (dir: string) => {
   try {
     await fs.access(dir);
   } catch {
     await fs.mkdir(dir, { recursive: true });
+  }
+};
+
+export const ensureFile = async (filePath: string) => {
+  try {
+    await fs.access(filePath);
+  } catch {
+    await fs.writeFile(filePath, "", "utf-8");
   }
 };
 
@@ -25,10 +61,9 @@ export const readJsonFile = async (filePath: string): Promise<any> => {
       path.join(process.cwd(), filePath),
       "utf-8"
     );
-    return JSON.parse(content);
+    return JSON.parse(content) || {};
   } catch (error) {
-    console.error("Error reading JSON file:", error);
-    return {};
+    return null;
   }
 };
 
@@ -55,7 +90,7 @@ export const readFile = async (filePath: string): Promise<string> => {
       path.join(process.cwd(), filePath),
       "utf-8"
     );
-    return content;
+    return content || "";
   } catch (error) {
     return "";
   }
@@ -78,7 +113,7 @@ export const serverReadFile = async (
   customReturn?: any
 ): Promise<string> => {
   try {
-    return await fs.readFile(filePath, "utf-8");
+    return await fs.readFile(filePath, "utf-8") || "";
   } catch (error) {
     return customReturn || "";
   }

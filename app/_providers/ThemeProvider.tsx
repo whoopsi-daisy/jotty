@@ -7,7 +7,8 @@ import { BUILT_IN_THEMES, getCustomThemeColors } from "@/app/_consts/themes";
 const themeIDs = BUILT_IN_THEMES.map((theme) => theme.id);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { theme } = useSettings();
+  const { theme, getResolvedTheme } = useSettings();
+  const [resolvedTheme, setResolvedTheme] = useState<string>('light');
   const [customThemeColors, setCustomThemeColors] = useState<{
     [key: string]: any;
   }>({});
@@ -26,11 +27,28 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    const updateResolvedTheme = () => {
+      const resolved = getResolvedTheme();
+      setResolvedTheme(resolved);
+    };
+
+    updateResolvedTheme();
+
+    if (theme === 'system' && typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => updateResolvedTheme();
+
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, [theme, getResolvedTheme]);
+
+  useEffect(() => {
     const allThemes = [...themeIDs, ...Object.keys(customThemeColors)];
     document.documentElement.classList.remove(...allThemes);
-    document.documentElement.classList.add(theme);
+    document.documentElement.classList.add(resolvedTheme);
 
-    if (customThemeColors[theme]) {
+    if (customThemeColors[resolvedTheme]) {
       const styleId = "custom-theme-styles";
       let styleElement = document.getElementById(styleId) as HTMLStyleElement;
 
@@ -40,19 +58,19 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         document.head.appendChild(styleElement);
       }
 
-      const cssVariables = Object.entries(customThemeColors[theme])
+      const cssVariables = Object.entries(customThemeColors[resolvedTheme])
         .map(([key, value]) => `${key}: ${value};`)
         .join("\n        ");
 
       const cssContent = `
-        .${theme} {
+        .${resolvedTheme} {
           ${cssVariables}
         }
       `;
 
       styleElement.textContent = cssContent;
     }
-  }, [theme, customThemeColors]);
+  }, [resolvedTheme, customThemeColors]);
 
   return <>{children}</>;
 };

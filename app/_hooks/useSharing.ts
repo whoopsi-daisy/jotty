@@ -92,7 +92,7 @@ export const useSharing = ({
   const resetMessages = () =>
     setStatus((prev) => ({ ...prev, error: null, success: null }));
 
-  const _executeShareAction = useCallback(
+  const _executeShare = useCallback(
     async (action: string, targetUsers?: string) => {
       setStatus({ isLoading: true, error: null, success: null });
       try {
@@ -167,7 +167,7 @@ export const useSharing = ({
   };
 
   const handleShare = async () => {
-    const result = await _executeShareAction("share", selectedUsers.join(","));
+    const result = await _executeShare("share", selectedUsers.join(","));
     if (result?.success) {
       setCurrentSharing(selectedUsers);
       setStatus((prev) => ({
@@ -180,15 +180,14 @@ export const useSharing = ({
 
   const handlePublicToggle = async () => {
     const action = isPubliclyShared ? "unshare-public" : "share-public";
-    const result = await _executeShareAction(action);
+    const result = await _executeShare(action);
     if (result?.success) {
       const newPublicState = !isPubliclyShared;
       setIsPubliclyShared(newPublicState);
       setStatus((prev) => ({
         ...prev,
-        success: `Item is now ${
-          newPublicState ? "publicly" : "no longer"
-        } accessible!`,
+        success: `Item is now ${newPublicState ? "publicly" : "no longer"
+          } accessible!`,
       }));
       if (newPublicState) {
         const publicPath =
@@ -201,7 +200,7 @@ export const useSharing = ({
   };
 
   const handleRemoveAllSharing = async () => {
-    const result = await _executeShareAction("unshare");
+    const result = await _executeShare("unshare");
     if (result?.success) {
       setCurrentSharing([]);
       setSelectedUsers([]);

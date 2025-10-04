@@ -9,6 +9,10 @@ import { NavigationGuardProvider } from "@/app/_providers/NavigationGuardProvide
 import { InstallPrompt } from "@/app/_components/GlobalComponents/Pwa/InstallPrompt";
 import { getSettings } from "@/app/_server/actions/config";
 import { DynamicFavicon } from "@/app/_components/GlobalComponents/Layout/Logo/DynamicFavicon";
+import { getCurrentUser } from "./_server/actions/users";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { redirectGuards } from "./_server/actions/guards";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -72,6 +76,8 @@ export default async function RootLayout({
 }) {
   const settings = await getSettings();
   const appName = settings.appName || "rwMarkable";
+
+  redirectGuards();
 
   return (
     <html lang="en" suppressHydrationWarning>

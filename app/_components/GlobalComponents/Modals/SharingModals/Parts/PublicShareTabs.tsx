@@ -20,7 +20,34 @@ export const PublicShareTab = ({
   itemType,
   itemTitle,
 }: PublicShareTabProps) => {
-  const handleCopyUrl = () => navigator.clipboard.writeText(publicUrl);
+  const handleCopyUrl = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(publicUrl);
+      } else {
+        // Fallback for older browsers or environments without Clipboard API
+        const textArea = document.createElement("textarea");
+        textArea.value = publicUrl;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+
+        if (!successful) {
+          throw new Error("Fallback copy failed");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to copy URL:", error);
+      // Could add toast notification here if desired
+      alert("Failed to copy URL to clipboard");
+    }
+  };
   const socialButtons = [
     {
       name: "X (Twitter)",
@@ -108,7 +135,7 @@ export const PublicShareTab = ({
               readOnly
               className="flex-1 px-3 py-2 bg-background border rounded-md text-sm font-mono"
             />
-            <Button onClick={handleCopyUrl} size="sm" variant="outline">
+            <Button onClick={handleCopyUrl} size="sm" variant="outline" title="Copy URL">
               <Copy className="h-4 w-4" />
             </Button>
           </div>

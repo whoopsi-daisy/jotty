@@ -23,7 +23,8 @@ export interface Session {
 export const readSessionData = async (): Promise<
   Record<string, SessionData>
 > => {
-  return await readJsonFile(SESSION_DATA_FILE);
+  const data = await readJsonFile(SESSION_DATA_FILE);
+  return data || {};
 };
 
 export const writeSessionData = async (
@@ -37,7 +38,8 @@ export const writeSessions = async (sessions: Session): Promise<void> => {
 };
 
 export const readSessions = async (): Promise<Session> => {
-  return await readJsonFile(SESSIONS_FILE);
+  const data = await readJsonFile(SESSIONS_FILE);
+  return data || {};
 };
 
 export const createSession = async (

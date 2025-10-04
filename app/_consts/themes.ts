@@ -14,6 +14,7 @@ import {
   Flame,
   Palmtree,
   Building,
+  Laptop,
 } from "lucide-react";
 import {
   loadCustomThemes,
@@ -36,9 +37,11 @@ const ICON_MAP = {
   Flame,
   Palmtree,
   Building,
+  Laptop,
 };
 
 export const BUILT_IN_THEMES = [
+  { id: "system" as const, name: "System", icon: Laptop },
   { id: "light" as const, name: "Light", icon: Sun },
   { id: "dark" as const, name: "Dark", icon: Moon },
   { id: "sunset" as const, name: "Sunset", icon: Sunset },

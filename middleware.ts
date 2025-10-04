@@ -11,9 +11,6 @@ export const middleware = async (request: NextRequest) => {
   }
 
   if (request.nextUrl.pathname.startsWith("/auth")) {
-    if (sessionId) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
     return response;
   }
 

@@ -16,7 +16,7 @@ export const NoteEditorContent = ({
   onEditorContentChange,
   category,
 }: NoteEditorContentProps) => (
-  <div className="flex-1 overflow-auto">
+  <div className="flex-1">
     {isEditing ? (
       <TiptapEditor
         content={editorContent}

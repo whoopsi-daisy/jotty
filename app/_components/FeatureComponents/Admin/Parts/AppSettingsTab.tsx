@@ -5,8 +5,8 @@ import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/app/_providers/ToastProvider";
 import {
-  getAppSettingsAction,
-  updateAppSettingsAction,
+  getAppSettings,
+  updateAppSettings,
 } from "@/app/_server/actions/config";
 import { useFaviconUpdate } from "@/app/_hooks/useFaviconUpdate";
 import { ImageUpload } from "@/app/_components/GlobalComponents/FormElements/ImageUpload";
@@ -24,7 +24,7 @@ export const AppSettingsTab = () => {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const result = await getAppSettingsAction();
+        const result = await getAppSettings();
         if (result.success && result.data) {
           setSettings(result.data);
         } else {
@@ -58,7 +58,7 @@ export const AppSettingsTab = () => {
         formData.append(key, value)
       );
 
-      const result = await updateAppSettingsAction(formData);
+      const result = await updateAppSettings(formData);
       if (result.success) {
         showToast({
           type: "success",

@@ -3,8 +3,9 @@ import { getCategories } from "@/app/_server/actions/category";
 import { getNotes, CheckForNeedsMigration } from "@/app/_server/actions/note";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
-import { isAdmin, getUsername } from "@/app/_server/actions/users";
+import { isAdmin, getUsername, getCurrentUser } from "@/app/_server/actions/users";
 import { Modes } from "@/app/_types/enums";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +40,8 @@ export default async function HomePage() {
       "type" in item && item.type === "task"
         ? ("checklist" as const)
         : "type" in item
-        ? ("checklist" as const)
-        : ("note" as const),
+          ? ("checklist" as const)
+          : ("note" as const),
     owner: item.owner || "",
   }));
 

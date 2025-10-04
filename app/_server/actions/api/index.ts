@@ -5,7 +5,7 @@ import { readJsonFile, writeJsonFile } from "../file";
 import { getCurrentUser } from "@/app/_server/actions/users";
 import { Result, User } from "@/app/_types";
 
-export const generateApiKeyAction = async (): Promise<Result<string>> => {
+export const generateApiKey = async (): Promise<Result<string>> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -38,7 +38,7 @@ export const generateApiKeyAction = async (): Promise<Result<string>> => {
   }
 };
 
-export const getApiKeyAction = async (): Promise<Result<string | null>> => {
+export const getApiKey = async (): Promise<Result<string | null>> => {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {

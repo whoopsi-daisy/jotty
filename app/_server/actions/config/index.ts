@@ -150,7 +150,7 @@ export const getSettings = async () => {
   }
 };
 
-export const getAppSettingsAction = async (): Promise<Result<AppSettings>> => {
+export const getAppSettings = async (): Promise<Result<AppSettings>> => {
   try {
     const admin = await isAdmin();
     if (!admin) {
@@ -186,7 +186,7 @@ export const getAppSettingsAction = async (): Promise<Result<AppSettings>> => {
   }
 };
 
-export const updateAppSettingsAction = async (
+export const updateAppSettings = async (
   formData: FormData
 ): Promise<Result<null>> => {
   try {
@@ -228,7 +228,7 @@ export const updateAppSettingsAction = async (
   }
 };
 
-export const uploadAppIconAction = async (
+export const uploadAppIcon = async (
   formData: FormData
 ): Promise<Result<{ url: string; filename: string }>> => {
   try {

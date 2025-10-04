@@ -12,10 +12,10 @@ import {
   writeSessionData,
   writeSessions,
 } from "../session";
-import { readJsonFile, writeJsonFile } from "../file";
+import { ensureCorDirsAndFiles, ensureDir, readJsonFile, writeJsonFile } from "../file";
 import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 import fs from "fs/promises";
-import { USERS_FILE } from "@/app/_consts/files";
+import { CHECKLISTS_DIR, NOTES_DIR, USERS_FILE } from "@/app/_consts/files";
 
 interface User {
   username: string;
@@ -43,12 +43,16 @@ export const register = async (formData: FormData) => {
     return { error: "Passwords do not match" };
   }
 
-  const users = await readJsonFile(USERS_FILE);
+  const users = await readJsonFile(USERS_FILE) || [];
 
   const isFirstUser = users.length === 0;
 
-  if (users.some((u: User) => u.username === username)) {
-    return { error: "Username already exists" };
+  if (users.length > 0) {
+    if (users.some((u: User) => u.username === username)) {
+      return { error: "Username already exists" };
+    }
+  } else {
+    await ensureCorDirsAndFiles();
   }
 
   const newUser: User = {
@@ -64,8 +68,16 @@ export const register = async (formData: FormData) => {
   const sessionId = createHash("sha256")
     .update(Math.random().toString())
     .digest("hex");
-  const sessions = await readSessions();
-  sessions[sessionId] = username;
+
+  let sessions = await readSessions();
+
+  if (isFirstUser) {
+    sessions = {
+      [sessionId]: username,
+    };
+  } else {
+    sessions[sessionId] = username;
+  }
 
   await writeSessions(sessions);
 
@@ -85,6 +97,9 @@ export const register = async (formData: FormData) => {
     username
   );
   await fs.mkdir(userChecklistDir, { recursive: true });
+
+  await ensureDir(CHECKLISTS_DIR(username));
+  await ensureDir(NOTES_DIR(username));
 
   redirect("/");
 };
@@ -137,12 +152,17 @@ export const logout = async () => {
 
   if (sessionId) {
     const sessions = await readSessionData();
-    delete sessions[sessionId];
-    await writeSessionData(sessions);
 
-    await removeSession(sessionId);
+    try {
+      delete sessions[sessionId];
 
-    cookies().delete("session");
+      await writeSessionData(sessions);
+      await removeSession(sessionId);
+
+      cookies().delete("session");
+    } catch (error) {
+      cookies().delete("session");
+    }
   }
 
   if (process.env.SSO_MODE === "oidc") {

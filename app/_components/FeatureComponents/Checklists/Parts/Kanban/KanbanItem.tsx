@@ -8,7 +8,6 @@ import {
   Clock,
   Target,
   Play,
-  GripVertical,
   Timer,
   Pause,
   Square,
@@ -41,20 +40,15 @@ function TimeEntriesAccordion({
 }: TimeEntriesAccordionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-
   return (
     <div className="border border-border/30 rounded-md bg-muted/20">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className="w-full flex items-center justify-between py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         <span className="flex items-center gap-1.5">
           <Clock className="h-3 w-3" />
-          <span className="font-medium">{timeEntries.length} sessions</span>
+          <span className="font-medium text-left">{timeEntries.length} sessions</span>
           <span className="text-muted-foreground/60">•</span>
           <span className="font-semibold text-foreground">
             {formatTimerTime(totalTime)}
@@ -68,11 +62,11 @@ function TimeEntriesAccordion({
       </button>
 
       {isOpen && (
-        <div className="border-t border-border/30 p-2 space-y-1.5 max-h-32 overflow-y-auto">
+        <div className="border-t border-border/30 py-2 space-y-1.5 max-h-32 overflow-y-auto">
           {timeEntries.map((entry, index) => (
             <div
               key={entry.id || index}
-              className="bg-background border border-border/20 rounded p-2"
+              className="bg-background/50 border border-border/50 rounded p-2"
             >
               <div className="flex justify-between items-center">
                 <span className="text-xs font-semibold text-foreground">
@@ -161,6 +155,39 @@ export const KanbanItem = ({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    if (isSortableDragging && isRunning && startTime) {
+      const saveTimer = async () => {
+        const endTime = new Date();
+        const newTimeEntry = {
+          id: Date.now().toString(),
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          duration: Math.floor(
+            (endTime.getTime() - startTime.getTime()) / 1000
+          ),
+        };
+
+        const updatedTimeEntries = [...(item.timeEntries || []), newTimeEntry];
+        const formData = new FormData();
+        formData.append("listId", checklistId);
+        formData.append("itemId", item.id);
+        formData.append("timeEntries", JSON.stringify(updatedTimeEntries));
+        await updateItemStatus(formData);
+
+        setTotalTime(
+          (prev) =>
+            prev + Math.floor((endTime.getTime() - startTime.getTime()) / 1000)
+        );
+        setIsRunning(false);
+        setStartTime(null);
+        setCurrentTime(0);
+      };
+
+      saveTimer();
+    }
+  }, [isSortableDragging]);
+
   const handleTimerToggle = async () => {
     if (isRunning) {
       setIsRunning(false);
@@ -222,6 +249,7 @@ export const KanbanItem = ({
   };
 
   const handleSave = async () => {
+    setIsEditing(false);
     if (editText.trim() && editText !== item.text) {
       const formData = new FormData();
       formData.append("listId", checklistId);
@@ -230,7 +258,6 @@ export const KanbanItem = ({
       await updateItem(formData);
       onUpdate?.();
     }
-    setIsEditing(false);
   };
 
   const handleCancel = () => {
@@ -250,8 +277,12 @@ export const KanbanItem = ({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
       handleSave();
     } else if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
       handleCancel();
     }
   };
@@ -330,20 +361,15 @@ export const KanbanItem = ({
     <div
       ref={setNodeRef}
       style={style}
+      {...attributes}
+      {...listeners}
       className={cn(
-        "group relative bg-background border rounded-lg p-3 transition-all duration-200 hover:shadow-md",
+        "group relative bg-background border rounded-lg p-3 transition-all duration-200 hover:shadow-md cursor-grab active:cursor-grabbing",
         getStatusColor(item.status),
         (isDragging || isSortableDragging) &&
         "opacity-50 scale-95 rotate-1 shadow-lg z-50"
       )}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-2 right-2 cursor-move text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity touch-manipulation"
-      >
-        <GripVertical className="h-4 w-4" />
-      </div>
       <div className="space-y-2">
         <div className="flex items-start gap-2">
           {isEditing ? (
@@ -354,12 +380,19 @@ export const KanbanItem = ({
               onChange={(e) => setEditText(e.target.value)}
               onBlur={handleSave}
               onKeyDown={handleKeyDown}
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className="text-sm font-medium text-foreground leading-tight flex-1 bg-transparent border-none outline-none resize-none w-[70%]"
             />
           ) : (
             <p
-              className="text-sm font-medium text-foreground leading-tight flex-1 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 w-[70%]"
-              onDoubleClick={handleEdit}
+              className="text-sm font-medium text-foreground leading-tight flex-1 hover:bg-muted/50 rounded px-1 -mx-1 w-[70%] cursor-text"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit();
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
             >
               {item.text}
             </p>
@@ -387,11 +420,13 @@ export const KanbanItem = ({
         )}
 
         {item.timeEntries && item.timeEntries.length > 0 && (
-          <TimeEntriesAccordion
-            timeEntries={item.timeEntries}
-            totalTime={totalTime + currentTime}
-            formatTimerTime={formatTimerTime}
-          />
+          <div onPointerDown={(e) => e.stopPropagation()}>
+            <TimeEntriesAccordion
+              timeEntries={item.timeEntries}
+              totalTime={totalTime + currentTime}
+              formatTimerTime={formatTimerTime}
+            />
+          </div>
         )}
 
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
@@ -399,7 +434,7 @@ export const KanbanItem = ({
             <div className="text-xs text-muted-foreground">
               {formatTimerTime(totalTime + currentTime)}
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1" onPointerDown={(e) => e.stopPropagation()}>
               <Button
                 variant={isRunning ? "default" : "ghost"}
                 size="sm"
@@ -431,7 +466,7 @@ export const KanbanItem = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>
             {!isEditing && (
               <Button
                 variant="ghost"
@@ -458,7 +493,7 @@ export const KanbanItem = ({
             </Button>
           </div>
         </div>
-        <div className="sm:hidden w-full">
+        <div className="sm:hidden w-full" onPointerDown={(e) => e.stopPropagation()}>
           <Dropdown
             value={item.status || TaskStatus.TODO}
             options={statusOptions}
