@@ -1,14 +1,31 @@
 # rwMarkable
 
 <p align="center">
+  <br />
   <a href="https://www.buymeacoffee.com/fccview">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="130">
   </a>
 </p>
 
 A simple, self-hosted app for your checklists and notes.
 
 Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternative for managing your personal checklists and notes. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
+
+<br />
+
+----
+
+<p align="center">
+  <a href="http://discord.gg/invite/mMuk2WzVZu">
+    <img width="40" src="public/repo-images/discord_icon.webp">
+  </a>
+  <br />
+  <i>Join the discord server for more info</i>
+  <br />
+</p>
+
+----
+<br />
 
 <div align="center">
   <p align="center">
@@ -351,6 +368,9 @@ I would like to thank the following members for raising issues and help test/deb
       <td align="center" valign="top" width="20%">
         <a href="https://github.com/ItsNoted"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/57927413?s=96&v=4&size=100"><br />ItsNoted</a>
       </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/hurleyy"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/12866334?v=4&size=100"><br />hurleyy</a>
+      </td>
     </tr>
     <tr>
       <td align="center" valign="top" width="20%">
@@ -366,6 +386,10 @@ I would like to thank the following members for raising issues and help test/deb
         <a href="https://github.com/Ryderjj89"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/1996734?u=b64c6cdaebfefe6dacfe4213663df60bb22ccf5f&v=4&size=100"><br />Ryderjj89</a>
       </td>
       <td align="center" valign="top" width="20%">
+        <a href="https://github.com/spaghetti-coder"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/4891777?v=4&size=100"><br />spaghetti-coder</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/hurleyy"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/12866334?v=4&size=100"><br />hurleyy</a>
       </td>
     </tr>
   </tbody>
