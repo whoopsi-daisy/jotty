@@ -153,6 +153,47 @@ export const useSidebar = (props: SidebarProps) => {
     const isItemSelected = (item: Checklist | Note) => pathname === `/${mode === Modes.NOTES ? 'note' : 'checklist'}/${item.id}`;
     const getSharingStatus = (itemId: string) => sharingStatuses[itemId] || null;
 
+    const expandCategoryPath = useCallback((categoryPath: string) => {
+        if (!categoryPath) return;
+
+        setCollapsedCategories(prev => {
+            const newCollapsed = { ...prev };
+            const currentModeCollapsed = new Set(newCollapsed[mode]);
+
+            const pathParts = categoryPath.split('/');
+            let currentPath = '';
+            for (const part of pathParts) {
+                if (currentPath === '') {
+                    currentPath = part;
+                } else {
+                    currentPath = `${currentPath}/${part}`;
+                }
+                if (currentModeCollapsed.has(currentPath)) {
+                    currentModeCollapsed.delete(currentPath);
+                }
+            }
+            newCollapsed[mode] = currentModeCollapsed;
+            return newCollapsed;
+        });
+    }, [mode]);
+
+    useEffect(() => {
+        if (!isInitialized) return;
+
+        const itemId = pathname.split('/').pop();
+        let currentItem: Checklist | Note | undefined;
+
+        if (mode === Modes.CHECKLISTS) {
+            currentItem = checklists.find(c => c.id === itemId);
+        } else {
+            currentItem = notes.find(n => n.id === itemId);
+        }
+
+        if (currentItem && currentItem.category) {
+            expandCategoryPath(currentItem.category);
+        }
+    }, [pathname, mode, checklists, notes, isInitialized, expandCategoryPath]);
+
     return {
         isResizing: isResizing.current, startResizing, sidebarWidth,
         mode, isInitialized, handleModeSwitch,

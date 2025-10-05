@@ -68,7 +68,7 @@ export const SharedItemsList = ({
         <button
           onClick={onToggleCollapsed}
           className={cn(
-            "flex items-center gap-2 py-2 text-sm rounded-md transition-colors w-full text-left",
+            "flex items-center gap-2 py-2 pr-2 text-sm rounded-md transition-colors w-full text-left",
             "hover:bg-muted/50 cursor-pointer"
           )}
         >
@@ -97,7 +97,7 @@ export const SharedItemsList = ({
                 <button
                   onClick={() => toggleUserCollapsed(owner)}
                   className={cn(
-                    "flex items-center gap-2 py-2 text-sm rounded-md transition-colors w-full text-left",
+                    "flex items-center gap-2 py-2 pr-2 text-sm rounded-md transition-colors w-full text-left",
                     "hover:bg-muted/50 cursor-pointer"
                   )}
                 >
