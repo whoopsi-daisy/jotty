@@ -42,8 +42,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
         message: "Please select an image.",
       });
     }
-    if (file.size > 5 * 1024 * 1024) {
-      // 5MB
+    if (file.size > 10 * 1024 * 1024) {
       return showToast({
         type: "error",
         title: "File Too Large",
@@ -93,8 +92,8 @@ export const ImageUpload: FC<ImageUploadProps> = ({
       <p className="text-xs text-muted-foreground">{description}</p>
       <div
         className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${dragOver
-            ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-muted-foreground/50"
+          ? "border-primary bg-primary/5"
+          : "border-muted-foreground/25 hover:border-muted-foreground/50"
           }`}
         onDragOver={(e) => {
           e.preventDefault();

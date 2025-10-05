@@ -111,9 +111,8 @@ export const uploadFile = async (formData: FormData) => {
     const buffer = Buffer.from(await file.arrayBuffer());
     await fs.writeFile(filePath, buffer);
 
-    const fileUrl = `/${fileType === "image" ? "api/image" : "api/file"}/${
-      user.username
-    }/${encodeURIComponent(fileName)}`;
+    const fileUrl = `/${fileType === "image" ? "api/image" : "api/file"}/${user.username
+      }/${encodeURIComponent(fileName)}`;
 
     return {
       success: true,
@@ -174,7 +173,7 @@ export const getFiles = async () => {
           });
         }
       } catch {
-        // Directory doesn't exist, which is fine.
+        // Directory doesn't exist
       }
     }
 
@@ -214,7 +213,6 @@ export const deleteFile = async (formData: FormData) => {
     await fs.unlink(filePath);
     return { success: true, data: null };
   } catch (error) {
-    // Check if the error is because the file doesn't exist
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
       return { success: false, error: "File not found" };
     }

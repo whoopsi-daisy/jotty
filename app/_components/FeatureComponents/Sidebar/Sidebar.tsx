@@ -1,11 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/app/_utils/global-utils";
-import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
-import { renameCategory, deleteCategory } from "@/app/_server/actions/category";
 import { DeleteCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/DeleteCategoryModal";
 import { RenameCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/RenameCategoryModal";
 import { EditChecklistModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/EditChecklistModal";
@@ -13,469 +9,58 @@ import { EditNoteModal } from "@/app/_components/GlobalComponents/Modals/NotesMo
 import { DynamicLogo } from "@/app/_components/GlobalComponents/Layout/Logo/DynamicLogo";
 import { AppName } from "@/app/_components/GlobalComponents/Layout/AppName";
 import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
-import { Checklist, Category, Note, AppMode } from "@/app/_types";
-import { useAppMode } from "../../../_providers/AppModeProvider";
+import { Checklist, Note } from "@/app/_types";
 import { SidebarNavigation } from "./Parts/SidebarNavigation";
 import { CategoryList } from "./Parts/CategoryList";
 import { SharedItemsList } from "./Parts/SharedItemsList";
 import { SidebarActions } from "./Parts/SidebarActions";
 import { Modes } from "@/app/_types/enums";
+import { SidebarProps, useSidebar } from "@/app/_hooks/useSidebar";
 
-interface SharingStatus {
-  isShared: boolean;
-  isPubliclyShared: boolean;
-  sharedWith: string[];
-}
+export const Sidebar = (props: SidebarProps) => {
+  const { isOpen, onClose, categories, checklists, notes, onOpenCreateModal, onOpenCategoryModal, username, isAdmin } = props;
 
-interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpenCreateModal: (initialCategory?: string) => void;
-  onOpenCategoryModal: (parentCategory?: string) => void;
-  categories: Category[];
-  checklists: Checklist[];
-  notes?: Note[];
-  sharingStatuses?: Record<string, SharingStatus>;
-  username: string;
-  isAdmin: boolean;
-  onCategoryDeleted?: (categoryName: string) => void;
-  onCategoryRenamed?: (oldName: string, newName: string) => void;
-}
+  const sidebar = useSidebar(props);
 
-export const Sidebar = ({
-  isOpen,
-  onClose,
-  onOpenCreateModal,
-  onOpenCategoryModal,
-  categories,
-  checklists,
-  notes = [],
-  sharingStatuses = {},
-  username,
-  isAdmin,
-  onCategoryDeleted,
-  onCategoryRenamed,
-}: SidebarProps) => {
-  const [showDeleteCategoryModal, setShowDeleteCategoryModal] = useState(false);
-  const [showRenameCategoryModal, setShowRenameCategoryModal] = useState(false);
-  const [showEditChecklistModal, setShowEditChecklistModal] = useState(false);
-  const [showEditNoteModal, setShowEditNoteModal] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
-  const [categoryToRename, setCategoryToRename] = useState<string | null>(null);
-  const [itemToEdit, setItemToEdit] = useState<Checklist | Note | null>(null);
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
-    new Set()
-  );
-  const [sharedItemsCollapsed, setSharedItemsCollapsed] = useState(false);
-  const [isLocalStorageInitialized, setIsLocalStorageInitialized] =
-    useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(320);
-  const isResizing = useRef(false);
+  if (!sidebar.isInitialized) return null;
 
-  useEffect(() => {
-    const savedWidth = localStorage.getItem("sidebar-width");
-    if (savedWidth) {
-      const width = parseInt(savedWidth);
-      if (width >= 320 && width <= 800) {
-        setSidebarWidth(width);
-      }
-    }
-  }, []);
-
-  const startResizing = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const startX = e.clientX;
-    const startWidth = sidebarWidth;
-
-    const doDrag = (e: MouseEvent) => {
-      const delta = e.clientX - startX;
-      const newWidth = Math.max(320, Math.min(800, startWidth + delta));
-      setSidebarWidth(newWidth);
-      localStorage.setItem("sidebar-width", newWidth.toString());
-    };
-
-    const stopDrag = () => {
-      document.removeEventListener("mousemove", doDrag);
-      document.removeEventListener("mouseup", stopDrag);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-
-    document.addEventListener("mousemove", doDrag);
-    document.addEventListener("mouseup", stopDrag);
-    document.body.style.cursor = "ew-resize";
-    document.body.style.userSelect = "none";
-  };
-
-  useEffect(() => {
-    const savedCollapsed = localStorage.getItem("sidebar-collapsed-categories");
-    if (savedCollapsed) {
-      try {
-        const categories = JSON.parse(savedCollapsed);
-        setCollapsedCategories(new Set(categories));
-      } catch (error) {
-        console.error(
-          "Failed to parse collapsed categories from localStorage:",
-          error
-        );
-      }
-    }
-
-    const savedSharedItems = localStorage.getItem(
-      "sidebar-shared-items-collapsed"
-    );
-    if (savedSharedItems) {
-      try {
-        setSharedItemsCollapsed(JSON.parse(savedSharedItems));
-      } catch (error) {
-        console.error(
-          "Failed to parse shared items collapsed state from localStorage:",
-          error
-        );
-      }
-    }
-
-    setIsLocalStorageInitialized(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isLocalStorageInitialized) return;
-
-    const categoriesArray = Array.from(collapsedCategories);
-    localStorage.setItem(
-      "sidebar-collapsed-categories",
-      JSON.stringify(categoriesArray)
-    );
-  }, [collapsedCategories, isLocalStorageInitialized]);
-
-  useEffect(() => {
-    if (!isLocalStorageInitialized) return;
-
-    localStorage.setItem(
-      "sidebar-shared-items-collapsed",
-      JSON.stringify(sharedItemsCollapsed)
-    );
-  }, [sharedItemsCollapsed, isLocalStorageInitialized]);
-
-  const [showSettings, setShowSettings] = useState(false);
-
-  const router = useRouter();
-  const pathname = usePathname();
-  const { mode, setMode, isInitialized } = useAppMode();
-
-  const { allCollapsiblePaths, areAnyCollapsed } = useMemo(() => {
-    const items = mode === Modes.CHECKLISTS ? checklists : notes;
-
-    const pathsOfParentsToCategories = new Set(
-      categories.map((c) => c.parent).filter(Boolean)
-    );
-
-    const pathsOfParentsToItems = new Set(
-      items.map((item) => item.category).filter(Boolean)
-    );
-
-    const allPaths = new Set(
-      Array.from(pathsOfParentsToCategories).concat(
-        Array.from(pathsOfParentsToItems)
-      )
-    );
-
-    const anyCollapsed = Array.from(allPaths).some((path) =>
-      collapsedCategories.has(path || "")
-    );
-
-    return { allCollapsiblePaths: allPaths, areAnyCollapsed: anyCollapsed };
-  }, [categories, checklists, notes, mode, collapsedCategories]);
-
-  const handleToggleAllCategories = () => {
-    if (areAnyCollapsed) {
-      setCollapsedCategories(new Set());
-    } else {
-      setCollapsedCategories(allCollapsiblePaths as Set<string>);
-    }
-  };
-
-  const getSharingStatus = (itemId: string) => {
-    return sharingStatuses[itemId] || null;
-  };
-
-  const handleDeleteCategory = (categoryPath: string) => {
-    setCategoryToDelete(categoryPath);
-    setShowDeleteCategoryModal(true);
-  };
-
-  const handleConfirmDeleteCategory = async () => {
-    if (!categoryToDelete) return;
-
-    const formData = new FormData();
-    formData.append("path", categoryToDelete);
-    formData.append("mode", mode);
-
-    const result = await deleteCategory(formData);
-
-    if (result.success) {
-      setShowDeleteCategoryModal(false);
-      setCategoryToDelete(null);
-      onCategoryDeleted?.(categoryToDelete);
-    }
-  };
-
-  const handleRenameCategory = (categoryPath: string) => {
-    setCategoryToRename(categoryPath);
-    setShowRenameCategoryModal(true);
-  };
-
-  const handleConfirmRenameCategory = async (
-    oldPath: string,
-    newName: string
-  ) => {
-    const formData = new FormData();
-    formData.append("oldPath", oldPath);
-    formData.append("newName", newName);
-    formData.append("mode", mode);
-
-    const result = await renameCategory(formData);
-
-    if (result.success) {
-      setShowRenameCategoryModal(false);
-      setCategoryToRename(null);
-      onCategoryRenamed?.(oldPath, newName);
-    }
-  };
-
-  const handleQuickCreate = (categoryPath: string) => {
-    onOpenCreateModal(categoryPath);
-  };
-
-  const handleCreateSubcategory = (categoryPath: string) => {
-    onOpenCategoryModal(categoryPath);
-  };
-
-  const toggleCategory: (categoryPath: string) => void = (
-    categoryPath: string
-  ) => {
-    setCollapsedCategories((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(categoryPath)) {
-        newSet.delete(categoryPath);
-      } else {
-        newSet.add(categoryPath);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleSharedItems = () => {
-    setSharedItemsCollapsed(!sharedItemsCollapsed);
-  };
-
-  const { checkNavigation } = useNavigationGuard();
-
-  const handleModeSwitch = (newMode: AppMode) => {
-    checkNavigation(() => {
-      setMode(newMode);
-      router.push("/");
-    });
-  };
-
-  const handleItemClick = (item: Checklist | Note) => {
-    checkNavigation(() => {
-      if (mode === Modes.NOTES) {
-        router.push(`/note/${item.id}`);
-      } else {
-        router.push(`/checklist/${item.id}`);
-      }
-      onClose();
-    });
-  };
-
-  const handleEditItem = (item: Checklist | Note) => {
-    setItemToEdit(item);
-    if (mode === Modes.NOTES) {
-      setShowEditNoteModal(true);
-    } else {
-      setShowEditChecklistModal(true);
-    }
-  };
-
-  const isItemSelected = (item: Checklist | Note) => {
-    if (mode === Modes.NOTES) {
-      return pathname === `/note/${item.id}`;
-    } else {
-      return pathname === `/checklist/${item.id}`;
-    }
-  };
-
-  if (!isInitialized) {
-    return null;
-  }
+  const currentItems = sidebar.mode === Modes.CHECKLISTS ? checklists : (notes || []);
 
   return (
     <>
-      <div
-        className={cn(
-          "fixed inset-0 z-40 bg-black/50 lg:hidden transition-opacity",
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
-        onClick={(e) => {
-          e.preventDefault();
-          onClose();
-        }}
-      />
-
-      <aside
-        style={{
-          width: `${sidebarWidth}px`,
-          minWidth: `${sidebarWidth}px`,
-          maxWidth: `${sidebarWidth}px`,
-          transition: isResizing.current ? "none" : undefined,
-        }}
-        className={cn(
-          "fixed left-0 top-0 z-50 h-full bg-background border-r border-border flex flex-col lg:static",
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-          "flex-none"
-        )}
-      >
-        <div
-          className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hidden lg:block hover:bg-primary/10 transition-colors"
-          onMouseDown={startResizing}
-        />
+      <div className={cn("fixed inset-0 z-40 bg-black/50 lg:hidden", isOpen ? "opacity-100" : "opacity-0 pointer-events-none")} onClick={onClose} />
+      <aside style={{ width: `${sidebar.sidebarWidth}px`, minWidth: `${sidebar.sidebarWidth}px`, maxWidth: `${sidebar.sidebarWidth}px`, transition: sidebar.isResizing ? "none" : undefined }} className={cn("fixed left-0 top-0 z-50 h-full bg-background border-r border-border flex flex-col lg:static", isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0", "flex-none")}>
+        <div className="absolute top-0 right-0 w-2 h-full cursor-ew-resize hidden lg:block hover:bg-primary/10" onMouseDown={sidebar.startResizing} />
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <a href="/" className="flex items-center gap-3">
-                  <DynamicLogo className="h-8 w-8" size="32x32" />
-                  <AppName className="text-xl font-bold text-foreground" />
-                </a>
-              </div>
-              <button
-                onClick={onClose}
-                className="lg:hidden p-2 rounded-md hover:bg-accent transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <a href="/" className="flex items-center gap-3"><DynamicLogo className="h-8 w-8" size="32x32" /><AppName className="text-xl font-bold text-foreground" /></a>
+              <button onClick={onClose} className="lg:hidden p-2 rounded-md hover:bg-accent"><X className="h-4 w-4" /></button>
             </div>
           </div>
 
-          <SidebarNavigation mode={mode} onModeChange={handleModeSwitch} />
+          <SidebarNavigation mode={sidebar.mode} onModeChange={sidebar.handleModeSwitch} />
 
           <div className="flex-1 overflow-y-auto p-2 space-y-4">
             <div className="px-2 pt-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-wider">
-                  Categories
-                </h3>
-
-                <button
-                  onClick={handleToggleAllCategories}
-                  className="text-xs font-medium text-primary hover:underline focus:outline-none"
-                >
-                  {areAnyCollapsed ? "Expand All" : "Collapse All"}
-                </button>
+                <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Categories</h3>
+                <button onClick={sidebar.handleToggleAllCategories} className="text-xs font-medium text-primary hover:underline focus:outline-none">{sidebar.areAnyCollapsed ? "Expand All" : "Collapse All"}</button>
               </div>
             </div>
-
-            <SharedItemsList
-              items={mode === Modes.CHECKLISTS ? checklists : notes}
-              collapsed={sharedItemsCollapsed}
-              onToggleCollapsed={toggleSharedItems}
-              onItemClick={handleItemClick}
-              onEditItem={handleEditItem}
-              isItemSelected={isItemSelected}
-              mode={mode}
-              getSharingStatus={getSharingStatus}
-            />
-
-            <CategoryList
-              categories={categories}
-              items={mode === Modes.CHECKLISTS ? checklists : notes}
-              collapsedCategories={collapsedCategories}
-              onToggleCategory={toggleCategory}
-              onDeleteCategory={handleDeleteCategory}
-              onRenameCategory={handleRenameCategory}
-              onQuickCreate={handleQuickCreate}
-              onCreateSubcategory={handleCreateSubcategory}
-              onItemClick={handleItemClick}
-              onEditItem={handleEditItem}
-              isItemSelected={isItemSelected}
-              mode={mode}
-              getSharingStatus={getSharingStatus}
-            />
+            <SharedItemsList items={currentItems} collapsed={sidebar.sharedItemsCollapsed} onToggleCollapsed={() => sidebar.setSharedItemsCollapsed(p => !p)} onItemClick={sidebar.handleItemClick} onEditItem={sidebar.handleEditItem} isItemSelected={sidebar.isItemSelected} mode={sidebar.mode} getSharingStatus={sidebar.getSharingStatus} />
+            <CategoryList categories={categories} items={currentItems} collapsedCategories={sidebar.collapsedCategoriesForMode} onToggleCategory={sidebar.toggleCategory} onDeleteCategory={(path: string) => sidebar.openModal('deleteCategory', path)} onRenameCategory={(path: string) => sidebar.openModal('renameCategory', path)} onQuickCreate={onOpenCreateModal} onCreateSubcategory={onOpenCategoryModal} onItemClick={sidebar.handleItemClick} onEditItem={sidebar.handleEditItem} isItemSelected={sidebar.isItemSelected} mode={sidebar.mode} getSharingStatus={sidebar.getSharingStatus} />
           </div>
 
-          <SidebarActions
-            mode={mode}
-            onOpenCreateModal={onOpenCreateModal}
-            onOpenCategoryModal={onOpenCategoryModal}
-            username={username}
-            isAdmin={isAdmin}
-          />
+          <SidebarActions mode={sidebar.mode} onOpenCreateModal={onOpenCreateModal} onOpenCategoryModal={onOpenCategoryModal} username={username} isAdmin={isAdmin} />
         </div>
       </aside>
 
-      {showDeleteCategoryModal && categoryToDelete && (
-        <DeleteCategoryModal
-          isOpen={showDeleteCategoryModal}
-          categoryPath={categoryToDelete}
-          onClose={() => {
-            setShowDeleteCategoryModal(false);
-            setCategoryToDelete(null);
-          }}
-          onConfirm={handleConfirmDeleteCategory}
-        />
-      )}
-
-      {showRenameCategoryModal && categoryToRename && (
-        <RenameCategoryModal
-          isOpen={showRenameCategoryModal}
-          categoryPath={categoryToRename}
-          onClose={() => {
-            setShowRenameCategoryModal(false);
-            setCategoryToRename(null);
-          }}
-          onRename={handleConfirmRenameCategory}
-        />
-      )}
-
-      <SettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
-
-      {showEditChecklistModal && itemToEdit && (
-        <EditChecklistModal
-          checklist={itemToEdit as Checklist}
-          categories={categories}
-          onClose={() => {
-            setShowEditChecklistModal(false);
-            setItemToEdit(null);
-          }}
-          onUpdated={() => {
-            setShowEditChecklistModal(false);
-            setItemToEdit(null);
-            router.refresh();
-          }}
-        />
-      )}
-
-      {showEditNoteModal && itemToEdit && (
-        <EditNoteModal
-          note={itemToEdit as Note}
-          categories={categories}
-          onClose={() => {
-            setShowEditNoteModal(false);
-            setItemToEdit(null);
-          }}
-          onUpdated={() => {
-            setShowEditNoteModal(false);
-            setItemToEdit(null);
-            router.refresh();
-          }}
-        />
-      )}
+      {sidebar.modalState.type === 'deleteCategory' && <DeleteCategoryModal isOpen={true} categoryPath={sidebar.modalState.data} onClose={sidebar.closeModal} onConfirm={sidebar.handleConfirmDeleteCategory} />}
+      {sidebar.modalState.type === 'renameCategory' && <RenameCategoryModal isOpen={true} categoryPath={sidebar.modalState.data} onClose={sidebar.closeModal} onRename={sidebar.handleConfirmRenameCategory} />}
+      {sidebar.modalState.type === 'settings' && <SettingsModal isOpen={true} onClose={sidebar.closeModal} />}
+      {sidebar.modalState.type === 'editItem' && sidebar.mode === Modes.CHECKLISTS && <EditChecklistModal checklist={sidebar.modalState.data as Checklist} categories={categories} onClose={sidebar.closeModal} onUpdated={() => { sidebar.closeModal(); sidebar.router.refresh(); }} />}
+      {sidebar.modalState.type === 'editItem' && sidebar.mode === Modes.NOTES && <EditNoteModal note={sidebar.modalState.data as Note} categories={categories} onClose={sidebar.closeModal} onUpdated={() => { sidebar.closeModal(); sidebar.router.refresh(); }} />}
     </>
   );
 };

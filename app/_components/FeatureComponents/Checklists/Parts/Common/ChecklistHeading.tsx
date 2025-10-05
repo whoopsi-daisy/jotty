@@ -7,6 +7,8 @@ import { Checklist } from "@/app/_types";
 import { isMobileDevice } from "@/app/_utils/global-utils";
 import { useChecklist } from "../../../../../_hooks/useChecklist";
 import { useSharing } from "@/app/_hooks/useSharing";
+import { routeros } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { useRouter } from "next/navigation";
 
 interface ChecklistHeadingProps {
   checklist: Checklist;
@@ -31,15 +33,17 @@ export const ChecklistHeading = ({
 }: ChecklistHeadingProps) => {
   const [newItemText, setNewItemText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
   const { handleCopyId, copied } = useChecklist({
     list: checklist,
-    onUpdate: () => {},
+    onUpdate: () => { },
   });
   const { sharingStatus } = useSharing({
     itemId: checklist.id,
     itemType: "checklist",
     itemOwner: checklist.owner || "",
-    onClose: () => {},
+    onClose: () => { },
     enabled: true,
     itemTitle: checklist.title,
     itemCategory: checklist.category,
@@ -52,6 +56,7 @@ export const ChecklistHeading = ({
 
     onSubmit(newItemText.trim());
     setNewItemText("");
+    router.refresh();
   };
 
   useEffect(() => {

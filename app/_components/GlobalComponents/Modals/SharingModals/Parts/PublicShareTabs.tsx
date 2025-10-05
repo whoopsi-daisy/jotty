@@ -25,7 +25,6 @@ export const PublicShareTab = ({
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(publicUrl);
       } else {
-        // Fallback for older browsers or environments without Clipboard API
         const textArea = document.createElement("textarea");
         textArea.value = publicUrl;
         textArea.style.position = "fixed";
@@ -44,7 +43,6 @@ export const PublicShareTab = ({
       }
     } catch (error) {
       console.error("Failed to copy URL:", error);
-      // Could add toast notification here if desired
       alert("Failed to copy URL to clipboard");
     }
   };
