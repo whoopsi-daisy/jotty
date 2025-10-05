@@ -368,9 +368,6 @@ I would like to thank the following members for raising issues and help test/deb
       <td align="center" valign="top" width="20%">
         <a href="https://github.com/ItsNoted"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/57927413?s=96&v=4&size=100"><br />ItsNoted</a>
       </td>
-      <td align="center" valign="top" width="20%">
-        <a href="https://github.com/hurleyy"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/12866334?v=4&size=100"><br />hurleyy</a>
-      </td>
     </tr>
     <tr>
       <td align="center" valign="top" width="20%">
@@ -388,6 +385,8 @@ I would like to thank the following members for raising issues and help test/deb
       <td align="center" valign="top" width="20%">
         <a href="https://github.com/spaghetti-coder"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/4891777?v=4&size=100"><br />spaghetti-coder</a>
       </td>
+    </tr>
+    <tr>
       <td align="center" valign="top" width="20%">
         <a href="https://github.com/hurleyy"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/12866334?v=4&size=100"><br />hurleyy</a>
       </td>
