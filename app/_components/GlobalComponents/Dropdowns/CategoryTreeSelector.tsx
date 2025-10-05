@@ -68,9 +68,11 @@ export const CategoryTreeSelector = ({
   const toggleExpanded = (categoryPath: string) => {
     setExpandedCategories((prev) => {
       const newSet = new Set(prev);
-      newSet.has(categoryPath)
-        ? newSet.delete(categoryPath)
-        : newSet.add(categoryPath);
+      if (newSet.has(categoryPath)) {
+        newSet.delete(categoryPath);
+      } else {
+        newSet.add(categoryPath);
+      }
       return newSet;
     });
   };

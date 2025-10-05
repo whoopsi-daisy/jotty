@@ -36,7 +36,9 @@ export const CategoryTreeNode = ({
         onClick={() => onCategoryClick(category.path)}
       >
         <button
+          type="button"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             if (hasSubCategories) onToggleExpanded(category.path);
           }}
@@ -79,12 +81,10 @@ export const CategoryTreeNode = ({
               category={sub}
               level={level + 1}
               getSubCategories={getSubCategories}
-              {...{
-                selectedCategory,
-                expandedCategories,
-                onCategoryClick,
-                onToggleExpanded,
-              }}
+              selectedCategory={selectedCategory}
+              expandedCategories={expandedCategories}
+              onCategoryClick={onCategoryClick}
+              onToggleExpanded={onToggleExpanded}
             />
           ))}
         </div>
