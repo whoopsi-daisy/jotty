@@ -1,24 +1,23 @@
-import { getLists, getCategories } from "@/app/_server/actions/data/actions";
-import {
-  getDocs,
-  getDocsCategories,
-  CheckForNeedsMigration,
-} from "@/app/_server/actions/data/notes-actions";
-import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
-import { HomeClient } from "@/app/_components/features/home/HomeClient";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
+import { getLists } from "@/app/_server/actions/checklist";
+import { getCategories } from "@/app/_server/actions/category";
+import { getNotes, CheckForNeedsMigration } from "@/app/_server/actions/note";
+import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
+import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
+import { isAdmin, getUsername, getCurrentUser } from "@/app/_server/actions/users";
+import { Modes } from "@/app/_types/enums";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   await CheckForNeedsMigration();
 
-  const [listsResult, categoriesResult, docsResult, docsCategoriesResult] =
+  const [listsResult, docsResult, categoriesResult, docsCategoriesResult] =
     await Promise.all([
       getLists(),
-      getCategories(),
-      getDocs(),
-      getDocsCategories(),
+      getNotes(),
+      getCategories(Modes.CHECKLISTS),
+      getCategories(Modes.NOTES),
     ]);
 
   const lists = listsResult.success && listsResult.data ? listsResult.data : [];
@@ -35,17 +34,22 @@ export default async function HomePage() {
   const username = await getUsername();
 
   const allItems = [...lists, ...docs];
-  const itemsToCheck = allItems.map(item => ({
+  const itemsToCheck = allItems.map((item) => ({
     id: item.id,
-    type: 'type' in item && item.type === "task" ? "checklist" as const :
-      'type' in item ? "checklist" as const : "document" as const,
-    owner: item.owner || ""
+    type:
+      "type" in item && item.type === "task"
+        ? ("checklist" as const)
+        : "type" in item
+          ? ("checklist" as const)
+          : ("note" as const),
+    owner: item.owner || "",
   }));
 
-  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
-  const sharingStatuses = sharingStatusesResult.success && sharingStatusesResult.data
-    ? sharingStatusesResult.data
-    : {};
+  const sharingStatusesResult = await getAllSharingStatuses(itemsToCheck);
+  const sharingStatuses =
+    sharingStatusesResult.success && sharingStatusesResult.data
+      ? sharingStatusesResult.data
+      : {};
 
   return (
     <HomeClient

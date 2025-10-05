@@ -1,0 +1,42 @@
+import { Modes } from "../_types/enums";
+
+export const NOTES_FOLDER = Modes.NOTES;
+export const DEPRECATED_DOCS_FOLDER = Modes.DEPRECATED_DOCS;
+
+export const QUOTES = [
+    "Nothing... a whole lot of nothing.",
+    "What's in the box?!",
+    "Hello? Is there anybody in there?",
+    "You've got nothing. I've got nothing. Let's do nothing.",
+    "The journey of a thousand miles begins with a single step.",
+    "Silence is golden.",
+    "There's nothing to see here.",
+    "Empty.",
+    "Hello darkness, my old friend.",
+    "I'll be back.",
+    "Just start.",
+    "This is not the note you are looking for.",
+    "I feel like a blank canvas.",
+    "Alright, alright, alright.",
+    "There is no spoon.",
+    "Waiting.",
+    "// TODO: Add content here",
+    "Error 404: Note not found.",
+    "Make it so.",
+    "Hello, world!",
+    "The rest is still unwritten.",
+    "A note about nothing.",
+    "What... is your quest?",
+    "Where we're going, we don't need roads.",
+    "The Nothing is spreading.",
+    "This page intentionally left blank.",
+    "And now for something completely different.",
+    "I'm sorry, Dave. I'm afraid I can't do that.",
+    "Space: the final frontier.",
+    "Get on with it!",
+    "Are you the Keymaster?",
+    "All work and no play makes Jack a dull boy.",
+    "The sleeper must awaken.",
+    "In the beginning...",
+    "An enigma, wrapped in a riddle, inside a mystery.",
+];

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withApiAuth, findItemByIndex } from "@/app/_server/utils/api-helpers";
-import { updateItemAction } from "@/app/_server/actions/data/actions";
+import { withApiAuth, findItemByIndex } from "@/app/_utils/api-utils";
+import { updateItem } from "@/app/_server/actions/checklist-item";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +29,7 @@ export async function PUT(
       formData.append("itemId", item.id);
       formData.append("completed", "true");
 
-      const result = await updateItemAction(formData, user.username, true);
+      const result = await updateItem(formData, user.username, true);
 
       if (!result.success) {
         return NextResponse.json(

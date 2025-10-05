@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from "react";
-import { Toast, ToastContainer } from "@/app/_components/ui/elements/toast";
+import { ToastContainer } from "@/app/_components/GlobalComponents/Feedback/ToastContainer";
+import { Toast } from "@/app/_components/GlobalComponents/Feedback/Toast";
 
 interface ToastContextType {
   showToast: (toast: Omit<Toast, "id">) => void;
@@ -10,7 +11,7 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const showToast = useCallback((toast: Omit<Toast, "id">) => {
@@ -29,12 +30,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </ToastContext.Provider>
   );
-}
+};
 
-export function useToast() {
+export const useToast = () => {
   const context = useContext(ToastContext);
   if (context === undefined) {
     throw new Error("useToast must be used within a ToastProvider");
   }
   return context;
-}
+};

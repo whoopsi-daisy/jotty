@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  withApiAuth,
-  getChecklistsForUser,
-} from "@/app/_server/utils/api-helpers";
+import { withApiAuth, getChecklistsForUser } from "@/app/_utils/api-utils";
 
 export const dynamic = "force-dynamic";
 

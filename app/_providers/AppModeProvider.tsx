@@ -8,6 +8,7 @@ import {
   useEffect,
 } from "react";
 import { AppMode } from "@/app/_types";
+import { Modes } from "@/app/_types/enums";
 
 interface AppModeContextType {
   mode: AppMode;
@@ -19,14 +20,14 @@ interface AppModeContextType {
 
 const AppModeContext = createContext<AppModeContextType | undefined>(undefined);
 
-export function AppModeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<AppMode>("checklists");
+export const AppModeProvider = ({ children }: { children: ReactNode }) => {
+  const [mode, setMode] = useState<AppMode>(Modes.CHECKLISTS);
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const savedMode = localStorage.getItem("app-mode");
-    if (savedMode === "checklists" || savedMode === "notes") {
+    if (savedMode === Modes.CHECKLISTS || savedMode === Modes.NOTES) {
       setMode(savedMode);
     }
     setIsInitialized(true);
@@ -50,12 +51,12 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
       {children}
     </AppModeContext.Provider>
   );
-}
+};
 
-export function useAppMode() {
+export const useAppMode = () => {
   const context = useContext(AppModeContext);
   if (context === undefined) {
     throw new Error("useAppMode must be used within an AppModeProvider");
   }
   return context;
-}
+};

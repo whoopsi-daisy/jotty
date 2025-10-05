@@ -399,11 +399,6 @@
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
-.prose pre {
-    @apply bg-muted border border-border rounded-lg p-4 overflow-x-auto;
-    margin: 1rem 0;
-}
-
 .prose pre code {
     @apply bg-transparent p-0 text-sm;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
@@ -418,10 +413,6 @@
 .prose ol {
     margin: 1rem 0;
     padding-left: 1.5rem;
-}
-
-.prose li {
-    margin-bottom: 0.5rem;
 }
 
 .prose a {
@@ -535,7 +526,6 @@
 }
 
 .ProseMirror p {
-    margin-bottom: 1rem;
     line-height: 1.7;
 }
 

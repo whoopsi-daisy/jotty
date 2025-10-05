@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import {
-  getDocs,
-  getDocsCategories,
-  getAllDocs,
+  getNotes,
+  getAllNotes,
   CheckForNeedsMigration,
-} from "@/app/_server/actions/data/notes-actions";
-import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
-import { NoteClient } from "@/app/_components/features/notes/NoteClient";
+} from "@/app/_server/actions/note";
+import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
+import { isAdmin, getUsername } from "@/app/_server/actions/users";
+import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
+import { Modes } from "@/app/_types/enums";
+import { getCategories } from "@/app/_server/actions/category";
 
 interface NotePageProps {
   params: {
@@ -24,9 +25,9 @@ export default async function NotePage({ params }: NotePageProps) {
 
   await CheckForNeedsMigration();
 
-  const [docsResult, docsCategoriesResult] = await Promise.all([
-    getDocs(username),
-    getDocsCategories(),
+  const [docsResult, categoriesResult] = await Promise.all([
+    getNotes(username),
+    getCategories(Modes.NOTES),
   ]);
 
   if (!docsResult.success || !docsResult.data) {
@@ -36,7 +37,7 @@ export default async function NotePage({ params }: NotePageProps) {
   let note = docsResult.data.find((doc) => doc.id === id);
 
   if (!note && isAdminUser) {
-    const allDocsResult = await getAllDocs();
+    const allDocsResult = await getAllNotes();
     if (allDocsResult.success && allDocsResult.data) {
       note = allDocsResult.data.find((doc) => doc.id === id);
     }
@@ -47,21 +48,22 @@ export default async function NotePage({ params }: NotePageProps) {
   }
 
   const docsCategories =
-    docsCategoriesResult.success && docsCategoriesResult.data
-      ? docsCategoriesResult.data
+    categoriesResult.success && categoriesResult.data
+      ? categoriesResult.data
       : [];
 
   const allItems = [...docsResult.data];
-  const itemsToCheck = allItems.map(item => ({
+  const itemsToCheck = allItems.map((item) => ({
     id: item.id,
-    type: "document" as const,
-    owner: item.owner || ""
+    type: "note" as const,
+    owner: item.owner || "",
   }));
 
-  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
-  const sharingStatuses = sharingStatusesResult.success && sharingStatusesResult.data
-    ? sharingStatusesResult.data
-    : {};
+  const sharingStatusesResult = await getAllSharingStatuses(itemsToCheck);
+  const sharingStatuses =
+    sharingStatusesResult.success && sharingStatusesResult.data
+      ? sharingStatusesResult.data
+      : {};
 
   return (
     <NoteClient

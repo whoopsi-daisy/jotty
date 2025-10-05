@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/app/_server/actions/users/current";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import path from "path";
 import fs from "fs/promises";
+import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,8 @@ export async function GET(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { username, filename } = params;
+    const { username } = params;
+    const filename = decodeURIComponent(params.filename);
 
     if (username !== user.username) {
       return new NextResponse("Forbidden", { status: 403 });
@@ -24,7 +26,7 @@ export async function GET(
     const filePath = path.join(
       process.cwd(),
       "data",
-      "notes",
+      NOTES_FOLDER,
       username,
       "files",
       filename

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withApiAuth } from "@/app/_server/utils/api-helpers";
-import { createItemAction } from "@/app/_server/actions/data/actions";
+import { withApiAuth } from "@/app/_utils/api-utils";
+import { createItem } from "@/app/_server/actions/checklist-item";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export async function POST(
         );
       }
 
-      const result = await createItemAction(formData, user.username, true);
+      const result = await createItem(formData, user.username, true);
 
       if (!result.success) {
         return NextResponse.json(

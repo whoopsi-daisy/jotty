@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { getAllLists } from "@/app/_server/actions/data/list-queries";
-import { getItemSharingMetadata } from "@/app/_server/actions/sharing/sharing-utils";
-import { PublicChecklistView } from "@/app/_components/features/public/PublicChecklistView";
-import { CheckForNeedsMigration } from "@/app/_server/actions/data/notes-actions";
+import { getAllLists } from "@/app/_server/actions/checklist";
+import { getItemSharingMetadata } from "@/app/_server/actions/sharing";
+import { PublicChecklistView } from "@/app/_components/FeatureComponents/PublicView/PublicChecklistView";
+import { CheckForNeedsMigration } from "@/app/_server/actions/note";
 
 interface PublicChecklistPageProps {
   params: {

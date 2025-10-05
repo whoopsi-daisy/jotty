@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export const middleware = async (request: NextRequest) => {
   const sessionId = request.cookies.get("session")?.value;
   const response = NextResponse.next();
   response.headers.set("x-pathname", request.nextUrl.pathname);
@@ -11,9 +11,6 @@ export async function middleware(request: NextRequest) {
   }
 
   if (request.nextUrl.pathname.startsWith("/auth")) {
-    if (sessionId) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
     return response;
   }
 
@@ -26,7 +23,7 @@ export async function middleware(request: NextRequest) {
   }
 
   return response;
-}
+};
 
 export const config = {
   matcher: [

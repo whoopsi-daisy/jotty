@@ -1,3 +1,5 @@
+import { TaskStatus } from "./enums";
+
 export type ChecklistType = "simple" | "task";
 
 export interface TimeEntry {
@@ -7,15 +9,24 @@ export interface TimeEntry {
   duration?: number;
 }
 
+export type ItemType = "checklist" | "note";
+
 export interface Item {
   id: string;
   text: string;
   completed: boolean;
   order: number;
-  status?: "todo" | "in_progress" | "completed" | "paused";
+  status?: TaskStatus;
   timeEntries?: TimeEntry[];
   estimatedTime?: number;
   targetDate?: string;
+}
+
+export interface List {
+  id: string;
+  title: string;
+  category?: string;
+  items: Item[];
 }
 
 export interface Checklist {
@@ -39,6 +50,30 @@ export interface Note {
   updatedAt: string;
   owner?: string;
   isShared?: boolean;
+}
+
+export interface NoteEditorViewModel {
+  title: string;
+  setTitle: (title: string) => void;
+  category: string;
+  setCategory: (category: string) => void;
+  editorContent: string;
+  isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
+  status: {
+    isSaving: boolean;
+    isAutoSaving: boolean;
+  };
+  handleEdit: () => void;
+  handleCancel: () => void;
+  handleSave: () => void;
+  handleDelete: () => void;
+  handleEditorContentChange: (content: string, isMarkdown: boolean) => void;
+  showUnsavedChangesModal: boolean;
+  setShowUnsavedChangesModal: (show: boolean) => void;
+  handleUnsavedChangesSave: () => void;
+  handleUnsavedChangesDiscard: () => void;
+  derivedMarkdownContent: string;
 }
 
 export interface Category {
@@ -67,7 +102,7 @@ export interface User {
 
 export interface SharedItem {
   id: string;
-  type: "checklist" | "document";
+  type: "checklist" | "note";
   title: string;
   owner: string;
   sharedWith: string[];
@@ -88,8 +123,47 @@ export interface SharingPermissions {
   canShare: boolean;
 }
 
+export interface GlobalSharing {
+  allSharedChecklists: SharedItem[];
+  allSharedNotes: SharedItem[];
+  sharingStats: {
+    totalSharedChecklists: number;
+    totalSharedNotes: number;
+    totalSharingRelationships: number;
+    totalPublicShares: number;
+    mostActiveSharers: MostActiveSharer[];
+  };
+}
+
+export interface GlobalSharingReturn {
+  data: GlobalSharing;
+  success: boolean;
+  error?: string;
+}
+
 export interface EmojiDictionary {
   [key: string]: string;
 }
 
 export type AppMode = "checklists" | "notes";
+
+export interface MostActiveSharer {
+  username: string;
+  sharedCount: number;
+}
+
+export interface AppSettings {
+  appName: string;
+  appDescription: string;
+  "16x16Icon": string;
+  "32x32Icon": string;
+  "180x180Icon": string;
+}
+
+export interface Session {
+  id: string;
+  userAgent: string;
+  ipAddress: string;
+  lastActivity: string;
+  isCurrent: boolean;
+}

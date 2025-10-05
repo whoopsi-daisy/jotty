@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
-import { getLists, getCategories } from "@/app/_server/actions/data/actions";
-import { getAllLists } from "@/app/_server/actions/data/list-queries";
-import { getAllSharingStatusesAction } from "@/app/_server/actions/sharing/share-item";
-import { isAdmin, getUsername } from "@/app/_server/actions/auth/utils";
-import { ChecklistClient } from "@/app/_components/features/checklists/ChecklistClient";
+import { getLists } from "@/app/_server/actions/checklist";
+import { getCategories } from "@/app/_server/actions/category";
+import { getAllLists } from "@/app/_server/actions/checklist";
+import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
+import { isAdmin, getUsername } from "@/app/_server/actions/users";
+import { ChecklistClient } from "@/app/_components/FeatureComponents/Checklists/Parts/ChecklistClient";
+import { Modes } from "@/app/_types/enums";
 
 interface ChecklistPageProps {
   params: {
@@ -20,7 +22,7 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
 
   const [listsResult, categoriesResult] = await Promise.all([
     getLists(username),
-    getCategories(),
+    getCategories(Modes.CHECKLISTS),
   ]);
 
   if (!listsResult.success || !listsResult.data) {
@@ -46,16 +48,17 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
       : [];
 
   const allItems = [...listsResult.data];
-  const itemsToCheck = allItems.map(item => ({
+  const itemsToCheck = allItems.map((item) => ({
     id: item.id,
     type: "checklist" as const,
-    owner: item.owner || ""
+    owner: item.owner || "",
   }));
 
-  const sharingStatusesResult = await getAllSharingStatusesAction(itemsToCheck);
-  const sharingStatuses = sharingStatusesResult.success && sharingStatusesResult.data
-    ? sharingStatusesResult.data
-    : {};
+  const sharingStatusesResult = await getAllSharingStatuses(itemsToCheck);
+  const sharingStatuses =
+    sharingStatusesResult.success && sharingStatusesResult.data
+      ? sharingStatusesResult.data
+      : {};
 
   return (
     <ChecklistClient
