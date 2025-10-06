@@ -20,7 +20,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Create and push manifest
         run: |
-          tag="ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag }}"
+          repo_lowercase=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+
+          tag="ghcr.io/${repo_lowercase}:${{ github.event.inputs.tag }}"
+
           echo "Creating manifest for ${tag}"
           docker buildx imagetools create --tag "${tag}" \
             "${tag}-amd64" \
