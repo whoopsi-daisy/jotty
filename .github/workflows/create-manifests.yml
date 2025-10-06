@@ -1,9 +1,12 @@
 name: Create Multi-Platform Manifests
 
 on:
-  workflow_run:
-    workflows: ["Docker Publish", "Docker Publish ARM64"]
-    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create manifests for"
+        required: true
+        default: "latest"
 
 env:
   REGISTRY: ghcr.io
@@ -17,15 +20,6 @@ jobs:
       packages: write
 
     steps:
-      - name: Check triggering workflow success
-        run: |
-          if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
-            echo "❌ Triggering workflow did not complete successfully"
-            echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
-            exit 1
-          fi
-          echo "✅ Triggering workflow completed successfully"
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -36,37 +30,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get all available tags
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=ref,event=tag
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest
-
-      - name: Create manifests for available platform pairs
+      - name: Create manifest for specified tag
         run: |
-          # Get all tags that have both platform images
-          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
-            echo "Checking tag: ${tag}"
+          tag="${{ github.event.inputs.tag }}"
 
-            # Check if both platform-specific images exist
-            if docker buildx imagetools inspect "${tag}-amd64" >/dev/null 2>&1 && docker buildx imagetools inspect "${tag}-arm64" >/dev/null 2>&1; then
-              echo "✅ Both platform images exist for ${tag}, creating manifest"
-              docker buildx imagetools create --tag "${tag}" \
-                "${tag}-amd64" \
-                "${tag}-arm64"
-            else
-              echo "⏭️  Skipping ${tag} - missing platform images"
-              echo "  AMD64: $(docker buildx imagetools inspect "${tag}-amd64" >/dev/null 2>&1 && echo '✅' || echo '❌')"
-              echo "  ARM64: $(docker buildx imagetools inspect "${tag}-arm64" >/dev/null 2>&1 && echo '✅' || echo '❌')"
-            fi
-          done
+          echo "Creating manifest for tag: ${tag}"
 
-          echo "🎯 Manifest creation complete!"
+          # Check if both platform-specific images exist
+          if docker buildx imagetools inspect "${tag}-amd64" >/dev/null 2>&1 && docker buildx imagetools inspect "${tag}-arm64" >/dev/null 2>&1; then
+            echo "✅ Both platform images exist for ${tag}, creating manifest"
+            docker buildx imagetools create --tag "${tag}" \
+              "${tag}-amd64" \
+              "${tag}-arm64"
+            echo "✅ Manifest created successfully for ${tag}"
+          else
+            echo "❌ Cannot create manifest - missing platform images"
+            echo "AMD64 image exists: $(docker buildx imagetools inspect "${tag}-amd64" >/dev/null 2>&1 && echo 'YES' || echo 'NO')"
+            echo "ARM64 image exists: $(docker buildx imagetools inspect "${tag}-arm64" >/dev/null 2>&1 && echo 'YES' || echo 'NO')"
+            exit 1
+          fi
