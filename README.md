@@ -13,7 +13,7 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
 
 <br />
 
-----
+---
 
 <p align="center">
   <a href="http://discord.gg/invite/mMuk2WzVZu">
@@ -24,7 +24,8 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
   <br />
 </p>
 
-----
+---
+
 <br />
 
 <div align="center">
