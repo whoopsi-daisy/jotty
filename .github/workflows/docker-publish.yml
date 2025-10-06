@@ -17,6 +17,9 @@ jobs:
     with:
       platform: linux/amd64
       suffix: -amd64
+    permissions:
+      contents: read
+      packages: write
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -25,6 +28,9 @@ jobs:
     with:
       platform: linux/arm64
       suffix: -arm64
+    permissions:
+      contents: read
+      packages: write
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
