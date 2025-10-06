@@ -23,21 +23,9 @@ jobs:
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-arm64:
-    runs-on: ubuntu-22.04-arm
-    uses: ./.github/workflows/docker-build.yml
-    with:
-      platform: linux/arm64
-      suffix: -arm64
-    permissions:
-      contents: read
-      packages: write
-    secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
-
   create-manifest:
     runs-on: ubuntu-latest
-    needs: [build-amd64, build-arm64]
+    needs: [build-amd64]
     permissions:
       contents: read
       packages: write
@@ -73,12 +61,14 @@ jobs:
             echo "Creating manifest for tag: ${tag}"
 
             # Check if both platform-specific images exist before creating manifest
-            if docker buildx imagetools inspect "${tag}-amd64" && docker buildx imagetools inspect "${tag}-arm64"; then
+            if docker buildx imagetools inspect "${tag}-amd64" >/dev/null 2>&1 && docker buildx imagetools inspect "${tag}-arm64" >/dev/null 2>&1; then
               echo "Both platform images exist for ${tag}, creating manifest"
               docker buildx imagetools create --tag "${tag}" \
                 "${tag}-amd64" \
                 "${tag}-arm64"
             else
               echo "Warning: One or both platform images missing for ${tag}, skipping manifest creation"
+              echo "  AMD64 image exists: $(docker buildx imagetools inspect "${tag}-amd64" >/dev/null 2>&1 && echo 'YES' || echo 'NO')"
+              echo "  ARM64 image exists: $(docker buildx imagetools inspect "${tag}-arm64" >/dev/null 2>&1 && echo 'YES' || echo 'NO')"
             fi
           done
