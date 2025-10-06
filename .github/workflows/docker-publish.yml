@@ -68,7 +68,14 @@ jobs:
         run: |
           for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
             echo "Creating manifest for tag: ${tag}"
-            docker buildx imagetools create --tag "${tag}" \
-              "${tag}-amd64" \
-              "${tag}-arm64"
+
+            # Check if both platform-specific images exist before creating manifest
+            if docker buildx imagetools inspect "${tag}-amd64" && docker buildx imagetools inspect "${tag}-arm64"; then
+              echo "Both platform images exist for ${tag}, creating manifest"
+              docker buildx imagetools create --tag "${tag}" \
+                "${tag}-amd64" \
+                "${tag}-arm64"
+            else
+              echo "Warning: One or both platform images missing for ${tag}, skipping manifest creation"
+            fi
           done
