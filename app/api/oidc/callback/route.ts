@@ -101,9 +101,11 @@ export async function GET(request: NextRequest) {
   const discovery = (await discoveryRes.json()) as {
     token_endpoint: string;
     jwks_uri: string;
+    issuer: string;
   };
   const tokenEndpoint = discovery.token_endpoint;
   const jwksUri = discovery.jwks_uri;
+  const oidcIssuer = discovery.issuer;
 
   const JWKS = createRemoteJWKSet(new URL(jwksUri));
 
@@ -139,7 +141,7 @@ export async function GET(request: NextRequest) {
   let claims: { [key: string]: any };
   try {
     const { payload } = await jwtVerify(idToken, JWKS, {
-      issuer: issuer,
+      issuer: oidcIssuer,
       audience: clientId,
       clockTolerance: 5,
     });
