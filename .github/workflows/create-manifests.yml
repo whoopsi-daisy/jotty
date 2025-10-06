@@ -1,45 +1,27 @@
-name: Create Multi-Platform Manifests
+name: Create Manifest (Manual)
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to create manifests for"
+        description: "Base tag to create manifest for (e.g., latest)"
         required: true
-        default: "latest"
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  create-manifests:
+  create:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    permissions: { contents: read, packages: write }
     steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create manifest for specified tag
+      - name: Create and push manifest
         run: |
-          base_tag="${{ github.event.inputs.tag }}"
-          image_base="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          manifest_tag="${image_base}:${base_tag}"
-          amd64_image="${image_base}:${base_tag}-amd64"
-          arm64_image="${image_base}:${base_tag}-arm64"
-          echo "Creating manifest for: ${manifest_tag}"
-          if docker buildx imagetools inspect "${amd64_image}" >/dev/null 2>&1 && docker buildx imagetools inspect "${arm64_image}" >/dev/null 2>&1; then
-            echo "✅ Both platform images exist, creating manifest..."
-            docker buildx imagetools create --tag "${manifest_tag}" "${amd64_image}" "${arm64_image}"
-            echo "✅ Manifest created successfully for ${manifest_tag}"
-          else
-            echo "❌ Cannot create manifest - one or both platform images are missing from the registry."
-            exit 1
-          fi
+          tag="ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag }}"
+          echo "Creating manifest for ${tag}"
+          docker buildx imagetools create --tag "${tag}" \
+            "${tag}-amd64" \
+            "${tag}-arm64"
