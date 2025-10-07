@@ -1,0 +1,63 @@
+name: Build and Publish Multi-Platform Docker Image
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["*"]
+
+jobs:
+  build-amd64:
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      platform: linux/amd64
+      suffix: -amd64
+      runner: ubuntu-latest
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-arm64:
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      platform: linux/arm64
+      suffix: -arm64
+      runner: ubuntu-latest-arm64
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
+  manifest:
+    needs: [build-amd64, build-arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+      - name: Prepare repository name in lowercase
+        id: repo
+        run: echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for final manifest
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.repo.outputs.name }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable=true
+
+      - name: Create and push manifest list
+        run: |
+          for tag in ${{ steps.meta.outputs.tags }}; do
+            echo "Creating manifest for ${tag}"
+            docker buildx imagetools create --tag "${tag}" \
+              "${tag}-amd64" \
+              "${tag}-arm64"
+          done
