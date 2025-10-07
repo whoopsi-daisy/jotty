@@ -7,7 +7,6 @@ import { Checklist } from "@/app/_types";
 import { isMobileDevice } from "@/app/_utils/global-utils";
 import { useChecklist } from "../../../../../_hooks/useChecklist";
 import { useSharing } from "@/app/_hooks/useSharing";
-import { routeros } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { useRouter } from "next/navigation";
 
 interface ChecklistHeadingProps {
@@ -37,13 +36,13 @@ export const ChecklistHeading = ({
 
   const { handleCopyId, copied } = useChecklist({
     list: checklist,
-    onUpdate: () => { },
+    onUpdate: () => {},
   });
   const { sharingStatus } = useSharing({
     itemId: checklist.id,
     itemType: "checklist",
     itemOwner: checklist.owner || "",
-    onClose: () => { },
+    onClose: () => {},
     enabled: true,
     itemTitle: checklist.title,
     itemCategory: checklist.category,
@@ -106,7 +105,7 @@ export const ChecklistHeading = ({
               value={newItemText}
               onChange={(e) => setNewItemText(e.target.value)}
               placeholder={placeholder}
-              className="flex-1 px-4 py-3 border border-input bg-background rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:border-ring transition-all duration-200 shadow-sm"
+              className="flex-1 px-4 w-[60%] lg:w-auto py-3 border border-input bg-background rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:border-ring transition-all duration-200 shadow-sm"
               disabled={isLoading}
             />
             <div className="flex gap-2 lg:gap-3 items-center">
@@ -132,7 +131,6 @@ export const ChecklistHeading = ({
               >
                 <Plus className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">{submitButtonText}</span>
-                <span className="lg:hidden">Add</span>
               </Button>
             </div>
           </form>
