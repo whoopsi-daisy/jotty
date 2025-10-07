@@ -133,17 +133,18 @@ export const NoteEditorHeader = ({
                     handleSave();
                     setIsEditing(false);
                   }}
+                  className="fixed bottom-4 right-4 rounded-full py-6 lg:py-0 lg:rounded-md lg:relative lg:bottom-auto lg:right-auto z-10"
                   disabled={status.isSaving || status.isAutoSaving}
                 >
                   {status.isSaving ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
+                      <Loader2 className="h-6 w-6 lg:h-4 lg:w-4 mr-0 lg:mr-2 animate-spin" />
+                      <span className="hidden lg:inline">Saving...</span>
                     </>
                   ) : (
                     <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save
+                      <Save className="h-6 w-6 lg:h-4 lg:w-4 mr-0 lg:mr-2" />
+                      <span className="hidden lg:inline">Save</span>
                     </>
                   )}
                 </Button>
