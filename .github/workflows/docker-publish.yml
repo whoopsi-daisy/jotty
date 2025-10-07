@@ -7,7 +7,10 @@ on:
 
 jobs:
   build-amd64:
-    uses: ./.github/workflows/docker-build.yml
+    uses: ./.github/workflows/docker-build.yml  
+    permissions:
+      contents: read
+      packages: write
     with:
       platform: linux/amd64
       suffix: -amd64
@@ -17,6 +20,9 @@ jobs:
 
   build-arm64:
     uses: ./.github/workflows/docker-build.yml
+    permissions:
+      contents: read
+      packages: write
     with:
       platform: linux/arm64
       suffix: -arm64
