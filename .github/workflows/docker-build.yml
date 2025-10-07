@@ -1,16 +1,12 @@
-name: Reusable Docker Build Logic
+name: Docker Build
 on:
-  workflow_call:
-    inputs:
-      platform: { required: true, type: string }
-      suffix: { required: true, type: string }
-      runner: { required: true, type: string }
-    secrets:
-      token: { required: true }
+  push:
+    branches: ["main"]
+    tags: ["*"]
 
 jobs:
   build:
-    runs-on: ${{ inputs.runner }}
+    runs-on: ubuntu-latest
     permissions: { contents: read, packages: write }
     steps:
       - { name: Checkout repository, uses: actions/checkout@v4 }
@@ -27,23 +23,42 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.token }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ steps.repo.outputs.name }}
           tags: |
-            type=ref,event=branch,suffix=${{ inputs.suffix }}
-            type=ref,event=tag,suffix=${{ inputs.suffix }}
-            type=raw,value=latest,suffix=${{ inputs.suffix }}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: ${{ inputs.platform }}
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  manifest:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, packages: write }
+    steps:
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create and push manifest
+        run: |
+          repo_lowercase=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+
+          tag="ghcr.io/${repo_lowercase}:${{ github.event.inputs.tag }}"
+
+          echo "Creating manifest for ${tag}"
+          docker buildx imagetools create --tag "${tag}"
