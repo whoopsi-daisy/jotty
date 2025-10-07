@@ -1,9 +1,9 @@
-name: Publish Docker ARM64
+name: Reusable ARM64 Build
 
 on:
-  push:
-    branches: ["main"]
-    tags: ["*"]
+  workflow_call:
+    secrets:
+      token: { required: true }
 
 jobs:
   call-build-workflow:
@@ -11,9 +11,6 @@ jobs:
     with:
       platform: linux/arm64
       suffix: -arm64
-      runner: ubuntu-22.04-arm
-    permissions:
-      contents: read
-      packages: write
+      runner: ubuntu-latest-arm64
     secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.token }}

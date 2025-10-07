@@ -1,9 +1,9 @@
-name: Publish Docker AMD64
+name: Reusable AMD64 Build
 
 on:
-  push:
-    branches: ["main"]
-    tags: ["*"]
+  workflow_call:
+    secrets:
+      token: { required: true }
 
 jobs:
   call-build-workflow:
@@ -12,8 +12,5 @@ jobs:
       platform: linux/amd64
       suffix: -amd64
       runner: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.token }}
