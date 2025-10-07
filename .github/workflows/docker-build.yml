@@ -1,4 +1,5 @@
 name: Reusable Docker Build Logic
+
 on:
   workflow_call:
     inputs:
@@ -15,7 +16,6 @@ jobs:
     steps:
       - { name: Checkout repository, uses: actions/checkout@v4 }
 
-      # ADD THIS STEP to create a lowercase repo name
       - name: "Prepare repository name in lowercase"
         id: repo
         run: echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
@@ -28,6 +28,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.token }}
+          
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -37,6 +38,7 @@ jobs:
             type=ref,event=branch,suffix=${{ inputs.suffix }}
             type=ref,event=tag,suffix=${{ inputs.suffix }}
             type=raw,value=latest,suffix=${{ inputs.suffix }}
+            
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
