@@ -1,0 +1,19 @@
+name: Publish Docker ARM64
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["*"]
+
+jobs:
+  call-build-workflow:
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      platform: linux/arm64
+      suffix: -arm64
+      runner: ubuntu-22.04-arm
+    permissions:
+      contents: read
+      packages: write
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
