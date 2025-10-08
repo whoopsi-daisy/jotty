@@ -30,14 +30,14 @@ export const NoteEditor = ({
   const viewModel = useNoteEditor({
     note,
     onUpdate,
-    onDelete: onDelete || (() => {}),
+    onDelete: onDelete || (() => { }),
     onBack,
   });
   const isOwner = note.owner === currentUsername;
   const [showTOC, setShowTOC] = useState(false);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-background h-full overflow-y-auto">
+    <div className="flex-1 flex flex-col overflow-hidden bg-background h-full overflow-y-auto h-full">
       <NoteEditorHeader
         note={note}
         categories={categories}
@@ -50,7 +50,7 @@ export const NoteEditor = ({
         setShowTOC={setShowTOC}
       />
 
-      <div>
+      <div className="h-full">
         <NoteEditorContent
           isEditing={viewModel.isEditing}
           noteContent={note.content}

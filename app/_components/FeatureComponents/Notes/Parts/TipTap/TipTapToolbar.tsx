@@ -20,6 +20,7 @@ import { FileModal } from "@/app/_components/GlobalComponents/Modals/FilesModal/
 import { CodeBlockDropdown } from "../CodeBlock/CodeBlockDropdown";
 import { TableInsertModal } from "../Table/TableInsertModal";
 import { useState } from "react";
+import { cn } from "@/app/_utils/global-utils"; // Make sure cn is imported if not already
 
 type ToolbarProps = {
   editor: Editor | null;
@@ -93,14 +94,14 @@ export const TiptapToolbar = ({
   };
 
   return (
-    <div className="bg-background flex w-full items-center gap-4 px-0 lg:px-2 py-2 md:justify-between">
+    <div className="bg-background flex w-full items-center lg:gap-4 px-0 lg:px-2 lg:py-2 md:justify-between">
       <div className="flex-shrink-0 md:order-last">
         <Button
           variant="ghost"
           size="sm"
           onMouseDown={(e) => e.preventDefault()}
           onClick={toggleMode}
-          className="flex-shrink-0"
+          className="flex-shrink-0 hidden lg:block"
         >
           {isMarkdownMode ? (
             <>
@@ -116,7 +117,37 @@ export const TiptapToolbar = ({
         </Button>
       </div>
 
-      <div className="flex flex-1 min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap md:flex-wrap md:whitespace-normal">
+      <div className="fixed bottom-[64px] w-full left-0 lg:hidden z-40 bg-background">
+        <div className="flex gap-1 p-2 border-b border-border w-full justify-center items-center">
+          <Button
+            variant={!isMarkdownMode ? "default" : "ghost"}
+            className={`w-1/2`}
+            size="sm"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={toggleMode}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            <span>Rich Text</span>
+          </Button>
+
+          <Button
+            variant={isMarkdownMode ? "default" : "ghost"}
+            className={`w-1/2`}
+            size="sm"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={toggleMode}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            <span>Markdown</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* --- THIS IS THE MODIFIED LINE --- */}
+      <div className={cn(
+        "flex flex-1 min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap md:flex-wrap md:whitespace-normal",
+        "hide-scrollbar scroll-fade-right" // Apply the new custom classes here
+      )}>
         <Button
           variant={editor.isActive("bold") ? "secondary" : "ghost"}
           size="sm"
