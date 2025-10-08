@@ -80,7 +80,7 @@ export const SidebarItem = ({
             e.stopPropagation();
             onEditItem(item);
           }}
-          className="h-8 w-8 p-0 opacity-0 hover:bg-muted/50 text-foreground group-hover/item:opacity-100 transition-opacity"
+          className="h-8 w-8 p-0 opacity-40 lg:opacity-0 hover:bg-muted/50 text-foreground group-hover/item:opacity-100 transition-opacity"
         >
           <Edit className="h-4 w-4" />
         </Button>

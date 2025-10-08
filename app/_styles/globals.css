@@ -344,6 +344,16 @@
     }
 }
 
+@media (max-width: 768px) {
+    html {
+      scroll-padding-bottom: 20px;
+    }
+    
+    input:focus, textarea:focus {
+      scroll-margin-bottom: 20px;
+    }
+  }
+
 
 .dragging {
     opacity: 0.5;

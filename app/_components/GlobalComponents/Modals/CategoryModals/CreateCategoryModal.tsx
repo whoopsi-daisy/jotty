@@ -80,6 +80,7 @@ export const CreateCategoryModal = ({
             onCategorySelect={setParentCategory}
             placeholder="No parent (root level)"
             className="w-full"
+            isInModal={true}
           />
         </div>
 

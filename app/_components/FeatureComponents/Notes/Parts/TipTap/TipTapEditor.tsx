@@ -196,29 +196,12 @@ export const TiptapEditor = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between">
-        <div className="flex-1 min-w-0">
-          <TiptapToolbar editor={editor} />
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={toggleMode}
-          className="ml-2 flex-shrink-0"
-        >
-          {isMarkdownMode ? (
-            <>
-              <Eye className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Rich Text</span>
-            </>
-          ) : (
-            <>
-              <FileText className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Markdown</span>
-            </>
-          )}
-        </Button>
+      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-[69px] lg:top-[63px] z-10">
+        <TiptapToolbar
+          editor={editor}
+          isMarkdownMode={isMarkdownMode}
+          setIsMarkdownMode={setIsMarkdownMode}
+        />
       </div>
 
       {isMarkdownMode ? (

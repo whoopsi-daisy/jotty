@@ -3,7 +3,7 @@
 <p align="center">
   <br />
   <a href="https://www.buymeacoffee.com/fccview">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="130">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
   </a>
 </p>
 

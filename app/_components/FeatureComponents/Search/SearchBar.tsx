@@ -5,6 +5,7 @@ import { Checklist, Note, AppMode } from "@/app/_types";
 import { SearchInput } from "./Parts/SearchInput";
 import { SearchResults } from "./Parts/SearchResults";
 import { useSearch } from "@/app/_hooks/useSearch";
+import { useEffect } from "react";
 
 interface SearchBarProps {
   mode: AppMode;
@@ -12,6 +13,7 @@ interface SearchBarProps {
   notes: Note[];
   onModeChange?: (mode: AppMode) => void;
   className?: string;
+  autoFocus?: boolean;
 }
 
 export const SearchBar = ({
@@ -20,6 +22,7 @@ export const SearchBar = ({
   notes,
   onModeChange,
   className,
+  autoFocus = false,
 }: SearchBarProps) => {
   const {
     isOpen,
@@ -33,8 +36,20 @@ export const SearchBar = ({
     containerRef,
   } = useSearch({ mode, checklists, notes, onModeChange });
 
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [autoFocus, inputRef]);
+
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div
+      ref={containerRef}
+      className={cn("relative", className)}
+      onClick={(e) => e.stopPropagation()}
+    >
       <SearchInput
         query={query}
         onQueryChange={setQuery}

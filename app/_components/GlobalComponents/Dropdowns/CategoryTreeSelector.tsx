@@ -12,6 +12,7 @@ interface CategoryTreeSelectorProps {
   onCategorySelect: (categoryPath: string) => void;
   placeholder?: string;
   className?: string;
+  isInModal?: boolean;
 }
 
 export const CategoryTreeSelector = ({
@@ -20,6 +21,7 @@ export const CategoryTreeSelector = ({
   onCategorySelect,
   placeholder = "Select category...",
   className,
+  isInModal = false,
 }: CategoryTreeSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -97,7 +99,7 @@ export const CategoryTreeSelector = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full w-full z-20 mt-1 bg-background border border-input rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className={cn("absolute w-full z-20 mt-1 bg-background border border-input rounded-md shadow-lg max-h-60 overflow-y-auto", isInModal ? "bottom-full lg:top-full lg:bottom-auto" : "top-full")}>
           <div className="p-2">
             <div
               className={cn(
@@ -106,7 +108,7 @@ export const CategoryTreeSelector = ({
               )}
               onClick={() => handleCategoryClick("")}
             >
-              <div className="w-5" /> {/* Spacer */}
+              <div className="w-5" />
               <Folder className="h-4 w-4 text-muted-foreground" />
               <span>Uncategorized</span>
             </div>

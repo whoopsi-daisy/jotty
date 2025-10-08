@@ -26,7 +26,7 @@ export const CategoryInput = ({
 }: CategoryInputProps) => {
   const selectedCategoryName = selectedCategory
     ? categories.find((c) => c.path === selectedCategory)?.name ||
-      selectedCategory
+    selectedCategory
     : "Root level";
 
   return (
@@ -66,6 +66,7 @@ export const CategoryInput = ({
             selectedCategory={selectedCategory}
             onCategorySelect={onCategoryChange}
             className="flex-1"
+            isInModal
           />
           <Button
             type="button"

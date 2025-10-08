@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Settings, Shield } from "lucide-react";
+import { LogOut, Menu, Search, Settings, Shield, X } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { SearchBar } from "@/app/_components/FeatureComponents/Search/SearchBar";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,8 @@ import { logout } from "@/app/_server/actions/auth";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Checklist, Note, AppMode } from "@/app/_types";
+import { cn } from "@/app/_utils/global-utils";
+import { useState } from "react";
 
 interface QuickNavProps {
   showSidebarToggle?: boolean;
@@ -31,6 +33,7 @@ export const QuickNav = ({
   const router = useRouter();
   const { mode } = useAppMode();
   const { checkNavigation } = useNavigationGuard();
+  const [toggleMobileSearch, setToggleMobileSearch] = useState(false);
 
   async function handleLogout() {
     await logout();
@@ -38,20 +41,46 @@ export const QuickNav = ({
   }
 
   return (
-    <header className="bg-background border-b border-border px-4 py-3 lg:px-6 lg:py-5">
-      <div className="flex items-center gap-2 md:gap-4 justify-between w-full">
+    <header className="lg:border-b lg:border-border">
+      <div
+        className={cn(
+          "fixed inset-0 z-40 flex items-start justify-center bg-background/80 pt-[25vh] backdrop-blur-sm px-4 lg:hidden",
+          toggleMobileSearch ? "flex" : "hidden"
+        )}
+        onClick={() => setToggleMobileSearch(false)}
+      >
+        <SearchBar
+          mode={mode}
+          checklists={checklists}
+          notes={notes}
+          className="w-full max-w-md"
+          autoFocus={toggleMobileSearch}
+          onModeChange={
+            onModeChange
+              ? (mode) => checkNavigation(() => onModeChange(mode))
+              : undefined
+          }
+        />
+      </div>
+
+      <nav
+        className={cn(
+          "fixed bottom-0 left-0 right-0 z-30 flex h-16 items-center justify-around border-t bg-background",
+          "lg:relative lg:h-auto lg:justify-between lg:border-t-0 lg:px-6 lg:py-5"
+        )}
+      >
         {showSidebarToggle && onSidebarToggle && (
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={onSidebarToggle}
-            className="lg:hidden h-10 w-10 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
+            className="text-muted-foreground hover:text-foreground lg:hidden"
           >
             <Menu className="h-5 w-5" />
           </Button>
         )}
 
-        <div className="flex-1 min-w-0 max-w-lg mx-1 md:mx-4">
+        <div className="hidden lg:block lg:flex-1 lg:max-w-lg lg:px-4">
           <SearchBar
             mode={mode}
             checklists={checklists}
@@ -64,39 +93,48 @@ export const QuickNav = ({
           />
         </div>
 
-        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
+        <div className="contents lg:flex lg:items-center lg:gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setToggleMobileSearch(!toggleMobileSearch)}
+            className="text-muted-foreground hover:text-foreground lg:hidden"
+          >
+            {toggleMobileSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+          </Button>
+
           {onOpenSettings && (
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => checkNavigation(() => onOpenSettings())}
-              className="h-8 w-8 md:h-10 md:w-10 p-0 text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground"
             >
-              <Settings className="h-4 w-4 md:h-5 md:w-5" />
+              <Settings className="h-5 w-5" />
             </Button>
           )}
 
           {isAdmin && (
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => checkNavigation(() => router.push("/admin"))}
-              className="h-8 w-8 md:h-10 md:w-10 p-0 text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground"
             >
-              <Shield className="h-4 w-4 md:h-5 md:w-5" />
+              <Shield className="h-5 w-5" />
             </Button>
           )}
 
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleLogout}
-            className="h-8 w-8 md:h-10 md:w-10 p-0 text-muted-foreground hover:text-foreground"
+            className="text-destructive hover:text-destructive"
           >
-            <LogOut className="h-4 w-4 md:h-5 md:w-5" />
+            <LogOut className="h-5 w-5" />
           </Button>
         </div>
-      </div>
+      </nav>
     </header>
   );
 };

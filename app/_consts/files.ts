@@ -17,3 +17,4 @@ export const USERS_FILE = path.join("data", "users", "users.json");
 export const SESSIONS_FILE = path.join(USERS_DIR, "sessions.json");
 export const SESSION_DATA_FILE = path.join(USERS_DIR, "session-data.json");
 export const SHARED_ITEMS_FILE = path.join(SHARING_DIR, "shared-items.json");
+export const EXPORT_TEMP_DIR = path.join(DATA_DIR, "temp_exports");

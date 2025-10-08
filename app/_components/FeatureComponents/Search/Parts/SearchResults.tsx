@@ -51,42 +51,42 @@ export const SearchResults = ({
   }
 
   return (
-    <div className="max-h-96 overflow-y-auto">
+    <div className="max-h-[50vh] overflow-y-auto">
       {results.map((result, index) => (
         <button
           key={result.id}
           onClick={() => onSelectResult(result)}
           className={cn(
-            "w-full text-left p-3 hover:bg-accent transition-colors border-b border-border last:border-b-0",
+            "w-full border-b border-border p-4 text-left transition-colors last:border-b-0 hover:bg-accent md:p-3",
             selectedIndex === index && "bg-accent"
           )}
         >
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-1">
               {result.type === "checklist" ? (
-                <CheckSquare className="h-4 w-4 text-primary" />
+                <CheckSquare className="h-5 w-5 text-primary md:h-4 md:w-4" />
               ) : (
-                <FileText className="h-4 w-4 text-primary" />
+                <FileText className="h-5 w-5 text-primary md:h-4 md:w-4" />
               )}
             </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-medium text-foreground truncate">
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex items-center gap-2">
+                <h4 className="truncate text-base text-foreground md:text-sm md:font-medium">
                   {result.title}
                 </h4>
                 {result.isShared && (
-                  <Users className="h-3 w-3 text-primary flex-shrink-0" />
+                  <Users className="h-4 w-4 flex-shrink-0 text-primary md:h-3 md:w-3" />
                 )}
               </div>
 
               {result.content && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p className="line-clamp-2 text-sm text-muted-foreground">
                   {getSnippet(result.content, query)}
                 </p>
               )}
 
-              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground md:mt-1 md:text-xs">
                 <span className="capitalize">{result.type}</span>
                 {result.category && (
                   <>

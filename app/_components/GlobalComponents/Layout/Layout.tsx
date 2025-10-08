@@ -58,7 +58,7 @@ export const Layout = ({
   }
 
   return (
-    <div className="flex h-screen bg-background w-full overflow-hidden relative">
+    <div className="flex h-screen bg-background w-full overflow-hidden relative pb-16 lg:pb-0">
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}

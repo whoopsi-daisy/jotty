@@ -30,7 +30,7 @@ export const NoteEditor = ({
   const viewModel = useNoteEditor({
     note,
     onUpdate,
-    onDelete: onDelete || (() => { }),
+    onDelete: onDelete || (() => {}),
     onBack,
   });
   const isOwner = note.owner === currentUsername;
@@ -50,7 +50,7 @@ export const NoteEditor = ({
         setShowTOC={setShowTOC}
       />
 
-      <div className="flex-1 flex">
+      <div>
         <NoteEditorContent
           isEditing={viewModel.isEditing}
           noteContent={note.content}

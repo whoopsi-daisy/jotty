@@ -36,13 +36,13 @@ export const ChecklistHeading = ({
 
   const { handleCopyId, copied } = useChecklist({
     list: checklist,
-    onUpdate: () => {},
+    onUpdate: () => { },
   });
   const { sharingStatus } = useSharing({
     itemId: checklist.id,
     itemType: "checklist",
     itemOwner: checklist.owner || "",
-    onClose: () => {},
+    onClose: () => { },
     enabled: true,
     itemTitle: checklist.title,
     itemCategory: checklist.category,
@@ -94,7 +94,7 @@ export const ChecklistHeading = ({
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 lg:relative lg:bottom-auto lg:left-auto lg:right-auto bg-background border-t lg:border-t-0 border-border p-4 lg:p-0 z-50 lg:z-auto items-center">
+        <div className="fixed bottom-[64px] left-0 right-0 lg:relative lg:bottom-auto lg:left-auto lg:right-auto bg-background border-t lg:border-t-0 border-border p-4 lg:p-0 z-20 lg:z-auto items-center">
           <form
             onSubmit={handleSubmit}
             className="flex gap-3 lg:flex-row lg:items-center"

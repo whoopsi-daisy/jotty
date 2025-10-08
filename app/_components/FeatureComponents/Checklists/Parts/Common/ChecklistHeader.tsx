@@ -29,14 +29,14 @@ export const ChecklistHeader = ({
   onConvertType,
 }: ChecklistHeaderProps) => {
   return (
-    <div className="bg-background border-b border-border px-3 py-2 lg:px-6 lg:py-1.5">
+    <div className="bg-background border-b border-border px-3 py-4 lg:px-6 lg:py-1.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 lg:gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            className="h-10 w-10 p-0 text-muted-foreground hover:text-foreground hover:bg-muted/50"
           >
             <ArrowLeft className="h-4 w-4 lg:h-5 lg:w-5" />
           </Button>
@@ -48,7 +48,7 @@ export const ChecklistHeader = ({
               variant="outline"
               size="sm"
               onClick={onConvertType}
-              className="h-8 w-8 lg:h-10 lg:w-10 p-0"
+              className="h-10 w-10 p-0"
               title={
                 checklist.type === "task"
                   ? "Convert to Simple Checklist"
@@ -67,7 +67,7 @@ export const ChecklistHeader = ({
               variant="outline"
               size="sm"
               onClick={onShare}
-              className="h-8 w-8 lg:h-10 lg:w-10 p-0"
+              className="h-10 w-10 p-0"
             >
               <Share2 className="h-4 w-4 lg:h-5 lg:w-5" />
             </Button>
@@ -77,7 +77,7 @@ export const ChecklistHeader = ({
               variant="outline"
               size="sm"
               onClick={onEdit}
-              className="h-8 w-8 lg:h-10 lg:w-10 p-0"
+              className="h-10 w-10 p-0"
             >
               <Edit3 className="h-4 w-4 lg:h-5 lg:w-5" />
             </Button>
@@ -87,7 +87,7 @@ export const ChecklistHeader = ({
               variant="outline"
               size="sm"
               onClick={onDelete}
-              className="h-8 w-8 lg:h-10 lg:w-10 p-0 text-destructive hover:text-destructive"
+              className="h-10 w-10 p-0 text-destructive hover:text-destructive"
             >
               <Trash2 className="h-4 w-4 lg:h-5 lg:w-5" />
             </Button>

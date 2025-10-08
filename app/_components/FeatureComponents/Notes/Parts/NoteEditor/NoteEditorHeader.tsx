@@ -79,9 +79,9 @@ export const NoteEditorHeader = ({
 
   return (
     <>
-      <div className="bg-background border-b border-border px-4 py-3">
+      <div className="bg-background border-b border-border px-4 py-3 sticky top-0 z-20">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0 focus-within:min-w-[90%] transition-all duration-100">
             <Button
               variant="ghost"
               size="icon"
@@ -124,6 +124,14 @@ export const NoteEditorHeader = ({
           <div className="flex items-center gap-2 flex-shrink-0">
             {isEditing ? (
               <>
+                {isOwner && (
+                  <CategoryTreeSelector
+                    categories={categories}
+                    selectedCategory={category}
+                    onCategorySelect={viewModel.setCategory}
+                  />
+                )}
+
                 <Button variant="outline" size="sm" onClick={handleCancel}>
                   Cancel
                 </Button>
@@ -199,15 +207,6 @@ export const NoteEditorHeader = ({
             )}
           </div>
         </div>
-        {isEditing && isOwner && (
-          <div className="mt-3 pl-12">
-            <CategoryTreeSelector
-              categories={categories}
-              selectedCategory={category}
-              onCategorySelect={viewModel.setCategory}
-            />
-          </div>
-        )}
       </div>
       {showShareModal && (
         <ShareModal
