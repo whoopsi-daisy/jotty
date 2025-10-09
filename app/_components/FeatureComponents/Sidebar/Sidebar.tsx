@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { LogOut, Settings, Shield, User, X } from "lucide-react";
 import { cn } from "@/app/_utils/global-utils";
 import { DeleteCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/DeleteCategoryModal";
 import { RenameCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/RenameCategoryModal";
@@ -16,6 +16,11 @@ import { SharedItemsList } from "./Parts/SharedItemsList";
 import { SidebarActions } from "./Parts/SidebarActions";
 import { Modes } from "@/app/_types/enums";
 import { SidebarProps, useSidebar } from "@/app/_hooks/useSidebar";
+import { Button } from "../../GlobalComponents/Buttons/Button";
+import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
+import { useRouter } from "next/navigation";
+import { NavigationGlobalIcon } from "../Navigation/Parts/NavigationGlobalIcon";
+import { NavigationLogoutIcon } from "../Navigation/Parts/NavigationLogoutIcon";
 
 export const Sidebar = (props: SidebarProps) => {
   const {
@@ -28,7 +33,11 @@ export const Sidebar = (props: SidebarProps) => {
     onOpenCategoryModal,
     username,
     isAdmin,
+    onOpenSettings,
   } = props;
+
+  const { checkNavigation } = useNavigationGuard();
+  const router = useRouter();
 
   const sidebar = useSidebar(props);
 
@@ -47,10 +56,12 @@ export const Sidebar = (props: SidebarProps) => {
         onClick={onClose}
       />
       <aside
-        style={{
-          '--sidebar-desktop-width': `${sidebar.sidebarWidth}px`,
-          transition: sidebar.isResizing ? "none" : undefined,
-        } as React.CSSProperties}
+        style={
+          {
+            "--sidebar-desktop-width": `${sidebar.sidebarWidth}px`,
+            transition: sidebar.isResizing ? "none" : undefined,
+          } as React.CSSProperties
+        }
         className={cn(
           "fixed left-0 top-0 z-50 h-full bg-background border-r border-border flex flex-col lg:static",
           "transition-transform duration-300 ease-in-out",
@@ -79,12 +90,10 @@ export const Sidebar = (props: SidebarProps) => {
               </button>
             </div>
           </div>
-
           <SidebarNavigation
             mode={sidebar.mode}
             onModeChange={sidebar.handleModeSwitch}
           />
-
           <div className="flex-1 overflow-y-auto p-2 space-y-4">
             <div className="px-2 pt-2">
               <div className="flex items-center justify-between">
@@ -102,7 +111,9 @@ export const Sidebar = (props: SidebarProps) => {
             <SharedItemsList
               items={currentItems}
               collapsed={sidebar.sharedItemsCollapsed}
-              onToggleCollapsed={() => sidebar.setSharedItemsCollapsed((p) => !p)}
+              onToggleCollapsed={() =>
+                sidebar.setSharedItemsCollapsed((p) => !p)
+              }
               onItemClick={sidebar.handleItemClick}
               onEditItem={sidebar.handleEditItem}
               isItemSelected={sidebar.isItemSelected}
@@ -114,8 +125,12 @@ export const Sidebar = (props: SidebarProps) => {
               items={currentItems}
               collapsedCategories={sidebar.collapsedCategoriesForMode}
               onToggleCategory={sidebar.toggleCategory}
-              onDeleteCategory={(path: string) => sidebar.openModal("deleteCategory", path)}
-              onRenameCategory={(path: string) => sidebar.openModal("renameCategory", path)}
+              onDeleteCategory={(path: string) =>
+                sidebar.openModal("deleteCategory", path)
+              }
+              onRenameCategory={(path: string) =>
+                sidebar.openModal("renameCategory", path)
+              }
               onQuickCreate={onOpenCreateModal}
               onCreateSubcategory={onOpenCategoryModal}
               onItemClick={sidebar.handleItemClick}
@@ -125,14 +140,77 @@ export const Sidebar = (props: SidebarProps) => {
               getSharingStatus={sidebar.getSharingStatus}
             />
           </div>
-
           <SidebarActions
             mode={sidebar.mode}
             onOpenCreateModal={onOpenCreateModal}
             onOpenCategoryModal={onOpenCategoryModal}
-            username={username}
-            isAdmin={isAdmin}
-          /> {/* FIX 2: Removed stray '}' here */}
+          />
+
+          <div className="hidden lg:flex items-center justify-between px-4 pb-4">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                checkNavigation(() => router.push("/profile"));
+              }}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span className="truncate">{username}</span>
+              {isAdmin && (
+                <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded">
+                  Admin
+                </span>
+              )}
+            </button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={(e) => {
+                e.preventDefault();
+                checkNavigation(() => router.push("/profile"));
+              }}
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-2 lg:hidden">
+            <div className="flex">
+              <NavigationGlobalIcon
+                icon={<User className="h-6 w-6" />}
+                onClick={() => checkNavigation(() => router.push("/profile"))}
+              />
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  checkNavigation(() => router.push("/profile"));
+                }}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {isAdmin && (
+                  <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-md">
+                    Admin
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <NavigationGlobalIcon
+                icon={<Settings className="h-6 w-6" />}
+                onClick={() => checkNavigation(() => onOpenSettings())}
+              />
+
+              {isAdmin && (
+                <NavigationGlobalIcon
+                  icon={<Shield className="h-5 w-5" />}
+                  onClick={() => checkNavigation(() => router.push("/admin"))}
+                />
+              )}
+
+              <NavigationLogoutIcon />
+            </div>
+          </div>
         </div>
       </aside>
 

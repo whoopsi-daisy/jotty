@@ -8,11 +8,7 @@ import { ExportResult, ExportProgress } from "@/app/_types";
 import { DATA_DIR, USERS_FILE, EXPORT_TEMP_DIR } from "@/app/_consts/files";
 import { getAllLists } from "@/app/_server/actions/checklist";
 import { getAllNotes } from "@/app/_server/actions/note";
-import {
-  readJsonFile,
-  serverReadDir,
-  ensureDir,
-} from "@/app/_server/actions/file";
+import { readJsonFile, ensureDir } from "@/app/_server/actions/file";
 import { User } from "@/app/_types";
 
 let exportProgress: ExportProgress = {
@@ -65,7 +61,7 @@ const zipDirectory = async (
     if (excludeTempExports) {
       archive.glob("**/*", {
         cwd: sourceDir,
-        ignore: ["temp_exports/**"]
+        ignore: ["temp_exports/**"],
       });
     } else {
       archive.directory(sourceDir, false);

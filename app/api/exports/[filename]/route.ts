@@ -16,20 +16,21 @@ export async function GET(
     headers.set("Content-Type", "application/zip");
     headers.set("Content-Disposition", `attachment; filename="${filename}"`);
 
-    fs.unlink(filePath)
-      .then(async () => {
-        try {
-          const filesInDir = await fs.readdir(
-            path.join(process.cwd(), EXPORT_TEMP_DIR)
-          );
-          if (filesInDir.length === 0) {
-            await fs.rmdir(path.join(process.cwd(), EXPORT_TEMP_DIR));
-          }
-        } catch (dirErr) {
-          console.error("Error cleaning up temp export directory:", dirErr);
-        }
-      })
-      .catch((err) => console.error("Error deleting temp export file:", err));
+    await fs.unlink(filePath);
+    try {
+      const filesInDir = await fs.readdir(
+        path.join(process.cwd(), EXPORT_TEMP_DIR)
+      );
+      if (filesInDir.length === 0) {
+        await fs.rmdir(path.join(process.cwd(), EXPORT_TEMP_DIR));
+      }
+    } catch (dirErr) {
+      if ((dirErr as NodeJS.ErrnoException).code === "ENOENT") {
+        console.log("Temporary export directory already removed or empty.");
+      } else {
+        console.error("Error cleaning up temp export directory:", dirErr);
+      }
+    }
 
     return new NextResponse(new Blob([new Uint8Array(fileBuffer)]), {
       headers,

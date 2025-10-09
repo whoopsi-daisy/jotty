@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Checklist, Note, User as UserType } from "@/app/_types";
 import { AdminContentColumn } from "./AdminContentColumn";
-import { ExportContent } from "../ExportContent";
+import { ExportContent } from "./AdminExport";
 import { Accordion } from "@/app/_components/GlobalComponents/Layout/Accordion";
 
 interface AdminContentProps {

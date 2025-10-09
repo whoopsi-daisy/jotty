@@ -63,7 +63,7 @@ interface ExportContentProps {
 
 export const ExportContent = ({ users }: ExportContentProps) => {
   const [selectedExportType, setSelectedExportType] = useState<ExportType>(
-    exportOptions[0].id
+    exportOptions[3].id
   );
   const [selectedUser, setSelectedUser] = useState<string | undefined>(
     undefined
@@ -160,7 +160,7 @@ export const ExportContent = ({ users }: ExportContentProps) => {
         </p>
       </div>
 
-      <div className="space-y-4 p-6 border rounded-lg bg-background shadow-sm">
+      <div className="space-y-4 p-6 rounded-lg bg-muted/50 shadow-sm">
         <Dropdown
           onChange={(value) => setSelectedExportType(value as ExportType)}
           value={selectedExportType}
@@ -172,7 +172,7 @@ export const ExportContent = ({ users }: ExportContentProps) => {
           className="w-full bg-background"
         />
 
-        <p className="text-muted-foreground pt-2 min-h-[40px]">
+        <p className="text-muted-foreground pt-2 min-h-[40px] font-medium text-sm">
           {selectedOption.description}
         </p>
 
@@ -192,28 +192,26 @@ export const ExportContent = ({ users }: ExportContentProps) => {
           </div>
         )}
 
-        <div className="pt-4">
-          <Button
-            onClick={handleExport}
-            disabled={isExportDisabled}
-            className="w-full md:w-auto"
-          >
-            Export Data
-          </Button>
-        </div>
+        <Button
+          onClick={handleExport}
+          disabled={isExportDisabled}
+          className="w-full md:w-auto"
+        >
+          Export Data
+        </Button>
       </div>
 
       {exporting && (
         <div className="space-y-2">
           <ProgressBar progress={progress.progress} />
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-muted-foreground font-medium text-center">
             {progress.message}
           </p>
         </div>
       )}
 
       {downloadUrl && !exporting && (
-        <div className="p-4 border rounded-md bg-secondary text-secondary-foreground text-center">
+        <div className="p-4 border rounded-md bg-secondary text-secondary-foreground text-center text-sm">
           <p>
             Export ready!{" "}
             <a

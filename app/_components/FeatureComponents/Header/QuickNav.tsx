@@ -1,15 +1,17 @@
 "use client";
 
-import { LogOut, Menu, Search, Settings, Shield, X } from "lucide-react";
+import { CheckSquare, FileText, Menu, Settings, Shield } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { SearchBar } from "@/app/_components/FeatureComponents/Search/SearchBar";
 import { useRouter } from "next/navigation";
-import { logout } from "@/app/_server/actions/auth";
+
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Checklist, Note, AppMode } from "@/app/_types";
+import { Modes } from "@/app/_types/enums";
 import { cn } from "@/app/_utils/global-utils";
-import { useState } from "react";
+import { NavigationGlobalIcon } from "../Navigation/Parts/NavigationGlobalIcon";
+import { NavigationSearchIcon } from "../Navigation/Parts/NavigationSearchIcon";
+import { NavigationLogoutIcon } from "../Navigation/Parts/NavigationLogoutIcon";
 
 interface QuickNavProps {
   showSidebarToggle?: boolean;
@@ -33,40 +35,13 @@ export const QuickNav = ({
   const router = useRouter();
   const { mode } = useAppMode();
   const { checkNavigation } = useNavigationGuard();
-  const [toggleMobileSearch, setToggleMobileSearch] = useState(false);
-
-  async function handleLogout() {
-    await logout();
-    router.push("/login");
-  }
 
   return (
     <header className="lg:border-b lg:border-border">
-      <div
-        className={cn(
-          "fixed inset-0 z-40 flex items-start justify-center bg-background/80 pt-[25vh] backdrop-blur-sm px-4 lg:hidden",
-          toggleMobileSearch ? "flex" : "hidden"
-        )}
-        onClick={() => setToggleMobileSearch(false)}
-      >
-        <SearchBar
-          mode={mode}
-          checklists={checklists}
-          notes={notes}
-          className="w-full max-w-md"
-          autoFocus={toggleMobileSearch}
-          onModeChange={
-            onModeChange
-              ? (mode) => checkNavigation(() => onModeChange(mode))
-              : undefined
-          }
-        />
-      </div>
-
       <nav
         className={cn(
           "fixed bottom-0 left-0 right-0 z-30 flex h-16 items-center justify-around border-t bg-background",
-          "lg:relative lg:h-auto lg:justify-between lg:border-t-0 lg:px-6 lg:py-5"
+          "lg:relative lg:h-auto lg:justify-end lg:border-t-0 lg:px-6 lg:py-5"
         )}
       >
         {showSidebarToggle && onSidebarToggle && (
@@ -80,59 +55,74 @@ export const QuickNav = ({
           </Button>
         )}
 
-        <div className="hidden lg:block lg:flex-1 lg:max-w-lg lg:px-4">
-          <SearchBar
-            mode={mode}
+        <div className="hidden lg:flex lg:items-center lg:gap-2">
+          <NavigationSearchIcon
             checklists={checklists}
             notes={notes}
-            onModeChange={
-              onModeChange
-                ? (mode) => checkNavigation(() => onModeChange(mode))
-                : undefined
-            }
+            onModeChange={onModeChange}
           />
-        </div>
-
-        <div className="contents lg:flex lg:items-center lg:gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setToggleMobileSearch(!toggleMobileSearch)}
-            className="text-muted-foreground hover:text-foreground lg:hidden"
-          >
-            {toggleMobileSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
-          </Button>
 
           {onOpenSettings && (
-            <Button
-              variant="ghost"
-              size="icon"
+            <NavigationGlobalIcon
+              icon={<Settings className="h-5 w-5" />}
               onClick={() => checkNavigation(() => onOpenSettings())}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Settings className="h-5 w-5" />
-            </Button>
+            />
           )}
 
           {isAdmin && (
-            <Button
-              variant="ghost"
-              size="icon"
+            <NavigationGlobalIcon
+              icon={<Shield className="h-5 w-5" />}
               onClick={() => checkNavigation(() => router.push("/admin"))}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Shield className="h-5 w-5" />
-            </Button>
+            />
           )}
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleLogout}
-            className="text-destructive hover:text-destructive"
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
+          <NavigationLogoutIcon />
+        </div>
+
+        <div className="contents lg:hidden">
+          <NavigationGlobalIcon
+            icon={
+              <CheckSquare
+                className={cn(
+                  "h-5 w-5",
+                  mode === Modes.CHECKLISTS
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+              />
+            }
+            onClick={() =>
+              checkNavigation(() => {
+                onModeChange?.(Modes.CHECKLISTS);
+                router.push("/");
+              })
+            }
+          />
+
+          <NavigationGlobalIcon
+            icon={
+              <FileText
+                className={cn(
+                  "h-5 w-5",
+                  mode === Modes.NOTES
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+              />
+            }
+            onClick={() =>
+              checkNavigation(() => {
+                onModeChange?.(Modes.NOTES);
+                router.push("/");
+              })
+            }
+          />
+
+          <NavigationSearchIcon
+            checklists={checklists}
+            notes={notes}
+            onModeChange={onModeChange}
+          />
         </div>
       </nav>
     </header>

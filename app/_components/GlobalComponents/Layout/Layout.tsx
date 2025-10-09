@@ -5,6 +5,8 @@ import { QuickNav } from "@/app/_components/FeatureComponents/Header/QuickNav";
 import { Sidebar } from "@/app/_components/FeatureComponents/Sidebar/Sidebar";
 import { Checklist, Category, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
+import { useMobileGestures } from "@/app/_hooks/useMobileGestures";
+import { isMobileDevice } from "@/app/_utils/global-utils";
 
 interface SharingStatus {
   isShared: boolean;
@@ -44,6 +46,14 @@ export const Layout = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { setMode, isInitialized } = useAppMode();
 
+  useMobileGestures({
+    onSwipeRight: () => setSidebarOpen(true),
+    enabled: isMobileDevice(),
+    swipeThreshold: 15,
+    edgeThreshold: 400,
+    velocityThreshold: 0.02,
+  });
+
   const notesMemo = useMemo(() => docs || [], [docs]);
   const listsMemo = useMemo(() => lists || [], [lists]);
 
@@ -72,6 +82,7 @@ export const Layout = ({
         isAdmin={isAdmin}
         onCategoryDeleted={onCategoryDeleted}
         onCategoryRenamed={onCategoryRenamed}
+        onOpenSettings={onOpenSettings}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden">
