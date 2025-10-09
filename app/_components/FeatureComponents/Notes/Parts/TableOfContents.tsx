@@ -26,7 +26,10 @@ const useTableOfContents = (content: string) => {
     while ((match = headingRegex.exec(content)) !== null) {
       const level = match[1].length;
       const text = match[2].trim();
-      const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
+      const id = text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-");
       extractedHeadings.push({ id, text, level });
     }
     return extractedHeadings;
@@ -47,8 +50,10 @@ const useTableOfContents = (content: string) => {
       { rootMargin: "-85px 0px -70% 0px" }
     );
 
-    const elements = headings.map(h => document.getElementById(h.id)).filter(Boolean);
-    elements.forEach(el => observer.observe(el!));
+    const elements = headings
+      .map((h) => document.getElementById(h.id))
+      .filter(Boolean);
+    elements.forEach((el) => observer.observe(el!));
 
     return () => observer.disconnect();
   }, [headings]);
@@ -56,8 +61,12 @@ const useTableOfContents = (content: string) => {
   return { headings, activeHeading, setActiveHeading };
 };
 
-export const TableOfContents = ({ content, className }: TableOfContentsProps) => {
-  const { headings, activeHeading, setActiveHeading } = useTableOfContents(content);
+export const TableOfContents = ({
+  content,
+  className,
+}: TableOfContentsProps) => {
+  const { headings, activeHeading, setActiveHeading } =
+    useTableOfContents(content);
 
   const scrollToHeading = (id: string) => {
     const element = document.getElementById(id);
@@ -72,14 +81,16 @@ export const TableOfContents = ({ content, className }: TableOfContentsProps) =>
       return <p className="text-sm text-muted-foreground">No headings found</p>;
     }
     return (
-      <nav className="flex-1 overflow-y-auto">
+      <nav className="flex-1 overflow-hidden">
         {headings.map((heading) => (
           <button
             key={heading.id}
             onClick={() => scrollToHeading(heading.id)}
             className={cn(
               "block w-full text-left text-sm py-1 hover:text-foreground transition-colors focus:outline-none",
-              activeHeading === heading.id ? "text-primary font-medium" : "text-muted-foreground"
+              activeHeading === heading.id
+                ? "text-primary font-medium"
+                : "text-muted-foreground"
             )}
             style={{ paddingLeft: `${(heading.level - 1) * 16}px` }}
           >
@@ -91,14 +102,19 @@ export const TableOfContents = ({ content, className }: TableOfContentsProps) =>
   };
 
   return (
-    <aside className={cn("hidden lg:flex w-64 bg-background border-l border-border flex-col sticky h-[92vh] top-0", className)}>
+    <aside
+      className={cn(
+        "hidden lg:flex w-64 bg-background border-border flex-col sticky top-[77px]",
+        className
+      )}
+    >
       <div className="p-3 border-b border-border">
         <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
           <List className="h-4 w-4" />
           Contents
         </h3>
       </div>
-      <div className="p-3 flex-1 overflow-hidden flex flex-col">
+      <div className="p-3 flex-1 flex flex-col overflow-hidden">
         {renderContent()}
       </div>
     </aside>
