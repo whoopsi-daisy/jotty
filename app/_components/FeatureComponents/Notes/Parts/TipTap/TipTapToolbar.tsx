@@ -25,13 +25,13 @@ import { cn } from "@/app/_utils/global-utils"; // Make sure cn is imported if n
 type ToolbarProps = {
   editor: Editor | null;
   isMarkdownMode: boolean;
-  setIsMarkdownMode: (isMarkdownMode: boolean) => void;
+  toggleMode: () => void;
 };
 
 export const TiptapToolbar = ({
   editor,
   isMarkdownMode,
-  setIsMarkdownMode,
+  toggleMode,
 }: ToolbarProps) => {
   const [showFileModal, setShowFileModal] = useState(false);
   const [showTableModal, setShowTableModal] = useState(false);
@@ -89,10 +89,6 @@ export const TiptapToolbar = ({
     editor.commands.setTextSelection({ from, to });
   };
 
-  const toggleMode = () => {
-    setIsMarkdownMode(!isMarkdownMode);
-  };
-
   return (
     <div className="bg-background flex w-full items-center lg:gap-4 px-0 lg:px-2 lg:py-2 md:justify-between">
       <div className="flex-shrink-0 md:order-last">
@@ -101,7 +97,7 @@ export const TiptapToolbar = ({
           size="sm"
           onMouseDown={(e) => e.preventDefault()}
           onClick={toggleMode}
-          className="flex-shrink-0 hidden lg:block"
+          className="flex-shrink-0 hidden lg:flex"
         >
           {isMarkdownMode ? (
             <>

@@ -196,11 +196,11 @@ export const TiptapEditor = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-[63px] z-10">
+      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-0 z-10">
         <TiptapToolbar
           editor={editor}
           isMarkdownMode={isMarkdownMode}
-          setIsMarkdownMode={setIsMarkdownMode}
+          toggleMode={toggleMode}
         />
       </div>
 
