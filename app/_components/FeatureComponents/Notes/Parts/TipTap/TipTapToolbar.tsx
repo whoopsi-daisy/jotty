@@ -11,7 +11,6 @@ import {
   Image as ImageIcon,
   Paperclip,
   Table,
-  FileIcon,
   FileText,
   Eye,
 } from "lucide-react";
@@ -20,7 +19,7 @@ import { FileModal } from "@/app/_components/GlobalComponents/Modals/FilesModal/
 import { CodeBlockDropdown } from "../CodeBlock/CodeBlockDropdown";
 import { TableInsertModal } from "../Table/TableInsertModal";
 import { useState } from "react";
-import { cn } from "@/app/_utils/global-utils"; // Make sure cn is imported if not already
+import { cn } from "@/app/_utils/global-utils";
 
 type ToolbarProps = {
   editor: Editor | null;

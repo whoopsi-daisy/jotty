@@ -12,8 +12,6 @@ import CodeBlockComponent from "@/app/_components/FeatureComponents/Notes/Parts/
 import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapToolbar";
 import { FileAttachmentExtension } from "@/app/_components/FeatureComponents/Notes/Parts/FileAttachment/FileAttachmentExtension";
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { Eye, FileText } from "lucide-react";
 import { InputRule } from "@tiptap/core";
 import {
   convertMarkdownToHtml,
@@ -23,13 +21,11 @@ import {
 type TiptapEditorProps = {
   content: string;
   onChange: (content: string, isMarkdownMode: boolean) => void;
-  category?: string;
 };
 
 export const TiptapEditor = ({
   content,
-  onChange,
-  category,
+  onChange
 }: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);

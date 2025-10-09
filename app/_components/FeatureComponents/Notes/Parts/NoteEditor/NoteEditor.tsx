@@ -30,7 +30,7 @@ export const NoteEditor = ({
   const viewModel = useNoteEditor({
     note,
     onUpdate,
-    onDelete: onDelete || (() => {}),
+    onDelete: onDelete || (() => { }),
     onBack,
   });
   const isOwner = note.owner === currentUsername;
@@ -57,7 +57,6 @@ export const NoteEditor = ({
             noteContent={note.content}
             editorContent={viewModel.editorContent}
             onEditorContentChange={viewModel.handleEditorContentChange}
-            category={viewModel.category}
           />
         </div>
 

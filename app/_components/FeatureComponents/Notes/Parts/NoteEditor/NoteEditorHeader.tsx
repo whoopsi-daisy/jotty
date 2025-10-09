@@ -1,5 +1,4 @@
 import { ShareModal } from "@/app/_components/GlobalComponents/Modals/SharingModals/ShareModal";
-import { TableOfContents } from "../TableOfContents";
 import { CategoryTreeSelector } from "@/app/_components/GlobalComponents/Dropdowns/CategoryTreeSelector";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { ArrowLeft } from "lucide-react";
@@ -125,11 +124,13 @@ export const NoteEditorHeader = ({
             {isEditing ? (
               <>
                 {isOwner && (
-                  <CategoryTreeSelector
-                    categories={categories}
-                    selectedCategory={category}
-                    onCategorySelect={viewModel.setCategory}
-                  />
+                  <div className="lg:w-[400px]">
+                    <CategoryTreeSelector
+                      categories={categories}
+                      selectedCategory={category}
+                      onCategorySelect={viewModel.setCategory}
+                    />
+                  </div>
                 )}
 
                 <Button variant="outline" size="sm" onClick={handleCancel}>
