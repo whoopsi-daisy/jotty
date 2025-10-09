@@ -2,7 +2,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAppMode } from "../_providers/AppModeProvider";
 import { useNavigationGuard } from "../_providers/NavigationGuardProvider";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Checklist, Category, Note, AppMode } from "../_types";
+import { Checklist, Category, Note, AppMode, User } from "../_types";
 import { Modes } from "../_types/enums";
 import { deleteCategory, renameCategory } from "../_server/actions/category";
 
@@ -21,8 +21,7 @@ export interface SidebarProps {
   checklists: Checklist[];
   notes?: Note[];
   sharingStatuses?: Record<string, SharingStatus>;
-  username: string;
-  isAdmin: boolean;
+  user: User | null;
   onCategoryDeleted?: (categoryName: string) => void;
   onCategoryRenamed?: (oldName: string, newName: string) => void;
   onOpenSettings: () => void;
@@ -36,9 +35,7 @@ export const useSidebar = (props: SidebarProps) => {
     sharingStatuses = {},
     onCategoryDeleted,
     onCategoryRenamed,
-    onClose,
-    onOpenCreateModal,
-    onOpenCategoryModal,
+    onClose
   } = props;
 
   const router = useRouter();

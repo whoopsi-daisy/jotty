@@ -1,22 +1,31 @@
 "use client";
 
-import { Checklist } from "@/app/_types";
+import { Checklist, User } from "@/app/_types";
 import { PublicChecklistHeader } from "@/app/_components/FeatureComponents/PublicView/Parts/PublicChecklistHeader";
 import { PublicChecklistBody } from "@/app/_components/FeatureComponents/PublicView/Parts/PublicChecklistBody";
 
 interface PublicChecklistViewProps {
   checklist: Checklist;
+  user: User | null;
 }
 
 export const PublicChecklistView = ({
   checklist,
+  user,
 }: PublicChecklistViewProps) => {
+  let avatarUrl = "";
+  if (window) {
+    avatarUrl = window.location.origin + user?.avatarUrl;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <PublicChecklistHeader
           checklist={checklist}
           totalCount={checklist.items.length}
+          user={user}
+          avatarUrl={avatarUrl}
         />
 
         <main className="space-y-6">

@@ -64,6 +64,73 @@ function _getMimeType(fileName: string): string {
   return mimeTypeMap[ext] || "application/octet-stream";
 }
 
+export const uploadUserAvatar = async (formData: FormData) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    const file = formData.get("file") as File;
+    if (!file) {
+      return { success: false, error: "No file provided" };
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return {
+        success: false,
+        error: "File is too large. Maximum size is 10MB.",
+      };
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      return { success: false, error: "Invalid file type. Only images are allowed." };
+    }
+
+    const userDir = await getUserModeDir(Modes.NOTES);
+    const targetDir = path.join(userDir, "images");
+    await fs.mkdir(targetDir, { recursive: true });
+
+    const originalExt = path.extname(file.name).toLowerCase();
+    const originalBase = path.basename(file.name, originalExt);
+    const sanitizedBase = _sanitizeBaseName(originalBase);
+    let fileName = `${sanitizedBase}${originalExt}`;
+    let counter = 1;
+
+    while (
+      await fs
+        .access(path.join(targetDir, fileName))
+        .then(() => true)
+        .catch(() => false)
+    ) {
+      fileName = `${sanitizedBase}-${counter}${originalExt}`;
+      counter++;
+    }
+
+    const filePath = path.join(targetDir, fileName);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await fs.writeFile(filePath, buffer);
+
+    const fileUrl = `/api/image/${user.username}/${encodeURIComponent(fileName)}`;
+
+    return {
+      success: true,
+      data: {
+        fileName: fileName,
+        name: file.name,
+        url: fileUrl,
+        type: "image",
+        mimeType: file.type,
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+      } as FileItem,
+    };
+  } catch (error) {
+    console.error("Error uploading avatar:", error);
+    return { success: false, error: "Failed to upload avatar" };
+  }
+};
+
 export const uploadFile = async (formData: FormData) => {
   try {
     const user = await getCurrentUser();

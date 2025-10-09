@@ -16,9 +16,10 @@ interface AppSettings {
 interface ImageUploadProps {
   label: string;
   description: string;
-  iconType: keyof AppSettings;
+  iconType?: keyof AppSettings; // Made optional
   currentUrl: string;
-  onUpload: (iconType: keyof AppSettings, url: string) => void;
+  onUpload: (iconType: keyof AppSettings | undefined, url: string) => void;
+  customUploadAction?: (formData: FormData) => Promise<{ success: boolean; data?: { url: string }; error?: string }>;
 }
 
 export const ImageUpload: FC<ImageUploadProps> = ({
@@ -27,6 +28,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
   iconType,
   currentUrl,
   onUpload,
+  customUploadAction,
 }) => {
   const { showToast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
@@ -42,7 +44,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
         message: "Please select an image.",
       });
     }
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) { // Changed to 5MB from 10MB as per requirement
       return showToast({
         type: "error",
         title: "File Too Large",
@@ -53,16 +55,19 @@ export const ImageUpload: FC<ImageUploadProps> = ({
     setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("iconType", iconType);
+    if (iconType) {
+      formData.append("iconType", iconType);
+    }
 
     try {
-      const result = await uploadAppIcon(formData);
+      const action = customUploadAction || uploadAppIcon;
+      const result = await action(formData);
       if (result.success && result.data) {
         onUpload(iconType, result.data.url);
         showToast({
           type: "success",
           title: "Upload Successful",
-          message: `${label} has been updated.`,
+          message: `${label} has been updated.`, // Changed to be more general
         });
       } else {
         throw new Error(result.error || "An unknown error occurred.");
@@ -87,7 +92,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       <Label className="text-sm font-medium">{label}</Label>
       <p className="text-xs text-muted-foreground">{description}</p>
       <div
@@ -128,7 +133,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
         )}
         {!currentUrl && !isUploading && (
           <label
-            htmlFor={`upload-${iconType}`}
+            htmlFor={`upload-${iconType || "avatar"}`}
             className="text-center cursor-pointer block"
           >
             <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -152,7 +157,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
           handleFileSelect(e.target.files ? e.target.files[0] : null)
         }
         className="hidden"
-        id={`upload-${iconType}`}
+        id={`upload-${iconType || "avatar"}`}
         disabled={isUploading}
       />
     </div>

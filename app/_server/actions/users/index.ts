@@ -13,6 +13,7 @@ export type UserUpdatePayload = {
   username?: string;
   passwordHash?: string;
   isAdmin?: boolean;
+  avatarUrl?: string;
 };
 
 async function _deleteUserCore(username: string): Promise<Result<null>> {
@@ -53,6 +54,11 @@ async function _deleteUserCore(username: string): Promise<Result<null>> {
   return { success: true, data: null };
 }
 
+export const getUserByUsername = async (username: string): Promise<User | null> => {
+  const allUsers = await readJsonFile(USERS_FILE);
+  return allUsers.find((user: User) => user.username === username) || null;
+};
+
 async function _updateUserCore(
   targetUsername: string,
   updates: UserUpdatePayload
@@ -76,6 +82,22 @@ async function _updateUserCore(
     );
     if (usernameExists) {
       return { success: false, error: "Username already exists" };
+    }
+
+    try {
+      const oldChecklistsPath = CHECKLISTS_DIR(targetUsername);
+      const newChecklistsPath = CHECKLISTS_DIR(updates.username);
+      await fs.rename(oldChecklistsPath, newChecklistsPath);
+    } catch (error) {
+      console.warn(`Could not rename checklists directory for ${targetUsername}:`, error);
+    }
+
+    try {
+      const oldNotesPath = NOTES_DIR(targetUsername);
+      const newNotesPath = NOTES_DIR(updates.username);
+      await fs.rename(oldNotesPath, newNotesPath);
+    } catch (error) {
+      console.warn(`Could not rename notes directory for ${targetUsername}:`, error);
     }
   }
 
@@ -257,6 +279,7 @@ export const updateProfile = async (
     const newUsername = formData.get("newUsername") as string;
     const currentPassword = formData.get("currentPassword") as string;
     const newPassword = formData.get("newPassword") as string;
+    const avatarUrl = formData.get("avatarUrl") as string | undefined;
     const updates: UserUpdatePayload = {};
 
     if (!newUsername || newUsername.length < 3) {
@@ -267,6 +290,10 @@ export const updateProfile = async (
     }
     if (newUsername !== currentUser.username) {
       updates.username = newUsername;
+    }
+
+    if (avatarUrl !== undefined) {
+      updates.avatarUrl = avatarUrl === '' ? undefined : avatarUrl;
     }
 
     if (newPassword) {

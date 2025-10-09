@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { QuickNav } from "@/app/_components/FeatureComponents/Header/QuickNav";
 import { Sidebar } from "@/app/_components/FeatureComponents/Sidebar/Sidebar";
-import { Checklist, Category, Note } from "@/app/_types";
+import { Checklist, Category, Note, User } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useMobileGestures } from "@/app/_hooks/useMobileGestures";
 import { isMobileDevice } from "@/app/_utils/global-utils";
@@ -25,8 +25,7 @@ interface LayoutProps {
   onCategoryDeleted?: (categoryName: string) => void;
   onCategoryRenamed?: (oldName: string, newName: string) => void;
   children: React.ReactNode;
-  isAdmin: boolean;
-  username: string;
+  user: User | null;
 }
 
 export const Layout = ({
@@ -39,8 +38,7 @@ export const Layout = ({
   onOpenCategoryModal,
   onCategoryDeleted,
   onCategoryRenamed,
-  isAdmin,
-  username,
+  user,
   children,
 }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -78,11 +76,10 @@ export const Layout = ({
         checklists={listsMemo}
         notes={notesMemo}
         sharingStatuses={sharingStatuses}
-        username={username}
-        isAdmin={isAdmin}
         onCategoryDeleted={onCategoryDeleted}
         onCategoryRenamed={onCategoryRenamed}
         onOpenSettings={onOpenSettings}
+        user={user}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden">
@@ -90,7 +87,7 @@ export const Layout = ({
           showSidebarToggle
           onSidebarToggle={() => setSidebarOpen(true)}
           onOpenSettings={onOpenSettings}
-          isAdmin={isAdmin}
+          isAdmin={user?.isAdmin || false}
           checklists={listsMemo}
           notes={notesMemo}
           onModeChange={setMode}

@@ -6,6 +6,7 @@ import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 import { NOTES_FOLDER } from "@/app/_consts/notes";
 import { lock, unlock } from "proper-lockfile";
 import { jwtVerify, createRemoteJWKSet } from "jose";
+import { createSession } from "@/app/_server/actions/session";
 
 function base64UrlEncode(buffer: Buffer) {
   return buffer
@@ -27,7 +28,7 @@ async function ensureUser(username: string, isAdmin: boolean) {
       if (content) {
         users = JSON.parse(content);
       }
-    } catch {}
+    } catch { }
 
     if (users.length === 0) {
       users.push({
@@ -200,12 +201,14 @@ export async function GET(request: NextRequest) {
       if (content) {
         sessions = JSON.parse(content);
       }
-    } catch {}
+    } catch { }
     sessions[sessionId] = username;
     await fs.writeFile(sessionsFile, JSON.stringify(sessions, null, 2));
   } finally {
     await unlock(sessionsFile);
   }
+
+  await createSession(sessionId, username, 'sso');
 
   response.cookies.delete("oidc_verifier");
   response.cookies.delete("oidc_state");

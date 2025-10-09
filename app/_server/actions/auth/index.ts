@@ -133,7 +133,7 @@ export const login = async (formData: FormData) => {
 
   await writeSessions(sessions);
 
-  await createSession(sessionId, username);
+  await createSession(sessionId, username, "local");
 
   cookies().set("session", sessionId, {
     httpOnly: true,

@@ -21,7 +21,7 @@ export const NoteEditorContent = ({
         onChange={onEditorContentChange}
       />
     ) : (
-      <div className="p-6">
+      <div className="px-6 pt-6 pb-12">
         <UnifiedMarkdownRenderer content={noteContent || ""} />
       </div>
     )}

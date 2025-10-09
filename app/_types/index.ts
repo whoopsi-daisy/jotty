@@ -98,6 +98,7 @@ export interface User {
   createdAt?: string;
   lastLogin?: string;
   apiKey?: string;
+  avatarUrl?: string;
 }
 
 export interface SharedItem {
@@ -166,6 +167,7 @@ export interface Session {
   ipAddress: string;
   lastActivity: string;
   isCurrent: boolean;
+  loginType?: 'local' | 'sso';
 }
 
 export interface ExportProgress {

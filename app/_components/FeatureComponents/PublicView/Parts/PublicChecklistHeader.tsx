@@ -1,15 +1,20 @@
-import { BarChart3, CheckSquare, Clock, User } from "lucide-react";
+import { BarChart3, CheckSquare, Clock } from "lucide-react";
 import { ChecklistProgress } from "../../Checklists/Parts/Simple/ChecklistProgress";
-import { Checklist } from "@/app/_types";
+import { Checklist, User } from "@/app/_types";
+import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
 
 interface PublicChecklistHeaderProps {
   checklist: Checklist;
   totalCount: number;
+  user: User | null;
+  avatarUrl: string;
 }
 
 export const PublicChecklistHeader = ({
   checklist,
   totalCount,
+  user,
+  avatarUrl,
 }: PublicChecklistHeaderProps) => (
   <header className="mb-8">
     <div className="flex items-center gap-3 mb-4">
@@ -24,8 +29,8 @@ export const PublicChecklistHeader = ({
         </h1>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
           <div className="flex items-center gap-1">
-            <User className="h-4 w-4" />
-            <span>by {checklist.owner}</span>
+            <UserAvatar size="sm" username={user?.username || ""} avatarUrl={avatarUrl} />
+            <span>by {user?.username}</span>
           </div>
           {checklist.category && <span>• {checklist.category}</span>}
           <div className="flex items-center gap-1">

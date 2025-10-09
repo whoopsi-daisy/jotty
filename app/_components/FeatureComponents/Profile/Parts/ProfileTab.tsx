@@ -1,53 +1,47 @@
 "use client";
 
-import { Edit3, Save, AlertCircle, Check, X, Shield, User } from "lucide-react";
+import { Save, AlertCircle, Check, Shield } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { User as UserType } from "@/app/_types";
+import { User as UserType, AppSettings } from "@/app/_types";
 import { updateProfile } from "@/app/_server/actions/users";
+import { Input } from "@/app/_components/GlobalComponents/FormElements/Input";
+import { ImageUpload } from "@/app/_components/GlobalComponents/FormElements/ImageUpload";
+import { uploadUserAvatar } from "@/app/_server/actions/upload";
+import { useState, useEffect } from "react";
+import { logout } from "@/app/_server/actions/auth";
+import { useRouter } from "next/navigation";
+import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
 
 interface ProfileTabProps {
   user: UserType | null;
-  username: string;
   isAdmin: boolean;
   isLoading: boolean;
-  isEditing: boolean;
-  setIsEditing: (editing: boolean) => void;
-  editedUsername: string;
-  setEditedUsername: (username: string) => void;
-  currentPassword: string;
-  setCurrentPassword: (password: string) => void;
-  newPassword: string;
-  setNewPassword: (password: string) => void;
-  confirmPassword: string;
-  setConfirmPassword: (password: string) => void;
-  error: string | null;
-  setError: (error: string | null) => void;
-  success: string | null;
-  setSuccess: (success: string | null) => void;
   setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
+  isSsoUser: boolean;
 }
 
 export const ProfileTab = ({
   user,
-  username,
   isAdmin,
   isLoading,
-  isEditing,
-  setIsEditing,
-  editedUsername,
-  setEditedUsername,
-  currentPassword,
-  setCurrentPassword,
-  newPassword,
-  setNewPassword,
-  confirmPassword,
-  setConfirmPassword,
-  error,
-  setError,
-  success,
-  setSuccess,
   setUser,
+  isSsoUser,
 }: ProfileTabProps) => {
+  const router = useRouter();
+  const [editedUsername, setEditedUsername] = useState(user?.username || "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(user?.avatarUrl);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  useEffect(() => {
+    setEditedUsername(user?.username || "");
+    setAvatarUrl(user?.avatarUrl);
+  }, [user]);
+
   const handleSaveProfile = async () => {
     if (!editedUsername.trim()) {
       setError("Username is required");
@@ -63,6 +57,7 @@ export const ProfileTab = ({
 
     try {
       const formData = new FormData();
+      const originalUsername = user?.username;
       formData.append("newUsername", editedUsername);
       if (currentPassword) {
         formData.append("currentPassword", currentPassword);
@@ -70,18 +65,25 @@ export const ProfileTab = ({
       if (newPassword) {
         formData.append("newPassword", newPassword);
       }
+      if (avatarUrl !== undefined) {
+        formData.append("avatarUrl", avatarUrl);
+      }
 
       const result = await updateProfile(formData);
 
       if (result.success) {
         setSuccess("Profile updated successfully!");
         setUser((prev: UserType | null) =>
-          prev ? { ...prev, username: editedUsername } : null
+          prev ? { ...prev, username: editedUsername, avatarUrl: avatarUrl } : null
         );
-        setIsEditing(false);
         setNewPassword("");
         setConfirmPassword("");
         setCurrentPassword("");
+
+        if (editedUsername !== originalUsername) {
+          await logout();
+          router.push("/");
+        }
 
         setTimeout(() => setSuccess(null), 3000);
       } else {
@@ -92,36 +94,54 @@ export const ProfileTab = ({
     }
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditedUsername(username);
-    setNewPassword("");
-    setConfirmPassword("");
-    setCurrentPassword("");
-    setError(null);
+  const handleAvatarUpload = async (_iconType: keyof AppSettings | undefined, url: string) => {
+    setIsUploadingAvatar(true);
+    try {
+      setAvatarUrl(url);
+      const formData = new FormData();
+      formData.append("avatarUrl", url);
+      formData.append("newUsername", editedUsername);
+      const result = await updateProfile(formData);
+
+      if (!result.success) {
+        setError(result.error || "Failed to update avatar");
+      }
+    } catch (error) {
+      setError("Failed to update avatar. Please try again.");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    setIsUploadingAvatar(true);
+    try {
+      setAvatarUrl(undefined);
+      const formData = new FormData();
+      formData.append("avatarUrl", "");
+      formData.append("newUsername", editedUsername);
+      const result = await updateProfile(formData);
+
+      if (result.success) {
+        setUser((prev: UserType | null) =>
+          prev ? { ...prev, avatarUrl: undefined } : null
+        );
+        setSuccess("Avatar removed successfully!");
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        setError(result.error || "Failed to remove avatar");
+      }
+    } catch (error) {
+      setError("Failed to remove avatar. Please try again.");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Profile Information</h2>
-        <Button
-          variant="outline"
-          onClick={() => setIsEditing(!isEditing)}
-          disabled={isLoading}
-        >
-          {isEditing ? (
-            <>
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </>
-          ) : (
-            <>
-              <Edit3 className="h-4 w-4 mr-2" />
-              Edit Profile
-            </>
-          )}
-        </Button>
       </div>
 
       {error && (
@@ -138,104 +158,104 @@ export const ProfileTab = ({
         </div>
       )}
 
-      <div className="bg-card border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-full">
-              <User className="h-5 w-5 text-primary" />
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-1">
+          <div className="flex flex-col items-center gap-4 p-4 border border-border rounded-lg">
+            <UserAvatar username={editedUsername} avatarUrl={avatarUrl} size="lg" className="w-24 h-24 text-5xl" />
+            <ImageUpload
+              label="Avatar"
+              description="Upload a profile picture (PNG, JPG, WebP up to 5MB)"
+              currentUrl={avatarUrl || ""}
+              onUpload={handleAvatarUpload}
+              customUploadAction={uploadUserAvatar}
+            />
+            {avatarUrl && (
+              <Button
+                variant="ghost"
+                onClick={handleRemoveAvatar}
+                disabled={isUploadingAvatar || isLoading}
+                className="text-destructive hover:bg-destructive/10"
+              >
+                Remove Avatar
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className="md:col-span-2 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium text-foreground">
-                  {user?.username || username}
-                </h3>
-                {isAdmin && <Shield className="h-4 w-4 text-primary" />}
-              </div>
+              <p className="text-sm font-medium text-foreground">Member Since</p>
               <p className="text-sm text-muted-foreground">
-                {isAdmin ? "Admin" : "User"} •{" "}
                 {user?.createdAt
                   ? new Date(user.createdAt).toLocaleDateString()
                   : "Unknown"}
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {isEditing ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSaveProfile}
-                className="h-8 w-8 p-0"
-              >
-                <Save className="h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsEditing(true)}
-                className="h-8 w-8 p-0"
-              >
-                <Edit3 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {isEditing && (
-        <div className="space-y-4 pt-4 border-t border-border">
-          <h3 className="font-medium">Change Password</h3>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Enter current password"
-            />
+            <div>
+              <p className="text-sm font-medium text-foreground">User Type</p>
+              <p className="text-sm text-muted-foreground">
+                {isAdmin ? "Admin" : "User"}
+              </p>
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              New Password
-            </label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Enter new password (optional)"
+            <Input
+              id="username"
+              label="Username"
+              type="text"
+              value={editedUsername}
+              onChange={(e) => setEditedUsername(e.target.value)}
+              placeholder="Your username"
+              defaultValue={user?.username}
+              disabled={isLoading || isSsoUser}
+              className="mt-1"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Confirm new password"
-            />
+          <div className="space-y-4 pt-4 border-t border-border mt-4">
+            <h3 className="font-medium">Change Password</h3>
+
+            <div>
+              <Input
+                id="current-password"
+                label="Current Password"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Input
+                id="new-password"
+                label="New Password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password (optional)"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Input
+                id="confirm-password"
+                label="Confirm New Password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+                className="mt-1"
+              />
+            </div>
           </div>
 
-          <div className="flex gap-2 pt-4">
-            <Button
-              onClick={handleCancelEdit}
-              variant="outline"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSaveProfile} disabled={isLoading}>
-              {isLoading ? (
+          <div className="flex justify-end pt-4">
+            <Button onClick={handleSaveProfile} disabled={isLoading || isUploadingAvatar}>
+              {isLoading || isUploadingAvatar ? (
                 "Saving..."
               ) : (
                 <>
@@ -246,7 +266,7 @@ export const ProfileTab = ({
             </Button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

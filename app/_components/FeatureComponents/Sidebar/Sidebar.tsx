@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Settings, Shield, User, X } from "lucide-react";
+import { Settings, Shield, User, X } from "lucide-react";
 import { cn } from "@/app/_utils/global-utils";
 import { DeleteCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/DeleteCategoryModal";
 import { RenameCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/RenameCategoryModal";
@@ -21,6 +21,7 @@ import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { useRouter } from "next/navigation";
 import { NavigationGlobalIcon } from "../Navigation/Parts/NavigationGlobalIcon";
 import { NavigationLogoutIcon } from "../Navigation/Parts/NavigationLogoutIcon";
+import { UserAvatar } from "../../GlobalComponents/User/UserAvatar";
 
 export const Sidebar = (props: SidebarProps) => {
   const {
@@ -31,8 +32,7 @@ export const Sidebar = (props: SidebarProps) => {
     notes,
     onOpenCreateModal,
     onOpenCategoryModal,
-    username,
-    isAdmin,
+    user,
     onOpenSettings,
   } = props;
 
@@ -152,10 +152,11 @@ export const Sidebar = (props: SidebarProps) => {
                 e.preventDefault();
                 checkNavigation(() => router.push("/profile"));
               }}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <span className="truncate">{username}</span>
-              {isAdmin && (
+              <UserAvatar username={user?.username || ""} avatarUrl={user?.avatarUrl} size="sm" className="mr-2" />
+              <span className="truncate">{user?.username}</span>
+              {user?.isAdmin && (
                 <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded">
                   Admin
                 </span>
@@ -177,7 +178,13 @@ export const Sidebar = (props: SidebarProps) => {
           <div className="flex items-center justify-between p-2 lg:hidden">
             <div className="flex">
               <NavigationGlobalIcon
-                icon={<User className="h-6 w-6" />}
+                icon={
+                  <UserAvatar
+                    username={user?.username || ""}
+                    avatarUrl={user?.avatarUrl}
+                    size="sm"
+                  />
+                }
                 onClick={() => checkNavigation(() => router.push("/profile"))}
               />
               <button
@@ -187,11 +194,7 @@ export const Sidebar = (props: SidebarProps) => {
                 }}
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                {isAdmin && (
-                  <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-md">
-                    Admin
-                  </span>
-                )}
+                {user?.username}
               </button>
             </div>
 
@@ -201,7 +204,7 @@ export const Sidebar = (props: SidebarProps) => {
                 onClick={() => checkNavigation(() => onOpenSettings())}
               />
 
-              {isAdmin && (
+              {user?.isAdmin && (
                 <NavigationGlobalIcon
                   icon={<Shield className="h-5 w-5" />}
                   onClick={() => checkNavigation(() => router.push("/admin"))}

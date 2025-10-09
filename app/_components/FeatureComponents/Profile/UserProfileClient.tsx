@@ -13,25 +13,20 @@ import { SettingsTab } from "./Parts/SettingsTab";
 import { getCurrentUser } from "@/app/_server/actions/users";
 
 interface UserProfileClientProps {
-  username: string;
+  isSsoUser: boolean;
   isAdmin: boolean;
+  avatarUrl?: string | null;
 }
 
 export const UserProfileClient = ({
-  username,
+  isSsoUser,
   isAdmin,
+  avatarUrl,
 }: UserProfileClientProps) => {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
   const [user, setUser] = useState<UserType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUsername, setEditedUsername] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
     "profile" | "sessions" | "settings"
   >("profile");
@@ -53,9 +48,9 @@ export const UserProfileClient = ({
           passwordHash: "",
           createdAt: result.createdAt,
           lastLogin: result.lastLogin,
+          avatarUrl: result.avatarUrl,
         };
         setUser(profileUser);
-        setEditedUsername(result.username);
       } else {
         console.error("Error loading user profile:", result);
       }
@@ -127,24 +122,10 @@ export const UserProfileClient = ({
         {activeTab === "profile" && (
           <ProfileTab
             user={user}
-            username={username}
             isAdmin={isAdmin}
             isLoading={isLoading}
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            editedUsername={editedUsername}
-            setEditedUsername={setEditedUsername}
-            currentPassword={currentPassword}
-            setCurrentPassword={setCurrentPassword}
-            newPassword={newPassword}
-            setNewPassword={setNewPassword}
-            confirmPassword={confirmPassword}
-            setConfirmPassword={setConfirmPassword}
-            error={error}
-            setError={setError}
-            success={success}
-            setSuccess={setSuccess}
             setUser={setUser}
+            isSsoUser={isSsoUser}
           />
         )}
         {activeTab === "sessions" && <SessionsTab />}

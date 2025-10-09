@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Checklist, Category } from "@/app/_types";
+import { Checklist, Category, User } from "@/app/_types";
 import { ChecklistView } from "@/app/_components/FeatureComponents/Checklists/Checklist";
 import { KanbanBoard } from "@/app/_components/FeatureComponents/Checklists/Parts/Kanban/KanbanBoard";
 import { ChecklistHeader } from "@/app/_components/FeatureComponents/Checklists/Parts/Common/ChecklistHeader";
@@ -28,8 +28,7 @@ interface ChecklistClientProps {
   lists: Checklist[];
   categories: Category[];
   sharingStatuses?: Record<string, SharingStatus>;
-  username: string;
-  isAdmin: boolean;
+  user: User | null;
 }
 
 export const ChecklistClient = ({
@@ -37,8 +36,7 @@ export const ChecklistClient = ({
   lists,
   categories,
   sharingStatuses,
-  username,
-  isAdmin,
+  user,
 }: ChecklistClientProps) => {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
@@ -112,7 +110,7 @@ export const ChecklistClient = ({
             onEdit={handleEdit}
             onDelete={
               localChecklist.isShared
-                ? isAdmin || username === localChecklist.owner
+                ? user?.isAdmin || user?.username === localChecklist.owner
                   ? handleDeleteList
                   : undefined
                 : handleDeleteList
@@ -132,8 +130,8 @@ export const ChecklistClient = ({
         onBack={handleBack}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        currentUsername={username}
-        isAdmin={isAdmin}
+        currentUsername={user?.username}
+        isAdmin={user?.isAdmin}
       />
     );
   };
@@ -146,8 +144,7 @@ export const ChecklistClient = ({
       onOpenSettings={handleOpenSettings}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
-      isAdmin={isAdmin}
-      username={username}
+      user={user}
     >
       {renderContent()}
 

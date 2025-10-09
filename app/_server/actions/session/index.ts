@@ -14,6 +14,7 @@ export interface SessionData {
   ipAddress: string;
   createdAt: string;
   lastActivity: string;
+  loginType?: 'local' | 'sso';
 }
 
 export interface Session {
@@ -44,7 +45,8 @@ export const readSessions = async (): Promise<Session> => {
 
 export const createSession = async (
   sessionId: string,
-  username: string
+  username: string,
+  loginType: 'local' | 'sso',
 ): Promise<void> => {
   const headersList = headers();
   const userAgent = headersList.get("user-agent") || "Unknown";
@@ -59,6 +61,7 @@ export const createSession = async (
     ipAddress,
     createdAt: new Date().toISOString(),
     lastActivity: new Date().toISOString(),
+    loginType,
   };
 
   const sessionsData = await readSessionData();
@@ -99,6 +102,14 @@ export const getSessionsForUser = async (
 
 export const getSessionId = async (): Promise<string> => {
   return cookies().get("session")?.value || "";
+};
+
+export const getLoginType = async (): Promise<'local' | 'sso' | undefined> => {
+  const sessionId = await getSessionId();
+  if (!sessionId) return undefined;
+
+  const sessionsData = await readSessionData();
+  return sessionsData[sessionId]?.loginType;
 };
 
 export const removeAllSessionsForUser = async (

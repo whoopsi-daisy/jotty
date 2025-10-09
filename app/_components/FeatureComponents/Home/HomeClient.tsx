@@ -8,7 +8,7 @@ import { CreateListModal } from "@/app/_components/GlobalComponents/Modals/Check
 import { CreateCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/CreateCategoryModal";
 import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
-import { Checklist, Category, Note } from "@/app/_types";
+import { Checklist, Category, Note, User } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { CreateNoteModal } from "@/app/_components/GlobalComponents/Modals/NotesModal/CreateNoteModal";
 import { Modes } from "@/app/_types/enums";
@@ -25,8 +25,7 @@ interface HomeClientProps {
   initialDocs: Note[];
   initialDocsCategories: Category[];
   sharingStatuses: Record<string, SharingStatus>;
-  username: string;
-  isAdmin: boolean;
+  user: User | null;
 }
 
 export const HomeClient = ({
@@ -35,8 +34,7 @@ export const HomeClient = ({
   initialDocs,
   initialDocsCategories,
   sharingStatuses,
-  username,
-  isAdmin,
+  user,
 }: HomeClientProps) => {
   const router = useRouter();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -74,8 +72,7 @@ export const HomeClient = ({
       onOpenSettings={() => setShowSettingsModal(true)}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
-      isAdmin={isAdmin}
-      username={username}
+      user={user}
       onCategoryDeleted={() => router.refresh()}
       onCategoryRenamed={() => router.refresh()}
     >

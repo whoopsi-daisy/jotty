@@ -6,13 +6,13 @@ import {
   FileText,
   ChevronDown,
   ChevronRight,
-  User,
   Shield,
 } from "lucide-react";
 import { Checklist, Note, User as UserType } from "@/app/_types";
 import { AdminContentColumn } from "./AdminContentColumn";
 import { ExportContent } from "./AdminExport";
 import { Accordion } from "@/app/_components/GlobalComponents/Layout/Accordion";
+import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
 
 interface AdminContentProps {
   allLists: Checklist[];
@@ -135,7 +135,7 @@ export const AdminContent = ({
               >
                 <div className="flex items-center gap-3">
                   <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-full">
-                    <User className="h-5 w-5 text-primary" />
+                    <UserAvatar size="lg" username={user.username} avatarUrl={user.avatarUrl} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">

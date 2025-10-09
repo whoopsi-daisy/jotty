@@ -3,9 +3,8 @@ import { getCategories } from "@/app/_server/actions/category";
 import { getNotes, CheckForNeedsMigration } from "@/app/_server/actions/note";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
 import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
-import { isAdmin, getUsername, getCurrentUser } from "@/app/_server/actions/users";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { Modes } from "@/app/_types/enums";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +29,7 @@ export default async function HomePage() {
     docsCategoriesResult.success && docsCategoriesResult.data
       ? docsCategoriesResult.data
       : [];
-  const admin = await isAdmin();
-  const username = await getUsername();
+  const user = await getCurrentUser();
 
   const allItems = [...lists, ...docs];
   const itemsToCheck = allItems.map((item) => ({
@@ -58,8 +56,7 @@ export default async function HomePage() {
       initialDocs={docs}
       initialDocsCategories={docsCategories}
       sharingStatuses={sharingStatuses}
-      isAdmin={admin}
-      username={username}
+      user={user}
     />
   );
 }
