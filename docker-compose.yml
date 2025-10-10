@@ -19,6 +19,13 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      
+      # Uncomment to make images public. This won't expose your entire folder structure      
+      # but it will allow any image you upload via the UI to be accessed publicly for 
+      # anyone with the link or image name/filename. This is the only way to have images available in
+      # public notes and it's disabled by default for security reasons.
+      # - SERVE_PUBLIC_IMAGES=yes
+      
       # Uncomment to enable HTTPS
       # - HTTPS=true
 
@@ -30,7 +37,7 @@ services:
 
       # --- ADDITIONAL SSO OPTIONS (OPTIONAL)
       #- OIDC_CLIENT_SECRET=your_client_secret  # Enable confidential client mode with client authentication
-      #- SSO_FALLBACK_LOCAL=true  # Allow both SSO and normal login
+      #- SSO_FALLBACK_LOCAL=yes  # Allow both SSO and normal login
       #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
     # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
     #platform: linux/arm64

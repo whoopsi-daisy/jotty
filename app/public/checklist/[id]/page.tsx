@@ -31,6 +31,9 @@ export default async function PublicChecklistPage({
   }
 
   const user = await getUserByUsername(checklist.owner!);
+  if (user) {
+    user.avatarUrl = process.env.SERVE_PUBLIC_IMAGES ? user.avatarUrl : undefined;
+  }
 
   const sharingMetadata = await getItemSharingMetadata(
     id,

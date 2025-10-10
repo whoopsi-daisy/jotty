@@ -4,6 +4,7 @@ import { Note, User } from "@/app/_types";
 import { FileText, Clock } from "lucide-react";
 import { UnifiedMarkdownRenderer } from "@/app/_components/FeatureComponents/Notes/Parts/UnifiedMarkdownRenderer";
 import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
+import { useEffect, useState } from "react";
 
 interface PublicNoteViewProps {
   note: Note;
@@ -11,10 +12,13 @@ interface PublicNoteViewProps {
 }
 
 export const PublicNoteView = ({ note, user }: PublicNoteViewProps) => {
-  let avatarUrl = "";
-  if (window) {
-    avatarUrl = window.location.origin + user?.avatarUrl;
-  }
+  const [avatarUrl, setAvatarUrl] = useState("");
+
+  useEffect(() => {
+    if (window && user?.avatarUrl) {
+      setAvatarUrl(window.location.origin + user?.avatarUrl);
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-background">

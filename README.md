@@ -109,6 +109,12 @@ The recommended way to run `rwMarkable` is with Docker.
           # Uncomment to enable HTTPS
           # - HTTPS=true
 
+          # Uncomment to make images public. This won't expose your entire folder structure      
+          # but it will allow any image you upload via the UI to be accessed publicly for 
+          # anyone with the link or image name/filename. This is the only way to have images available in
+          # public notes and it's disabled by default for security reasons.
+          # - SERVE_PUBLIC_IMAGES=yes
+
           # --- SSO WITH OIDC (OPTIONAL)
           # - SSO_MODE=oidc
           # - OIDC_ISSUER=<YOUR_SSO_ISSUER>

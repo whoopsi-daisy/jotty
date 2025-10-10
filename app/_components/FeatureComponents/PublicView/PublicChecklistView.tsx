@@ -14,7 +14,7 @@ export const PublicChecklistView = ({
   user,
 }: PublicChecklistViewProps) => {
   let avatarUrl = "";
-  if (window) {
+  if (window && user?.avatarUrl) {
     avatarUrl = window.location.origin + user?.avatarUrl;
   }
 

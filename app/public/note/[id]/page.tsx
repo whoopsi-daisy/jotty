@@ -27,6 +27,9 @@ export default async function PublicNotePage({ params }: PublicNotePageProps) {
 
   const sharingMetadata = await getItemSharingMetadata(id, "note", note.owner!);
   const user = await getUserByUsername(note.owner!);
+  if (user) {
+    user.avatarUrl = process.env.SERVE_PUBLIC_IMAGES ? user.avatarUrl : undefined;
+  }
 
   if (!sharingMetadata || !sharingMetadata.isPubliclyShared) {
     redirect("/");

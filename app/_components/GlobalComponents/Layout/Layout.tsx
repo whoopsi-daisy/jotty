@@ -44,9 +44,10 @@ export const Layout = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { setMode, isInitialized } = useAppMode();
 
+
   useMobileGestures({
     onSwipeRight: () => setSidebarOpen(true),
-    enabled: isMobileDevice(),
+    enabled: isMobileDevice() && !window?.location.pathname.includes("/note/"),
     swipeThreshold: 15,
     edgeThreshold: 400,
     velocityThreshold: 0.02,

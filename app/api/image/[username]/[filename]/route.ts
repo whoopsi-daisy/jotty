@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,12 @@ export async function GET(
   { params }: { params: { username: string; filename: string } }
 ) {
   try {
+    const user = await getCurrentUser();
+
+    if (!user && !process.env.SERVE_PUBLIC_IMAGES) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
     const { username } = params;
     const filename = decodeURIComponent(params.filename);
 

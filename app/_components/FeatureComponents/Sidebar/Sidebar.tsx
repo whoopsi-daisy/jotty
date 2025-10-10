@@ -82,12 +82,6 @@ export const Sidebar = (props: SidebarProps) => {
                 <DynamicLogo className="h-8 w-8" size="32x32" />
                 <AppName className="text-xl font-bold text-foreground" />
               </a>
-              <button
-                onClick={onClose}
-                className="lg:hidden p-2 rounded-md hover:bg-accent"
-              >
-                <X className="h-4 w-4" />
-              </button>
             </div>
           </div>
           <SidebarNavigation
