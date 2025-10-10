@@ -109,8 +109,8 @@ The recommended way to run `rwMarkable` is with Docker.
           # Uncomment to enable HTTPS
           # - HTTPS=true
 
-          # Uncomment to make user uploaded images and files public. This won't expose your entire folder structure      
-          # but it will allow any image/files you upload via the UI to be accessed publicly for 
+          # Uncomment to make user uploaded images and files public. This won't expose your entire folder structure
+          # but it will allow any image/files you upload via the UI to be accessed publicly for
           # anyone with the link or image name/filename. This is the only way to have images available in
           # public notes and it's disabled by default for security reasons.
           # - SERVE_PUBLIC_IMAGES=yes
@@ -397,6 +397,15 @@ I would like to thank the following members for raising issues and help test/deb
     <tr>
       <td align="center" valign="top" width="20%">
         <a href="https://github.com/hurleyy"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/12866334?v=4&size=100"><br />hurleyy</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/schneider-de-com"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/1329171?s=100"><br />schneider-de-com</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/zolakt"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/1048531?s=100"><br />zolakt</a>
+      </td>
+      <td align="center" valign="top" width="20%">
+        <a href="https://github.com/Justus0405"><img width="100" height="100" src="https://avatars.githubusercontent.com/u/143542687?s=100"><br />Justus0405</a>
       </td>
     </tr>
   </tbody>
