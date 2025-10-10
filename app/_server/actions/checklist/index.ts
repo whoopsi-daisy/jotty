@@ -154,13 +154,16 @@ export const getLists = async (username?: string) => {
   }
 };
 
+export const getListById = async (id: string, username?: string) => {
+  const lists = await (username ? getLists(username) : getAllLists());
+  if (!lists.success || !lists.data) {
+    throw new Error(lists.error || "Failed to fetch lists");
+  }
+  return lists.data.find((list) => list.id === id);
+};
+
 export const getAllLists = async () => {
   try {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      return { success: false, error: "Not authenticated" };
-    }
-
     const allLists: Checklist[] = [];
 
     const users: User[] = await readJsonFile(USERS_FILE);

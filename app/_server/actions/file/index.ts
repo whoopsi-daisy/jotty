@@ -1,7 +1,15 @@
 "use server";
 
 import { getCurrentUser } from "@/app/_server/actions/users";
-import { DATA_DIR, SESSION_DATA_FILE, SESSIONS_FILE, SHARED_ITEMS_FILE, SHARING_DIR, USERS_DIR, USERS_FILE } from "@/app/_consts/files";
+import {
+  DATA_DIR,
+  SESSION_DATA_FILE,
+  SESSIONS_FILE,
+  SHARED_ITEMS_FILE,
+  SHARING_DIR,
+  USERS_DIR,
+  USERS_FILE,
+} from "@/app/_consts/files";
 import fs from "fs/promises";
 import path from "path";
 import { Modes } from "@/app/_types/enums";
@@ -11,19 +19,14 @@ export interface OrderData {
   items?: string[];
 }
 
-export const ensureCorDirsAndFiles = async (): Promise<{ success: boolean, error?: string }> => {
+export const ensureCorDirsAndFiles = async (): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
   const coreDirAndFiles = {
-    dirs: [
-      USERS_DIR,
-      SHARING_DIR,
-    ],
-    files: [
-      USERS_FILE,
-      SESSIONS_FILE,
-      SESSION_DATA_FILE,
-      SHARED_ITEMS_FILE,
-    ],
-  }
+    dirs: [USERS_DIR, SHARING_DIR],
+    files: [USERS_FILE, SESSIONS_FILE, SESSION_DATA_FILE, SHARED_ITEMS_FILE],
+  };
 
   try {
     for (const dir of coreDirAndFiles.dirs) {
@@ -113,7 +116,7 @@ export const serverReadFile = async (
   customReturn?: any
 ): Promise<string> => {
   try {
-    return await fs.readFile(filePath, "utf-8") || "";
+    return (await fs.readFile(filePath, "utf-8")) || "";
   } catch (error) {
     return customReturn || "";
   }

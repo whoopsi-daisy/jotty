@@ -30,6 +30,7 @@ export const TaskStatusSection = ({
             index={index}
             isPublicView={true}
             status={config.title}
+            isDeletingItem={false}
           />
         ))}
       </div>

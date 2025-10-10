@@ -92,6 +92,7 @@ export const EditNoteModal = ({
               selectedCategory={category}
               onCategorySelect={setCategory}
               className="w-full"
+              isInModal={true}
             />
           </div>
         )}

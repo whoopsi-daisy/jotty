@@ -6,11 +6,13 @@ import {
   FileText,
   ChevronDown,
   ChevronRight,
-  User,
   Shield,
 } from "lucide-react";
 import { Checklist, Note, User as UserType } from "@/app/_types";
 import { AdminContentColumn } from "./AdminContentColumn";
+import { ExportContent } from "./AdminExport";
+import { Accordion } from "@/app/_components/GlobalComponents/Layout/Accordion";
+import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
 
 interface AdminContentProps {
   allLists: Checklist[];
@@ -18,12 +20,16 @@ interface AdminContentProps {
   users: UserType[];
 }
 
-export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) => {
+export const AdminContent = ({
+  allLists,
+  allDocs,
+  users,
+}: AdminContentProps) => {
   const [expandedUsers, setExpandedUsers] = useState<Set<string> | null>(null);
 
   const sortedUserContent = useMemo(() => {
     const listsByOwner = new Map<string, Checklist[]>();
-    allLists.forEach(list => {
+    allLists.forEach((list) => {
       if (list.owner) {
         const ownerLists = listsByOwner.get(list.owner) || [];
         ownerLists.push(list);
@@ -32,7 +38,7 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
     });
 
     const docsByOwner = new Map<string, Note[]>();
-    allDocs.forEach(doc => {
+    allDocs.forEach((doc) => {
       if (doc.owner) {
         const ownerDocs = docsByOwner.get(doc.owner) || [];
         ownerDocs.push(doc);
@@ -41,7 +47,7 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
     });
 
     return users
-      .map(user => {
+      .map((user) => {
         const checklists = listsByOwner.get(user.username) || [];
         const notes = docsByOwner.get(user.username) || [];
         return {
@@ -56,12 +62,14 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
 
   useEffect(() => {
     if (expandedUsers === null && sortedUserContent.length > 0) {
-      setExpandedUsers(new Set(sortedUserContent.map(uc => uc.user.username)));
+      setExpandedUsers(
+        new Set(sortedUserContent.map((uc) => uc.user.username))
+      );
     }
   }, [sortedUserContent, expandedUsers]);
 
   const toggleUser = (username: string) => {
-    setExpandedUsers(prev => {
+    setExpandedUsers((prev) => {
       const newExpanded = new Set(prev || []);
       if (newExpanded.has(username)) {
         newExpanded.delete(username);
@@ -76,7 +84,9 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
     if (expandedUsers?.size === sortedUserContent.length) {
       setExpandedUsers(new Set());
     } else {
-      setExpandedUsers(new Set(sortedUserContent.map(uc => uc.user.username)));
+      setExpandedUsers(
+        new Set(sortedUserContent.map((uc) => uc.user.username))
+      );
     }
   };
 
@@ -84,16 +94,26 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
 
   return (
     <div className="space-y-6">
+      <Accordion title="Data Export" defaultOpen={false} className="mb-6">
+        <ExportContent users={users} />
+      </Accordion>
+
       <div className="md:flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground">All Content</h2>
-          <p className="text-muted-foreground">Content organized by user with sharing status</p>
+          <p className="text-muted-foreground">
+            Content organized by user with sharing status
+          </p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
           <span className="text-sm text-muted-foreground">
-            {allLists.length + allDocs.length} total items across {users.length} users
+            {allLists.length + allDocs.length} total items across {users.length}{" "}
+            users
           </span>
-          <button onClick={toggleAll} className="text-sm text-primary hover:text-primary/80 font-medium">
+          <button
+            onClick={toggleAll}
+            className="text-sm text-primary hover:text-primary/80 font-medium"
+          >
             {isAllExpanded ? "Collapse All" : "Expand All"}
           </button>
         </div>
@@ -105,16 +125,26 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
           const hasContent = totalItems > 0;
 
           return (
-            <div key={user.username} className="p-6 rounded-lg border border-border bg-card">
-              <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleUser(user.username)}>
+            <div
+              key={user.username}
+              className="p-6 rounded-lg border border-border bg-card"
+            >
+              <div
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleUser(user.username)}
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-full">
-                    <User className="h-5 w-5 text-primary" />
+                    <UserAvatar size="lg" username={user.username} avatarUrl={user.avatarUrl} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-foreground">{user.username}</h3>
-                      {user.isAdmin && <Shield className="h-4 w-4 text-primary" />}
+                      <h3 className="font-semibold text-foreground">
+                        {user.username}
+                      </h3>
+                      {user.isAdmin && (
+                        <Shield className="h-4 w-4 text-primary" />
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {checklists.length} checklists • {notes.length} notes
@@ -127,7 +157,11 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
                       {totalItems} items
                     </span>
                   )}
-                  {isExpanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                  {isExpanded ? (
+                    <ChevronDown className="h-5 w-5" />
+                  ) : (
+                    <ChevronRight className="h-5 w-5" />
+                  )}
                 </div>
               </div>
 
@@ -138,12 +172,20 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
                       <AdminContentColumn
                         title="Checklists"
                         icon={<CheckSquare className="h-4 w-4" />}
-                        items={checklists.map(list => ({ ...list, link: `/checklist/${list.id}`, details: `${list.category} • ${list.items.length} items` }))}
+                        items={checklists.map((list) => ({
+                          ...list,
+                          link: `/checklist/${list.id}`,
+                          details: `${list.category} • ${list.items.length} items`,
+                        }))}
                       />
                       <AdminContentColumn
                         title="Notes"
                         icon={<FileText className="h-4 w-4" />}
-                        items={notes.map(doc => ({ ...doc, link: `/note/${doc.id}`, details: `${doc.category} • ${doc.content.length} characters` }))}
+                        items={notes.map((doc) => ({
+                          ...doc,
+                          link: `/note/${doc.id}`,
+                          details: `${doc.category} • ${doc.content.length} characters`,
+                        }))}
                       />
                     </div>
                   ) : (
@@ -151,8 +193,12 @@ export const AdminContent = ({ allLists, allDocs, users }: AdminContentProps) =>
                       <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                         <FileText className="h-8 w-8 text-muted-foreground" />
                       </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">No content yet</h3>
-                      <p className="text-muted-foreground">This user hasn&apos;t created any checklists or notes.</p>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        No content yet
+                      </h3>
+                      <p className="text-muted-foreground">
+                        This user hasn&apos;t created any checklists or notes.
+                      </p>
                     </div>
                   )}
                 </div>

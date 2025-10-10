@@ -15,6 +15,8 @@ interface DropdownProps {
   options: DropdownOption[];
   onChange: (value: string) => void;
   className?: string;
+  disabled?: boolean;
+  placeholder?: string;
 }
 
 export const Dropdown = ({
@@ -22,6 +24,8 @@ export const Dropdown = ({
   options,
   onChange,
   className = "",
+  disabled = false,
+  placeholder = "",
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -55,22 +59,35 @@ export const Dropdown = ({
         type="button"
         onClick={(e) => {
           e.preventDefault();
-          setIsOpen(!isOpen);
+          if (!disabled) {
+            setIsOpen(!isOpen);
+          }
         }}
-        className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+        className={cn(
+          "w-full flex items-center justify-between p-3 rounded-lg border border-border transition-colors",
+          disabled
+            ? "bg-muted text-muted-foreground cursor-not-allowed"
+            : "hover:bg-muted/50",
+          isOpen && "bg-muted/50"
+        )}
+        disabled={disabled}
       >
         <div className="flex items-center gap-2">
           {selectedOption?.icon && <selectedOption.icon className="h-4 w-4" />}
-          <span className="text-sm font-medium">{selectedOption?.name}</span>
+          <span className="text-sm font-medium">
+            {selectedOption?.name || placeholder}
+          </span>
         </div>
         <ChevronDown
-          className={`h-4 w-4 transition-transform ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={cn(
+            `h-4 w-4 transition-transform`,
+            isOpen ? "rotate-180" : "",
+            disabled && "opacity-50"
+          )}
         />
       </button>
 
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
           <div className="py-1">
             {options.map((option) => (

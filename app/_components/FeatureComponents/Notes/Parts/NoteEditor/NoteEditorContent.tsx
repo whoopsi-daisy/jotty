@@ -6,7 +6,6 @@ interface NoteEditorContentProps {
   noteContent?: string;
   editorContent: string;
   onEditorContentChange: (content: string, isMarkdown: boolean) => void;
-  category: string;
 }
 
 export const NoteEditorContent = ({
@@ -14,17 +13,15 @@ export const NoteEditorContent = ({
   noteContent,
   editorContent,
   onEditorContentChange,
-  category,
 }: NoteEditorContentProps) => (
-  <div className="flex-1">
+  <div className="flex-1 h-full pb-14 lg:pb-0">
     {isEditing ? (
       <TiptapEditor
         content={editorContent}
         onChange={onEditorContentChange}
-        category={category}
       />
     ) : (
-      <div className="p-6">
+      <div className="px-6 pt-6 pb-12">
         <UnifiedMarkdownRenderer content={noteContent || ""} />
       </div>
     )}

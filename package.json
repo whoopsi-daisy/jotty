@@ -1,6 +1,6 @@
 {
     "name": "rwMarkable",
-    "version": "1.5.1",
+    "version": "1.6.0",
     "private": true,
     "scripts": {
         "dev": "next dev",
@@ -25,6 +25,7 @@
         "@tiptap/react": "^3.0.9",
         "@tiptap/starter-kit": "^3.0.9",
         "@types/react-syntax-highlighter": "^15.5.13",
+        "archiver": "^7.0.1",
         "bcryptjs": "^3.0.2",
         "clsx": "^2.0.0",
         "html2canvas": "^1.4.1",
@@ -54,6 +55,7 @@
         "zustand": "^5.0.6"
     },
     "devDependencies": {
+        "@types/archiver": "^6.0.3",
         "@types/bcryptjs": "^3.0.0",
         "@types/jsonwebtoken": "^9.0.10",
         "@types/marked": "^6.0.0",

@@ -12,8 +12,6 @@ import CodeBlockComponent from "@/app/_components/FeatureComponents/Notes/Parts/
 import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapToolbar";
 import { FileAttachmentExtension } from "@/app/_components/FeatureComponents/Notes/Parts/FileAttachment/FileAttachmentExtension";
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { Eye, FileText } from "lucide-react";
 import { InputRule } from "@tiptap/core";
 import {
   convertMarkdownToHtml,
@@ -23,13 +21,11 @@ import {
 type TiptapEditorProps = {
   content: string;
   onChange: (content: string, isMarkdownMode: boolean) => void;
-  category?: string;
 };
 
 export const TiptapEditor = ({
   content,
-  onChange,
-  category,
+  onChange
 }: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
@@ -196,33 +192,16 @@ export const TiptapEditor = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between">
-        <div className="flex-1 min-w-0">
-          <TiptapToolbar editor={editor} />
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={toggleMode}
-          className="ml-2 flex-shrink-0"
-        >
-          {isMarkdownMode ? (
-            <>
-              <Eye className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Rich Text</span>
-            </>
-          ) : (
-            <>
-              <FileText className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Markdown</span>
-            </>
-          )}
-        </Button>
+      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-0 z-10">
+        <TiptapToolbar
+          editor={editor}
+          isMarkdownMode={isMarkdownMode}
+          toggleMode={toggleMode}
+        />
       </div>
 
       {isMarkdownMode ? (
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 p-4 overflow-y-auto h-full">
           <textarea
             value={markdownContent}
             onChange={handleMarkdownChange}

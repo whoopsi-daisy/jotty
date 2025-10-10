@@ -37,7 +37,7 @@ export const NoteEditor = ({
   const [showTOC, setShowTOC] = useState(false);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-background h-full overflow-y-auto">
+    <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
       <NoteEditorHeader
         note={note}
         categories={categories}
@@ -50,23 +50,26 @@ export const NoteEditor = ({
         setShowTOC={setShowTOC}
       />
 
-      <div className="flex-1 flex">
-        <NoteEditorContent
-          isEditing={viewModel.isEditing}
-          noteContent={note.content}
-          editorContent={viewModel.editorContent}
-          onEditorContentChange={viewModel.handleEditorContentChange}
-          category={viewModel.category}
-        />
+      <div className="flex h-full">
+        <div className="flex-1 overflow-y-auto mb-[70px]">
+          <NoteEditorContent
+            isEditing={viewModel.isEditing}
+            noteContent={note.content}
+            editorContent={viewModel.editorContent}
+            onEditorContentChange={viewModel.handleEditorContentChange}
+          />
+        </div>
 
         {showTOC && (
-          <TableOfContents
-            content={
-              viewModel.isEditing
-                ? viewModel.derivedMarkdownContent
-                : note.content || ""
-            }
-          />
+          <div className="w-64 border-l border-border">
+            <TableOfContents
+              content={
+                viewModel.isEditing
+                  ? viewModel.derivedMarkdownContent
+                  : note.content || ""
+              }
+            />
+          </div>
         )}
       </div>
 

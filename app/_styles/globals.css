@@ -344,6 +344,28 @@
     }
 }
 
+@media (max-width: 768px) {
+    html {
+      scroll-padding-bottom: 20px;
+    }
+    
+    input:focus, textarea:focus {
+      scroll-margin-bottom: 20px;
+    }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none; 
+    scrollbar-width: none;  
+}
+
+.scroll-fade-right {
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}
+
 
 .dragging {
     opacity: 0.5;

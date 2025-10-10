@@ -45,7 +45,7 @@ export const SidebarNavigation = ({
             size="sm"
             onClick={() => onModeChange(modeOption.id)}
             className={cn(
-              "flex-1 justify-start gap-2",
+              "flex-1 justify-start gap-2 py-6",
               mode === modeOption.id
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"

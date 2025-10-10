@@ -20,7 +20,8 @@ const colors = {
 
 const args = process.argv.slice(2);
 const API_KEY = args[0];
-const BASE_URL = args[1] || 'http://localhost:3001';
+const BASE_URL = args[1] && !args[1].startsWith("ck_") ? args[1] : 'http://localhost:3001';
+const testUsername = args[2] || (args[1] && args[1].startsWith("ck_") ? "fccview" : "fccview");
 
 if (!API_KEY) {
   console.log(`${colors.red}Error: API key is required${colors.reset}`);
@@ -34,6 +35,7 @@ let failed = 0;
 const results = [];
 let testChecklistId = null;
 let testTaskChecklistId = null;
+let testExportDownloadUrl = null;
 
 function makeRequest(method, path, data = null, headers = {}) {
   return new Promise((resolve, reject) => {
@@ -171,6 +173,91 @@ async function runTests() {
     };
   });
 
+  await test(`POST /api/exports (all_checklists_notes)`, async () => {
+    console.log(`  📦 Requesting export of all checklists and notes`);
+    const response = await makeRequest('POST', '/api/exports', { type: 'all_checklists_notes' });
+    testExportDownloadUrl = response.body.downloadUrl;
+    console.log(`  ⬇️  Download URL: ${testExportDownloadUrl}`);
+    if (response.status === 200 && response.body.success && response.body.downloadUrl) {
+      await makeRequest('GET', testExportDownloadUrl, null, { 'Accept': 'application/zip' });
+    }
+    return {
+      success: response.status === 200 && response.body.success && response.body.downloadUrl,
+      error: response.status !== 200 ? `Status ${response.status}` : 'Export failed or no download URL'
+    };
+  });
+
+  await test(`POST /api/exports (user_checklists_notes)`, async () => {
+    console.log(`  📦 Requesting export of ${testUsername}'s checklists and notes`);
+    const response = await makeRequest('POST', '/api/exports', { type: 'user_checklists_notes', username: testUsername });
+    testExportDownloadUrl = response.body.downloadUrl;
+    console.log(`  ⬇️  Download URL: ${testExportDownloadUrl}`);
+    if (response.status === 200 && response.body.success && response.body.downloadUrl) {
+      // Trigger download to clean up the file on the server side
+      await makeRequest('GET', testExportDownloadUrl, null, { 'Accept': 'application/zip' });
+    }
+    return {
+      success: response.status === 200 && response.body.success && response.body.downloadUrl,
+      error: response.status !== 200 ? `Status ${response.status}` : 'Export failed or no download URL'
+    };
+  });
+
+  await test(`POST /api/exports (all_users_data)`, async () => {
+    console.log(`  📦 Requesting export of all users data`);
+    const response = await makeRequest('POST', '/api/exports', { type: 'all_users_data' });
+    testExportDownloadUrl = response.body.downloadUrl;
+    console.log(`  ⬇️  Download URL: ${testExportDownloadUrl}`);
+    if (response.status === 200 && response.body.success && response.body.downloadUrl) {
+      // Trigger download to clean up the file on the server side
+      await makeRequest('GET', testExportDownloadUrl, null, { 'Accept': 'application/zip' });
+    }
+    return {
+      success: response.status === 200 && response.body.success && response.body.downloadUrl,
+      error: response.status !== 200 ? `Status ${response.status}` : 'Export failed or no download URL'
+    };
+  });
+
+  await test(`POST /api/exports (whole_data_folder)`, async () => {
+    console.log(`  📦 Requesting export of whole data folder`);
+    const response = await makeRequest('POST', '/api/exports', { type: 'whole_data_folder' });
+    testExportDownloadUrl = response.body.downloadUrl;
+    console.log(`  ⬇️  Download URL: ${testExportDownloadUrl}`);
+    if (response.status === 200 && response.body.success && response.body.downloadUrl) {
+      // Trigger download to clean up the file on the server side
+      await makeRequest('GET', testExportDownloadUrl, null, { 'Accept': 'application/zip' });
+    }
+    return {
+      success: response.status === 200 && response.body.success && response.body.downloadUrl,
+      error: response.status !== 200 ? `Status ${response.status}` : 'Export failed or no download URL'
+    };
+  });
+
+  await test(`GET /api/exports (progress check)`, async () => {
+    console.log(`  📊 Checking export progress`);
+    const response = await makeRequest('GET', '/api/exports');
+    console.log(`  📈 Progress: ${response.body.progress}% - ${response.body.message}`);
+    return {
+      success: response.status === 200 && typeof response.body.progress === 'number',
+      error: response.status !== 200 ? `Status ${response.status}` : 'Failed to get export progress'
+    };
+  });
+
+  await test('Verify temp_exports directory is empty', async () => {
+    const exportTempDir = './data/temp_exports';
+    try {
+      const files = await require('fs/promises').readdir(exportTempDir);
+      return {
+        success: files.length === 0,
+        error: files.length === 0 ? null : `Directory not empty. Files remaining: ${files.join(', ')}`
+      };
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        return { success: true };
+      }
+      return { success: false, error: `Error checking directory: ${err.message}` };
+    }
+  });
+
   await test(`PUT /api/checklists/${testChecklistId}/items/0/check`, async () => {
     if (!testChecklistId) {
       return { success: false, error: 'No simple checklist found for testing' };
@@ -285,4 +372,29 @@ async function runTests() {
   process.exit(failed > 0 ? 1 : 0);
 }
 
-runTests().catch(console.error);
+async function cleanupTempExports() {
+  const exportTempDir = './data/temp_exports';
+  try {
+    const fs = require('fs/promises');
+    console.log(`${colors.cyan}Attempting to clean up temporary export directory: ${exportTempDir}${colors.reset}`);
+    const filesBefore = await fs.readdir(exportTempDir).catch(() => []);
+    console.log(`${colors.cyan}Files in ${exportTempDir} before cleanup: ${filesBefore.length > 0 ? filesBefore.join(', ') : 'None'}${colors.reset}`);
+    require('fs').rmSync(exportTempDir, { recursive: true, force: true });
+    console.log(`${colors.cyan}Cleaned up temporary export directory: ${exportTempDir}${colors.reset}`);
+    const filesAfter = await fs.readdir(exportTempDir).catch(() => []);
+    console.log(`${colors.cyan}Files in ${exportTempDir} after cleanup: ${filesAfter.length > 0 ? filesAfter.join(', ') : 'None'}${colors.reset}`);
+  } catch (err) {
+    console.error(`${colors.red}Error cleaning up temporary export directory:${colors.reset}`, err);
+  }
+}
+
+async function main() {
+  await cleanupTempExports(); // Clean up before running tests
+  await runTests()
+    .catch(console.error)
+    .finally(async () => {
+      await cleanupTempExports();
+    });
+}
+
+main();

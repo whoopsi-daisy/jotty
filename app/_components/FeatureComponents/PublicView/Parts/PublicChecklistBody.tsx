@@ -61,6 +61,7 @@ export const PublicChecklistBody = ({
           key={item.id}
           item={item}
           isPublicView={true}
+          isDeletingItem={false}
         />
       ))}
     </div>

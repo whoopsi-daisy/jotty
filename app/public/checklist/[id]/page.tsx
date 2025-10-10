@@ -3,6 +3,7 @@ import { getAllLists } from "@/app/_server/actions/checklist";
 import { getItemSharingMetadata } from "@/app/_server/actions/sharing";
 import { PublicChecklistView } from "@/app/_components/FeatureComponents/PublicView/PublicChecklistView";
 import { CheckForNeedsMigration } from "@/app/_server/actions/note";
+import { getUserByUsername } from "@/app/_server/actions/users";
 
 interface PublicChecklistPageProps {
   params: {
@@ -29,6 +30,11 @@ export default async function PublicChecklistPage({
     redirect("/");
   }
 
+  const user = await getUserByUsername(checklist.owner!);
+  if (user) {
+    user.avatarUrl = process.env.SERVE_PUBLIC_IMAGES ? user.avatarUrl : undefined;
+  }
+
   const sharingMetadata = await getItemSharingMetadata(
     id,
     "checklist",
@@ -39,5 +45,5 @@ export default async function PublicChecklistPage({
     redirect("/");
   }
 
-  return <PublicChecklistView checklist={checklist} />;
+  return <PublicChecklistView checklist={checklist} user={user} />;
 }

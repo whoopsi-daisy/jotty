@@ -147,7 +147,7 @@ export const AppSettingsTab = () => {
                 key={field.iconType}
                 {...field}
                 currentUrl={settings[field.iconType]}
-                onUpload={handleInputChange}
+                onUpload={(iconType, url) => handleInputChange(iconType || "", url)}
               />
             ))}
           </div>

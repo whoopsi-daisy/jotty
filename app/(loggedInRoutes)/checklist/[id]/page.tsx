@@ -3,7 +3,7 @@ import { getLists } from "@/app/_server/actions/checklist";
 import { getCategories } from "@/app/_server/actions/category";
 import { getAllLists } from "@/app/_server/actions/checklist";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
-import { isAdmin, getUsername } from "@/app/_server/actions/users";
+import { isAdmin, getUsername, getCurrentUser } from "@/app/_server/actions/users";
 import { ChecklistClient } from "@/app/_components/FeatureComponents/Checklists/Parts/ChecklistClient";
 import { Modes } from "@/app/_types/enums";
 
@@ -17,8 +17,9 @@ export const dynamic = "force-dynamic";
 
 export default async function ChecklistPage({ params }: ChecklistPageProps) {
   const { id } = params;
-  const username = await getUsername();
-  const isAdminUser = await isAdmin();
+  const user = await getCurrentUser();
+  const username = user?.username || "";
+  const isAdminUser = user?.isAdmin || false;
 
   const [listsResult, categoriesResult] = await Promise.all([
     getLists(username),
@@ -66,8 +67,7 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
       lists={listsResult.data}
       categories={categories}
       sharingStatuses={sharingStatuses}
-      username={username}
-      isAdmin={isAdminUser}
+      user={user}
     />
   );
 }

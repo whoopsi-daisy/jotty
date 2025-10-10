@@ -16,6 +16,8 @@ import { ChecklistHeader } from "@/app/_components/FeatureComponents/Checklists/
 import { ChecklistHeading } from "@/app/_components/FeatureComponents/Checklists/Parts/Common/ChecklistHeading";
 import { ChecklistBody } from "@/app/_components/FeatureComponents/Checklists/Parts/Simple/ChecklistBody";
 import { ChecklistModals } from "@/app/_components/FeatureComponents/Checklists/Parts/Common/ChecklistModals";
+import { Toast } from "../../GlobalComponents/Feedback/Toast";
+import { ToastContainer } from "../../GlobalComponents/Feedback/ToastContainer";
 
 interface ChecklistViewProps {
   list: Checklist;
@@ -51,6 +53,7 @@ export const ChecklistView = ({
     handleCreateItem,
     setShowBulkPasteModal,
     isLoading,
+    deletingItemsCount,
   } = checklistHookProps;
 
   const sensors = useSensors(
@@ -92,6 +95,26 @@ export const ChecklistView = ({
         onConvertType={handleConvertType}
       />
 
+      {deletingItemsCount > 0 && (
+        <ToastContainer
+          toasts={[
+            {
+              id: "deleting-items",
+              type: "info",
+              title: (
+                <>
+                  <label className="block">
+                    Deleting {deletingItemsCount} item(s)
+                  </label>
+                  <label>Do not refresh the page.</label>
+                </>
+              ),
+            },
+          ]}
+          onRemove={() => {}}
+        ></ToastContainer>
+      )}
+
       {localList.type === "simple" && (
         <ChecklistHeading
           checklist={localList}
@@ -111,6 +134,7 @@ export const ChecklistView = ({
           {...checklistHookProps}
           sensors={sensors}
           isLoading={isLoading}
+          isDeletingItem={deletingItemsCount > 0}
         />
       ) : (
         <div className="flex-1 overflow-hidden p-4">

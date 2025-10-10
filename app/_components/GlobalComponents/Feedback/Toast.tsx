@@ -7,7 +7,7 @@ import { cn } from "@/app/_utils/global-utils";
 export interface Toast {
   id: string;
   type: "success" | "error" | "info";
-  title: string;
+  title: React.ReactNode;
   message?: string;
   duration?: number;
 }

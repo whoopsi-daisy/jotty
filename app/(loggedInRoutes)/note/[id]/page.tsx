@@ -5,7 +5,7 @@ import {
   CheckForNeedsMigration,
 } from "@/app/_server/actions/note";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
-import { isAdmin, getUsername } from "@/app/_server/actions/users";
+import { isAdmin, getUsername, getCurrentUser } from "@/app/_server/actions/users";
 import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
 import { Modes } from "@/app/_types/enums";
 import { getCategories } from "@/app/_server/actions/category";
@@ -20,8 +20,9 @@ export const dynamic = "force-dynamic";
 
 export default async function NotePage({ params }: NotePageProps) {
   const { id } = params;
-  const username = await getUsername();
-  const isAdminUser = await isAdmin();
+  const user = await getCurrentUser();
+  const username = user?.username || "";
+  const isAdminUser = user?.isAdmin || false;
 
   await CheckForNeedsMigration();
 
@@ -71,8 +72,7 @@ export default async function NotePage({ params }: NotePageProps) {
       docs={docsResult.data}
       categories={docsCategories}
       sharingStatuses={sharingStatuses}
-      username={username}
-      isAdmin={isAdminUser}
+      user={user}
     />
   );
 }

@@ -16,6 +16,7 @@ This API provides programmatic access to your checklists and notes. All endpoint
 ### Using Your API Key
 
 Include your API key in the request header:
+
 ```
 x-api-key: ck_your_api_key_here
 ```
@@ -27,11 +28,13 @@ x-api-key: ck_your_api_key_here
 The API supports two types of checklists:
 
 ### Regular Checklists
+
 - Simple checklists with basic items
 - Items have only `text` and `completed` status
 - Used for simple to-do lists and shopping lists
 
-### Task Checklists  
+### Task Checklists
+
 - Advanced checklists with task management features
 - Items include additional metadata:
   - `status`: Task status (`in_progress`, `paused`, `completed`)
@@ -41,11 +44,13 @@ The API supports two types of checklists:
 ## Endpoints
 
 ### 1. Get All Checklists
+
 **GET** `/api/checklists`
 
 Retrieves all checklists for the authenticated user.
 
 **Response:**
+
 ```json
 {
   "checklists": [
@@ -87,7 +92,14 @@ Retrieves all checklists for the authenticated user.
           "text": "Task with time tracking",
           "completed": false,
           "status": "paused",
-          "time": [{"id":"1757951487325","startTime":"2025-09-15T15:51:24.610Z","endTime":"2025-09-15T15:51:27.325Z","duration":2}]
+          "time": [
+            {
+              "id": "1757951487325",
+              "startTime": "2025-09-15T15:51:24.610Z",
+              "endTime": "2025-09-15T15:51:27.325Z",
+              "duration": 2
+            }
+          ]
         }
       ],
       "createdAt": "2024-01-01T00:00:00.000Z",
@@ -98,11 +110,13 @@ Retrieves all checklists for the authenticated user.
 ```
 
 ### 2. Create Checklist Item
+
 **POST** `/api/checklists/{listId}/items`
 
 Adds a new item to the specified checklist.
 
 **Request Body for Regular Checklists:**
+
 ```json
 {
   "text": "New task to complete"
@@ -110,6 +124,7 @@ Adds a new item to the specified checklist.
 ```
 
 **Request Body for Task Checklists:**
+
 ```json
 {
   "text": "New task to complete",
@@ -119,11 +134,13 @@ Adds a new item to the specified checklist.
 ```
 
 **Task Checklist Parameters:**
+
 - `text` (required): The task description
 - `status` (optional): Task status - `"in_progress"`, `"paused"`, or `"completed"` (defaults to `"in_progress"`)
 - `time` (optional): Time tracking value - either `0` for no time tracked or a JSON array of time entries (defaults to `0`)
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -131,11 +148,13 @@ Adds a new item to the specified checklist.
 ```
 
 ### 3. Check Item
+
 **PUT** `/api/checklists/{listId}/items/{itemIndex}/check`
 
 Marks an item as completed. Use the item index (0-based) from the checklist response.
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -143,11 +162,13 @@ Marks an item as completed. Use the item index (0-based) from the checklist resp
 ```
 
 ### 4. Uncheck Item
+
 **PUT** `/api/checklists/{listId}/items/{itemIndex}/uncheck`
 
 Marks an item as incomplete. Use the item index (0-based) from the checklist response.
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -155,11 +176,13 @@ Marks an item as incomplete. Use the item index (0-based) from the checklist res
 ```
 
 ### 5. Get All Notes
+
 **GET** `/api/notes`
 
 Retrieves all notes/documents for the authenticated user.
 
 **Response:**
+
 ```json
 {
   "notes": [
@@ -186,21 +209,72 @@ All endpoints return appropriate HTTP status codes:
 - `500` - Internal Server Error
 
 Error response format:
+
 ```json
 {
   "error": "Error message description"
 }
 ```
 
+## Export Endpoints
+
+### 1. Request Data Export
+
+**POST** `/api/exports`
+
+Initiates an export of user data. The API will return a download URL upon successful initiation.
+
+**Request Body:**
+
+```json
+{
+  "type": "<export_type>",
+  "username"?: "<username>"
+}
+```
+
+**Export Types:**
+
+- `all_checklists_notes`: Exports all checklists and notes across all users.
+- `user_checklists_notes`: Exports all checklists and notes for a specific user. Requires `username` in the request body.
+- `all_users_data`: Exports all user registration data.
+- `whole_data_folder`: Exports the entire data folder, excluding temporary export files.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "downloadUrl": "/api/exports/all_checklists_notes_1678886400000.zip"
+}
+```
+
+### 2. Get Export Progress
+
+**GET** `/api/exports`
+
+Retrieves the current progress of an ongoing export operation.
+
+**Response:**
+
+```json
+{
+  "progress": 75,
+  "message": "Compressing files: 150/200 bytes"
+}
+```
+
 ## Usage Examples
 
 ### Get all checklists
+
 ```bash
 curl -H "x-api-key: ck_your_api_key_here" \
      https://your-checklist-app.com/api/checklists
 ```
 
 ### Add item to regular checklist
+
 ```bash
 curl -X POST \
      -H "x-api-key: ck_your_api_key_here" \
@@ -210,6 +284,7 @@ curl -X POST \
 ```
 
 ### Add item to task checklist
+
 ```bash
 curl -X POST \
      -H "x-api-key: ck_your_api_key_here" \
@@ -219,6 +294,7 @@ curl -X POST \
 ```
 
 ### Check item (mark as completed)
+
 ```bash
 curl -X PUT \
      -H "x-api-key: ck_your_api_key_here" \
@@ -226,6 +302,7 @@ curl -X PUT \
 ```
 
 ### Uncheck item (mark as incomplete)
+
 ```bash
 curl -X PUT \
      -H "x-api-key: ck_your_api_key_here" \
@@ -233,9 +310,37 @@ curl -X PUT \
 ```
 
 ### Get all notes
+
 ```bash
 curl -H "x-api-key: ck_your_api_key_here" \
      https://your-checklist-app.com/api/notes
+```
+
+### Export all checklists and notes
+
+```bash
+curl -X POST \
+     -H "x-api-key: ck_your_api_key_here" \
+     -H "Content-Type: application/json" \
+     -d '{"type": "all_checklists_notes"}' \
+     https://your-checklist-app.com/api/exports
+```
+
+### Export user specific checklists and notes
+
+```bash
+curl -X POST \
+     -H "x-api-key: ck_your_api_key_here" \
+     -H "Content-Type: application/json" \
+     -d '{"type": "user_checklists_notes", "username": "testuser"}' \
+     https://your-checklist-app.com/api/exports
+```
+
+### Get export progress
+
+```bash
+curl -H "x-api-key: ck_your_api_key_here" \
+     https://your-checklist-app.com/api/exports
 ```
 
 ## Important Notes

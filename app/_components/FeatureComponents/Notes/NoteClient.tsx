@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Note, Category } from "@/app/_types";
+import { Note, Category, User } from "@/app/_types";
 import { NoteEditor } from "@/app/_components/FeatureComponents/Notes/Parts/NoteEditor/NoteEditor";
 import { CreateNoteModal } from "@/app/_components/GlobalComponents/Modals/NotesModal/CreateNoteModal";
 import { CreateCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/CreateCategoryModal";
@@ -22,8 +22,7 @@ interface NoteClientProps {
   docs: Note[];
   categories: Category[];
   sharingStatuses?: Record<string, SharingStatus>;
-  username: string;
-  isAdmin: boolean;
+  user: User | null;
 }
 
 export const NoteClient = ({
@@ -31,8 +30,7 @@ export const NoteClient = ({
   docs,
   categories,
   sharingStatuses,
-  username,
-  isAdmin,
+  user,
 }: NoteClientProps) => {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
@@ -91,8 +89,7 @@ export const NoteClient = ({
       onOpenSettings={handleOpenSettings}
       onOpenCreateModal={handleOpenCreateModal}
       onOpenCategoryModal={handleOpenCategoryModal}
-      isAdmin={isAdmin}
-      username={username}
+      user={user}
     >
       <NoteEditor
         note={localNote}
@@ -100,8 +97,8 @@ export const NoteClient = ({
         onUpdate={handleUpdate}
         onBack={handleBack}
         onDelete={handleDelete}
-        currentUsername={username}
-        isAdmin={isAdmin}
+        currentUsername={user?.username}
+        isAdmin={user?.isAdmin}
       />
 
       {showCreateModal && (
