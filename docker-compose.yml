@@ -20,11 +20,12 @@ services:
     environment:
       - NODE_ENV=production
       
-      # Uncomment to make images public. This won't expose your entire folder structure      
-      # but it will allow any image you upload via the UI to be accessed publicly for 
+      # Uncomment to make user uploaded images and files public. This won't expose your entire folder structure      
+      # but it will allow any image/files you upload via the UI to be accessed publicly for 
       # anyone with the link or image name/filename. This is the only way to have images available in
       # public notes and it's disabled by default for security reasons.
       # - SERVE_PUBLIC_IMAGES=yes
+      # - SERVE_PUBLIC_FILES=yes
       
       # Uncomment to enable HTTPS
       # - HTTPS=true

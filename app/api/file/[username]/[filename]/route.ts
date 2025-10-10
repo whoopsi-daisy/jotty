@@ -12,16 +12,12 @@ export async function GET(
 ) {
   try {
     const user = await getCurrentUser();
-    if (!user) {
+    if (!user && !process.env.SERVE_PUBLIC_FILES) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const { username } = params;
     const filename = decodeURIComponent(params.filename);
-
-    if (username !== user.username) {
-      return new NextResponse("Forbidden", { status: 403 });
-    }
 
     const filePath = path.join(
       process.cwd(),
