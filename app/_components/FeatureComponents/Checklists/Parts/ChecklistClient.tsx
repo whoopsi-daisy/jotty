@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Checklist, Category, User } from "@/app/_types";
 import { ChecklistView } from "@/app/_components/FeatureComponents/Checklists/Checklist";
@@ -59,9 +59,9 @@ export const ChecklistClient = ({
     }
   }, [checklist]);
 
-  const handleUpdate = (updatedChecklist: Checklist) => {
+  const handleUpdate = useCallback((updatedChecklist: Checklist) => {
     setLocalChecklist(updatedChecklist);
-  };
+  }, []);
 
   const handleBack = () => {
     checkNavigation(() => {

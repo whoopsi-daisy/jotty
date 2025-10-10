@@ -20,6 +20,7 @@ interface ChecklistBodyProps {
   handleDragEnd: (event: DragEndEvent) => void;
   sensors: any;
   isLoading: boolean;
+  isDeletingItem: boolean;
 }
 
 export const ChecklistBody = ({
@@ -33,6 +34,7 @@ export const ChecklistBody = ({
   handleDragEnd,
   sensors,
   isLoading,
+  isDeletingItem,
 }: ChecklistBodyProps) => {
   if (localList.items.length === 0) {
     return (
@@ -77,6 +79,7 @@ export const ChecklistBody = ({
                       index={index}
                       onToggle={handleToggleItem}
                       onDelete={handleDeleteItem}
+                      isDeletingItem={isDeletingItem}
                       onEdit={handleEditItem}
                     />
                   ))}
@@ -97,6 +100,7 @@ export const ChecklistBody = ({
                       index={incompleteItems.length + index}
                       onToggle={handleToggleItem}
                       onDelete={handleDeleteItem}
+                      isDeletingItem={isDeletingItem}
                       onEdit={handleEditItem}
                       completed
                     />

@@ -26,6 +26,7 @@ interface ChecklistItemProps {
   completed?: boolean;
   isPublicView?: boolean;
   status?: string;
+  isDeletingItem: boolean;
 }
 
 export const ChecklistItem = ({
@@ -37,6 +38,7 @@ export const ChecklistItem = ({
   completed = false,
   isPublicView = false,
   status,
+  isDeletingItem,
 }: ChecklistItemProps) => {
   const {
     attributes,
@@ -146,14 +148,16 @@ export const ChecklistItem = ({
           >
             <Check className="h-3 w-3" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCancel}
-            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <X className="h-3 w-3" />
-          </Button>
+          {!isDeletingItem && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCancel}
+              className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          )}
         </div>
       ) : (
         <label
