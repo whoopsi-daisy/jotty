@@ -138,11 +138,12 @@ export const TiptapToolbar = ({
         </div>
       </div>
 
-      {/* --- THIS IS THE MODIFIED LINE --- */}
-      <div className={cn(
-        "flex flex-1 min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap md:flex-wrap md:whitespace-normal",
-        "hide-scrollbar scroll-fade-right" // Apply the new custom classes here
-      )}>
+      <div
+        className={cn(
+          "flex flex-1 min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap md:flex-wrap md:whitespace-normal",
+          "hide-scrollbar scroll-fade-right"
+        )}
+      >
         <Button
           variant={editor.isActive("bold") ? "secondary" : "ghost"}
           size="sm"

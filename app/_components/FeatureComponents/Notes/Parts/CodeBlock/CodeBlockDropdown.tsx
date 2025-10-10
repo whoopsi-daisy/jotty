@@ -5,6 +5,7 @@ import { ChevronDown, Code } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { codeBlockLanguages } from "@/app/_utils/markdown-utils";
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface CodeBlockDropdownProps {
   editor: Editor | null;
@@ -13,12 +14,33 @@ interface CodeBlockDropdownProps {
 export const CodeBlockDropdown = ({ editor }: CodeBlockDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const portalContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const portalContainer = document.createElement("div");
+    portalContainer.style.position = "fixed";
+    portalContainer.style.zIndex = "9999";
+    portalContainer.style.pointerEvents = "none";
+    document.body.appendChild(portalContainer);
+    portalContainerRef.current = portalContainer;
+
+    return () => {
+      if (
+        portalContainerRef.current &&
+        document.body.contains(portalContainerRef.current)
+      ) {
+        document.body.removeChild(portalContainerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        portalContainerRef.current &&
+        !portalContainerRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -37,28 +59,17 @@ export const CodeBlockDropdown = ({ editor }: CodeBlockDropdownProps) => {
 
   const isCodeBlockActive = editor.isActive("codeBlock");
 
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <Button
-        variant={isCodeBlockActive ? "secondary" : "ghost"}
-        size="sm"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1"
-      >
-        <Code className="h-4 w-4" />
-        <span className="text-xs">Code</span>
-        <ChevronDown className="h-3 w-3" />
-      </Button>
-
+  const dropdownContent = (
+    <>
       {isOpen && (
         <div
-          className="fixed bg-background border border-border rounded-md shadow-lg z-[9999] min-w-[200px] max-h-[300px] overflow-y-auto"
+          className="fixed bg-background border border-border rounded-md shadow-lg min-w-[200px] max-h-[300px] overflow-y-auto"
           style={{
             top: `${
               dropdownRef.current?.getBoundingClientRect().bottom || 0
             }px`,
             left: `${dropdownRef.current?.getBoundingClientRect().left || 0}px`,
+            pointerEvents: "auto",
           }}
         >
           {codeBlockLanguages.map((lang) => (
@@ -73,6 +84,25 @@ export const CodeBlockDropdown = ({ editor }: CodeBlockDropdownProps) => {
           ))}
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <Button
+        variant={isCodeBlockActive ? "secondary" : "ghost"}
+        size="sm"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1"
+      >
+        <Code className="h-4 w-4" />
+        <span className="text-xs">Code</span>
+        <ChevronDown className="h-3 w-3" />
+      </Button>
+
+      {portalContainerRef.current &&
+        createPortal(dropdownContent, portalContainerRef.current)}
     </div>
   );
 };
