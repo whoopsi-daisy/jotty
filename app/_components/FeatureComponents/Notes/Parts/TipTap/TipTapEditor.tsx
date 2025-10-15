@@ -1,16 +1,15 @@
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import CodeBlock from "@tiptap/extension-code-block";
 import Image from "@tiptap/extension-image";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-import { ReactNodeViewRenderer } from "@tiptap/react";
-import CodeBlockComponent from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockComponent";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapToolbar";
 import { FileAttachmentExtension } from "@/app/_components/FeatureComponents/Notes/Parts/FileAttachment/FileAttachmentExtension";
+import { CodeBlockNodeView } from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockNodeView";
 import { useState, useEffect, useRef } from "react";
 import { InputRule } from "@tiptap/core";
 import {
@@ -18,15 +17,34 @@ import {
   convertHtmlToMarkdownUnified,
 } from "@/app/_utils/markdown-utils";
 
+import { createLowlight } from "lowlight";
+import javascript from "highlight.js/lib/languages/javascript";
+import typescript from "highlight.js/lib/languages/typescript";
+import python from "highlight.js/lib/languages/python";
+import css from "highlight.js/lib/languages/css";
+import html from "highlight.js/lib/languages/xml";
+import sql from "highlight.js/lib/languages/sql";
+import bash from "highlight.js/lib/languages/bash";
+
+const lowlight = createLowlight();
+
+lowlight.register("javascript", javascript);
+lowlight.register("js", javascript);
+lowlight.register("typescript", typescript);
+lowlight.register("ts", typescript);
+lowlight.register("python", python);
+lowlight.register("py", python);
+lowlight.register("css", css);
+lowlight.register("html", html);
+lowlight.register("sql", sql);
+lowlight.register("bash", bash);
+
 type TiptapEditorProps = {
   content: string;
   onChange: (content: string, isMarkdownMode: boolean) => void;
 };
 
-export const TiptapEditor = ({
-  content,
-  onChange
-}: TiptapEditorProps) => {
+export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
@@ -52,13 +70,12 @@ export const TiptapEditor = ({
           },
         },
       }),
-      CodeBlock.configure({
-        HTMLAttributes: {
-          class: "code-block",
-        },
+      CodeBlockLowlight.configure({
+        lowlight,
+        defaultLanguage: "plaintext",
       }).extend({
         addNodeView() {
-          return ReactNodeViewRenderer(CodeBlockComponent);
+          return ReactNodeViewRenderer(CodeBlockNodeView);
         },
       }),
       Link.configure({

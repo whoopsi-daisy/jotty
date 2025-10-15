@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  isValidElement,
+  Children,
+  ReactElement,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeRaw from "rehype-raw";
+import rehypeHighlight from "rehype-highlight";
 import { CodeBlockRenderer } from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockRenderer";
 import { FileAttachment } from "@/app/_components/GlobalComponents/FormElements/FileAttachment";
 import type { Components } from "react-markdown";
@@ -54,21 +61,17 @@ export const UnifiedMarkdownRenderer = ({
   }
 
   const components: Partial<Components> = {
-    code({ className, children, ...props }) {
-      const match = /language-(\w+)/.exec(className || "");
-      const language = match ? match[1] : "";
-      const codeContent = String(children).replace(/\n$/, "");
-      const inline = !className?.includes("language-");
+    pre: ({ node, children, ...props }) => {
+      const child = Children.toArray(children)[0];
 
-      if (!inline && language) {
-        return <CodeBlockRenderer code={codeContent} language={language} />;
+      if (isValidElement(child) && child.type === "code") {
+        return (
+          <CodeBlockRenderer code={child.props.children}>
+            {child as ReactElement}
+          </CodeBlockRenderer>
+        );
       }
-
-      return (
-        <code className={className} {...props}>
-          {children}
-        </code>
-      );
+      return <pre {...props}>{children}</pre>;
     },
     a({ href, children, ...props }) {
       const childText = String(children);
@@ -159,7 +162,7 @@ export const UnifiedMarkdownRenderer = ({
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSlug, rehypeRaw]}
+        rehypePlugins={[rehypeSlug, rehypeRaw, rehypeHighlight]}
         components={components}
       >
         {content}

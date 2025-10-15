@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'highlight.js/styles/github-dark.css';
 
 @layer base {
     :root {
@@ -366,7 +367,6 @@
     mask-image: linear-gradient(to right, black 90%, transparent 100%);
 }
 
-
 .dragging {
     opacity: 0.5;
     transform: rotate(5deg);
@@ -416,13 +416,9 @@
     font-style: italic;
 }
 
-.prose code {
+/* This is the crucial fix: it styles INLINE code but IGNORES code inside blocks */
+.prose :where(:not(pre)) > code {
     @apply bg-muted px-1 py-0.5 rounded text-sm;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-.prose pre code {
-    @apply bg-transparent p-0 text-sm;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
@@ -445,6 +441,25 @@
     text-decoration: none;
 }
 
+p > code {
+    background: rgba(0,0,0,0.8)!important;
+    color: orange;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* This rule provides a consistent background for code blocks in the editor */
+.ProseMirror .hljs {
+  color: #abb2bf;
+  background: #282c34;
+}
+
+.hljs .hljs {
+    padding: 0;
+    background: transparent;
+}
 
 .line-clamp-2 {
     display: -webkit-box;
@@ -455,21 +470,6 @@
 
 .ProseMirror {
     height: 100%;    
-}
-
-.ProseMirror pre {
-    @apply bg-muted border border-border rounded-lg p-4 overflow-x-auto;
-    margin: 1rem 0;
-}
-
-.ProseMirror pre code {
-    @apply bg-transparent p-0 text-sm;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-.ProseMirror code {
-    @apply bg-muted px-1 py-0.5 rounded text-sm;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 .ProseMirror ul,
@@ -489,21 +489,6 @@
 
 .ProseMirror ul {
     list-style-type: disc;
-}
-
-.code-block-wrapper .ProseMirror {
-    color: transparent;
-    caret-color: white;
-    border: none !important;
-    outline: none !important;
-}
-
-.code-block-wrapper .ProseMirror::selection {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.code-block-wrapper .ProseMirror::-moz-selection {
-    background: rgba(255, 255, 255, 0.2);
 }
 
 .ProseMirror ol {
