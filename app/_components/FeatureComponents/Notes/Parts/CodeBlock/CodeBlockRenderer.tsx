@@ -26,14 +26,6 @@ export const CodeBlockRenderer = ({
     children.props.className?.replace("language-", "") ||
     "plaintext";
 
-  const copyToClipboard = async () => {
-    const success = await copyTextToClipboard(code);
-    if (success) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   const showHeader = language !== "plaintext";
   const languageObj = getLanguageByValue(language.replace("hljs ", ""));
   const languageIcon = languageObj?.icon || <Code className="h-4 w-4" />;
@@ -55,7 +47,10 @@ export const CodeBlockRenderer = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={copyToClipboard}
+            onClick={() => {
+              copyTextToClipboard(code);
+              setTimeout(() => setCopied(false), 2000);
+            }}
             className="h-6 w-6 p-0 text-gray-400"
           >
             {copied ? (
@@ -66,12 +61,16 @@ export const CodeBlockRenderer = ({
           </Button>
         </div>
       )}
+
       {!showHeader && (
         <div className="absolute top-2 right-2 z-10">
           <Button
             variant="ghost"
             size="icon"
-            onClick={copyToClipboard}
+            onClick={() => {
+              copyTextToClipboard(code);
+              setTimeout(() => setCopied(false), 2000);
+            }}
             className="transition-opacity opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-gray-400"
           >
             {copied ? (
@@ -82,6 +81,7 @@ export const CodeBlockRenderer = ({
           </Button>
         </div>
       )}
+
       <pre className="hljs !bg-transparent !p-4 !m-0 overflow-x-auto text-sm">
         {children}
       </pre>
