@@ -10,34 +10,13 @@ import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapToolbar";
 import { FileAttachmentExtension } from "@/app/_components/FeatureComponents/Notes/Parts/FileAttachment/FileAttachmentExtension";
 import { CodeBlockNodeView } from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockNodeView";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { InputRule } from "@tiptap/core";
 import {
   convertMarkdownToHtml,
   convertHtmlToMarkdownUnified,
 } from "@/app/_utils/markdown-utils";
-
-import { createLowlight } from "lowlight";
-import javascript from "highlight.js/lib/languages/javascript";
-import typescript from "highlight.js/lib/languages/typescript";
-import python from "highlight.js/lib/languages/python";
-import css from "highlight.js/lib/languages/css";
-import html from "highlight.js/lib/languages/xml";
-import sql from "highlight.js/lib/languages/sql";
-import bash from "highlight.js/lib/languages/bash";
-
-const lowlight = createLowlight();
-
-lowlight.register("javascript", javascript);
-lowlight.register("js", javascript);
-lowlight.register("typescript", typescript);
-lowlight.register("ts", typescript);
-lowlight.register("python", python);
-lowlight.register("py", python);
-lowlight.register("css", css);
-lowlight.register("html", html);
-lowlight.register("sql", sql);
-lowlight.register("bash", bash);
+import { lowlight } from "@/app/_utils/lowlight-utils";
 
 type TiptapEditorProps = {
   content: string;
@@ -48,12 +27,27 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const debouncedOnChange = useCallback(
+    (newContent: string, isMarkdown: boolean) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        onChange(newContent, isMarkdown);
+      }, 0);
+    },
+    [onChange]
+  );
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         codeBlock: false,
+        link: false,
         bulletList: {
           HTMLAttributes: {
             class: "list-disc",
@@ -143,7 +137,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     content: content,
     onUpdate: ({ editor }) => {
       if (!isMarkdownMode) {
-        onChange(editor.getHTML(), false);
+        debouncedOnChange(editor.getHTML(), false);
       }
     },
     editorProps: {
@@ -184,10 +178,18 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     }
   }, [editor, content]);
 
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleMarkdownChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setMarkdownContent(newContent);
-    onChange(newContent, true);
+    debouncedOnChange(newContent, true);
   };
 
   const toggleMode = () => {

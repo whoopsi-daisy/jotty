@@ -3,7 +3,7 @@
 import { Copy, Check, Code } from "lucide-react";
 import { useState, ReactElement } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { languageIcons } from "@/app/_utils/markdown-utils";
+import { getLanguageByValue } from "@/app/_utils/code-block-utils";
 import { cn, copyTextToClipboard } from "@/app/_utils/global-utils";
 
 interface CodeBlockRendererProps {
@@ -35,6 +35,9 @@ export const CodeBlockRenderer = ({
   };
 
   const showHeader = language !== "plaintext";
+  const languageObj = getLanguageByValue(language.replace("hljs ", ""));
+  const languageIcon = languageObj?.icon || <Code className="h-4 w-4" />;
+  const displayLanguage = languageObj?.label || language.replace("hljs ", "");
 
   return (
     <div
@@ -46,12 +49,8 @@ export const CodeBlockRenderer = ({
       {showHeader && (
         <div className="flex items-center justify-between px-4 py-2 bg-[#21252b] border-b border-[#181a1f]">
           <div className="flex items-center gap-1.5 text-xs font-mono text-[#abb2bf]">
-            {languageIcons[language.replace("hljs ", "")] || (
-              <Code className="h-4 w-4" />
-            )}
-            <span className="uppercase tracking-wide">
-              {language.replace("hljs ", "")}
-            </span>
+            {languageIcon}
+            <span className="uppercase tracking-wide">{displayLanguage}</span>
           </div>
           <Button
             variant="ghost"

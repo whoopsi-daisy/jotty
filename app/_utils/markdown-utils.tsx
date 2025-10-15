@@ -99,85 +99,9 @@ export const getMarkdownPreviewContent = (
   }
 };
 
-export const languageIcons: Record<string, JSX.Element> = {
-  javascript: <FileCode className="h-4 w-4" />,
-  typescript: <FileCode className="h-4 w-4" />,
-  jsx: <FileCode className="h-4 w-4" />,
-  tsx: <FileCode className="h-4 w-4" />,
-  bash: <Terminal className="h-4 w-4" />,
-  sh: <Terminal className="h-4 w-4" />,
-  shell: <Terminal className="h-4 w-4" />,
-  sql: <Database className="h-4 w-4" />,
-  html: <Globe className="h-4 w-4" />,
-  css: <Globe className="h-4 w-4" />,
-  python: <Cpu className="h-4 w-4" />,
-  json: <FileText className="h-4 w-4" />,
-  yaml: <FileText className="h-4 w-4" />,
-  yml: <FileText className="h-4 w-4" />,
-  markdown: <FileText className="h-4 w-4" />,
-  md: <FileText className="h-4 w-4" />,
-};
+import { popularCodeBlockLanguages } from "./code-block-utils";
 
-export const codeBlockLanguages = [
-  {
-    value: "text",
-    label: "Plain Text",
-    icon: <FileText className="h-4 w-4" />,
-  },
-  { value: "javascript", label: "JavaScript", icon: languageIcons.javascript },
-  { value: "typescript", label: "TypeScript", icon: languageIcons.typescript },
-  { value: "jsx", label: "JSX", icon: languageIcons.jsx },
-  { value: "tsx", label: "TSX", icon: languageIcons.tsx },
-  { value: "python", label: "Python", icon: languageIcons.python },
-  { value: "bash", label: "Bash", icon: languageIcons.bash },
-  { value: "sql", label: "SQL", icon: languageIcons.sql },
-  { value: "html", label: "HTML", icon: languageIcons.html },
-  { value: "css", label: "CSS", icon: languageIcons.css },
-  { value: "json", label: "JSON", icon: languageIcons.json },
-  { value: "yaml", label: "YAML", icon: languageIcons.yaml },
-  { value: "markdown", label: "Markdown", icon: languageIcons.markdown },
-];
-
-export const getLanguageFromCode = (code: string): string => {
-  const firstLine = code.split("\n")[0].toLowerCase();
-
-  if (firstLine.includes("#!/bin/bash") || firstLine.includes("#!/bin/sh"))
-    return "bash";
-  if (firstLine.includes("#!/usr/bin/env python")) return "python";
-  if (firstLine.includes("#!/usr/bin/env node")) return "javascript";
-
-  if (code.includes("import React") || code.includes("from React"))
-    return "jsx";
-  if (
-    code.includes("interface ") ||
-    code.includes("type ") ||
-    code.includes(": string")
-  )
-    return "typescript";
-  if (
-    code.includes("SELECT ") ||
-    code.includes("INSERT ") ||
-    code.includes("UPDATE ")
-  )
-    return "sql";
-  if (code.includes("<!DOCTYPE") || code.includes("<html")) return "html";
-  if (
-    code.includes("def ") ||
-    code.includes("import ") ||
-    code.includes("print(")
-  )
-    return "python";
-  if (
-    code.includes("function ") ||
-    code.includes("const ") ||
-    code.includes("let ")
-  )
-    return "javascript";
-  if (code.includes("echo ") || code.includes("cd ") || code.includes("ls "))
-    return "bash";
-
-  return "text";
-};
+export const codeBlockLanguages = popularCodeBlockLanguages;
 
 export const createCustomSyntaxTheme = () => ({
   'pre[class*="language-"]': {

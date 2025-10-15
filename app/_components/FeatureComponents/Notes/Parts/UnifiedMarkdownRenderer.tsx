@@ -11,12 +11,25 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeRaw from "rehype-raw";
-import rehypeHighlight from "rehype-highlight";
 import { CodeBlockRenderer } from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockRenderer";
 import { FileAttachment } from "@/app/_components/GlobalComponents/FormElements/FileAttachment";
 import type { Components } from "react-markdown";
 import { QUOTES } from "@/app/_consts/notes";
 import { ImageAttachment } from "@/app/_components/GlobalComponents/FormElements/ImageAttachment";
+import { lowlight } from "@/app/_utils/lowlight-utils";
+import { toHtml } from "hast-util-to-html";
+
+const getRawTextFromChildren = (children: React.ReactNode): string => {
+  let text = "";
+  Children.forEach(children, (child) => {
+    if (typeof child === "string") {
+      text += child;
+    } else if (isValidElement(child) && child.props.children) {
+      text += getRawTextFromChildren(child.props.children);
+    }
+  });
+  return text;
+};
 
 interface UnifiedMarkdownRendererProps {
   content: string;
@@ -65,9 +78,32 @@ export const UnifiedMarkdownRenderer = ({
       const child = Children.toArray(children)[0];
 
       if (isValidElement(child) && child.type === "code") {
+        const codeElement = child as ReactElement;
+        const language =
+          codeElement.props.className?.replace("language-", "") || "plaintext";
+        const rawCode = getRawTextFromChildren(codeElement.props.children);
+
+        let highlightedHtml: string;
+
+        if (language === "plaintext" || !lowlight.registered(language)) {
+          highlightedHtml = rawCode;
+        } else {
+          const highlightedTree = lowlight.highlight(language, rawCode);
+          highlightedHtml = toHtml(highlightedTree);
+        }
+
+        const newCodeElement = {
+          ...codeElement,
+          props: {
+            ...codeElement.props,
+            dangerouslySetInnerHTML: { __html: highlightedHtml },
+            children: null,
+          },
+        };
+
         return (
-          <CodeBlockRenderer code={child.props.children}>
-            {child as ReactElement}
+          <CodeBlockRenderer code={rawCode} language={language}>
+            {newCodeElement as ReactElement}
           </CodeBlockRenderer>
         );
       }
@@ -162,7 +198,7 @@ export const UnifiedMarkdownRenderer = ({
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSlug, rehypeRaw, rehypeHighlight]}
+        rehypePlugins={[rehypeSlug, rehypeRaw]}
         components={components}
       >
         {content}
