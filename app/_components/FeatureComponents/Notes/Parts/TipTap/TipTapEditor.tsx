@@ -2,6 +2,10 @@ import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
+import ListItem from "@tiptap/extension-list-item";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
+import BulletList from "@tiptap/extension-bullet-list";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
@@ -48,20 +52,21 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       StarterKit.configure({
         codeBlock: false,
         link: false,
-        bulletList: {
-          HTMLAttributes: {
-            class: "list-disc",
-          },
-        },
+        listItem: false,
+        bulletList: false,
         orderedList: {
           HTMLAttributes: {
             class: "list-decimal",
           },
         },
-        listItem: {
-          HTMLAttributes: {
-            class: "list-item",
-          },
+      }),
+      BulletList.extend({
+        parseHTML() {
+          return [{ tag: 'ul:not([data-type="taskList"])' }];
+        },
+      }).configure({
+        HTMLAttributes: {
+          class: "list-disc",
         },
       }),
       CodeBlockLowlight.configure({
@@ -133,8 +138,15 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           class: "border border-border px-3 py-2 bg-muted font-semibold",
         },
       }),
+      ListItem.extend({
+        content: "paragraph",
+      }),
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
     ],
-    content: content,
+    content: "",
     onUpdate: ({ editor }) => {
       if (!isMarkdownMode) {
         debouncedOnChange(editor.getHTML(), false);
@@ -150,7 +162,10 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           const { selection } = state;
           const { $from } = selection;
 
-          if ($from.parent.type.name === "listItem") {
+          if (
+            $from.parent.type.name === "listItem" ||
+            $from.parent.type.name === "taskItem"
+          ) {
             const isEmpty = $from.parent.content.size === 0;
             if (isEmpty) {
               event.preventDefault();
@@ -173,7 +188,8 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     if (editor && !isInitialized.current) {
       isInitialized.current = true;
       setTimeout(() => {
-        editor.commands.setContent(content);
+        const htmlContent = convertMarkdownToHtml(content);
+        editor.commands.setContent(htmlContent);
       }, 0);
     }
   }, [editor, content]);
@@ -194,24 +210,28 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
 
   const toggleMode = () => {
     if (isMarkdownMode) {
-      setIsMarkdownMode(false);
-      if (editor) {
-        const htmlContent = convertMarkdownToHtml(markdownContent);
-        editor.commands.setContent(htmlContent);
-      }
+      setTimeout(() => {
+        if (editor) {
+          const htmlContent = convertMarkdownToHtml(markdownContent);
+          editor.commands.setContent(htmlContent, { emitUpdate: false });
+          setIsMarkdownMode(false);
+        }
+      }, 0);
     } else {
-      setIsMarkdownMode(true);
-      if (editor) {
-        const htmlContent = editor.getHTML();
-        const markdownOutput = convertHtmlToMarkdownUnified(htmlContent);
-        setMarkdownContent(markdownOutput);
-      }
+      setTimeout(() => {
+        if (editor) {
+          const htmlContent = editor.getHTML();
+          const markdownOutput = convertHtmlToMarkdownUnified(htmlContent);
+          setMarkdownContent(markdownOutput);
+          setIsMarkdownMode(true);
+        }
+      }, 0);
     }
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-0 z-10">
+      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-0 z-50">
         <TiptapToolbar
           editor={editor}
           isMarkdownMode={isMarkdownMode}

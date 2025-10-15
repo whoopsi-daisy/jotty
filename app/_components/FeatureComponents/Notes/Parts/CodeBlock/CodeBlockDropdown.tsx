@@ -3,7 +3,7 @@
 import { Editor } from "@tiptap/react";
 import { ChevronDown, Code, Search } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { codeBlockLanguages } from "@/app/_utils/markdown-utils";
+import { popularCodeBlockLanguages } from "@/app/_utils/code-block-utils";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 
@@ -19,12 +19,12 @@ export const CodeBlockDropdown = ({ editor }: CodeBlockDropdownProps) => {
 
   const filteredLanguages = useMemo(() => {
     if (!searchTerm.trim()) {
-      return codeBlockLanguages;
+      return popularCodeBlockLanguages;
     }
 
     const searchLower = searchTerm.toLowerCase();
-    return codeBlockLanguages.filter(
-      (lang) =>
+    return popularCodeBlockLanguages.filter(
+      (lang: any) =>
         lang.label.toLowerCase().includes(searchLower) ||
         lang.value.toLowerCase().includes(searchLower)
     );

@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'highlight.js/styles/github-dark.css';
+@import 'highlight.js/styles/github-dark-dimmed.css';
 
 @layer base {
     :root {
@@ -549,6 +549,42 @@ p > code {
     padding-left: 1rem;
     font-style: italic;
     color: rgb(var(--muted-foreground));
+    margin: 1rem 0;
+}
+
+.ProseMirror li[data-checked=false], 
+.ProseMirror li[data-checked=true],
+.prose li[data-checked=false], 
+.prose li[data-checked=true] {
+    display: flex;
+    padding: 0;
+    column-gap: 5px;
+    align-items: center;
+}
+
+.ProseMirror li[data-checked=false] label, 
+.ProseMirror li[data-checked=true] label,
+.prose li[data-checked=false] label, 
+.prose li[data-checked=true] label {
+    margin: 0;
+    height: 20px;
+}
+
+
+.ProseMirror li input[type="checkbox"],
+.prose li input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+.ProseMirror ul[data-type="taskList"],
+.prose ul[data-type="taskList"] {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.ProseMirror hr,
+.prose hr {
     margin: 1rem 0;
 }
 

@@ -42,13 +42,13 @@ export const CodeBlockRenderer = ({
   return (
     <div
       className={cn(
-        "relative group my-4 overflow-hidden rounded-lg bg-[#282c34]",
+        "relative group my-4 overflow-hidden bg-[#282c34]",
         className
       )}
     >
       {showHeader && (
-        <div className="flex items-center justify-between px-4 py-2 bg-[#21252b] border-b border-[#181a1f]">
-          <div className="flex items-center gap-1.5 text-xs font-mono text-[#abb2bf]">
+        <div className="flex items-center justify-between px-4 py-1 bg-[#21252b] border-b border-[#181a1f]">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#abb2bf]">
             {languageIcon}
             <span className="uppercase tracking-wide">{displayLanguage}</span>
           </div>
@@ -59,9 +59,9 @@ export const CodeBlockRenderer = ({
             className="h-6 w-6 p-0 text-gray-400"
           >
             {copied ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-3 w-3 text-green-500" />
             ) : (
-              <Copy className="h-4 w-4" />
+              <Copy className="h-3 w-3" />
             )}
           </Button>
         </div>
@@ -75,9 +75,9 @@ export const CodeBlockRenderer = ({
             className="transition-opacity opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-gray-400"
           >
             {copied ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-3 w-3 text-green-500" />
             ) : (
-              <Copy className="h-4 w-4" />
+              <Copy className="h-3 w-3" />
             )}
           </Button>
         </div>

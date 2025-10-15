@@ -1,15 +1,14 @@
 import TurndownService from "turndown";
-import { marked } from "marked";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkRehype from "remark-rehype";
+import rehypeRaw from "rehype-raw";
+import rehypeStringify from "rehype-stringify";
+import { visit } from "unist-util-visit";
+import { Element } from "hast";
+
 const turndownPluginGfm = require("turndown-plugin-gfm");
-import {
-  FileCode,
-  Terminal,
-  Database,
-  Globe,
-  Cpu,
-  Code,
-  FileText,
-} from "lucide-react";
 
 export const createTurndownService = () => {
   const service = new TurndownService({
@@ -22,18 +21,39 @@ export const createTurndownService = () => {
 
   service.use(turndownPluginGfm.gfm);
 
-  const originalTurndown = service.turndown;
-  service.turndown = function (html) {
-    return originalTurndown.call(this, html);
-  };
+  service.addRule("listItem", {
+    filter: (node) => {
+      return node.nodeName === "LI";
+    },
+    replacement: (content, node) => {
+      return `- ${content.trim()}\n`;
+    },
+  });
+
+  service.addRule("horizontalRule", {
+    filter: (node) => {
+      return node.nodeName === "HR";
+    },
+    replacement: (content, node) => {
+      return `\n---\n`;
+    },
+  });
+
+  service.addRule("taskList", {
+    filter: (node) => {
+      return (
+        node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem"
+      );
+    },
+    replacement: (content, node) => {
+      const isChecked =
+        (node as HTMLElement).getAttribute("data-checked") === "true";
+      return `- [${isChecked ? "x" : " "}] ${content.trim()}\n`;
+    },
+  });
 
   service.addRule("fileAttachment", {
     filter: (node) => {
-      if (
-        node.nodeName === "P" &&
-        (node as HTMLElement).hasAttribute("data-file-attachment")
-      ) {
-      }
       return (
         node.nodeName === "P" &&
         (node as HTMLElement).hasAttribute("data-file-attachment")
@@ -56,16 +76,70 @@ export const createTurndownService = () => {
   return service;
 };
 
-export const configureMarked = () => {
-  marked.setOptions({
-    breaks: true,
-    gfm: true,
-  });
+const hasClass = (node: Element, className: string) => {
+  const classList = node.properties?.className;
+  if (Array.isArray(classList)) {
+    return classList.some((cn) => String(cn) === className);
+  }
+  if (typeof classList === "string") {
+    return classList.split(" ").includes(className);
+  }
+  return false;
 };
 
-export const parseMarkdownToHtml = (markdown: string): string => {
-  configureMarked();
-  return marked.parse(markdown) as string;
+const markdownProcessor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeRaw)
+  .use(() => {
+    return (tree) => {
+      visit(tree, "element", (node: Element) => {
+        if (node.tagName === "ul" && hasClass(node, "task-list")) {
+          node.properties = node.properties || {};
+          node.properties["data-type"] = "taskList";
+        }
+        if (node.tagName === "li" && hasClass(node, "task-list-item")) {
+          node.properties = node.properties || {};
+          node.properties["data-type"] = "taskItem";
+          const checkbox = node.children[0];
+          if (
+            checkbox?.type === "element" &&
+            checkbox.tagName === "input" &&
+            checkbox.properties?.type === "checkbox"
+          ) {
+            node.properties["data-checked"] =
+              checkbox.properties.checked != null &&
+              checkbox.properties.checked !== false;
+            node.children.shift();
+
+            if (
+              node.children[0]?.type === "text" &&
+              node.children[0].value.startsWith("\n")
+            ) {
+              node.children[0].value = node.children[0].value.trimStart();
+            }
+
+            const contentNodes = [...node.children];
+            node.children = [
+              {
+                type: "element",
+                tagName: "p",
+                properties: {},
+                children: contentNodes,
+              },
+            ];
+          }
+        }
+      });
+    };
+  })
+  .use(rehypeStringify);
+
+export const convertMarkdownToHtml = (markdown: string): string => {
+  if (!markdown || typeof markdown !== "string") return "";
+  const file = markdownProcessor.processSync(markdown);
+  return String(file);
 };
 
 export const convertHtmlToMarkdown = (html: string): string => {
@@ -76,11 +150,6 @@ export const convertHtmlToMarkdown = (html: string): string => {
 export const processMarkdownContent = (content: string): string => {
   if (!content || typeof content !== "string") return "";
   return content.trim();
-};
-
-export const convertMarkdownToHtml = (markdown: string): string => {
-  const processedMarkdown = processMarkdownContent(markdown);
-  return parseMarkdownToHtml(processedMarkdown);
 };
 
 export const convertHtmlToMarkdownUnified = (html: string): string => {
@@ -98,110 +167,3 @@ export const getMarkdownPreviewContent = (
     return convertHtmlToMarkdownUnified(content);
   }
 };
-
-import { popularCodeBlockLanguages } from "./code-block-utils";
-
-export const codeBlockLanguages = popularCodeBlockLanguages;
-
-export const createCustomSyntaxTheme = () => ({
-  'pre[class*="language-"]': {
-    background: "rgb(var(--card))",
-    color: "rgb(var(--foreground))",
-  },
-  'code[class*="language-"]': {
-    background: "rgb(var(--card))",
-    color: "rgb(var(--foreground))",
-  },
-  ".token.comment": {
-    color: "rgb(var(--muted-foreground))",
-    fontStyle: "italic",
-  },
-  ".token.prolog": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.doctype": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.cdata": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.punctuation": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.property": {
-    color: "#e06c75",
-  },
-  ".token.tag": {
-    color: "#e06c75",
-  },
-  ".token.boolean": {
-    color: "#d19a66",
-  },
-  ".token.number": {
-    color: "#d19a66",
-  },
-  ".token.constant": {
-    color: "#d19a66",
-  },
-  ".token.symbol": {
-    color: "#d19a66",
-  },
-  ".token.selector": {
-    color: "#e06c75",
-  },
-  ".token.attr-name": {
-    color: "#e06c75",
-  },
-  ".token.string": {
-    color: "#98c379",
-  },
-  ".token.char": {
-    color: "#98c379",
-  },
-  ".token.builtin": {
-    color: "#61afef",
-  },
-  ".token.inserted": {
-    color: "#98c379",
-  },
-  ".token.operator": {
-    color: "#56b6c2",
-  },
-  ".token.entity": {
-    color: "rgb(var(--foreground))",
-  },
-  ".token.url": {
-    color: "#61afef",
-  },
-  ".token.variable": {
-    color: "rgb(var(--foreground))",
-  },
-  ".token.atrule": {
-    color: "#c678dd",
-  },
-  ".token.attr-value": {
-    color: "#98c379",
-  },
-  ".token.function": {
-    color: "#61afef",
-  },
-  ".token.class-name": {
-    color: "#e5c07b",
-  },
-  ".token.keyword": {
-    color: "#c678dd",
-  },
-  ".token.regex": {
-    color: "#d19a66",
-  },
-  ".token.important": {
-    color: "#e06c75",
-    fontWeight: "bold",
-  },
-  ".token.bold": {
-    fontWeight: "bold",
-  },
-  ".token.italic": {
-    fontStyle: "italic",
-  },
-});

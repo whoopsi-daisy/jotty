@@ -143,7 +143,7 @@ export const UnifiedMarkdownRenderer = ({
             type="checkbox"
             checked={checked}
             disabled
-            className="mr-2 cursor-default"
+            className="cursor-default"
             {...props}
           />
         );

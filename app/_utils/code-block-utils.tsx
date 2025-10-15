@@ -26,7 +26,6 @@ export interface CodeBlockLanguage {
 }
 
 export const popularCodeBlockLanguages: CodeBlockLanguage[] = [
-  // Web Development
   {
     value: "javascript",
     label: "JavaScript",
