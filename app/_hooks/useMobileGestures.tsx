@@ -88,7 +88,6 @@ export const useMobileGestures = ({
       return;
     }
 
-    // Add event listeners
     document.addEventListener("touchstart", handleTouchStart, {
       passive: false,
     });

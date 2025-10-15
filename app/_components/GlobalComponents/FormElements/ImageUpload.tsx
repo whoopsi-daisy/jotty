@@ -16,10 +16,12 @@ interface AppSettings {
 interface ImageUploadProps {
   label: string;
   description: string;
-  iconType?: keyof AppSettings; // Made optional
+  iconType?: keyof AppSettings;
   currentUrl: string;
   onUpload: (iconType: keyof AppSettings | undefined, url: string) => void;
-  customUploadAction?: (formData: FormData) => Promise<{ success: boolean; data?: { url: string }; error?: string }>;
+  customUploadAction?: (
+    formData: FormData
+  ) => Promise<{ success: boolean; data?: { url: string }; error?: string }>;
 }
 
 export const ImageUpload: FC<ImageUploadProps> = ({
@@ -44,7 +46,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
         message: "Please select an image.",
       });
     }
-    if (file.size > 5 * 1024 * 1024) { // Changed to 5MB from 10MB as per requirement
+    if (file.size > 5 * 1024 * 1024) {
       return showToast({
         type: "error",
         title: "File Too Large",
@@ -67,7 +69,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
         showToast({
           type: "success",
           title: "Upload Successful",
-          message: `${label} has been updated.`, // Changed to be more general
+          message: `${label} has been updated.`,
         });
       } else {
         throw new Error(result.error || "An unknown error occurred.");
@@ -96,10 +98,11 @@ export const ImageUpload: FC<ImageUploadProps> = ({
       <Label className="text-sm font-medium">{label}</Label>
       <p className="text-xs text-muted-foreground">{description}</p>
       <div
-        className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${dragOver
-          ? "border-primary bg-primary/5"
-          : "border-muted-foreground/25 hover:border-muted-foreground/50"
-          }`}
+        className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${
+          dragOver
+            ? "border-primary bg-primary/5"
+            : "border-muted-foreground/25 hover:border-muted-foreground/50"
+        }`}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
