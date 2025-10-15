@@ -22,11 +22,38 @@ export const createTurndownService = () => {
   service.use(turndownPluginGfm.gfm);
 
   service.addRule("listItem", {
-    filter: (node) => {
-      return node.nodeName === "LI";
-    },
-    replacement: (content, node) => {
-      return `- ${content.trim()}\n`;
+    filter: "li",
+    replacement: function (content, node, options) {
+      const element = node as HTMLElement;
+      content = content.trim();
+      const isTaskItem = element.getAttribute("data-type") === "taskItem";
+
+      let prefix = "";
+      const parent = element.parentNode;
+
+      if (parent && parent.nodeName === "OL") {
+        const parentElement = parent as HTMLOListElement;
+        const start = parentElement.getAttribute("start");
+        const index = Array.prototype.indexOf.call(parentElement.children, element);
+        prefix = (start ? Number(start) + index : index + 1) + ". ";
+      } else if (isTaskItem) {
+        const isChecked = element.getAttribute("data-checked") === "true";
+        prefix = options.bulletListMarker + ` [${isChecked ? "x" : " "}] `;
+      } else {
+        prefix = options.bulletListMarker + " ";
+      }
+
+      let indentLevel = -1;
+      let current: Node | null = element;
+      while (current) {
+        if (current.nodeName === "UL" || current.nodeName === "OL") {
+          indentLevel++;
+        }
+        current = current.parentNode;
+      }
+      const indent = "    ".repeat(Math.max(0, indentLevel));
+
+      return indent + prefix + content + "\n";
     },
   });
 

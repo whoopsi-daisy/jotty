@@ -49,6 +49,7 @@ export const CodeBlockRenderer = ({
             size="icon"
             onClick={() => {
               copyTextToClipboard(code);
+              setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
             className="h-6 w-6 p-0 text-gray-400"
@@ -69,6 +70,7 @@ export const CodeBlockRenderer = ({
             size="icon"
             onClick={() => {
               copyTextToClipboard(code);
+              setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
             className="transition-opacity opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-gray-400"

@@ -1,11 +1,12 @@
 "use client";
 
-import { Plus, FileText, FolderOpen, BookOpen, Globe } from "lucide-react";
+import { Plus, FileText, FolderOpen } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Note, Category } from "@/app/_types";
 import { EmptyState } from "@/app/_components/GlobalComponents/Cards/EmptyState";
 import { NoteCard } from "@/app/_components/GlobalComponents/Cards/NoteCard";
 import { StatCard } from "@/app/_components/GlobalComponents/Cards/StatCard";
+import Masonry from "react-masonry-css";
 
 interface NotesHomeProps {
   notes: Note[];
@@ -28,6 +29,16 @@ export const NotesHome = ({
     .slice(0, 12);
 
   const totalCategories = categories.length;
+
+  const breakpointColumnsObj = {
+    default: 3,
+    1600: 4,
+    1599: 3,
+    1280: 2,
+    1024: 2,
+    768: 1,
+    640: 1,
+  };
 
   if (notes.length === 0) {
     return (
@@ -52,7 +63,7 @@ export const NotesHome = ({
               Notes
             </h1>
             <p className="text-lg text-muted-foreground">
-              Your most recently updated notes
+              Your notes to store your ideas, thoughts, and knowledge.
             </p>
           </div>
           <Button onClick={onCreateModal} size="lg">
@@ -61,10 +72,10 @@ export const NotesHome = ({
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <StatCard
             icon={<FileText className="h-6 w-6 text-primary" />}
-            title="Total notes"
+            title="Total Notes"
             value={notes.length}
           />
           <StatCard
@@ -74,19 +85,25 @@ export const NotesHome = ({
           />
         </div>
 
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-foreground mb-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-foreground mb-6">
             Recent Notes
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="flex w-auto -ml-6"
+            columnClassName="pl-6 bg-clip-padding"
+          >
             {recentDocs.map((doc) => (
-              <NoteCard key={doc.id} note={doc} onSelect={onSelectNote} />
+              <div key={doc.id} className="mb-6">
+                <NoteCard note={doc} onSelect={onSelectNote} />
+              </div>
             ))}
-          </div>
+          </Masonry>
         </div>
 
         {notes.length > 12 && (
-          <div className="text-center">
+          <div className="text-center mt-8">
             <p className="text-sm text-muted-foreground">
               Showing {recentDocs.length} of {notes.length} notes. Use the
               sidebar to browse all or search above.

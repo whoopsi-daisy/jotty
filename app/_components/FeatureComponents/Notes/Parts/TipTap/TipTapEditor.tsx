@@ -138,9 +138,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           class: "border border-border px-3 py-2 bg-muted font-semibold",
         },
       }),
-      ListItem.extend({
-        content: "paragraph",
-      }),
+      ListItem,
       TaskList,
       TaskItem.configure({
         nested: true,
@@ -157,11 +155,76 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         class: "text-foreground m-5 focus:outline-none",
       },
       handleKeyDown: (view, event) => {
-        if (event.key === "Enter") {
-          const { state } = view;
-          const { selection } = state;
-          const { $from } = selection;
+        if (!editor) {
+          return false;
+        }
 
+        const { state } = view;
+        const { selection } = state;
+
+        if (event.key === "Tab") {
+          if (editor.isActive("listItem") || editor.isActive("taskItem")) {
+            event.preventDefault();
+            if (event.shiftKey) {
+              editor
+                .chain()
+                .focus()
+                .liftListItem("listItem")
+                .liftListItem("taskItem")
+                .run();
+            } else {
+              editor
+                .chain()
+                .focus()
+                .sinkListItem("listItem")
+                .sinkListItem("taskItem")
+                .run();
+            }
+            return true;
+          }
+
+          if (editor.isActive("codeBlock")) {
+            event.preventDefault();
+            const { from, to, empty } = selection;
+
+            if (empty) {
+              if (!event.shiftKey) {
+                editor.chain().focus().insertContent("    ").run();
+              }
+            } else {
+              const selectedText = state.doc.textBetween(from, to, "\n");
+              const lines = selectedText.split("\n");
+
+              if (event.shiftKey) {
+                const newText = lines
+                  .map((line) =>
+                    line.startsWith("    ")
+                      ? line.substring(4)
+                      : line.startsWith("\t")
+                        ? line.substring(1)
+                        : line
+                  )
+                  .join("\n");
+                editor
+                  .chain()
+                  .focus()
+                  .insertContentAt({ from, to }, newText)
+                  .run();
+              } else {
+                const newText = lines.map((line) => "    " + line).join("\n");
+                editor
+                  .chain()
+                  .focus()
+                  .insertContentAt({ from, to }, newText)
+                  .run();
+              }
+            }
+            return true;
+          }
+        }
+
+        if (event.key === "Enter") {
+          const { $from } = selection;
           if (
             $from.parent.type.name === "listItem" ||
             $from.parent.type.name === "taskItem"
@@ -179,6 +242,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             }
           }
         }
+
         return false;
       },
     },
@@ -231,7 +295,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-0 z-50">
+      <div className="bg-background border-b border-border px-4 py-2 flex items-center justify-between sticky top-0 z-10">
         <TiptapToolbar
           editor={editor}
           isMarkdownMode={isMarkdownMode}

@@ -491,6 +491,11 @@ p > code {
     list-style-type: disc;
 }
 
+.ProseMirror ul ul,
+.prose ul ul {
+    margin: 0;
+}
+
 .ProseMirror ol {
     list-style-type: decimal;
 }
