@@ -5,15 +5,11 @@ import path from "path";
 import {
   ensureDir,
   serverDeleteDir,
-  serverReadFile,
-  serverWriteFile,
-  serverReadDir,
   getUserModeDir,
   readOrderFile,
   writeOrderFile,
 } from "@/app/_server/actions/file";
 import fs from "fs/promises";
-import { parseMarkdown, listToMarkdown } from "@/app/_utils/checklist-utils";
 import { Modes } from "@/app/_types/enums";
 import { buildCategoryTree } from "@/app/_utils/category-utils";
 
@@ -94,18 +90,6 @@ export const renameCategory = async (formData: FormData) => {
     }
 
     await fs.rename(oldCategoryDir, newCategoryDir);
-
-    const files = await serverReadDir(newCategoryDir);
-    for (const file of files) {
-      if (file.isFile() && file.name.endsWith(".md")) {
-        const filePath = path.join(newCategoryDir, file.name);
-        const content = await serverReadFile(filePath);
-        const list = parseMarkdown(content, "", newPath);
-        list.category = newPath;
-        list.updatedAt = new Date().toISOString();
-        await serverWriteFile(filePath, listToMarkdown(list));
-      }
-    }
 
     try {
       revalidatePath("/");
