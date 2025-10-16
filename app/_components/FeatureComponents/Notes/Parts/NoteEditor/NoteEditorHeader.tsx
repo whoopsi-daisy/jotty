@@ -142,7 +142,7 @@ export const NoteEditorHeader = ({
                     handleSave();
                     setIsEditing(false);
                   }}
-                  className="fixed bottom-4 right-4 rounded-full py-6 lg:py-0 lg:rounded-md lg:relative lg:bottom-auto lg:right-auto z-10"
+                  className="fixed bottom-[150px] right-4 rounded-full py-6 lg:py-0 lg:rounded-md lg:relative lg:bottom-auto lg:right-auto z-10"
                   disabled={status.isSaving || status.isAutoSaving}
                 >
                   {status.isSaving ? (

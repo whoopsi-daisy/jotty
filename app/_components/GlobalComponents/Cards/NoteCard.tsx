@@ -6,6 +6,7 @@ import { formatRelativeTime } from "@/app/_utils/date-utils";
 import { useMemo } from "react";
 import { useSettings } from "@/app/_utils/settings-store";
 import { convertMarkdownToHtml } from "@/app/_utils/markdown-utils";
+import { UnifiedMarkdownRenderer } from "../../FeatureComponents/Notes/Parts/UnifiedMarkdownRenderer";
 
 interface NoteCardProps {
   note: Note;
@@ -57,10 +58,9 @@ export const NoteCard = ({ note, onSelect }: NoteCardProps) => {
 
       <div className="px-5 py-4 relative max-h-64 overflow-hidden">
         {showMarkdownPreview ? (
-          <div
-            className="prose prose-sm dark:prose-invert prose-p:my-1 prose-ul:my-1 prose-li:my-0 transition-opacity duration-300 opacity-70 group-hover:opacity-100"
-            dangerouslySetInnerHTML={{ __html: renderedContent }}
-          />
+          <div className="transition-opacity duration-300 opacity-70 group-hover:opacity-100">
+            <UnifiedMarkdownRenderer content={note.content || ""} />
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground transition-opacity duration-300 opacity-70 group-hover:opacity-100">
             {previewText}

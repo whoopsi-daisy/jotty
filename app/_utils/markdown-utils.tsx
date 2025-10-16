@@ -34,7 +34,10 @@ export const createTurndownService = () => {
       if (parent && parent.nodeName === "OL") {
         const parentElement = parent as HTMLOListElement;
         const start = parentElement.getAttribute("start");
-        const index = Array.prototype.indexOf.call(parentElement.children, element);
+        const index = Array.prototype.indexOf.call(
+          parentElement.children,
+          element
+        );
         prefix = (start ? Number(start) + index : index + 1) + ". ";
       } else if (isTaskItem) {
         const isChecked = element.getAttribute("data-checked") === "true";
@@ -54,6 +57,15 @@ export const createTurndownService = () => {
       const indent = "    ".repeat(Math.max(0, indentLevel));
 
       return indent + prefix + content + "\n";
+    },
+  });
+
+  service.addRule("kbd", {
+    filter: (node) => {
+      return node.nodeName === "KBD";
+    },
+    replacement: (content, node) => {
+      return `<kbd>${content}</kbd>`;
     },
   });
 

@@ -22,7 +22,8 @@ import {
 } from "@/app/_utils/markdown-utils";
 import { lowlight } from "@/app/_utils/lowlight-utils";
 import Underline from "@tiptap/extension-underline";
-import { KeyboardShortcuts } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/KeyboardShortcuts";
+import { KeyboardShortcuts } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/KeyboardShortcuts";
+import { KbdExtension } from "./CustomExtensions/KbdExtension";
 
 type TiptapEditorProps = {
   content: string;
@@ -53,26 +54,10 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     extensions: [
       StarterKit.configure({
         codeBlock: false,
-        link: false,
-        listItem: false,
-        bulletList: false,
-        orderedList: {
-          HTMLAttributes: {
-            class: "list-decimal",
-          },
-        },
       }),
+      KbdExtension,
       KeyboardShortcuts,
       Underline,
-      BulletList.extend({
-        parseHTML() {
-          return [{ tag: 'ul:not([data-type="taskList"])' }];
-        },
-      }).configure({
-        HTMLAttributes: {
-          class: "list-disc",
-        },
-      }),
       CodeBlockLowlight.configure({
         lowlight,
         defaultLanguage: "plaintext",
@@ -84,9 +69,6 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       Link.configure({
         openOnClick: false,
         autolink: true,
-        HTMLAttributes: {
-          class: "text-blue-600 underline cursor-pointer",
-        },
       }).extend({
         addInputRules() {
           return [
@@ -111,11 +93,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           ];
         },
       }),
-      Image.configure({
-        HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg",
-        },
-      }),
+      Image.configure(),
       FileAttachmentExtension.configure({
         HTMLAttributes: {
           class: "file-attachment",
@@ -123,30 +101,16 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       }),
       Table.configure({
         resizable: true,
-        HTMLAttributes: {
-          class: "border-collapse w-full my-4",
-        },
       }),
-      TableRow.configure({
-        HTMLAttributes: {
-          class: "border-0",
-        },
-      }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: "border border-border px-3 py-2",
-        },
-      }),
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: "border border-border px-3 py-2 bg-muted font-semibold",
-        },
-      }),
+      TableRow,
+      TableCell,
+      TableHeader,
       ListItem,
       TaskList,
       TaskItem.configure({
         nested: true,
       }),
+      BulletList,
     ],
     content: "",
     onUpdate: ({ editor }) => {
@@ -156,7 +120,8 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     },
     editorProps: {
       attributes: {
-        class: "text-foreground m-5 focus:outline-none",
+        class:
+          "prose prose-sm px-6 pt-6 pb-12 sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal [&_table]:border-collapse [&_table]:w-full [&_table]:my-4 [&_th]:border [&_th]:border-border [&_th]:px-3 [&_th]:py-2 [&_th]:bg-muted [&_th]:font-semibold [&_th]:text-left [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_tr:nth-child(even)]:bg-muted/50 w-full max-w-none focus:outline-none",
       },
       handleKeyDown: (view, event) => {
         if (!editor) {
@@ -312,13 +277,13 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           <textarea
             value={markdownContent}
             onChange={handleMarkdownChange}
-            className="w-full h-full p-4 bg-background text-foreground border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full h-full bg-background text-foreground resize-none focus:outline-none focus:ring-none p-2"
             placeholder="Write your markdown here..."
           />
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
-          <EditorContent editor={editor} className="h-full" />
+          <EditorContent editor={editor} />
         </div>
       )}
     </div>

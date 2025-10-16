@@ -113,7 +113,7 @@ export const TiptapToolbar = ({
           </Button>
         </div>
 
-        <div className="fixed bottom-[64px] w-full left-0 lg:hidden z-40 bg-background">
+        <div className="fixed bottom-[62px] w-full left-0 lg:hidden z-40 bg-background">
           <div className="flex gap-1 p-2 border-b border-border w-full justify-center items-center">
             <Button
               variant={!isMarkdownMode ? "default" : "ghost"}
@@ -160,7 +160,9 @@ export const TiptapToolbar = ({
             size="sm"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() =>
-              handleButtonClick(() => editor.chain().focus().toggleItalic().run())
+              handleButtonClick(() =>
+                editor.chain().focus().toggleItalic().run()
+              )
             }
           >
             <Italic className="h-4 w-4" />
@@ -170,7 +172,9 @@ export const TiptapToolbar = ({
             size="sm"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() =>
-              handleButtonClick(() => editor.chain().focus().toggleStrike().run())
+              handleButtonClick(() =>
+                editor.chain().focus().toggleStrike().run()
+              )
             }
           >
             <Strikethrough className="h-4 w-4" />
@@ -265,7 +269,6 @@ export const TiptapToolbar = ({
           </Button>
         </div>
       </div>
-
 
       <FileModal
         isOpen={showFileModal}
