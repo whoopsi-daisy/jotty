@@ -7,6 +7,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import { Element } from "hast";
+import { addCustomHtmlTurndownRules } from "@/app/_utils/custom-html-utils";
 
 const turndownPluginGfm = require("turndown-plugin-gfm");
 
@@ -20,6 +21,26 @@ export const createTurndownService = () => {
   });
 
   service.use(turndownPluginGfm.gfm);
+
+  addCustomHtmlTurndownRules(service);
+
+  service.addRule("details", {
+    filter: "details",
+    replacement: function (content, node) {
+      const element = node as HTMLElement;
+      const summaryNode = element.querySelector("summary");
+      const summaryText = summaryNode ? summaryNode.textContent : "Details";
+
+      const contentNode = element.cloneNode(true) as HTMLElement;
+      const summaryToRemove = contentNode.querySelector("summary");
+      if (summaryToRemove) {
+        contentNode.removeChild(summaryToRemove);
+      }
+      const mainContent = service.turndown(contentNode.innerHTML);
+
+      return `\n<details>\n<summary>${summaryText}</summary>\n\n${mainContent}\n\n</details>\n`;
+    },
+  });
 
   service.addRule("listItem", {
     filter: "li",
@@ -57,15 +78,6 @@ export const createTurndownService = () => {
       const indent = "    ".repeat(Math.max(0, indentLevel));
 
       return indent + prefix + content + "\n";
-    },
-  });
-
-  service.addRule("kbd", {
-    filter: (node) => {
-      return node.nodeName === "KBD";
-    },
-    replacement: (content, node) => {
-      return `<kbd>${content}</kbd>`;
     },
   });
 
@@ -188,7 +200,7 @@ export const convertHtmlToMarkdown = (html: string): string => {
 
 export const processMarkdownContent = (content: string): string => {
   if (!content || typeof content !== "string") return "";
-  return content.trim();
+  return content;
 };
 
 export const convertHtmlToMarkdownUnified = (html: string): string => {

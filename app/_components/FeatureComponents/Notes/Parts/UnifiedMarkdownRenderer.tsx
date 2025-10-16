@@ -109,6 +109,13 @@ export const UnifiedMarkdownRenderer = ({
       }
       return <pre {...props}>{children}</pre>;
     },
+    abbr({ children, title, ...props }) {
+      return (
+        <abbr title={title} {...props}>
+          {children}
+        </abbr>
+      );
+    },
     a({ href, children, ...props }) {
       const childText = String(children);
       const isFileAttachment = childText.startsWith("📎 ") && href;

@@ -8,18 +8,17 @@ import {
   List,
   Quote,
   Link as LinkIcon,
-  Image as ImageIcon,
-  Paperclip,
-  Table,
   FileText,
   Eye,
+  Underline,
 } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { FileModal } from "@/app/_components/GlobalComponents/Modals/FilesModal/FileModal";
-import { CodeBlockDropdown } from "../CodeBlock/CodeBlockDropdown";
-import { TableInsertModal } from "../Table/TableInsertModal";
+import { CodeBlockDropdown } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/Toolbar/CodeBlocksDropdown";
+import { TableInsertModal } from "@/app/_components/FeatureComponents/Notes/Parts/Table/TableInsertModal";
 import { useState } from "react";
 import { cn } from "@/app/_utils/global-utils";
+import { ExtraItemsDropdown } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/Toolbar/ExtraItemsDropdown";
 
 type ToolbarProps = {
   editor: Editor | null;
@@ -49,13 +48,6 @@ export const TiptapToolbar = ({
       return;
     }
     editor.chain().focus().setLink({ href: url }).run();
-  };
-
-  const addImage = () => {
-    const url = window.prompt("Image URL");
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
   };
 
   const handleFileSelect = (
@@ -168,6 +160,18 @@ export const TiptapToolbar = ({
             <Italic className="h-4 w-4" />
           </Button>
           <Button
+            variant={editor.isActive("underline") ? "secondary" : "ghost"}
+            size="sm"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() =>
+              handleButtonClick(() =>
+                editor.chain().focus().toggleUnderline().run()
+              )
+            }
+          >
+            <Underline className="h-4 w-4" />
+          </Button>
+          <Button
             variant={editor.isActive("strike") ? "secondary" : "ghost"}
             size="sm"
             onMouseDown={(e) => e.preventDefault()}
@@ -189,8 +193,6 @@ export const TiptapToolbar = ({
           >
             <Code className="h-4 w-4" />
           </Button>
-          <div className="w-px h-6 bg-border mx-2" />
-          <CodeBlockDropdown editor={editor} />
           <div className="w-px h-6 bg-border mx-2" />
           <Button
             variant={
@@ -239,34 +241,13 @@ export const TiptapToolbar = ({
             <LinkIcon className="h-4 w-4" />
           </Button>
           <div className="w-px h-6 bg-border mx-2" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => handleButtonClick(addImage)}
-            title="Add image from URL"
-          >
-            <ImageIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setShowFileModal(true)}
-            title="Upload files"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
+          <CodeBlockDropdown editor={editor} />
           <div className="w-px h-6 bg-border mx-2" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setShowTableModal(true)}
-            title="Insert table"
-          >
-            <Table className="h-4 w-4" />
-          </Button>
+          <ExtraItemsDropdown
+            editor={editor}
+            onFileModalOpen={() => setShowFileModal(true)}
+            onTableModalOpen={() => setShowTableModal(true)}
+          />
         </div>
       </div>
 

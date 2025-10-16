@@ -17,7 +17,7 @@ export const KeyboardShortcuts = Extension.create({
       "Mod-u": () => this.editor.chain().focus().toggleUnderline().run(),
       "Mod-Shift-x": () => this.editor.chain().focus().toggleStrike().run(),
       "Mod-e": () => this.editor.chain().focus().toggleCode().run(),
-      "Mod-k": () => {
+      "Mod-Shift-k": () => {
         setLink();
         return true;
       },

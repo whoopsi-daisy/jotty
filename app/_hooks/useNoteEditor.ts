@@ -177,5 +177,7 @@ export const useNoteEditor = ({
     setShowUnsavedChangesModal,
     handleUnsavedChangesSave,
     handleUnsavedChangesDiscard,
+    isMarkdownMode,
+    setIsMarkdownMode,
   };
 };

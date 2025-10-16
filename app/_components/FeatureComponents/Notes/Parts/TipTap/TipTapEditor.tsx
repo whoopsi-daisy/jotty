@@ -11,7 +11,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
-import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapToolbar";
+import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/Toolbar/TipTapToolbar";
 import { FileAttachmentExtension } from "@/app/_components/FeatureComponents/Notes/Parts/FileAttachment/FileAttachmentExtension";
 import { CodeBlockNodeView } from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockNodeView";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -23,7 +23,9 @@ import {
 import { lowlight } from "@/app/_utils/lowlight-utils";
 import Underline from "@tiptap/extension-underline";
 import { KeyboardShortcuts } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/KeyboardShortcuts";
-import { KbdExtension } from "./CustomExtensions/KbdExtension";
+import { DetailsExtension } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/DetailsExtension";
+import { generateCustomHtmlExtensions } from "@/app/_utils/custom-html-utils";
+import { useShortcuts } from "@/app/_hooks/useShortcuts";
 
 type TiptapEditorProps = {
   content: string;
@@ -35,6 +37,16 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
+
+  useShortcuts([
+    {
+      code: "KeyM",
+      modKey: true,
+      shiftKey: true,
+      altKey: true,
+      handler: () => toggleMode(),
+    },
+  ]);
 
   const debouncedOnChange = useCallback(
     (newContent: string, isMarkdown: boolean) => {
@@ -54,8 +66,13 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     extensions: [
       StarterKit.configure({
         codeBlock: false,
+        underline: false,
+        link: false,
+        listItem: false,
+        bulletList: false,
       }),
-      KbdExtension,
+      ...generateCustomHtmlExtensions(),
+      DetailsExtension,
       KeyboardShortcuts,
       Underline,
       CodeBlockLowlight.configure({
@@ -283,7 +300,7 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
-          <EditorContent editor={editor} />
+          <EditorContent editor={editor} className="w-full h-full" />
         </div>
       )}
     </div>

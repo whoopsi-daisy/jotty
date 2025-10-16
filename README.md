@@ -214,6 +214,14 @@ yarn build
 yarn start
 ```
 
+<a id="supported-markdown"></a>
+
+## SUPPORTED MARKDOWN
+
+`rwMarkable` supports GitHub Flavored Markdown (GFM) and some custom syntax for complex functionality.
+
+📖 **For the complete MARKDOWN documentation, see [howto/MARKDOWN.md](howto/MARKDOWN.md)**
+
 <a id="api"></a>
 
 ## API

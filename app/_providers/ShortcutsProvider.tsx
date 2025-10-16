@@ -88,6 +88,7 @@ export const ShortcutProvider = ({
     {
       code: "ArrowLeft",
       modKey: true,
+      altKey: true,
       shiftKey: true,
       handler: () =>
         checkNavigation(() => {
@@ -98,6 +99,7 @@ export const ShortcutProvider = ({
     {
       code: "ArrowRight",
       modKey: true,
+      altKey: true,
       shiftKey: true,
       handler: () =>
         checkNavigation(() => {

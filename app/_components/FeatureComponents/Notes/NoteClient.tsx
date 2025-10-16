@@ -7,6 +7,8 @@ import { NoteEditor } from "@/app/_components/FeatureComponents/Notes/Parts/Note
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
 import { useShortcut } from "@/app/_providers/ShortcutsProvider";
+import { useShortcuts } from "@/app/_hooks/useShortcuts";
+import { useNoteEditor } from "@/app/_hooks/useNoteEditor";
 
 interface SharingStatus {
   isShared: boolean;
@@ -53,11 +55,33 @@ export const NoteClient = ({
     });
   };
 
-  const handleDelete = (deletedId: string) => {
+  const handleDelete = () => {
     checkNavigation(() => {
       router.push("/");
     });
   };
+
+  const viewModel = useNoteEditor({
+    note: localNote,
+    onUpdate: handleUpdate,
+    onBack: handleBack,
+    onDelete: handleDelete,
+  });
+
+  useShortcuts([
+    {
+      code: "KeyS",
+      modKey: true,
+      shiftKey: true,
+      handler: () => viewModel.handleSave(),
+    },
+    {
+      code: "KeyE",
+      modKey: true,
+      shiftKey: true,
+      handler: () => viewModel.setIsEditing(!viewModel.isEditing),
+    },
+  ]);
 
   return (
     <Layout
@@ -73,9 +97,8 @@ export const NoteClient = ({
       <NoteEditor
         note={localNote}
         categories={categories}
-        onUpdate={handleUpdate}
+        viewModel={viewModel}
         onBack={handleBack}
-        onDelete={handleDelete}
         currentUsername={user?.username}
         isAdmin={user?.isAdmin}
       />
