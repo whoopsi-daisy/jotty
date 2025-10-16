@@ -10,7 +10,8 @@ These shortcuts are for managing the application, such as opening modals, switch
 | :----------------------------------------------------------------------- | :------------------------------------------------------------- |
 | <kbd>⌘ Cmd</kbd> + <kbd>K</kbd>                                          | Open the search palette                                        |
 | <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>⌥ Option</kbd> + <kbd>N</kbd> | Create a new Note or Checklist (depending on the current mode) |
-| <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>                       | Create a new Category                                          |
+| <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>⌥ Option</kbd> + <kbd>C</kbd> | Create a new Category                                          |
+| <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd>                       | Open the Help modal                                            |
 | <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>⌥ Option</kbd> + <kbd>S</kbd> | Open the Settings modal                                        |
 | <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>⌥ Option</kbd> + <kbd>←</kbd> | Switch to Checklists mode                                      |
 | <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>⌥ Option</kbd> + <kbd>→</kbd> | Switch to Notes mode                                           |

@@ -132,6 +132,7 @@ export const ShortcutProvider = ({
     {
       code: "KeyC",
       modKey: true,
+      altKey: true,
       shiftKey: true,
       handler: () => openCreateCategoryModal(),
     },

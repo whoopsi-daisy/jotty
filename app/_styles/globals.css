@@ -441,6 +441,10 @@
     text-decoration: none;
 }
 
+.prose kbd {
+    @apply bg-muted px-2 py-1 text-xs rounded-md border border-border shadow-border shadow-sm;
+}
+
 p > code {
     background: rgba(0,0,0,0.8)!important;
     color: orange;
