@@ -21,6 +21,8 @@ import {
   convertHtmlToMarkdownUnified,
 } from "@/app/_utils/markdown-utils";
 import { lowlight } from "@/app/_utils/lowlight-utils";
+import Underline from "@tiptap/extension-underline";
+import { KeyboardShortcuts } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/KeyboardShortcuts";
 
 type TiptapEditorProps = {
   content: string;
@@ -60,6 +62,8 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           },
         },
       }),
+      KeyboardShortcuts,
+      Underline,
       BulletList.extend({
         parseHTML() {
           return [{ tag: 'ul:not([data-type="taskList"])' }];
@@ -201,8 +205,8 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
                     line.startsWith("    ")
                       ? line.substring(4)
                       : line.startsWith("\t")
-                        ? line.substring(1)
-                        : line
+                      ? line.substring(1)
+                      : line
                   )
                   .join("\n");
                 editor

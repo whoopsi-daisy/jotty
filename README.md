@@ -45,6 +45,25 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
   <img src="public/app-screenshots/document-view.png" alt="Note Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
 </div>
 
+## Quick nav
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+  - [Docker Compose (Recommended)](#docker-compose-recommended)
+  - [Initial Setup](#initial-setup)
+  - [Local Development (Without Docker)](#local-development-without-docker)
+- [Data Storage](#data-storage)
+- [Updating](#updating)
+  - [Docker Compose](#docker-compose-1)
+  - [Manual](#manual)
+- [API](#api)
+- [Shortcuts](#shortcuts)
+- [Single Sign-On (SSO) with OIDC](#single-sign-on-sso-with-oidc)
+- [Custom Themes and Emojis](#custom-themes-and-emojis)
+
+<a id="features"></a>
+
 ## Features
 
 - **Checklists:** Create task lists with drag & drop reordering, progress bars, and categories. Supports both simple checklists and advanced task projects with Kanban boards and time tracking.
@@ -55,6 +74,8 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
 - **Customisable:** 14 built-in themes plus custom theme support with custom emojis and icons.
 - **API Access:** Programmatic access to your checklists and notes via REST API with authentication.
 
+<a id="tech-stack"></a>
+
 ## Tech Stack
 
 - **Framework:** Next.js 14 (App Router)
@@ -62,27 +83,21 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
 - **Styling:** Tailwind CSS
 - **State:** Zustand
 - **Editor:** TipTap
-- **Drag & Drop:** @dnd-kit
 - **Deployment:** Docker
 
-## API
-
-`rwMarkable` includes a REST API for programmatic access to your checklists and notes. This is perfect for:
-
-- **Automation:** Create tasks from external systems
-- **Integrations:** Connect with other tools and services
-- **Scripts:** Automate repetitive tasks
-- **Dashboards:** Build custom interfaces
-
-📖 **For the complete API documentation, see [app/api/README.md](app/api/README.md)**
+<a id="getting-started"></a>
 
 ## Getting Started
 
 The recommended way to run `rwMarkable` is with Docker.
 
+<a id="docker-compose-recommended"></a>
+
 ### Docker Compose (Recommended)
 
 1.  Create a `docker-compose.yml` file:
+
+    **📖 For more information about how the docker compose file works and what these variables do, please read [howto/DOCKER.md](howto/DOCKER.md)**
 
     ```yaml
     services:
@@ -91,43 +106,25 @@ The recommended way to run `rwMarkable` is with Docker.
         container_name: rwmarkable
         user: "1000:1000"
         ports:
-          # Feel free to change the FIRST port, 3000 is very common
-          # so I like to map it to something else (in this case 1122)
           - "1122:3000"
         volumes:
-          # --- MOUNT DATA DIRECTORY
-          # This is needed for persistent data storage on YOUR host machine rather than inside the docker volume.
           - ./data:/app/data:rw
           - ./config:/app/config:ro
-
-          # --- MOUNT CACHE DIRECTORY (OPTIONAL)
-          # This improves performance by persisting Next.js cache between restarts
           - ./cache:/app/.next/cache:rw
         restart: unless-stopped
+        #platform: linux/arm64
         environment:
           - NODE_ENV=production
-          # Uncomment to enable HTTPS
-          # - HTTPS=true
-
-          # Uncomment to make user uploaded images and files public. This won't expose your entire folder structure
-          # but it will allow any image/files you upload via the UI to be accessed publicly for
-          # anyone with the link or image name/filename. This is the only way to have images available in
-          # public notes and it's disabled by default for security reasons.
-          # - SERVE_PUBLIC_IMAGES=yes
-          # - SERVE_PUBLIC_FILES=yes
-
-          # --- SSO WITH OIDC (OPTIONAL)
-          # - SSO_MODE=oidc
-          # - OIDC_ISSUER=<YOUR_SSO_ISSUER>
-          # - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
-          # - APP_URL=https://your-rwmarkable-domain.com # if not set sholuld default to http://localhost:<port>
-
-          # --- ADDITIONAL SSO OPTIONS (OPTIONAL)
-          #- OIDC_CLIENT_SECRET=your_client_secret  # Enable confidential client mode with client authentication
-          #- SSO_FALLBACK_LOCAL=true  # Allow both SSO and normal login
-          #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
-        # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
-        #platform: linux/arm64
+          #- HTTPS=true
+          #- SERVE_PUBLIC_IMAGES=yes
+          #- SERVE_PUBLIC_FILES=yes
+          #- SSO_MODE=oidc
+          #- OIDC_ISSUER=<YOUR_SSO_ISSUER>
+          #- OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
+          #- APP_URL=https://your-rwmarkable-domain.com
+          #- OIDC_CLIENT_SECRET=your_client_secret
+          #- SSO_FALLBACK_LOCAL=true
+          #- OIDC_ADMIN_GROUPS=admins
     ```
 
 2.  Create the data directory and set permissions:
@@ -148,9 +145,15 @@ The recommended way to run `rwMarkable` is with Docker.
 
 The application will be available at `http://localhost:1122`.
 
+<a id="initial-setup"></a>
+
 ### Initial Setup
 
-On your first visit, you'll be redirected to `/auth/setup` to create your admin account. Once that's done, you're ready to go!
+On your first visit, you'll be redirected to `/auth/setup` to create your admin account if SSO is disabled, otherwise you'll be prompted to sign in via your choosen SSO provider.
+
+Once that's done, you're ready to go! First user will be admin by default.
+
+<a id="local-development-without-docker"></a>
 
 ### Local Development (Without Docker)
 
@@ -168,6 +171,8 @@ If you want to run the app locally for development:
     ```
     The app will be running at `http://localhost:3000`.
 
+<a id="data-storage"></a>
+
 ## Data Storage
 
 `rwMarkable` uses a simple file-based storage system inside the `data/` directory.
@@ -181,7 +186,11 @@ If you want to run the app locally for development:
 
 **Make sure you back up the `data` directory!**
 
+<a id="updating"></a>
+
 ## Updating
+
+<a id="docker-compose-1"></a>
 
 ### Docker Compose
 
@@ -191,6 +200,8 @@ Pull the latest image and restart your container.
 docker-compose pull
 docker-compose up -d
 ```
+
+<a id="manual"></a>
 
 ### Manual
 
@@ -203,139 +214,42 @@ yarn build
 yarn start
 ```
 
-## Configuration
+<a id="api"></a>
 
-The `config/` directory contains configuration files that customize various aspects of the application.
+## API
 
-### Single Sign-On (SSO) with OIDC
+`rwMarkable` includes a REST API for programmatic access to your checklists and notes. This is perfect for:
 
-rwMarkable supports any OIDC provider (Authentik, Auth0, Keycloak, Okta, etc.) with these requirements:
+- **Automation:** Create tasks from external systems
+- **Integrations:** Connect with other tools and services
+- **Scripts:** Automate repetitive tasks
+- **Dashboards:** Build custom interfaces
 
-- Supports PKCE (most modern providers do)
-- Can be configured as a public client (no client secret needed)
-- Provides standard OIDC scopes (openid, profile, email)
+📖 **For the complete API documentation, see [howto/API.md](howto/API.md)**
 
-1. Configure your OIDC Provider:
+<a id="shortcuts"></a>
 
-- Client Type: Public
-- Grant Type: Authorization Code with PKCE
-- Scopes: openid, profile, email
-- Redirect URI: https://YOUR_APP_HOST/api/oidc/callback
-- Post-logout URI: https://YOUR_APP_HOST/
+## SHORTCUTS
 
-2. Get these values from your provider:
+`rwMarkable` supports a wide range of keyboard shortcuts to help you navigate and edit more efficiently without leaving the keyboard. They are divided into two main categories: global shortcuts that work anywhere in the app, and editor-specific shortcuts that work when you are writing a note.
 
-- Client ID
-- OIDC Issuer URL (usually ends with .well-known/openid-configuration)
+📖 **For the complete SHORTCUTS documentation, see [howto/SHORTCUTS.md](howto/SHORTCUTS.md)**
 
-3. Set environment variables:
+<a id="single-sign-on-sso-with-oidc"></a>
 
-```yaml
-services:
-  rwmarkable:
-    environment:
-      - SSO_MODE=oidc
-      - OIDC_ISSUER=https://YOUR_SSO_HOST/issuer/path
-      - OIDC_CLIENT_ID=your_client_id
-      - APP_URL=https://your-rwmarkable-domain.com # if not set defaults to http://localhost:<port>
-      # Optional security enhancements:
-      - OIDC_CLIENT_SECRET=your_client_secret # Enable confidential client mode (if your provider requires it)
-      - SSO_FALLBACK_LOCAL=true # Allow both SSO and local login
-      - OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
+## Single Sign-On (SSO) with OIDC
 
-Note: When OIDC_CLIENT_SECRET is set, rwMarkable switches to confidential client mode using client authentication instead of PKCE. This is more secure but requires provider support.
-```
+`rwMarkable` supports any OIDC provider (Authentik, Auth0, Keycloak, Okta, etc.)
 
-Dev verified Providers:
+📖 **For the complete SSO documentation, see [howto/SSO.md](howto/SSO.md)**
 
-- Auth0 (`OIDC_ISSUER=https://YOUR_TENANT.REGION.auth0.com`)
-- Authentik (`OIDC_ISSUER=https://YOUR_DOMAIN/application/o/APP_SLUG/`)
+<a id="custom-themes-and-emojis"></a>
 
-Other providers will likely work, but I can at least guarantee these do as I have test them both locally.
-
-p.s. **First user to sign in via SSO when no local users exist becomes admin automatically.**
-
-### Custom Themes and Emojis
+## Custom Themes and Emojis
 
 You can easily add custom themes and emojis by creating configuration files in the `config/` directory. These will be automatically loaded and merged with the built-in themes and emojis.
 
-**Note**: While app settings (name, description, icons) are now managed through the admin UI, custom themes and emojis still use the `config/` directory approach below.
-
-### Custom Themes
-
-Create `config/themes.json` with your custom themes:
-
-```json
-{
-  "custom-themes": {
-    "my-theme": {
-      "name": "My Custom Theme",
-      "icon": "Palette",
-      "colors": {
-        "--background": "255 255 255",
-        "--background-secondary": "249 250 251",
-        "--foreground": "20 20 20",
-        "--primary": "37 99 235",
-        "--primary-foreground": "255 255 255",
-        "--secondary": "241 245 249",
-        "--secondary-foreground": "20 20 20",
-        "--muted": "241 245 249",
-        "--muted-foreground": "100 116 139",
-        "--accent": "241 245 249",
-        "--accent-foreground": "20 20 20",
-        "--destructive": "239 68 68",
-        "--destructive-foreground": "255 255 255",
-        "--border": "226 232 240",
-        "--input": "226 232 240",
-        "--ring": "37 99 235"
-      }
-    }
-  }
-}
-```
-
-**Required color variables:**
-
-- `--background`, `--background-secondary`, `--foreground`
-- `--card`, `--card-foreground`, `--popover`, `--popover-foreground`
-- `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`
-- `--muted`, `--muted-foreground`, `--accent`, `--accent-foreground`
-- `--destructive`, `--destructive-foreground`, `--border`, `--input`, `--ring`
-
-### Custom Emojis
-
-Create `config/emojis.json` with your custom emojis:
-
-```json
-{
-  "custom-emojis": {
-    "meeting": "🤝",
-    "deadline": "⏰",
-    "project": "📋",
-    "deploy": "🚀",
-    "bug": "🐛",
-    "feature": "✨"
-  }
-}
-```
-
-When you type checklist items containing these words, the custom emojis will automatically appear.
-
-### Available Icons
-
-For themes, you can use these icon names: `Sun`, `Moon`, `Sunset`, `Waves`, `Trees`, `CloudMoon`, `Palette`, `Terminal`, `Github`, `Monitor`, `Coffee`, `Flower2`, `Flame`, `Palmtree`, `Building`. If no icon is specified, a default will be chosen based on the theme name.
-
-### Configuration Validation
-
-The app validates your configuration files and will show warnings in the console if there are any format errors. Invalid configs will be ignored and the app will continue working with built-in themes and emojis.
-
-**Important:** If you want to use custom themes and emojis, make sure your local `config/` directory has the correct permissions:
-
-```bash
-mkdir -p config
-chown -R 1000:1000 config/
-chmod -R 755 config/
-```
+📖 **For the complete customisation documentation, see [howto/CUSTOMISATIONS.md](howto/CUSTOMISATIONS.md)**
 
 ## Community shouts
 
@@ -413,7 +327,7 @@ I would like to thank the following members for raising issues and help test/deb
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under [MIT License](LICENSE).
 
 ## Support
 

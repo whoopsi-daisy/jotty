@@ -4,12 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Note, Category, User } from "@/app/_types";
 import { NoteEditor } from "@/app/_components/FeatureComponents/Notes/Parts/NoteEditor/NoteEditor";
-import { CreateNoteModal } from "@/app/_components/GlobalComponents/Modals/NotesModal/CreateNoteModal";
-import { CreateCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/CreateCategoryModal";
-import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
-import { Modes } from "@/app/_types/enums";
+import { useShortcut } from "@/app/_providers/ShortcutsProvider";
 
 interface SharingStatus {
   isShared: boolean;
@@ -34,13 +31,9 @@ export const NoteClient = ({
 }: NoteClientProps) => {
   const router = useRouter();
   const { checkNavigation } = useNavigationGuard();
+  const { openCreateNoteModal, openCreateCategoryModal, openSettings } =
+    useShortcut();
   const [localNote, setLocalNote] = useState<Note>(note);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [initialCategory, setInitialCategory] = useState<string>("");
-  const [initialParentCategory, setInitialParentCategory] =
-    useState<string>("");
   const prevNoteId = useRef(note.id);
 
   useEffect(() => {
@@ -66,29 +59,15 @@ export const NoteClient = ({
     });
   };
 
-  const handleOpenCreateModal = (initialCategory?: string) => {
-    setInitialCategory(initialCategory || "");
-    setShowCreateModal(true);
-  };
-
-  const handleOpenCategoryModal = (parentCategory?: string) => {
-    setShowCategoryModal(true);
-    setInitialParentCategory(parentCategory || "");
-  };
-
-  const handleOpenSettings = () => {
-    setShowSettingsModal(true);
-  };
-
   return (
     <Layout
       lists={[]}
       docs={docs}
       categories={categories}
       sharingStatuses={sharingStatuses}
-      onOpenSettings={handleOpenSettings}
-      onOpenCreateModal={handleOpenCreateModal}
-      onOpenCategoryModal={handleOpenCategoryModal}
+      onOpenSettings={openSettings}
+      onOpenCreateModal={openCreateNoteModal}
+      onOpenCategoryModal={openCreateCategoryModal}
       user={user}
     >
       <NoteEditor
@@ -99,43 +78,6 @@ export const NoteClient = ({
         onDelete={handleDelete}
         currentUsername={user?.username}
         isAdmin={user?.isAdmin}
-      />
-
-      {showCreateModal && (
-        <CreateNoteModal
-          onClose={() => setShowCreateModal(false)}
-          onCreated={(newNote) => {
-            if (newNote) {
-              router.push(`/note/${newNote.id}`);
-            }
-            setShowCreateModal(false);
-            router.refresh();
-          }}
-          categories={categories}
-          initialCategory={initialCategory}
-        />
-      )}
-
-      {showCategoryModal && (
-        <CreateCategoryModal
-          mode={Modes.NOTES}
-          categories={categories}
-          initialParent={initialParentCategory}
-          onClose={() => {
-            setShowCategoryModal(false);
-            setInitialParentCategory("");
-          }}
-          onCreated={() => {
-            setShowCategoryModal(false);
-            setInitialParentCategory("");
-            router.refresh();
-          }}
-        />
-      )}
-
-      <SettingsModal
-        isOpen={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
       />
     </Layout>
   );
