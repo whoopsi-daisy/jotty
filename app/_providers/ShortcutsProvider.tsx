@@ -89,13 +89,21 @@ export const ShortcutProvider = ({
       code: "ArrowLeft",
       modKey: true,
       shiftKey: true,
-      handler: () => checkNavigation(() => setMode(Modes.CHECKLISTS)),
+      handler: () =>
+        checkNavigation(() => {
+          setMode(Modes.CHECKLISTS);
+          router.push("/");
+        }),
     },
     {
       code: "ArrowRight",
       modKey: true,
       shiftKey: true,
-      handler: () => checkNavigation(() => setMode(Modes.NOTES)),
+      handler: () =>
+        checkNavigation(() => {
+          setMode(Modes.NOTES);
+          router.push("/");
+        }),
     },
     {
       code: "KeyK",
