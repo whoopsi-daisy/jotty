@@ -99,7 +99,12 @@ export const CategoryTreeSelector = ({
       </button>
 
       {isOpen && (
-        <div className={cn("absolute w-full z-20 mt-1 bg-background border border-input rounded-md shadow-lg max-h-60 overflow-y-auto", isInModal ? "bottom-full lg:top-full lg:bottom-auto" : "top-full")}>
+        <div
+          className={cn(
+            "absolute w-full z-40 mt-1 bg-background border border-input rounded-md shadow-lg max-h-60 overflow-y-auto",
+            isInModal ? "bottom-full lg:top-full lg:bottom-auto" : "top-full"
+          )}
+        >
           <div className="p-2">
             <div
               className={cn(

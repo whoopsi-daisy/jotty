@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Save, Smile } from "lucide-react";
+import { Settings, Save, Smile, FileText } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Dropdown } from "@/app/_components/GlobalComponents/Dropdowns/Dropdown";
 import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";
@@ -18,9 +18,11 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     theme,
     showEmojis,
     autosaveNotes,
+    showMarkdownPreview,
     setTheme,
     setShowEmojis,
     setAutosaveNotes,
+    setShowMarkdownPreview,
   } = useSettings();
   const [themes, setThemes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,14 +76,12 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 className="sr-only"
               />
               <div
-                className={`block w-10 h-6 rounded-full transition-colors ${
-                  autosaveNotes ? "bg-primary" : "bg-muted"
-                }`}
+                className={`block w-10 h-6 rounded-full transition-colors ${autosaveNotes ? "bg-primary" : "bg-muted"
+                  }`}
               >
                 <div
-                  className={`absolute left-1 top-1 bg-card w-4 h-4 rounded-full transition-transform ${
-                    autosaveNotes ? "translate-x-4" : "translate-x-0"
-                  }`}
+                  className={`absolute left-1 top-1 bg-card w-4 h-4 rounded-full transition-transform ${autosaveNotes ? "translate-x-4" : "translate-x-0"
+                    }`}
                 />
               </div>
             </div>
@@ -100,14 +100,36 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 className="sr-only"
               />
               <div
-                className={`block w-10 h-6 rounded-full transition-colors ${
-                  showEmojis ? "bg-primary" : "bg-muted"
-                }`}
+                className={`block w-10 h-6 rounded-full transition-colors ${showEmojis ? "bg-primary" : "bg-muted"
+                  }`}
               >
                 <div
-                  className={`absolute left-1 top-1 bg-card w-4 h-4 rounded-full transition-transform ${
-                    showEmojis ? "translate-x-4" : "translate-x-0"
+                  className={`absolute left-1 top-1 bg-card w-4 h-4 rounded-full transition-transform ${showEmojis ? "translate-x-4" : "translate-x-0"
+                    }`}
+                />
+              </div>
+            </div>
+          </label>
+
+          <label className="flex items-center justify-between cursor-pointer">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">Show Note Preview on Cards</span>
+            </div>
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={showMarkdownPreview}
+                onChange={(e) => setShowMarkdownPreview(e.target.checked)}
+                className="sr-only"
+              />
+              <div
+                className={`block w-10 h-6 rounded-full transition-colors ${showMarkdownPreview ? "bg-primary" : "bg-muted"
                   }`}
+              >
+                <div
+                  className={`absolute left-1 top-1 bg-card w-4 h-4 rounded-full transition-transform ${showMarkdownPreview ? "translate-x-4" : "translate-x-0"
+                    }`}
                 />
               </div>
             </div>

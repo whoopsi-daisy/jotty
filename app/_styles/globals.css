@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'highlight.js/styles/github-dark-dimmed.css';
 
 @layer base {
     :root {
@@ -366,7 +367,6 @@
     mask-image: linear-gradient(to right, black 90%, transparent 100%);
 }
 
-
 .dragging {
     opacity: 0.5;
     transform: rotate(5deg);
@@ -416,13 +416,9 @@
     font-style: italic;
 }
 
-.prose code {
+/* This is the crucial fix: it styles INLINE code but IGNORES code inside blocks */
+.prose :where(:not(pre)) > code {
     @apply bg-muted px-1 py-0.5 rounded text-sm;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-.prose pre code {
-    @apply bg-transparent p-0 text-sm;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
@@ -445,6 +441,29 @@
     text-decoration: none;
 }
 
+.prose kbd {
+    @apply bg-muted px-2 py-1 text-xs rounded-md border border-border shadow-border shadow-sm;
+}
+
+p > code {
+    background: rgba(0,0,0,0.8)!important;
+    color: orange;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* This rule provides a consistent background for code blocks in the editor */
+.ProseMirror .hljs {
+  color: #abb2bf;
+  background: #282c34;
+}
+
+.hljs .hljs {
+    padding: 0;
+    background: transparent;
+}
 
 .line-clamp-2 {
     display: -webkit-box;
@@ -455,21 +474,6 @@
 
 .ProseMirror {
     height: 100%;    
-}
-
-.ProseMirror pre {
-    @apply bg-muted border border-border rounded-lg p-4 overflow-x-auto;
-    margin: 1rem 0;
-}
-
-.ProseMirror pre code {
-    @apply bg-transparent p-0 text-sm;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-.ProseMirror code {
-    @apply bg-muted px-1 py-0.5 rounded text-sm;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 .ProseMirror ul,
@@ -491,19 +495,9 @@
     list-style-type: disc;
 }
 
-.code-block-wrapper .ProseMirror {
-    color: transparent;
-    caret-color: white;
-    border: none !important;
-    outline: none !important;
-}
-
-.code-block-wrapper .ProseMirror::selection {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.code-block-wrapper .ProseMirror::-moz-selection {
-    background: rgba(255, 255, 255, 0.2);
+.ProseMirror ul ul,
+.prose ul ul {
+    margin: 0;
 }
 
 .ProseMirror ol {
@@ -564,6 +558,42 @@
     padding-left: 1rem;
     font-style: italic;
     color: rgb(var(--muted-foreground));
+    margin: 1rem 0;
+}
+
+.ProseMirror li[data-checked=false], 
+.ProseMirror li[data-checked=true],
+.prose li[data-checked=false], 
+.prose li[data-checked=true] {
+    display: flex;
+    padding: 0;
+    column-gap: 5px;
+    align-items: center;
+}
+
+.ProseMirror li[data-checked=false] label, 
+.ProseMirror li[data-checked=true] label,
+.prose li[data-checked=false] label, 
+.prose li[data-checked=true] label {
+    margin: 0;
+    height: 20px;
+}
+
+
+.ProseMirror li input[type="checkbox"],
+.prose li input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+.ProseMirror ul[data-type="taskList"],
+.prose ul[data-type="taskList"] {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.ProseMirror hr,
+.prose hr {
     margin: 1rem 0;
 }
 

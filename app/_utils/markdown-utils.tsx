@@ -1,15 +1,15 @@
 import TurndownService from "turndown";
-import { marked } from "marked";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkRehype from "remark-rehype";
+import rehypeRaw from "rehype-raw";
+import rehypeStringify from "rehype-stringify";
+import { visit } from "unist-util-visit";
+import { Element } from "hast";
+import { addCustomHtmlTurndownRules } from "@/app/_utils/custom-html-utils";
+
 const turndownPluginGfm = require("turndown-plugin-gfm");
-import {
-  FileCode,
-  Terminal,
-  Database,
-  Globe,
-  Cpu,
-  Code,
-  FileText,
-} from "lucide-react";
 
 export const createTurndownService = () => {
   const service = new TurndownService({
@@ -22,18 +22,89 @@ export const createTurndownService = () => {
 
   service.use(turndownPluginGfm.gfm);
 
-  const originalTurndown = service.turndown;
-  service.turndown = function (html) {
-    return originalTurndown.call(this, html);
-  };
+  addCustomHtmlTurndownRules(service);
+
+  service.addRule("details", {
+    filter: "details",
+    replacement: function (content, node) {
+      const element = node as HTMLElement;
+      const summaryNode = element.querySelector("summary");
+      const summaryText = summaryNode ? summaryNode.textContent : "Details";
+
+      const contentNode = element.cloneNode(true) as HTMLElement;
+      const summaryToRemove = contentNode.querySelector("summary");
+      if (summaryToRemove) {
+        contentNode.removeChild(summaryToRemove);
+      }
+      const mainContent = service.turndown(contentNode.innerHTML);
+
+      return `\n<details>\n<summary>${summaryText}</summary>\n\n${mainContent}\n\n</details>\n`;
+    },
+  });
+
+  service.addRule("listItem", {
+    filter: "li",
+    replacement: function (content, node, options) {
+      const element = node as HTMLElement;
+      content = content.trim();
+      const isTaskItem = element.getAttribute("data-type") === "taskItem";
+
+      let prefix = "";
+      const parent = element.parentNode;
+
+      if (parent && parent.nodeName === "OL") {
+        const parentElement = parent as HTMLOListElement;
+        const start = parentElement.getAttribute("start");
+        const index = Array.prototype.indexOf.call(
+          parentElement.children,
+          element
+        );
+        prefix = (start ? Number(start) + index : index + 1) + ". ";
+      } else if (isTaskItem) {
+        const isChecked = element.getAttribute("data-checked") === "true";
+        prefix = options.bulletListMarker + ` [${isChecked ? "x" : " "}] `;
+      } else {
+        prefix = options.bulletListMarker + " ";
+      }
+
+      let indentLevel = -1;
+      let current: Node | null = element;
+      while (current) {
+        if (current.nodeName === "UL" || current.nodeName === "OL") {
+          indentLevel++;
+        }
+        current = current.parentNode;
+      }
+      const indent = "    ".repeat(Math.max(0, indentLevel));
+
+      return indent + prefix + content + "\n";
+    },
+  });
+
+  service.addRule("horizontalRule", {
+    filter: (node) => {
+      return node.nodeName === "HR";
+    },
+    replacement: (content, node) => {
+      return `\n---\n`;
+    },
+  });
+
+  service.addRule("taskList", {
+    filter: (node) => {
+      return (
+        node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem"
+      );
+    },
+    replacement: (content, node) => {
+      const isChecked =
+        (node as HTMLElement).getAttribute("data-checked") === "true";
+      return `- [${isChecked ? "x" : " "}] ${content.trim()}\n`;
+    },
+  });
 
   service.addRule("fileAttachment", {
     filter: (node) => {
-      if (
-        node.nodeName === "P" &&
-        (node as HTMLElement).hasAttribute("data-file-attachment")
-      ) {
-      }
       return (
         node.nodeName === "P" &&
         (node as HTMLElement).hasAttribute("data-file-attachment")
@@ -56,16 +127,70 @@ export const createTurndownService = () => {
   return service;
 };
 
-export const configureMarked = () => {
-  marked.setOptions({
-    breaks: true,
-    gfm: true,
-  });
+const hasClass = (node: Element, className: string) => {
+  const classList = node.properties?.className;
+  if (Array.isArray(classList)) {
+    return classList.some((cn) => String(cn) === className);
+  }
+  if (typeof classList === "string") {
+    return classList.split(" ").includes(className);
+  }
+  return false;
 };
 
-export const parseMarkdownToHtml = (markdown: string): string => {
-  configureMarked();
-  return marked.parse(markdown) as string;
+const markdownProcessor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeRaw)
+  .use(() => {
+    return (tree) => {
+      visit(tree, "element", (node: Element) => {
+        if (node.tagName === "ul" && hasClass(node, "task-list")) {
+          node.properties = node.properties || {};
+          node.properties["data-type"] = "taskList";
+        }
+        if (node.tagName === "li" && hasClass(node, "task-list-item")) {
+          node.properties = node.properties || {};
+          node.properties["data-type"] = "taskItem";
+          const checkbox = node.children[0];
+          if (
+            checkbox?.type === "element" &&
+            checkbox.tagName === "input" &&
+            checkbox.properties?.type === "checkbox"
+          ) {
+            node.properties["data-checked"] =
+              checkbox.properties.checked != null &&
+              checkbox.properties.checked !== false;
+            node.children.shift();
+
+            if (
+              node.children[0]?.type === "text" &&
+              node.children[0].value.startsWith("\n")
+            ) {
+              node.children[0].value = node.children[0].value.trimStart();
+            }
+
+            const contentNodes = [...node.children];
+            node.children = [
+              {
+                type: "element",
+                tagName: "p",
+                properties: {},
+                children: contentNodes,
+              },
+            ];
+          }
+        }
+      });
+    };
+  })
+  .use(rehypeStringify);
+
+export const convertMarkdownToHtml = (markdown: string): string => {
+  if (!markdown || typeof markdown !== "string") return "";
+  const file = markdownProcessor.processSync(markdown);
+  return String(file);
 };
 
 export const convertHtmlToMarkdown = (html: string): string => {
@@ -75,12 +200,7 @@ export const convertHtmlToMarkdown = (html: string): string => {
 
 export const processMarkdownContent = (content: string): string => {
   if (!content || typeof content !== "string") return "";
-  return content.trim();
-};
-
-export const convertMarkdownToHtml = (markdown: string): string => {
-  const processedMarkdown = processMarkdownContent(markdown);
-  return parseMarkdownToHtml(processedMarkdown);
+  return content;
 };
 
 export const convertHtmlToMarkdownUnified = (html: string): string => {
@@ -98,186 +218,3 @@ export const getMarkdownPreviewContent = (
     return convertHtmlToMarkdownUnified(content);
   }
 };
-
-export const languageIcons: Record<string, JSX.Element> = {
-  javascript: <FileCode className="h-4 w-4" />,
-  typescript: <FileCode className="h-4 w-4" />,
-  jsx: <FileCode className="h-4 w-4" />,
-  tsx: <FileCode className="h-4 w-4" />,
-  bash: <Terminal className="h-4 w-4" />,
-  sh: <Terminal className="h-4 w-4" />,
-  shell: <Terminal className="h-4 w-4" />,
-  sql: <Database className="h-4 w-4" />,
-  html: <Globe className="h-4 w-4" />,
-  css: <Globe className="h-4 w-4" />,
-  python: <Cpu className="h-4 w-4" />,
-  json: <FileText className="h-4 w-4" />,
-  yaml: <FileText className="h-4 w-4" />,
-  yml: <FileText className="h-4 w-4" />,
-  markdown: <FileText className="h-4 w-4" />,
-  md: <FileText className="h-4 w-4" />,
-};
-
-export const codeBlockLanguages = [
-  {
-    value: "text",
-    label: "Plain Text",
-    icon: <FileText className="h-4 w-4" />,
-  },
-  { value: "javascript", label: "JavaScript", icon: languageIcons.javascript },
-  { value: "typescript", label: "TypeScript", icon: languageIcons.typescript },
-  { value: "jsx", label: "JSX", icon: languageIcons.jsx },
-  { value: "tsx", label: "TSX", icon: languageIcons.tsx },
-  { value: "python", label: "Python", icon: languageIcons.python },
-  { value: "bash", label: "Bash", icon: languageIcons.bash },
-  { value: "sql", label: "SQL", icon: languageIcons.sql },
-  { value: "html", label: "HTML", icon: languageIcons.html },
-  { value: "css", label: "CSS", icon: languageIcons.css },
-  { value: "json", label: "JSON", icon: languageIcons.json },
-  { value: "yaml", label: "YAML", icon: languageIcons.yaml },
-  { value: "markdown", label: "Markdown", icon: languageIcons.markdown },
-];
-
-export const getLanguageFromCode = (code: string): string => {
-  const firstLine = code.split("\n")[0].toLowerCase();
-
-  if (firstLine.includes("#!/bin/bash") || firstLine.includes("#!/bin/sh"))
-    return "bash";
-  if (firstLine.includes("#!/usr/bin/env python")) return "python";
-  if (firstLine.includes("#!/usr/bin/env node")) return "javascript";
-
-  if (code.includes("import React") || code.includes("from React"))
-    return "jsx";
-  if (
-    code.includes("interface ") ||
-    code.includes("type ") ||
-    code.includes(": string")
-  )
-    return "typescript";
-  if (
-    code.includes("SELECT ") ||
-    code.includes("INSERT ") ||
-    code.includes("UPDATE ")
-  )
-    return "sql";
-  if (code.includes("<!DOCTYPE") || code.includes("<html")) return "html";
-  if (
-    code.includes("def ") ||
-    code.includes("import ") ||
-    code.includes("print(")
-  )
-    return "python";
-  if (
-    code.includes("function ") ||
-    code.includes("const ") ||
-    code.includes("let ")
-  )
-    return "javascript";
-  if (code.includes("echo ") || code.includes("cd ") || code.includes("ls "))
-    return "bash";
-
-  return "text";
-};
-
-export const createCustomSyntaxTheme = () => ({
-  'pre[class*="language-"]': {
-    background: "rgb(var(--card))",
-    color: "rgb(var(--foreground))",
-  },
-  'code[class*="language-"]': {
-    background: "rgb(var(--card))",
-    color: "rgb(var(--foreground))",
-  },
-  ".token.comment": {
-    color: "rgb(var(--muted-foreground))",
-    fontStyle: "italic",
-  },
-  ".token.prolog": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.doctype": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.cdata": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.punctuation": {
-    color: "rgb(var(--muted-foreground))",
-  },
-  ".token.property": {
-    color: "#e06c75",
-  },
-  ".token.tag": {
-    color: "#e06c75",
-  },
-  ".token.boolean": {
-    color: "#d19a66",
-  },
-  ".token.number": {
-    color: "#d19a66",
-  },
-  ".token.constant": {
-    color: "#d19a66",
-  },
-  ".token.symbol": {
-    color: "#d19a66",
-  },
-  ".token.selector": {
-    color: "#e06c75",
-  },
-  ".token.attr-name": {
-    color: "#e06c75",
-  },
-  ".token.string": {
-    color: "#98c379",
-  },
-  ".token.char": {
-    color: "#98c379",
-  },
-  ".token.builtin": {
-    color: "#61afef",
-  },
-  ".token.inserted": {
-    color: "#98c379",
-  },
-  ".token.operator": {
-    color: "#56b6c2",
-  },
-  ".token.entity": {
-    color: "rgb(var(--foreground))",
-  },
-  ".token.url": {
-    color: "#61afef",
-  },
-  ".token.variable": {
-    color: "rgb(var(--foreground))",
-  },
-  ".token.atrule": {
-    color: "#c678dd",
-  },
-  ".token.attr-value": {
-    color: "#98c379",
-  },
-  ".token.function": {
-    color: "#61afef",
-  },
-  ".token.class-name": {
-    color: "#e5c07b",
-  },
-  ".token.keyword": {
-    color: "#c678dd",
-  },
-  ".token.regex": {
-    color: "#d19a66",
-  },
-  ".token.important": {
-    color: "#e06c75",
-    fontWeight: "bold",
-  },
-  ".token.bold": {
-    fontWeight: "bold",
-  },
-  ".token.italic": {
-    fontStyle: "italic",
-  },
-});

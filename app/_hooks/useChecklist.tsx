@@ -75,7 +75,7 @@ export const useChecklist = ({
       } finally {
         setItemsToDelete([]);
       }
-    }, 1000); // Wait 1 second after the last delete click before sending to server
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [itemsToDelete, list.id, router]);

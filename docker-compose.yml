@@ -1,44 +1,28 @@
+# For more information about how the docker compose file works and what these
+# variables do, please read https://github.com/fccview/rwMarkable/blob/main/howto/DOCKER.md
+
 services:
   rwmarkable:
     image: ghcr.io/fccview/rwmarkable:latest
     container_name: rwmarkable
     user: "1000:1000"
     ports:
-      # Feel free to change the FIRST port, 3000 is very common
-      # so I like to map it to something else (in this case 1122)
       - "1122:3000"
     volumes:
-      # --- MOUNT DATA DIRECTORY
-      # This is needed for persistent data storage on YOUR host machine rather than inside the docker volume.
       - ./data:/app/data:rw
       - ./config:/app/config:ro
-
-      # --- MOUNT CACHE DIRECTORY (OPTIONAL)
-      # This improves performance by persisting Next.js cache between restarts
       - ./cache:/app/.next/cache:rw
     restart: unless-stopped
+    #platform: linux/arm64
     environment:
       - NODE_ENV=production
-      
-      # Uncomment to make user uploaded images and files public. This won't expose your entire folder structure      
-      # but it will allow any image/files you upload via the UI to be accessed publicly for 
-      # anyone with the link or image name/filename. This is the only way to have images available in
-      # public notes and it's disabled by default for security reasons.
-      # - SERVE_PUBLIC_IMAGES=yes
-      # - SERVE_PUBLIC_FILES=yes
-      
-      # Uncomment to enable HTTPS
-      # - HTTPS=true
-
-      # --- SSO WITH OIDC (OPTIONAL)
-      # - SSO_MODE=oidc
-      # - OIDC_ISSUER=<YOUR_SSO_ISSUER>
-      # - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
-      # - APP_URL=https://your-rwmarkable-domain.com # if not set should default to http://localhost:<port>
-
-      # --- ADDITIONAL SSO OPTIONS (OPTIONAL)
-      #- OIDC_CLIENT_SECRET=your_client_secret  # Enable confidential client mode with client authentication
-      #- SSO_FALLBACK_LOCAL=yes  # Allow both SSO and normal login
-      #- OIDC_ADMIN_GROUPS=admins # Map provider groups to admin role
-    # --- DEFAULT PLATFORM IS SET TO AMD64, UNCOMMENT TO USE ARM64.
-    #platform: linux/arm64
+      #- HTTPS=true
+      #- SERVE_PUBLIC_IMAGES=yes
+      #- SERVE_PUBLIC_FILES=yes
+      #- SSO_MODE=oidc
+      #- OIDC_ISSUER=<YOUR_SSO_ISSUER>
+      #- OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
+      #- APP_URL=https://your-rwmarkable-domain.com
+      #- OIDC_CLIENT_SECRET=your_client_secret
+      #- SSO_FALLBACK_LOCAL=true
+      #- OIDC_ADMIN_GROUPS=admins

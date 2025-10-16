@@ -11,9 +11,8 @@ import { TableOfContents } from "../TableOfContents";
 export interface NoteEditorProps {
   note: Note;
   categories: Category[];
-  onUpdate: (updatedDoc: Note) => void;
+  viewModel: ReturnType<typeof useNoteEditor>;
   onBack: () => void;
-  onDelete?: (deletedId: string) => void;
   currentUsername?: string;
   isAdmin?: boolean;
 }
@@ -21,18 +20,11 @@ export interface NoteEditorProps {
 export const NoteEditor = ({
   note,
   categories,
-  onUpdate,
+  viewModel,
   onBack,
-  onDelete,
   currentUsername,
   isAdmin = false,
 }: NoteEditorProps) => {
-  const viewModel = useNoteEditor({
-    note,
-    onUpdate,
-    onDelete: onDelete || (() => { }),
-    onBack,
-  });
   const isOwner = note.owner === currentUsername;
   const [showTOC, setShowTOC] = useState(false);
 

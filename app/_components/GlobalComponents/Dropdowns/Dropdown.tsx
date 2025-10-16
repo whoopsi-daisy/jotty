@@ -88,7 +88,7 @@ export const Dropdown = ({
       </button>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+        <div className="absolute right-0 lg:left-0 lg:right-auto z-50 w-full min-w-[200px] mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
           <div className="py-1">
             {options.map((option) => (
               <button
