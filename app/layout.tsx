@@ -19,7 +19,10 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const settings = await getSettings();
-  const appName = settings?.appName || "rwMarkable";
+  const ogName = process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+    ? "rwMarkable"
+    : "jotty·page";
+  const appName = settings?.appName || ogName;
   const appDescription =
     settings?.appDescription ||
     "A simple, fast, and lightweight checklist and notes application";

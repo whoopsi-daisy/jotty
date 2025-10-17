@@ -331,6 +331,10 @@
     stroke: rgb(var(--primary-foreground));
 }
 
+.fill-alternate {
+    fill: rgb(var(--primary-foreground));
+}
+
 .fill-current {
     fill: rgb(var(--primary));
 }

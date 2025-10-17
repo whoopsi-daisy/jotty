@@ -28,7 +28,10 @@ export default function LoginForm() {
           Welcome back
         </h1>
         <p className="text-sm text-muted-foreground">
-          Enter your credentials to access your checklists
+          Enter your credentials to access{" "}
+          {process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+            ? "rwMarkable"
+            : "jotty·page"}
         </p>
       </div>
 

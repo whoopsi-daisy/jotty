@@ -1,4 +1,4 @@
-# rwMarkable
+# Jotty
 
 <p align="center">
   <br />
@@ -9,7 +9,7 @@
 
 A simple, self-hosted app for your checklists and notes.
 
-Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternative for managing your personal checklists and notes. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
+Tired of bloated, cloud-based to-do apps? `jotty·page` is a lightweight alternative for managing your personal checklists and notes. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
 
 <br />
 
@@ -89,7 +89,7 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
 
 ## Getting Started
 
-The recommended way to run `rwMarkable` is with Docker.
+The recommended way to run `jotty·page` is with Docker.
 
 <a id="docker-compose-recommended"></a>
 
@@ -101,9 +101,9 @@ The recommended way to run `rwMarkable` is with Docker.
 
     ```yaml
     services:
-      rwmarkable:
-        image: ghcr.io/fccview/rwmarkable:latest
-        container_name: rwmarkable
+      jotty:
+        image: ghcr.io/fccview/jotty:latest
+        container_name: jotty
         user: "1000:1000"
         ports:
           - "1122:3000"
@@ -121,7 +121,7 @@ The recommended way to run `rwMarkable` is with Docker.
           #- SSO_MODE=oidc
           #- OIDC_ISSUER=<YOUR_SSO_ISSUER>
           #- OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
-          #- APP_URL=https://your-rwmarkable-domain.com
+          #- APP_URL=https://your-jotty-domain.com
           #- OIDC_CLIENT_SECRET=your_client_secret
           #- SSO_FALLBACK_LOCAL=true
           #- OIDC_ADMIN_GROUPS=admins
@@ -175,7 +175,7 @@ If you want to run the app locally for development:
 
 ## Data Storage
 
-`rwMarkable` uses a simple file-based storage system inside the `data/` directory.
+`jotty·page` uses a simple file-based storage system inside the `data/` directory.
 
 - `data/checklists/`: Stores all checklists as `.md` files.
 - `data/notes/`: Stores all notes as `.md` files.
@@ -218,7 +218,7 @@ yarn start
 
 ## SUPPORTED MARKDOWN
 
-`rwMarkable` supports GitHub Flavored Markdown (GFM) and some custom syntax for complex functionality.
+`jotty·page` supports GitHub Flavored Markdown (GFM) and some custom syntax for complex functionality.
 
 📖 **For the complete MARKDOWN documentation, see [howto/MARKDOWN.md](howto/MARKDOWN.md)**
 
@@ -226,7 +226,7 @@ yarn start
 
 ## API
 
-`rwMarkable` includes a REST API for programmatic access to your checklists and notes. This is perfect for:
+`jotty·page` includes a REST API for programmatic access to your checklists and notes. This is perfect for:
 
 - **Automation:** Create tasks from external systems
 - **Integrations:** Connect with other tools and services
@@ -239,7 +239,7 @@ yarn start
 
 ## SHORTCUTS
 
-`rwMarkable` supports a wide range of keyboard shortcuts to help you navigate and edit more efficiently without leaving the keyboard. They are divided into two main categories: global shortcuts that work anywhere in the app, and editor-specific shortcuts that work when you are writing a note.
+`jotty·page` supports a wide range of keyboard shortcuts to help you navigate and edit more efficiently without leaving the keyboard. They are divided into two main categories: global shortcuts that work anywhere in the app, and editor-specific shortcuts that work when you are writing a note.
 
 📖 **For the complete SHORTCUTS documentation, see [howto/SHORTCUTS.md](howto/SHORTCUTS.md)**
 
@@ -247,7 +247,7 @@ yarn start
 
 ## Single Sign-On (SSO) with OIDC
 
-`rwMarkable` supports any OIDC provider (Authentik, Auth0, Keycloak, Okta, etc.)
+`jotty·page` supports any OIDC provider (Authentik, Auth0, Keycloak, Okta, etc.)
 
 📖 **For the complete SSO documentation, see [howto/SSO.md](howto/SSO.md)**
 
@@ -343,4 +343,4 @@ For issues and questions, please open an issue on the GitHub repository.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=fccview/rwmarkable&type=Date)](https://www.star-history.com/#fccview/rwmarkable&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=fccview/jotty&type=Date)](https://www.star-history.com/#fccview/jotty&Date)

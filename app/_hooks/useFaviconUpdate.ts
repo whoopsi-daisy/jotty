@@ -8,6 +8,16 @@ export const useFaviconUpdate = () => {
     try {
       const settings = await getSettings();
 
+      if (process.env.NEXT_PUBLIC_IWANTRWMARKABLE) {
+        let mainFavicon = document.querySelector(
+          'link[rel="icon"]:not([sizes])'
+        ) as HTMLLinkElement;
+
+        if (mainFavicon) {
+          mainFavicon.href = "/app-icons/legacy/favicon.ico";
+        }
+      }
+
       if (settings["16x16Icon"]) {
         let favicon16 = document.querySelector(
           'link[rel="icon"][sizes="16x16"]'
@@ -20,6 +30,17 @@ export const useFaviconUpdate = () => {
           document.head.appendChild(favicon16);
         }
         favicon16.href = settings["16x16Icon"];
+
+        let mainFavicon = document.querySelector(
+          'link[rel="icon"]:not([sizes])'
+        ) as HTMLLinkElement;
+        if (!mainFavicon) {
+          mainFavicon = document.createElement("link");
+          mainFavicon.rel = "icon";
+          mainFavicon.type = "image/png";
+          document.head.appendChild(mainFavicon);
+        }
+        mainFavicon.href = settings["16x16Icon"];
       }
 
       if (settings["32x32Icon"]) {

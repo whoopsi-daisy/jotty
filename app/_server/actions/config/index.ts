@@ -140,7 +140,9 @@ export const getSettings = async () => {
     }
   } catch (error) {
     return {
-      appName: "rwMarkable",
+      appName: process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+        ? "rwMarkable"
+        : "jotty·page",
       appDescription:
         "A simple, fast, and lightweight checklist and notes application",
       "16x16Icon": "/app-icons/favicon-16x16.png",

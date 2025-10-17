@@ -25,7 +25,10 @@ export default function SetupForm() {
     <div className="space-y-6">
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Welcome to rwMarkable
+          Welcome to{" "}
+          {process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+            ? "rwMarkable"
+            : "jotty·page"}
         </h1>
         <p className="text-sm text-muted-foreground">
           Create your admin account to get started

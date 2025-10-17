@@ -89,7 +89,9 @@ export const AppSettingsTab = () => {
       id: "appName",
       label: "Application Name",
       description: "Appears in the browser tab and PWA name.",
-      placeholder: "rwMarkable",
+      placeholder: process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+        ? "rwMarkable"
+        : "jotty·page",
     },
     {
       id: "appDescription",
@@ -131,6 +133,7 @@ export const AppSettingsTab = () => {
           {formFields.map((field) => (
             <Input
               key={field.id}
+              defaultValue={settings[field.id]}
               {...field}
               type="text"
               value={settings[field.id]}
@@ -147,7 +150,9 @@ export const AppSettingsTab = () => {
                 key={field.iconType}
                 {...field}
                 currentUrl={settings[field.iconType]}
-                onUpload={(iconType, url) => handleInputChange(iconType || "", url)}
+                onUpload={(iconType, url) =>
+                  handleInputChange(iconType || "", url)
+                }
               />
             ))}
           </div>

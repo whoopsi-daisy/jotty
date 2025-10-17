@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Logo } from "./Logo";
+import { Logo } from "@/app/_components/GlobalComponents/Layout/Logo/Logo";
 import { getSettings } from "@/app/_server/actions/config";
+import { LegacyLogo } from "@/app/_components/GlobalComponents/Layout/Logo/LegacyLogo";
 
 interface DynamicLogoProps {
   className?: string;
@@ -58,5 +59,9 @@ export const DynamicLogo = ({
     );
   }
 
-  return <Logo className={className} />;
+  return process.env.NEXT_PUBLIC_IWANTRWMARKABLE ? (
+    <LegacyLogo className={className} />
+  ) : (
+    <Logo className={className} />
+  );
 };
