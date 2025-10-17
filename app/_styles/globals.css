@@ -454,7 +454,6 @@ p > code {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
-/* This rule provides a consistent background for code blocks in the editor */
 .ProseMirror .hljs {
   color: #abb2bf;
   background: #282c34;
