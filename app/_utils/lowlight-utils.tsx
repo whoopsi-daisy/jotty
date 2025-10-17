@@ -38,6 +38,7 @@ import verilog from "highlight.js/lib/languages/verilog";
 import scss from "highlight.js/lib/languages/scss";
 import less from "highlight.js/lib/languages/less";
 import shell from "highlight.js/lib/languages/shell";
+import plaintext from "highlight.js/lib/languages/plaintext";
 
 export const lowlight = createLowlight();
 
@@ -87,3 +88,4 @@ lowlight.register("verilog", verilog);
 lowlight.register("scss", scss);
 lowlight.register("less", less);
 lowlight.register("shell", shell);
+lowlight.register("plaintext", plaintext);
