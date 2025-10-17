@@ -82,7 +82,7 @@ export const TiptapToolbar = ({
 
   return (
     <>
-      <div className="bg-background flex w-full items-center lg:gap-4 px-0 lg:px-2 lg:py-2 md:justify-between">
+      <div className={cn("bg-background flex w-full items-center lg:gap-4 px-0 lg:px-2 lg:py-2", isMarkdownMode ? "md:justify-end" : "md:justify-between")}>
         <div className="flex-shrink-0 md:order-last">
           <Button
             variant="ghost"
@@ -134,7 +134,8 @@ export const TiptapToolbar = ({
         <div
           className={cn(
             "flex flex-1 min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap md:flex-wrap md:whitespace-normal",
-            "hide-scrollbar scroll-fade-right"
+            "hide-scrollbar scroll-fade-right",
+            isMarkdownMode ? "hidden" : ""
           )}
         >
           <Button

@@ -29,6 +29,10 @@ export const customHtmlMarks: CustomHtmlMarkDefinition[] = [
     tag: "sup",
   },
   {
+    name: "br",
+    tag: "br",
+  },
+  {
     name: "abbreviation",
     tag: "abbr",
     classes: "underline decoration-dotted cursor-help",

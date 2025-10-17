@@ -116,16 +116,27 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           class: "file-attachment",
         },
       }),
-      Table.configure({
+      Table.extend({
+        content: 'tableRow+',
+      }).configure({
         resizable: true,
       }),
-      TableRow,
-      TableCell,
-      TableHeader,
-      ListItem,
+      TableRow.extend({
+        content: '(tableHeader | tableCell)*',
+      }),
+      TableHeader.extend({
+        content: 'block+',
+      }),
+      TableCell.extend({
+        content: 'block+',
+      }),
+      ListItem.extend({
+        content: 'block+',
+      }),
       TaskList,
-      TaskItem.configure({
+      TaskItem.extend({
         nested: true,
+        content: 'block+',
       }),
       BulletList,
     ],
@@ -187,8 +198,8 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
                     line.startsWith("    ")
                       ? line.substring(4)
                       : line.startsWith("\t")
-                      ? line.substring(1)
-                      : line
+                        ? line.substring(1)
+                        : line
                   )
                   .join("\n");
                 editor

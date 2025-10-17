@@ -8,8 +8,22 @@ import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import { Element } from "hast";
 import { addCustomHtmlTurndownRules } from "@/app/_utils/custom-html-utils";
+import { html as beautifyHtml } from "js-beautify";
 
 const turndownPluginGfm = require("turndown-plugin-gfm");
+
+const formatAllHtmlInMarkdown = (markdown: string): string => {
+  const beautifyOptions = {
+    indent_size: 2,
+    unformatted: [],
+  };
+
+  const htmlBlockRegex = /<([a-zA-Z0-9]+)(?:[^>]*?)>[\s\S]*?<\/\1>/g;
+
+  return markdown.replace(htmlBlockRegex, (match) => {
+    return beautifyHtml(match, beautifyOptions);
+  });
+};
 
 export const createTurndownService = () => {
   const service = new TurndownService({
@@ -17,12 +31,16 @@ export const createTurndownService = () => {
     codeBlockStyle: "fenced",
     emDelimiter: "*",
     bulletListMarker: "-",
-    br: "\n",
   });
 
   service.use(turndownPluginGfm.gfm);
 
   addCustomHtmlTurndownRules(service);
+
+  service.addRule("keepHtmlTables", {
+    filter: "table",
+    replacement: (content, node) => `\n\n${(node as HTMLElement).outerHTML}\n\n`,
+  });
 
   service.addRule("details", {
     filter: "details",
@@ -38,7 +56,7 @@ export const createTurndownService = () => {
       }
       const mainContent = service.turndown(contentNode.innerHTML);
 
-      return `\n<details>\n<summary>${summaryText}</summary>\n\n${mainContent}\n\n</details>\n`;
+      return `\n<details><summary>${summaryText}</summary>\n\n${mainContent}\n\n</details>\n`;
     },
   });
 
@@ -82,20 +100,13 @@ export const createTurndownService = () => {
   });
 
   service.addRule("horizontalRule", {
-    filter: (node) => {
-      return node.nodeName === "HR";
-    },
-    replacement: (content, node) => {
-      return `\n---\n`;
-    },
+    filter: (node) => node.nodeName === "HR",
+    replacement: () => `\n---\n`,
   });
 
   service.addRule("taskList", {
-    filter: (node) => {
-      return (
-        node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem"
-      );
-    },
+    filter: (node) =>
+      node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem",
     replacement: (content, node) => {
       const isChecked =
         (node as HTMLElement).getAttribute("data-checked") === "true";
@@ -104,12 +115,9 @@ export const createTurndownService = () => {
   });
 
   service.addRule("fileAttachment", {
-    filter: (node) => {
-      return (
-        node.nodeName === "P" &&
-        (node as HTMLElement).hasAttribute("data-file-attachment")
-      );
-    },
+    filter: (node) =>
+      node.nodeName === "P" &&
+      (node as HTMLElement).hasAttribute("data-file-attachment"),
     replacement: (content, node) => {
       const element = node as HTMLElement;
       const url = element.getAttribute("data-url");
@@ -195,7 +203,8 @@ export const convertMarkdownToHtml = (markdown: string): string => {
 
 export const convertHtmlToMarkdown = (html: string): string => {
   const turndownService = createTurndownService();
-  return turndownService.turndown(html);
+  const rawMarkdown = turndownService.turndown(html);
+  return formatAllHtmlInMarkdown(rawMarkdown);
 };
 
 export const processMarkdownContent = (content: string): string => {
@@ -205,7 +214,9 @@ export const processMarkdownContent = (content: string): string => {
 
 export const convertHtmlToMarkdownUnified = (html: string): string => {
   if (!html || typeof html !== "string") return "";
-  return convertHtmlToMarkdown(html);
+  const turndownService = createTurndownService();
+  const rawMarkdown = turndownService.turndown(html);
+  return formatAllHtmlInMarkdown(rawMarkdown);
 };
 
 export const getMarkdownPreviewContent = (
