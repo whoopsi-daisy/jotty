@@ -84,7 +84,13 @@ export default async function RootLayout({
   const checklistCategories = await getCategories(Modes.CHECKLISTS);
   const user = await getCurrentUser();
 
-  redirectGuards();
+  try {
+    redirectGuards();
+  } catch (error) {
+    // This catch block prevents the redirect error from bubbling up and causing
+    // "Objects are not valid as a React child" error during render.
+    // Next.js handles the redirect internally.
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>

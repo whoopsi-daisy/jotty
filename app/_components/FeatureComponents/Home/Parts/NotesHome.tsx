@@ -48,7 +48,7 @@ export const NotesHome = ({
           title="No notes yet"
           description="Create your first note to get started with your knowledge base."
           buttonText="Create New Note"
-          onButtonClick={onCreateModal}
+          onButtonClick={() => onCreateModal()}
         />
       </div>
     );
@@ -66,7 +66,7 @@ export const NotesHome = ({
               Your notes to store your ideas, thoughts, and knowledge.
             </p>
           </div>
-          <Button onClick={onCreateModal} size="lg">
+          <Button onClick={() => onCreateModal()} size="lg">
             <Plus className="h-5 w-5 mr-2" />
             New Note
           </Button>
