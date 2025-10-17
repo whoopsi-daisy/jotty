@@ -33,7 +33,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ steps.repo.outputs.name }}
+          images: |
+            ghcr.io/${{ steps.repo.outputs.name }}
+            ghcr.io/fccview/jotty
           tags: |
             type=ref,event=branch,suffix=-amd64
             type=ref,event=tag,suffix=-amd64
@@ -80,7 +82,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ steps.repo.outputs.name }}
+          images: |
+            ghcr.io/${{ steps.repo.outputs.name }}
+            ghcr.io/fccview/jotty
           tags: |
             type=ref,event=branch,suffix=-arm64
             type=ref,event=tag,suffix=-arm64
@@ -120,7 +124,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ steps.repo.outputs.name }}
+          images: |
+            ghcr.io/${{ steps.repo.outputs.name }}
+            ghcr.io/fccview/jotty
           tags: |
             type=ref,event=branch
             type=ref,event=tag
