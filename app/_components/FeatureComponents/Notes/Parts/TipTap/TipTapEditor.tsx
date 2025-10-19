@@ -138,7 +138,9 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         nested: true,
         content: 'block+',
       }),
-      BulletList,
+      BulletList.extend({
+        content: 'listItem+',
+      })
     ],
     content: "",
     onUpdate: ({ editor }) => {

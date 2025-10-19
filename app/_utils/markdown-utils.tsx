@@ -12,25 +12,63 @@ import { html as beautifyHtml } from "js-beautify";
 
 const turndownPluginGfm = require("turndown-plugin-gfm");
 
-const formatAllHtmlInMarkdown = (markdown: string): string => {
-  const beautifyOptions = {
-    indent_size: 2,
-    unformatted: [],
-  };
-
-  const htmlBlockRegex = /<([a-zA-Z0-9]+)(?:[^>]*?)>[\s\S]*?<\/\1>/g;
-
-  return markdown.replace(htmlBlockRegex, (match) => {
-    return beautifyHtml(match, beautifyOptions);
-  });
-};
-
+// ========================================================================
+// --- NOTE TO SELF OR I'LL GO ABSOLUTELY FUCKING INSANE NEXT TIME I DEBUG ---
+// --- HTML-TO-MARKDOWN CONVERSION (Tiptap HTML -> Markdown string) ---
+// ========================================================================
 export const createTurndownService = () => {
   const service = new TurndownService({
     headingStyle: "atx",
     codeBlockStyle: "fenced",
     emDelimiter: "*",
     bulletListMarker: "-",
+    br: "\n",
+  });
+
+  service.addRule("taskItem", {
+    filter: (node) =>
+      node.nodeName === "LI" &&
+      node.getAttribute("data-type") === "taskItem",
+
+    replacement: function (content, node) {
+      const element = node as HTMLElement;
+      const isChecked = element.getAttribute("data-checked") === "true";
+      const prefix = isChecked ? "- [x] " : "- [ ] ";
+      let markdownContent = content.trim();
+      markdownContent = markdownContent.replace(/\n/g, "\n    ");
+      return prefix + markdownContent + "\n";
+    },
+  });
+
+  service.addRule("paragraphInLi", {
+    filter: (node) => {
+      if (node.nodeName !== 'P') return false;
+      const parent = node.parentNode;
+      if (!parent) return false;
+      const isElement = (n: ParentNode): n is HTMLElement => n.nodeType === 1;
+
+      if (parent.nodeName === 'LI') {
+        const elementChildren = Array.from(parent.children).filter(
+          (child) => child.nodeType === 1
+        );
+        return elementChildren.length === 1;
+      }
+      if (parent.nodeName === 'DIV' &&
+        parent.parentNode &&
+        isElement(parent.parentNode) &&
+        parent.parentNode.nodeName === 'LI') {
+        const li = parent.parentNode;
+        if (li.getAttribute('data-type') !== 'taskItem') return false;
+        const elementChildren = Array.from(parent.children).filter(
+          (child) => child.nodeType === 1
+        );
+        return elementChildren.length === 1;
+      }
+      return false;
+    },
+    replacement: function (content) {
+      return content;
+    }
   });
 
   service.use(turndownPluginGfm.gfm);
@@ -39,7 +77,14 @@ export const createTurndownService = () => {
 
   service.addRule("keepHtmlTables", {
     filter: "table",
-    replacement: (content, node) => `\n\n${(node as HTMLElement).outerHTML}\n\n`,
+    replacement: function (content, node) {
+      const unformattedHtml = (node as HTMLElement).outerHTML;
+      const formattedHtml = beautifyHtml(unformattedHtml, {
+        indent_size: 2,
+        unformatted: [],
+      });
+      return `\n\n${formattedHtml}\n\n`;
+    },
   });
 
   service.addRule("details", {
@@ -48,76 +93,32 @@ export const createTurndownService = () => {
       const element = node as HTMLElement;
       const summaryNode = element.querySelector("summary");
       const summaryText = summaryNode ? summaryNode.textContent : "Details";
-
       const contentNode = element.cloneNode(true) as HTMLElement;
       const summaryToRemove = contentNode.querySelector("summary");
       if (summaryToRemove) {
         contentNode.removeChild(summaryToRemove);
       }
       const mainContent = service.turndown(contentNode.innerHTML);
-
-      return `\n<details><summary>${summaryText}</summary>\n\n${mainContent}\n\n</details>\n`;
-    },
-  });
-
-  service.addRule("listItem", {
-    filter: "li",
-    replacement: function (content, node, options) {
-      const element = node as HTMLElement;
-      content = content.trim();
-      const isTaskItem = element.getAttribute("data-type") === "taskItem";
-
-      let prefix = "";
-      const parent = element.parentNode;
-
-      if (parent && parent.nodeName === "OL") {
-        const parentElement = parent as HTMLOListElement;
-        const start = parentElement.getAttribute("start");
-        const index = Array.prototype.indexOf.call(
-          parentElement.children,
-          element
-        );
-        prefix = (start ? Number(start) + index : index + 1) + ". ";
-      } else if (isTaskItem) {
-        const isChecked = element.getAttribute("data-checked") === "true";
-        prefix = options.bulletListMarker + ` [${isChecked ? "x" : " "}] `;
-      } else {
-        prefix = options.bulletListMarker + " ";
-      }
-
-      let indentLevel = -1;
-      let current: Node | null = element;
-      while (current) {
-        if (current.nodeName === "UL" || current.nodeName === "OL") {
-          indentLevel++;
-        }
-        current = current.parentNode;
-      }
-      const indent = "    ".repeat(Math.max(0, indentLevel));
-
-      return indent + prefix + content + "\n";
+      return `\n<details>\n<summary>${summaryText}</summary>\n\n${mainContent}\n\n</details>\n`;
     },
   });
 
   service.addRule("horizontalRule", {
-    filter: (node) => node.nodeName === "HR",
-    replacement: () => `\n---\n`,
-  });
-
-  service.addRule("taskList", {
-    filter: (node) =>
-      node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem",
+    filter: (node) => {
+      return node.nodeName === "HR";
+    },
     replacement: (content, node) => {
-      const isChecked =
-        (node as HTMLElement).getAttribute("data-checked") === "true";
-      return `- [${isChecked ? "x" : " "}] ${content.trim()}\n`;
+      return `\n---\n`;
     },
   });
 
   service.addRule("fileAttachment", {
-    filter: (node) =>
-      node.nodeName === "P" &&
-      (node as HTMLElement).hasAttribute("data-file-attachment"),
+    filter: (node) => {
+      return (
+        node.nodeName === "P" &&
+        (node as HTMLElement).hasAttribute("data-file-attachment")
+      );
+    },
     replacement: (content, node) => {
       const element = node as HTMLElement;
       const url = element.getAttribute("data-url");
@@ -146,6 +147,10 @@ const hasClass = (node: Element, className: string) => {
   return false;
 };
 
+// ==========================================================================
+// --- NOTE TO SELF OR I'LL GO ABSOLUTELY FUCKING INSANE NEXT TIME I DEBUG ---
+// --- MARKDOWN-TO-HTML CONVERSION (Markdown string -> Tiptap HTML) ---
+// ==========================================================================
 const markdownProcessor = unified()
   .use(remarkParse)
   .use(remarkGfm)
@@ -154,14 +159,16 @@ const markdownProcessor = unified()
   .use(() => {
     return (tree) => {
       visit(tree, "element", (node: Element) => {
-        if (node.tagName === "ul" && hasClass(node, "task-list")) {
+        if (node.tagName === "ul" && hasClass(node, "contains-task-list")) {
           node.properties = node.properties || {};
           node.properties["data-type"] = "taskList";
         }
+
         if (node.tagName === "li" && hasClass(node, "task-list-item")) {
           node.properties = node.properties || {};
           node.properties["data-type"] = "taskItem";
           const checkbox = node.children[0];
+
           if (
             checkbox?.type === "element" &&
             checkbox.tagName === "input" &&
@@ -170,6 +177,7 @@ const markdownProcessor = unified()
             node.properties["data-checked"] =
               checkbox.properties.checked != null &&
               checkbox.properties.checked !== false;
+
             node.children.shift();
 
             if (
@@ -203,8 +211,7 @@ export const convertMarkdownToHtml = (markdown: string): string => {
 
 export const convertHtmlToMarkdown = (html: string): string => {
   const turndownService = createTurndownService();
-  const rawMarkdown = turndownService.turndown(html);
-  return formatAllHtmlInMarkdown(rawMarkdown);
+  return turndownService.turndown(html);
 };
 
 export const processMarkdownContent = (content: string): string => {
@@ -214,9 +221,7 @@ export const processMarkdownContent = (content: string): string => {
 
 export const convertHtmlToMarkdownUnified = (html: string): string => {
   if (!html || typeof html !== "string") return "";
-  const turndownService = createTurndownService();
-  const rawMarkdown = turndownService.turndown(html);
-  return formatAllHtmlInMarkdown(rawMarkdown);
+  return convertHtmlToMarkdown(html);
 };
 
 export const getMarkdownPreviewContent = (
