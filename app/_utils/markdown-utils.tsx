@@ -22,7 +22,7 @@ export const createTurndownService = () => {
     codeBlockStyle: "fenced",
     emDelimiter: "*",
     bulletListMarker: "-",
-    br: "\n",
+    // br: "  \n",
   });
 
   service.addRule("taskItem", {
@@ -119,7 +119,7 @@ export const createTurndownService = () => {
         (node as HTMLElement).hasAttribute("data-file-attachment")
       );
     },
-    replacement: (content, node) => {
+    replacement: function (content, node) {
       const element = node as HTMLElement;
       const url = element.getAttribute("data-url");
       const fileName = element.getAttribute("data-file-name");
@@ -159,6 +159,13 @@ const markdownProcessor = unified()
   .use(() => {
     return (tree) => {
       visit(tree, "element", (node: Element) => {
+        if (node.tagName === "br") {
+          node.type = "element";
+          node.tagName = "p";
+          node.properties = node.properties || {};
+          node.children = [{ type: "text", value: "  \n" }];
+        }
+
         if (node.tagName === "ul" && hasClass(node, "contains-task-list")) {
           node.properties = node.properties || {};
           node.properties["data-type"] = "taskList";

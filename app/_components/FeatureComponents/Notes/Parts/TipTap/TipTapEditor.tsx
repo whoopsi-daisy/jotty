@@ -22,6 +22,7 @@ import {
 } from "@/app/_utils/markdown-utils";
 import { lowlight } from "@/app/_utils/lowlight-utils";
 import Underline from "@tiptap/extension-underline";
+import HardBreak from "@tiptap/extension-hard-break";
 import { KeyboardShortcuts } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/KeyboardShortcuts";
 import { DetailsExtension } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/DetailsExtension";
 import { generateCustomHtmlExtensions } from "@/app/_utils/custom-html-utils";
@@ -70,11 +71,13 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         link: false,
         listItem: false,
         bulletList: false,
+        hardBreak: false,
       }),
       ...generateCustomHtmlExtensions(),
       DetailsExtension,
       KeyboardShortcuts,
       Underline,
+      HardBreak,
       CodeBlockLowlight.configure({
         lowlight,
         defaultLanguage: "plaintext",
