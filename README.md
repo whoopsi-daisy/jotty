@@ -20,7 +20,7 @@ Tired of bloated, cloud-based to-do apps? `rwMarkable` is a lightweight alternat
     <img width="40" src="public/repo-images/discord_icon.webp">
   </a>
   <br />
-  <i>Join the discord server for more info</i>
+  <i>Join the discord server for more info!</i>
   <br />
 </p>
 
