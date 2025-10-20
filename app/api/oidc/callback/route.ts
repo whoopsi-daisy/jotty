@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
   response.cookies.set("__Host-session", sessionId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,
   });

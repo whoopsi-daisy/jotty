@@ -93,7 +93,7 @@ export const register = async (formData: FormData) => {
   cookies().set("__Host-session", sessionId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
   });
@@ -150,7 +150,7 @@ export const login = async (formData: FormData) => {
   cookies().set("__Host-session", sessionId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
   });
