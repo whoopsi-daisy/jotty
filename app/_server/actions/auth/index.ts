@@ -12,7 +12,12 @@ import {
   writeSessionData,
   writeSessions,
 } from "../session";
-import { ensureCorDirsAndFiles, ensureDir, readJsonFile, writeJsonFile } from "../file";
+import {
+  ensureCorDirsAndFiles,
+  ensureDir,
+  readJsonFile,
+  writeJsonFile,
+} from "../file";
 import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 import fs from "fs/promises";
 import { CHECKLISTS_DIR, NOTES_DIR, USERS_FILE } from "@/app/_consts/files";
@@ -43,12 +48,16 @@ export const register = async (formData: FormData) => {
     return { error: "Passwords do not match" };
   }
 
-  const users = await readJsonFile(USERS_FILE) || [];
+  const users = (await readJsonFile(USERS_FILE)) || [];
 
   const isFirstUser = users.length === 0;
 
   if (users.length > 0) {
-    if (users.some((u: User) => u.username === username)) {
+    if (
+      users.some(
+        (u: User) => u.username.toLowerCase() === username.toLowerCase()
+      )
+    ) {
       return { error: "Username already exists" };
     }
   } else {
@@ -113,13 +122,17 @@ export const login = async (formData: FormData) => {
   }
 
   const users = await readJsonFile(USERS_FILE);
-  const user = users.find((u: User) => u.username === username);
+  const user = users.find(
+    (u: User) => u.username.toLowerCase() === username.toLowerCase()
+  );
 
   if (!user || user.passwordHash !== hashPassword(password)) {
     return { error: "Invalid username or password" };
   }
 
-  const userIndex = users.findIndex((u: User) => u.username === username);
+  const userIndex = users.findIndex(
+    (u: User) => u.username.toLowerCase() === username.toLowerCase()
+  );
   if (userIndex !== -1) {
     users[userIndex].lastLogin = new Date().toISOString();
     await writeJsonFile(users, USERS_FILE);
@@ -129,11 +142,11 @@ export const login = async (formData: FormData) => {
     .update(Math.random().toString())
     .digest("hex");
   const sessions = await readSessions();
-  sessions[sessionId] = username;
+  sessions[sessionId] = user.username;
 
   await writeSessions(sessions);
 
-  await createSession(sessionId, username, "local");
+  await createSession(sessionId, user.username, "local");
 
   cookies().set("session", sessionId, {
     httpOnly: true,
