@@ -54,7 +54,7 @@ export const AdminTabs = ({ activeTab, onTabChange }: AdminTabsProps) => {
               className={cn(
                 "flex items-center gap-2 flex-shrink-0",
                 activeTab === tab.id
-                  ? "bg-background text-foreground"
+                  ? "bg-primary text-foreground"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >

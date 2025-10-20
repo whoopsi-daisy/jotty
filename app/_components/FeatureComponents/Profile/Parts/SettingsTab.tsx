@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Key, Copy, Eye, EyeOff } from "lucide-react";
-import {
-  generateApiKey,
-  getApiKey,
-} from "@/app/_server/actions/api";
+import { generateApiKey, getApiKey } from "@/app/_server/actions/api";
 
 interface SettingsTabProps {
   setShowDeleteModal: (show: boolean) => void;
@@ -16,6 +13,7 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const isDemoMode = Boolean(process.env.NEXT_PUBLIC_IS_DEMO);
 
   useEffect(() => {
     loadApiKey();
@@ -110,18 +108,24 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
                   </Button>
                 </div>
               )}
-              <Button
-                variant="outline"
-                onClick={handleGenerateApiKey}
-                disabled={isGenerating}
-              >
-                <Key className="h-4 w-4 mr-2" />
-                {isGenerating
-                  ? "Generating..."
-                  : apiKey
+              {isDemoMode ? (
+                <span className="text-sm text-muted-foreground">
+                  disabled in demo mode
+                </span>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={handleGenerateApiKey}
+                  disabled={isGenerating}
+                >
+                  <Key className="h-4 w-4 mr-2" />
+                  {isGenerating
+                    ? "Generating..."
+                    : apiKey
                     ? "Regenerate"
                     : "Generate"}
-              </Button>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -136,13 +140,19 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
                 Permanently delete your account and all associated data
               </p>
             </div>
-            <Button
-              variant="outline"
-              className="text-destructive hover:text-destructive"
-              onClick={() => setShowDeleteModal(true)}
-            >
-              Delete Account
-            </Button>
+            {isDemoMode ? (
+              <span className="text-sm text-muted-foreground">
+                disabled in demo mode
+              </span>
+            ) : (
+              <Button
+                variant="outline"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setShowDeleteModal(true)}
+              >
+                Delete Account
+              </Button>
+            )}
           </div>
         </div>
       </div>
