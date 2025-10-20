@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(`${appUrl}/`);
   response.cookies.set("__Host-session", sessionId, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
     sameSite: "strict",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,

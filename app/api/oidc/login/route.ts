@@ -62,21 +62,21 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(url);
   response.cookies.set("oidc_verifier", verifier, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
     sameSite: "lax",
     path: "/",
     maxAge: 600,
   });
   response.cookies.set("oidc_state", state, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
     sameSite: "lax",
     path: "/",
     maxAge: 600,
   });
   response.cookies.set("oidc_nonce", nonce, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
     sameSite: "lax",
     path: "/",
     maxAge: 600,
