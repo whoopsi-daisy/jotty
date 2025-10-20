@@ -90,11 +90,10 @@ export const register = async (formData: FormData) => {
 
   await writeSessions(sessions);
 
-  cookies().set("session", sessionId, {
+  cookies().set("__Host-session", sessionId, {
     httpOnly: true,
-    secure:
-      process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
-    sameSite: "lax",
+    secure: true,
+    sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
   });
@@ -148,11 +147,10 @@ export const login = async (formData: FormData) => {
 
   await createSession(sessionId, user.username, "local");
 
-  cookies().set("session", sessionId, {
+  cookies().set("__Host-session", sessionId, {
     httpOnly: true,
-    secure:
-      process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
-    sameSite: "lax",
+    secure: true,
+    sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
   });
@@ -161,7 +159,7 @@ export const login = async (formData: FormData) => {
 };
 
 export const logout = async () => {
-  const sessionId = cookies().get("session")?.value;
+  const sessionId = cookies().get("__Host-session")?.value;
 
   if (sessionId) {
     const sessions = await readSessionData();
@@ -172,9 +170,9 @@ export const logout = async () => {
       await writeSessionData(sessions);
       await removeSession(sessionId);
 
-      cookies().delete("session");
+      cookies().delete("__Host-session");
     } catch (error) {
-      cookies().delete("session");
+      cookies().delete("__Host-session");
     }
   }
 

@@ -101,7 +101,7 @@ export const getSessionsForUser = async (
 };
 
 export const getSessionId = async (): Promise<string> => {
-  return cookies().get("session")?.value || "";
+  return cookies().get("__Host-session")?.value || "";
 };
 
 export const getLoginType = async (): Promise<'local' | 'sso' | undefined> => {
@@ -198,7 +198,7 @@ export const terminateAllOtherSessions = async (): Promise<Result<null>> => {
       };
     }
 
-    const sessionId = cookies().get("session")?.value;
+    const sessionId = cookies().get("__Host-session")?.value;
 
     await removeAllSessionsForUser(currentUser.username, sessionId);
 

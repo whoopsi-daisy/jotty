@@ -194,7 +194,7 @@ export const createUser = async (
 export const getCurrentUser = async (): Promise<User | null> => {
   const users = await readJsonFile(USERS_FILE);
 
-  const sessionId = cookies().get("session")?.value;
+  const sessionId = cookies().get("__Host-session")?.value;
   const sessions = await readSessions();
   const username = sessions[sessionId || ""];
 

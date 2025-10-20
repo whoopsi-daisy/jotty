@@ -177,10 +177,10 @@ export async function GET(request: NextRequest) {
 
   const sessionId = base64UrlEncode(crypto.randomBytes(32));
   const response = NextResponse.redirect(`${appUrl}/`);
-  response.cookies.set("session", sessionId, {
+  response.cookies.set("__Host-session", sessionId, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,
   });
