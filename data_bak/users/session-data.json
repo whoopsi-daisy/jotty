@@ -1,0 +1,81 @@
+{
+  "ffb93b0675a06229955d956a4bb48e4562485fed681f580922e8ef77750bc7e0": {
+    "id": "ffb93b0675a06229955d956a4bb48e4562485fed681f580922e8ef77750bc7e0",
+    "username": "jodi",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.26",
+    "createdAt": "2025-10-02T13:21:17.164Z",
+    "lastActivity": "2025-10-02T13:21:17.164Z"
+  },
+  "5e5b4fd6dc99f5a05477e2d8dcc17ea3ca7374c5c38d537d332d3dbdd84523fa": {
+    "id": "5e5b4fd6dc99f5a05477e2d8dcc17ea3ca7374c5c38d537d332d3dbdd84523fa",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.44",
+    "createdAt": "2025-10-08T19:36:57.200Z",
+    "lastActivity": "2025-10-08T19:36:57.200Z"
+  },
+  "wEtxuHAaQjUP-QN8Wdk604RJwCtwjPEn4Wbb5ztayNc": {
+    "id": "wEtxuHAaQjUP-QN8Wdk604RJwCtwjPEn4Wbb5ztayNc",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:127.0.0.1",
+    "createdAt": "2025-10-15T17:39:20.886Z",
+    "lastActivity": "2025-10-15T17:39:20.886Z",
+    "loginType": "sso"
+  },
+  "8ee8b7f0bdb769c16eaf85c913f7a212193b2f08214c7fc25ec512011499642a": {
+    "id": "8ee8b7f0bdb769c16eaf85c913f7a212193b2f08214c7fc25ec512011499642a",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.20",
+    "createdAt": "2025-10-16T20:39:54.916Z",
+    "lastActivity": "2025-10-16T20:39:54.916Z",
+    "loginType": "local"
+  },
+  "8147ae80e500ce6a639fbb3c3b5409de15335f445524a1f1cec77b60b3785aed": {
+    "id": "8147ae80e500ce6a639fbb3c3b5409de15335f445524a1f1cec77b60b3785aed",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.26",
+    "createdAt": "2025-10-17T10:47:05.586Z",
+    "lastActivity": "2025-10-17T10:47:05.586Z",
+    "loginType": "local"
+  },
+  "a29e3f0ef408c309101a945d340a1953815e62f99716ad5cbaabb098f1e37236": {
+    "id": "a29e3f0ef408c309101a945d340a1953815e62f99716ad5cbaabb098f1e37236",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.26",
+    "createdAt": "2025-10-17T12:08:40.534Z",
+    "lastActivity": "2025-10-17T12:08:40.534Z",
+    "loginType": "local"
+  },
+  "6ca545d942376f89a831c9683b8a2d613ba339e4ec01b034d8ef10329e4b8e48": {
+    "id": "6ca545d942376f89a831c9683b8a2d613ba339e4ec01b034d8ef10329e4b8e48",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.26",
+    "createdAt": "2025-10-17T12:08:56.179Z",
+    "lastActivity": "2025-10-17T12:08:56.179Z",
+    "loginType": "local"
+  },
+  "26d247c3745bb7882dedc0cbdfbae7eb0b7b82ea3fb47bbeafb1e6822d9718a0": {
+    "id": "26d247c3745bb7882dedc0cbdfbae7eb0b7b82ea3fb47bbeafb1e6822d9718a0",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.20",
+    "createdAt": "2025-10-17T17:35:19.611Z",
+    "lastActivity": "2025-10-17T17:35:19.611Z",
+    "loginType": "local"
+  },
+  "69e5fd973c9d3528dca725c448b8e23fadc1e1ee72f72a7bd640c90bcd0a1fa5": {
+    "id": "69e5fd973c9d3528dca725c448b8e23fadc1e1ee72f72a7bd640c90bcd0a1fa5",
+    "username": "fccview",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "ipAddress": "::ffff:192.168.86.20",
+    "createdAt": "2025-10-17T20:15:32.248Z",
+    "lastActivity": "2025-10-17T20:15:32.248Z",
+    "loginType": "local"
+  }
+}

@@ -33,6 +33,13 @@ export default function LoginForm() {
             ? "rwMarkable"
             : "jotty·page"}
         </p>
+
+        {process.env.NEXT_PUBLIC_IS_DEMO && (
+          <div className="bg-muted p-4">
+            <strong>username: </strong>demo <br />
+            <strong>password: </strong>demo
+          </div>
+        )}
       </div>
 
       <form action={handleSubmit} className="space-y-4">

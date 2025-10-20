@@ -1,0 +1,185 @@
+{
+  "checklists": {
+    "fccview-1757949157004-checklist": {
+      "id": "1757949157004",
+      "type": "checklist",
+      "title": "Testing task",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-16T07:22:24.498Z",
+      "category": "Tasks",
+      "filePath": "fccview/Tasks/1757949157004.md",
+      "isPubliclyShared": true
+    },
+    "fccview-1758378275852-checklist": {
+      "id": "1758378275852",
+      "type": "checklist",
+      "title": "Test Checklist",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-09-20T18:54:08.030Z",
+      "category": "Test Category",
+      "filePath": "fccview/Test Category/1758378275852.md",
+      "isPubliclyShared": true
+    },
+    "fccview-uncategorized-testttt-checklist": {
+      "id": "uncategorized-testttt",
+      "type": "checklist",
+      "title": "Uncategorized testttt",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-27T14:53:38.177Z",
+      "category": "Not Uncategorized",
+      "filePath": "fccview/Not Uncategorized/uncategorized-testttt.md",
+      "isPubliclyShared": false
+    },
+    "fccview-shopping-list-checklist": {
+      "id": "shopping-list",
+      "type": "checklist",
+      "title": "Shopping list",
+      "owner": "fccview",
+      "sharedWith": [
+        "jodi"
+      ],
+      "sharedAt": "2025-09-27T14:59:58.371Z",
+      "category": "Day to Day stufff",
+      "filePath": "fccview/Day to Day stufff/shopping-list.md",
+      "isPubliclyShared": false
+    },
+    "fccview-1757706748461-checklist": {
+      "id": "1757706748461",
+      "type": "checklist",
+      "title": "Another checklist to fill the space is that clear?",
+      "owner": "fccview",
+      "sharedWith": [
+        "mario"
+      ],
+      "sharedAt": "2025-09-30T10:05:03.815Z",
+      "category": "another",
+      "filePath": "fccview/another/1757706748461.md",
+      "isPubliclyShared": true
+    },
+    "jodi-a-testing-jodiii-checklist": {
+      "id": "a-testing-jodiii",
+      "type": "checklist",
+      "title": "a testing jodiii",
+      "owner": "jodi",
+      "sharedWith": [
+        "fccview"
+      ],
+      "sharedAt": "2025-10-02T15:35:38.237Z",
+      "category": "Test category",
+      "filePath": "jodi/Test category/a-testing-jodiii.md",
+      "isPubliclyShared": false
+    }
+  },
+  "notes": {
+    "fccview-a-test-another-subbbbies-document": {
+      "id": "a-test-another-subbbbies",
+      "type": "document",
+      "title": "a test another subbbbies",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-09-27T19:49:41.288Z",
+      "category": "Dolor/Subcategory dolor/another sub",
+      "filePath": "fccview/Dolor/Subcategory dolor/another sub/a-test-another-subbbbies.md",
+      "isPubliclyShared": true
+    },
+    "fccview-test-another-subs-note": {
+      "id": "test-another-subs",
+      "type": "note",
+      "title": "test another subs",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-09-30T10:32:45.578Z",
+      "category": "Dolor/Subcategory dolor/another subsss",
+      "filePath": "fccview/Dolor/Subcategory dolor/another subsss/test-another-subs.md",
+      "isPubliclyShared": true
+    },
+    "fccview-a-test-another-subbbbiessss-note": {
+      "id": "a-test-another-subbbbiessss",
+      "type": "note",
+      "title": "a test another subbbbiessss",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-09-30T13:48:48.051Z",
+      "category": "Dolor/Subcategory dolor/another sub",
+      "filePath": "fccview/Dolor/Subcategory dolor/another sub/a-test-another-subbbbiessss.md",
+      "isPubliclyShared": true
+    },
+    "jodi-test-note": {
+      "id": "test",
+      "type": "note",
+      "title": "test",
+      "owner": "jodi",
+      "sharedWith": [
+        "fccview"
+      ],
+      "sharedAt": "2025-10-02T13:44:56.363Z",
+      "category": "Uncategorized",
+      "filePath": "jodi/Uncategorized/test.md",
+      "isPubliclyShared": false
+    },
+    "fccview-test-with-table-note": {
+      "id": "test-with-table",
+      "type": "note",
+      "title": "test with table",
+      "owner": "fccview",
+      "sharedWith": [
+        "mario"
+      ],
+      "sharedAt": "2025-10-02T14:41:29.112Z",
+      "category": "Dolor",
+      "filePath": "fccview/Dolor/test-with-table.md",
+      "isPubliclyShared": false
+    },
+    "fccview-new-note-in-root-category-in-root-note": {
+      "id": "new-note-in-root-category-in-root",
+      "type": "note",
+      "title": "new note in root category in root",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-10-07T19:39:01.703Z",
+      "category": "notes category/notes subcategory",
+      "filePath": "fccview/notes category/notes subcategory/new-note-in-root-category-in-root.md",
+      "isPubliclyShared": true
+    },
+    "fccview-untitled-note-note": {
+      "id": "untitled-note",
+      "type": "note",
+      "title": "Untitled Note",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-10-09T19:49:53.374Z",
+      "category": "Dolor",
+      "filePath": "fccview/Dolor/untitled-note.md",
+      "isPubliclyShared": true
+    },
+    "fccview-test-note-note": {
+      "id": "test-note",
+      "type": "note",
+      "title": "Test Note",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-10-10T06:58:38.470Z",
+      "category": "uncategorized second test",
+      "filePath": "fccview/uncategorized second test/test-note.md",
+      "isPubliclyShared": true
+    },
+    "fccview-shortcuts-note": {
+      "id": "shortcuts",
+      "type": "note",
+      "title": "shortcuts",
+      "owner": "fccview",
+      "sharedWith": [],
+      "sharedAt": "2025-10-16T10:38:42.984Z",
+      "category": "Uncategorized",
+      "filePath": "fccview/Uncategorized/shortcuts.md",
+      "isPubliclyShared": true
+    }
+  }
+}

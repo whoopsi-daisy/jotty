@@ -1,0 +1,33 @@
+[
+  {
+    "username": "fccview",
+    "passwordHash": "0d66567805897304bf53a1f79eb3c300af8512928c0ca3c3d8a99718d0fcacca",
+    "isAdmin": true,
+    "isSuperAdmin": true,
+    "lastLogin": "2025-10-17T20:15:32.247Z",
+    "apiKey": "ck_bf547ad3ad56dd5fe65a583555f6a0df",
+    "avatarUrl": "/api/image/fccview/17175462.jpeg",
+    "createdAt": "2025-09-12T17:24:23.641Z"
+  },
+  {
+    "username": "jodi",
+    "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "isAdmin": false,
+    "createdAt": "2025-09-12T17:24:23.641Z",
+    "lastLogin": "2025-10-08T20:17:44.813Z",
+    "apiKey": "ck_3a8950c997bf9cbd43b78b6d4120ee8c"
+  },
+  {
+    "username": "mario",
+    "passwordHash": "4ce8dd42a9af9688b89618a60fefd4ce29f2df18e27cbdce42ac2f17ef3d5c95",
+    "isAdmin": false,
+    "createdAt": "2025-09-29T19:48:24.396Z",
+    "lastLogin": "2025-10-01T15:02:01.130Z"
+  },
+  {
+    "username": "comm.campione",
+    "passwordHash": "",
+    "isAdmin": false,
+    "createdAt": "2025-10-15T17:36:03.897Z"
+  }
+]

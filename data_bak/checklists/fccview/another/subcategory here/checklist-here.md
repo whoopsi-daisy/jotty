@@ -1,0 +1,109 @@
+# checklist here
+
+- [ ] if (!result.success) {
+- [ ] setLocalList(list);
+- [ ] }
+- [ ] const formData = new FormData();
+- [ ] formData.append("listId", localList.id);
+- [ ] formData.append("itemsText", itemsText);
+- [ ] const result = await createBulkItems(formData);
+- [ ] setIsLoading(false);
+- [ ] if (result.success && result.data) {
+- [ ] setLocalList(result.data as Checklist);
+- [ ] }
+- [ ] };
+- [ ] const handleConvertType = () => {
+- [ ] setShowConversionModal(true);
+- [ ] };
+- [ ] const getNewType = (currentType: "simple" ∣ "task"): "simple" ∣ "task" => {
+- [ ] return currentType === "simple" ? "task" : "simple";
+- [ ] };
+- [ ] const handleConfirmConversion = async () => {
+- [ ] setIsLoading(true);
+- [ ] const newType = getNewType(localList.type);
+- [ ] const formData = new FormData();
+- [ ] formData.append("listId", localList.id);
+- [ ] formData.append("newType", newType);
+- [ ] const result = await convertChecklistType(formData);
+- [ ] setIsLoading(false);
+- [ ] if (result.success && result.data) {
+- [ ] setLocalList(result.data as Checklist);
+- [ ] }
+- [ ] };
+- [ ] const handleBulkToggle = async (completed: boolean) => {
+- [ ] const targetItems = completed
+- [ ] ? localList.items.filter((i) => !i.completed)
+- [ ] : localList.items.filter((i) => i.completed);
+- [ ] if (targetItems.length === 0) return;
+- [ ] setIsLoading(true);
+- [ ] const formData = new FormData();
+- [ ] formData.append("listId", localList.id);
+- [ ] formData.append("completed", String(completed));
+- [ ] formData.append(
+- [ ] "itemIds",
+- [ ] JSON.stringify(targetItems.map((item) => item.id))
+- [ ] );
+- [ ] const result = await bulkToggleItems(formData);
+- [ ] setIsLoading(false);
+- [ ] if (result.success && result.data) {
+- [ ] setLocalList(result.data as Checklist);
+- [ ] setFocusKey((prev) => prev + 1);
+- [ ] }
+- [ ] };
+- [ ] const handleCreateItem = async (text: string) => {
+- [ ] setIsLoading(true);
+- [ ] const formData = new FormData();
+- [ ] formData.append("listId", localList.id);
+- [ ] formData.append("text", text);
+- [ ] const result = await createItem(formData);
+- [ ] setIsLoading(false);
+- [ ] if (result.success && result.data) {
+- [ ] setLocalList((currentList) => ({
+- [ ] ...currentList,
+- [ ] items: [...currentList.items, result.data],
+- [ ] }));
+- [ ] router.refresh();
+- [ ] setFocusKey((prev) => prev + 1);
+- [ ] }
+- [ ] };
+- [ ] const handleCopyId = async () => {
+- [ ] try {
+- [ ] await navigator.clipboard.writeText(localList.id);
+- [ ] setCopied(true);
+- [ ] setTimeout(() => setCopied(false), 2000);
+- [ ] } catch (err) {
+- [ ] console.error("Failed to copy ID:", err);
+- [ ] }
+- [ ] };
+- [ ] const incompleteItems = localList.items.filter((item) => !item.completed);
+- [ ] const completedItems = localList.items.filter((item) => item.completed);
+- [ ] return {
+- [ ] isLoading,
+- [ ] showShareModal,
+- [ ] setShowShareModal,
+- [ ] showBulkPasteModal,
+- [ ] setShowBulkPasteModal,
+- [ ] showConversionModal,
+- [ ] setShowConversionModal,
+- [ ] localList,
+- [ ] focusKey,
+- [ ] setFocusKey,
+- [ ] copied,
+- [ ] handleDeleteList,
+- [ ] handleToggleItem,
+- [ ] handleEditItem,
+- [ ] handleDeleteItem,
+- [ ] handleDragEnd,
+- [ ] handleBulkPaste,
+- [ ] handleConvertType,
+- [ ] getNewType,
+- [ ] handleConfirmConversion,
+- [ ] handleBulkToggle,
+- [ ] handleCreateItem,
+- [ ] handleCopyId,
+- [ ] incompleteItems,
+- [ ] completedItems,
+- [ ] totalCount: localList.items.length,
+- [ ] deletingItemsCount,
+- [ ] };
+- [ ] };
