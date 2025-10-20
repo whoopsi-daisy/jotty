@@ -193,7 +193,6 @@ async function runTests() {
     testExportDownloadUrl = response.body.downloadUrl;
     console.log(`  ⬇️  Download URL: ${testExportDownloadUrl}`);
     if (response.status === 200 && response.body.success && response.body.downloadUrl) {
-      // Trigger download to clean up the file on the server side
       await makeRequest('GET', testExportDownloadUrl, null, { 'Accept': 'application/zip' });
     }
     return {
@@ -208,7 +207,6 @@ async function runTests() {
     testExportDownloadUrl = response.body.downloadUrl;
     console.log(`  ⬇️  Download URL: ${testExportDownloadUrl}`);
     if (response.status === 200 && response.body.success && response.body.downloadUrl) {
-      // Trigger download to clean up the file on the server side
       await makeRequest('GET', testExportDownloadUrl, null, { 'Accept': 'application/zip' });
     }
     return {
@@ -223,7 +221,6 @@ async function runTests() {
     testExportDownloadUrl = response.body.downloadUrl;
     console.log(`  ⬇️  Download URL: ${testExportDownloadUrl}`);
     if (response.status === 200 && response.body.success && response.body.downloadUrl) {
-      // Trigger download to clean up the file on the server side
       await makeRequest('GET', testExportDownloadUrl, null, { 'Accept': 'application/zip' });
     }
     return {
@@ -389,7 +386,7 @@ async function cleanupTempExports() {
 }
 
 async function main() {
-  await cleanupTempExports(); // Clean up before running tests
+  await cleanupTempExports();
   await runTests()
     .catch(console.error)
     .finally(async () => {

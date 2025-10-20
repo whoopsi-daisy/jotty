@@ -1,72 +1,91 @@
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import CodeBlock from "@tiptap/extension-code-block";
 import Image from "@tiptap/extension-image";
+import ListItem from "@tiptap/extension-list-item";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
+import BulletList from "@tiptap/extension-bullet-list";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-import { ReactNodeViewRenderer } from "@tiptap/react";
-import CodeBlockComponent from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockComponent";
-import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/TipTapToolbar";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { TiptapToolbar } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/Toolbar/TipTapToolbar";
 import { FileAttachmentExtension } from "@/app/_components/FeatureComponents/Notes/Parts/FileAttachment/FileAttachmentExtension";
-import { useState, useEffect, useRef } from "react";
+import { CodeBlockNodeView } from "@/app/_components/FeatureComponents/Notes/Parts/CodeBlock/CodeBlockNodeView";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { InputRule } from "@tiptap/core";
 import {
   convertMarkdownToHtml,
   convertHtmlToMarkdownUnified,
 } from "@/app/_utils/markdown-utils";
+import { lowlight } from "@/app/_utils/lowlight-utils";
+import Underline from "@tiptap/extension-underline";
+import { KeyboardShortcuts } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/KeyboardShortcuts";
+import { DetailsExtension } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/DetailsExtension";
+import { generateCustomHtmlExtensions } from "@/app/_utils/custom-html-utils";
+import { useShortcuts } from "@/app/_hooks/useShortcuts";
 
 type TiptapEditorProps = {
   content: string;
   onChange: (content: string, isMarkdownMode: boolean) => void;
 };
 
-export const TiptapEditor = ({
-  content,
-  onChange
-}: TiptapEditorProps) => {
+export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
   const isInitialized = useRef(false);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout>();
+
+  useShortcuts([
+    {
+      code: "KeyM",
+      modKey: true,
+      shiftKey: true,
+      altKey: true,
+      handler: () => toggleMode(),
+    },
+  ]);
+
+  const debouncedOnChange = useCallback(
+    (newContent: string, isMarkdown: boolean) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        onChange(newContent, isMarkdown);
+      }, 0);
+    },
+    [onChange]
+  );
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         codeBlock: false,
-        bulletList: {
-          HTMLAttributes: {
-            class: "list-disc",
-          },
-        },
-        orderedList: {
-          HTMLAttributes: {
-            class: "list-decimal",
-          },
-        },
-        listItem: {
-          HTMLAttributes: {
-            class: "list-item",
-          },
-        },
+        underline: false,
+        link: false,
+        listItem: false,
+        bulletList: false,
       }),
-      CodeBlock.configure({
-        HTMLAttributes: {
-          class: "code-block",
-        },
+      ...generateCustomHtmlExtensions(),
+      DetailsExtension,
+      KeyboardShortcuts,
+      Underline,
+      CodeBlockLowlight.configure({
+        lowlight,
+        defaultLanguage: "plaintext",
       }).extend({
         addNodeView() {
-          return ReactNodeViewRenderer(CodeBlockComponent);
+          return ReactNodeViewRenderer(CodeBlockNodeView);
         },
       }),
       Link.configure({
         openOnClick: false,
         autolink: true,
-        HTMLAttributes: {
-          class: "text-blue-600 underline cursor-pointer",
-        },
       }).extend({
         addInputRules() {
           return [
@@ -91,11 +110,7 @@ export const TiptapEditor = ({
           ];
         },
       }),
-      Image.configure({
-        HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg",
-        },
-      }),
+      Image.configure(),
       FileAttachmentExtension.configure({
         HTMLAttributes: {
           class: "file-attachment",
@@ -103,43 +118,103 @@ export const TiptapEditor = ({
       }),
       Table.configure({
         resizable: true,
-        HTMLAttributes: {
-          class: "border-collapse w-full my-4",
-        },
       }),
-      TableRow.configure({
-        HTMLAttributes: {
-          class: "border-0",
-        },
+      TableRow,
+      TableCell,
+      TableHeader,
+      ListItem,
+      TaskList,
+      TaskItem.configure({
+        nested: true,
       }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: "border border-border px-3 py-2",
-        },
-      }),
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: "border border-border px-3 py-2 bg-muted font-semibold",
-        },
-      }),
+      BulletList,
     ],
-    content: content,
+    content: "",
     onUpdate: ({ editor }) => {
       if (!isMarkdownMode) {
-        onChange(editor.getHTML(), false);
+        debouncedOnChange(editor.getHTML(), false);
       }
     },
     editorProps: {
       attributes: {
-        class: "text-foreground m-5 focus:outline-none",
+        class:
+          "prose prose-sm px-6 pt-6 pb-12 sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert [&_ul]:list-disc [&_ol]:list-decimal [&_table]:border-collapse [&_table]:w-full [&_table]:my-4 [&_th]:border [&_th]:border-border [&_th]:px-3 [&_th]:py-2 [&_th]:bg-muted [&_th]:font-semibold [&_th]:text-left [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_tr:nth-child(even)]:bg-muted/50 w-full max-w-none focus:outline-none",
       },
       handleKeyDown: (view, event) => {
-        if (event.key === "Enter") {
-          const { state } = view;
-          const { selection } = state;
-          const { $from } = selection;
+        if (!editor) {
+          return false;
+        }
 
-          if ($from.parent.type.name === "listItem") {
+        const { state } = view;
+        const { selection } = state;
+
+        if (event.key === "Tab") {
+          if (editor.isActive("listItem") || editor.isActive("taskItem")) {
+            event.preventDefault();
+            if (event.shiftKey) {
+              editor
+                .chain()
+                .focus()
+                .liftListItem("listItem")
+                .liftListItem("taskItem")
+                .run();
+            } else {
+              editor
+                .chain()
+                .focus()
+                .sinkListItem("listItem")
+                .sinkListItem("taskItem")
+                .run();
+            }
+            return true;
+          }
+
+          if (editor.isActive("codeBlock")) {
+            event.preventDefault();
+            const { from, to, empty } = selection;
+
+            if (empty) {
+              if (!event.shiftKey) {
+                editor.chain().focus().insertContent("    ").run();
+              }
+            } else {
+              const selectedText = state.doc.textBetween(from, to, "\n");
+              const lines = selectedText.split("\n");
+
+              if (event.shiftKey) {
+                const newText = lines
+                  .map((line) =>
+                    line.startsWith("    ")
+                      ? line.substring(4)
+                      : line.startsWith("\t")
+                      ? line.substring(1)
+                      : line
+                  )
+                  .join("\n");
+                editor
+                  .chain()
+                  .focus()
+                  .insertContentAt({ from, to }, newText)
+                  .run();
+              } else {
+                const newText = lines.map((line) => "    " + line).join("\n");
+                editor
+                  .chain()
+                  .focus()
+                  .insertContentAt({ from, to }, newText)
+                  .run();
+              }
+            }
+            return true;
+          }
+        }
+
+        if (event.key === "Enter") {
+          const { $from } = selection;
+          if (
+            $from.parent.type.name === "listItem" ||
+            $from.parent.type.name === "taskItem"
+          ) {
             const isEmpty = $from.parent.content.size === 0;
             if (isEmpty) {
               event.preventDefault();
@@ -153,6 +228,7 @@ export const TiptapEditor = ({
             }
           }
         }
+
         return false;
       },
     },
@@ -162,31 +238,44 @@ export const TiptapEditor = ({
     if (editor && !isInitialized.current) {
       isInitialized.current = true;
       setTimeout(() => {
-        editor.commands.setContent(content);
+        const htmlContent = convertMarkdownToHtml(content);
+        editor.commands.setContent(htmlContent);
       }, 0);
     }
   }, [editor, content]);
 
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleMarkdownChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setMarkdownContent(newContent);
-    onChange(newContent, true);
+    debouncedOnChange(newContent, true);
   };
 
   const toggleMode = () => {
     if (isMarkdownMode) {
-      setIsMarkdownMode(false);
-      if (editor) {
-        const htmlContent = convertMarkdownToHtml(markdownContent);
-        editor.commands.setContent(htmlContent);
-      }
+      setTimeout(() => {
+        if (editor) {
+          const htmlContent = convertMarkdownToHtml(markdownContent);
+          editor.commands.setContent(htmlContent, { emitUpdate: false });
+          setIsMarkdownMode(false);
+        }
+      }, 0);
     } else {
-      setIsMarkdownMode(true);
-      if (editor) {
-        const htmlContent = editor.getHTML();
-        const markdownOutput = convertHtmlToMarkdownUnified(htmlContent);
-        setMarkdownContent(markdownOutput);
-      }
+      setTimeout(() => {
+        if (editor) {
+          const htmlContent = editor.getHTML();
+          const markdownOutput = convertHtmlToMarkdownUnified(htmlContent);
+          setMarkdownContent(markdownOutput);
+          setIsMarkdownMode(true);
+        }
+      }, 0);
     }
   };
 
@@ -205,13 +294,13 @@ export const TiptapEditor = ({
           <textarea
             value={markdownContent}
             onChange={handleMarkdownChange}
-            className="w-full h-full p-4 bg-background text-foreground border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full h-full bg-background text-foreground resize-none focus:outline-none focus:ring-none p-2"
             placeholder="Write your markdown here..."
           />
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
-          <EditorContent editor={editor} className="h-full" />
+          <EditorContent editor={editor} className="w-full h-full" />
         </div>
       )}
     </div>

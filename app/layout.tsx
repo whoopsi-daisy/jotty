@@ -9,10 +9,11 @@ import { NavigationGuardProvider } from "@/app/_providers/NavigationGuardProvide
 import { InstallPrompt } from "@/app/_components/GlobalComponents/Pwa/InstallPrompt";
 import { getSettings } from "@/app/_server/actions/config";
 import { DynamicFavicon } from "@/app/_components/GlobalComponents/Layout/Logo/DynamicFavicon";
-import { getCurrentUser } from "./_server/actions/users";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { redirectGuards } from "./_server/actions/guards";
+import { ShortcutProvider } from "@/app/_providers/ShortcutsProvider";
+import { getCategories } from "@/app/_server/actions/category";
+import { Modes } from "./_types/enums";
+import { getCurrentUser } from "./_server/actions/users";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -76,6 +77,9 @@ export default async function RootLayout({
 }) {
   const settings = await getSettings();
   const appName = settings.appName || "rwMarkable";
+  const noteCategories = await getCategories(Modes.NOTES);
+  const checklistCategories = await getCategories(Modes.CHECKLISTS);
+  const user = await getCurrentUser();
 
   redirectGuards();
 
@@ -94,11 +98,17 @@ export default async function RootLayout({
             <ChecklistProvider>
               <NavigationGuardProvider>
                 <ToastProvider>
-                  <div className="min-h-screen bg-background text-foreground transition-colors">
-                    <DynamicFavicon />
-                    {children}
-                    <InstallPrompt />
-                  </div>
+                  <ShortcutProvider
+                    user={user}
+                    noteCategories={noteCategories.data || []}
+                    checklistCategories={checklistCategories.data || []}
+                  >
+                    <div className="min-h-screen bg-background text-foreground transition-colors">
+                      <DynamicFavicon />
+                      {children}
+                      <InstallPrompt />
+                    </div>
+                  </ShortcutProvider>
                 </ToastProvider>
               </NavigationGuardProvider>
             </ChecklistProvider>

@@ -1,144 +1,92 @@
 "use client";
 
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check, Code } from "lucide-react";
-import { useState } from "react";
+import { useState, ReactElement } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import {
-  languageIcons,
-  getLanguageFromCode,
-} from "@/app/_utils/markdown-utils";
-import { cn } from "@/app/_utils/global-utils";
+import { getLanguageByValue } from "@/app/_utils/code-block-utils";
+import { cn, copyTextToClipboard } from "@/app/_utils/global-utils";
 
 interface CodeBlockRendererProps {
-  code: string;
-  language?: string;
+  children: ReactElement;
   className?: string;
+  language?: string;
+  code: string;
 }
 
 export const CodeBlockRenderer = ({
-  code,
-  language,
+  children,
   className = "",
+  language: langProp,
+  code,
 }: CodeBlockRendererProps) => {
   const [copied, setCopied] = useState(false);
-  const detectedLanguage =
-    language === "text" || !language ? getLanguageFromCode(code) : language;
 
-  const copyToClipboard = async () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(code);
-      } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = code;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-999999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand("copy");
-        textArea.remove();
-      }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-  };
+  const language =
+    langProp ||
+    children.props.className?.replace("language-", "") ||
+    "plaintext";
 
-  const showHeader = detectedLanguage !== "text";
+  const showHeader = language !== "plaintext";
+  const languageObj = getLanguageByValue(language.replace("hljs ", ""));
+  const languageIcon = languageObj?.icon || <Code className="h-4 w-4" />;
+  const displayLanguage = languageObj?.label || language.replace("hljs ", "");
 
   return (
     <div
-      className={cn("relative group my-4 overflow-hidden", className)}
-      style={{ backgroundColor: "#1a1a1a" }}
+      className={cn(
+        "relative group my-4 overflow-hidden bg-[#282c34]",
+        className
+      )}
     >
       {showHeader && (
-        <div
-          className="flex items-center justify-between px-3 py-1"
-          style={{
-            backgroundColor: "#1a202c",
-            borderBottom: "1px solid #4a5568",
-          }}
-        >
-          <div />
-          <div
-            className="flex items-center gap-1.5 text-xs font-mono"
-            style={{ color: "#a0aec0" }}
-          >
-            {languageIcons[detectedLanguage] || <Code className="h-3 w-3" />}
-            <span className="uppercase tracking-wide">{detectedLanguage}</span>
+        <div className="flex items-center justify-between px-4 py-1 bg-[#21252b] border-b border-[#181a1f]">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#abb2bf]">
+            {languageIcon}
+            <span className="uppercase tracking-wide">{displayLanguage}</span>
           </div>
           <Button
             variant="ghost"
-            size="sm"
-            onClick={copyToClipboard}
-            className={cn("opacity-50 hover:opacity-100 h-5 w-5 p-0")}
-            style={{ color: "#a0aec0" }}
+            size="icon"
+            onClick={() => {
+              copyTextToClipboard(code);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className="h-6 w-6 p-0 text-gray-400"
           >
             {copied ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-3 w-3 text-green-500" />
             ) : (
-              <Copy className="h-4 w-4" />
+              <Copy className="h-3 w-3" />
             )}
           </Button>
         </div>
       )}
 
-      <div className="relative">
-        {!showHeader && (
+      {!showHeader && (
+        <div className="absolute top-2 right-2 z-10">
           <Button
             variant="ghost"
-            size="sm"
-            onClick={copyToClipboard}
-            className={cn(
-              "transition-opacity",
-              "absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
-            )}
-            style={{ color: "#a0aec0" }}
+            size="icon"
+            onClick={() => {
+              copyTextToClipboard(code);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className="transition-opacity opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-gray-400"
           >
             {copied ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-3 w-3 text-green-500" />
             ) : (
-              <Copy className="h-4 w-4" />
+              <Copy className="h-3 w-3" />
             )}
           </Button>
-        )}
+        </div>
+      )}
 
-        {/* @ts-ignore - react-syntax-highlighter has type issues with modern React/Next.js */}
-        <SyntaxHighlighter
-          language={detectedLanguage}
-          style={oneDark}
-          customStyle={{
-            margin: 0,
-            borderRadius: 0,
-            fontSize: "0.875rem",
-            background: "transparent",
-            padding: "0.75rem",
-            border: "none",
-          }}
-          codeTagProps={{
-            style: {
-              background: "transparent",
-              fontFamily: "var(--font-geist-mono)",
-            },
-          }}
-          PreTag={({ children, ...props }) => (
-            <pre
-              {...props}
-              style={{ ...props.style, background: "transparent" }}
-            >
-              {children}
-            </pre>
-          )}
-          showLineNumbers={false}
-          wrapLines={false}
-        >
-          {code}
-        </SyntaxHighlighter>
-      </div>
+      <pre className="hljs !bg-transparent !p-4 !m-0 overflow-x-auto text-sm">
+        {children}
+      </pre>
     </div>
   );
 };

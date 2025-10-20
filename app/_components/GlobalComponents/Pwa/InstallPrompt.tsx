@@ -63,27 +63,20 @@ export const InstallPrompt = () => {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 bg-background border border-border rounded-lg shadow-lg p-4">
+    <div className="fixed bottom-4 left-[2vw] lg:left-auto lg:right-4 z-50 bg-background border border-border rounded-lg shadow-lg p-4 w-[96vw] lg:w-[300px]">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={handleInstallClick}>
+          <div className="p-2 bg-primary rounded-lg flex items-center justify-center">
             <Download className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h3 className="font-medium text-foreground">Install rwMarkable</h3>
+            <h3 className="font-medium text-foreground hover:underline">Install rwMarkable</h3>
             <p className="text-sm text-muted-foreground">
               Add to your home screen for quick access
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={handleInstallClick}
-            size="sm"
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            Install
-          </Button>
           <Button
             onClick={handleDismiss}
             variant="ghost"

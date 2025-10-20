@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { NavigationGlobalIcon } from "../Navigation/Parts/NavigationGlobalIcon";
 import { NavigationLogoutIcon } from "../Navigation/Parts/NavigationLogoutIcon";
 import { UserAvatar } from "../../GlobalComponents/User/UserAvatar";
+import { NavigationHelpIcon } from "../Navigation/Parts/NavigationHelpIcon";
 
 export const Sidebar = (props: SidebarProps) => {
   const {
@@ -193,6 +194,8 @@ export const Sidebar = (props: SidebarProps) => {
             </div>
 
             <div className="flex items-center gap-2">
+              <NavigationHelpIcon />
+
               <NavigationGlobalIcon
                 icon={<Settings className="h-6 w-6" />}
                 onClick={() => checkNavigation(() => onOpenSettings())}

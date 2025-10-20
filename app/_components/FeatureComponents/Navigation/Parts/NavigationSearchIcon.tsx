@@ -1,11 +1,11 @@
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { cn } from "@/app/_utils/global-utils";
 import { Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
 import { SearchBar } from "../../Search/SearchBar";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { Checklist, Note, AppMode } from "@/app/_types";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
+import { useShortcut } from "@/app/_providers/ShortcutsProvider";
 
 interface NavigationSearchIconProps {
   checklists: Checklist[];
@@ -18,43 +18,25 @@ export const NavigationSearchIcon = ({
   notes,
   onModeChange,
 }: NavigationSearchIconProps) => {
-  const [toggleSearch, setToggleSearch] = useState(false);
   const { checkNavigation } = useNavigationGuard();
   const { mode } = useAppMode();
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setToggleSearch(true);
-      }
-
-      if (e.key === "Escape") {
-        setToggleSearch(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [setToggleSearch]);
+  const { isSearchOpen, toggleSearch, closeSearch } = useShortcut();
 
   return (
     <>
       <div
         className={cn(
           "fixed inset-0 z-40 flex items-start justify-center bg-background/80 pt-[25vh] backdrop-blur-sm px-4 lg:hidden",
-          toggleSearch ? "flex" : "hidden"
+          isSearchOpen ? "flex" : "hidden"
         )}
-        onClick={() => setToggleSearch(false)}
+        onClick={closeSearch}
       >
         <SearchBar
           mode={mode}
           checklists={checklists}
           notes={notes}
           className="w-full max-w-md"
-          autoFocus={toggleSearch}
+          autoFocus={isSearchOpen}
           onModeChange={
             onModeChange
               ? (mode) => checkNavigation(() => onModeChange(mode))
@@ -66,7 +48,7 @@ export const NavigationSearchIcon = ({
       <div
         className={cn(
           "hidden lg:w-[30vw] lg:px-4",
-          toggleSearch ? "lg:flex" : "hidden"
+          isSearchOpen ? "lg:flex" : "hidden"
         )}
       >
         <SearchBar
@@ -74,7 +56,7 @@ export const NavigationSearchIcon = ({
           checklists={checklists}
           className="w-full"
           notes={notes}
-          autoFocus={toggleSearch}
+          autoFocus={isSearchOpen}
           onModeChange={
             onModeChange
               ? (mode) => checkNavigation(() => onModeChange(mode))
@@ -86,10 +68,10 @@ export const NavigationSearchIcon = ({
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => setToggleSearch(!toggleSearch)}
+        onClick={toggleSearch}
         className="text-muted-foreground hover:text-foreground"
       >
-        {toggleSearch ? (
+        {isSearchOpen ? (
           <X className="h-5 w-5" />
         ) : (
           <Search className="h-5 w-5" />

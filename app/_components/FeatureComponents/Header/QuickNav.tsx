@@ -12,6 +12,7 @@ import { cn } from "@/app/_utils/global-utils";
 import { NavigationGlobalIcon } from "../Navigation/Parts/NavigationGlobalIcon";
 import { NavigationSearchIcon } from "../Navigation/Parts/NavigationSearchIcon";
 import { NavigationLogoutIcon } from "../Navigation/Parts/NavigationLogoutIcon";
+import { NavigationHelpIcon } from "../Navigation/Parts/NavigationHelpIcon";
 
 interface QuickNavProps {
   showSidebarToggle?: boolean;
@@ -61,6 +62,8 @@ export const QuickNav = ({
             notes={notes}
             onModeChange={onModeChange}
           />
+
+          <NavigationHelpIcon />
 
           {onOpenSettings && (
             <NavigationGlobalIcon

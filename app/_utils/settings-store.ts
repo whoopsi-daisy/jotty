@@ -15,9 +15,11 @@ interface SettingsState {
   theme: Theme
   showEmojis: boolean
   autosaveNotes: boolean
+  showMarkdownPreview: boolean
   setTheme: (theme: Theme) => void
   setShowEmojis: (show: boolean) => void
   setAutosaveNotes: (enabled: boolean) => void
+  setShowMarkdownPreview: (show: boolean) => void
   getResolvedTheme: () => 'light' | 'dark' | string
 }
 
@@ -27,9 +29,11 @@ export const useSettings = create<SettingsState>()(
       theme: 'system',
       showEmojis: true,
       autosaveNotes: true,
+      showMarkdownPreview: false,
       setTheme: (theme) => set({ theme }),
       setShowEmojis: (show) => set({ showEmojis: show }),
       setAutosaveNotes: (enabled) => set({ autosaveNotes: enabled }),
+      setShowMarkdownPreview: (show) => set({ showMarkdownPreview: show }),
       getResolvedTheme: () => {
         const { theme } = get();
         if (theme === 'system') {

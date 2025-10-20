@@ -16,10 +16,7 @@ export const NoteEditorContent = ({
 }: NoteEditorContentProps) => (
   <div className="flex-1 h-full pb-14 lg:pb-0">
     {isEditing ? (
-      <TiptapEditor
-        content={editorContent}
-        onChange={onEditorContentChange}
-      />
+      <TiptapEditor content={editorContent} onChange={onEditorContentChange} />
     ) : (
       <div className="px-6 pt-6 pb-12">
         <UnifiedMarkdownRenderer content={noteContent || ""} />

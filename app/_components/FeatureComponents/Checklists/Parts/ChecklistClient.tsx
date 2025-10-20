@@ -11,11 +11,11 @@ import { ConversionConfirmModal } from "@/app/_components/GlobalComponents/Modal
 import { EditChecklistModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/EditChecklistModal";
 import { CreateListModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/CreateListModal";
 import { CreateCategoryModal } from "@/app/_components/GlobalComponents/Modals/CategoryModals/CreateCategoryModal";
-import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
 import { useChecklist } from "@/app/_hooks/useChecklist";
 import { Modes } from "@/app/_types/enums";
+import { useShortcut } from "@/app/_providers/ShortcutsProvider";
 
 interface SharingStatus {
   isShared: boolean;
@@ -46,10 +46,11 @@ export const ChecklistClient = ({
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [initialCategory, setInitialCategory] = useState<string>("");
   const [initialParentCategory, setInitialParentCategory] =
     useState<string>("");
+  const { openCreateChecklistModal, openCreateCategoryModal, openSettings } =
+    useShortcut();
   const prevChecklistId = useRef(checklist.id);
 
   useEffect(() => {
@@ -77,20 +78,6 @@ export const ChecklistClient = ({
     checkNavigation(() => {
       router.push("/");
     });
-  };
-
-  const handleOpenCreateModal = (initialCategory?: string) => {
-    setInitialCategory(initialCategory || "");
-    setShowCreateModal(true);
-  };
-
-  const handleOpenCategoryModal = (parentCategory?: string) => {
-    setShowCategoryModal(true);
-    setInitialParentCategory(parentCategory || "");
-  };
-
-  const handleOpenSettings = () => {
-    setShowSettingsModal(true);
   };
 
   const { handleDeleteList, getNewType, handleConfirmConversion } =
@@ -141,9 +128,9 @@ export const ChecklistClient = ({
       lists={lists}
       categories={categories}
       sharingStatuses={sharingStatuses}
-      onOpenSettings={handleOpenSettings}
-      onOpenCreateModal={handleOpenCreateModal}
-      onOpenCategoryModal={handleOpenCategoryModal}
+      onOpenSettings={openSettings}
+      onOpenCreateModal={openCreateChecklistModal}
+      onOpenCategoryModal={openCreateCategoryModal}
       user={user}
     >
       {renderContent()}
@@ -213,11 +200,6 @@ export const ChecklistClient = ({
           }}
         />
       )}
-
-      <SettingsModal
-        isOpen={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
-      />
     </Layout>
   );
 };

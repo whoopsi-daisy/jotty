@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  isValidElement,
+  Children,
+  ReactElement,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
@@ -10,6 +16,20 @@ import { FileAttachment } from "@/app/_components/GlobalComponents/FormElements/
 import type { Components } from "react-markdown";
 import { QUOTES } from "@/app/_consts/notes";
 import { ImageAttachment } from "@/app/_components/GlobalComponents/FormElements/ImageAttachment";
+import { lowlight } from "@/app/_utils/lowlight-utils";
+import { toHtml } from "hast-util-to-html";
+
+const getRawTextFromChildren = (children: React.ReactNode): string => {
+  let text = "";
+  Children.forEach(children, (child) => {
+    if (typeof child === "string") {
+      text += child;
+    } else if (isValidElement(child) && child.props.children) {
+      text += getRawTextFromChildren(child.props.children);
+    }
+  });
+  return text;
+};
 
 interface UnifiedMarkdownRendererProps {
   content: string;
@@ -54,20 +74,46 @@ export const UnifiedMarkdownRenderer = ({
   }
 
   const components: Partial<Components> = {
-    code({ className, children, ...props }) {
-      const match = /language-(\w+)/.exec(className || "");
-      const language = match ? match[1] : "";
-      const codeContent = String(children).replace(/\n$/, "");
-      const inline = !className?.includes("language-");
+    pre: ({ node, children, ...props }) => {
+      const child = Children.toArray(children)[0];
 
-      if (!inline && language) {
-        return <CodeBlockRenderer code={codeContent} language={language} />;
+      if (isValidElement(child) && child.type === "code") {
+        const codeElement = child as ReactElement;
+        const language =
+          codeElement.props.className?.replace("language-", "") || "plaintext";
+        const rawCode = getRawTextFromChildren(codeElement.props.children);
+
+        let highlightedHtml: string;
+
+        if (language === "plaintext" || !lowlight.registered(language)) {
+          highlightedHtml = rawCode;
+        } else {
+          const highlightedTree = lowlight.highlight(language, rawCode);
+          highlightedHtml = toHtml(highlightedTree);
+        }
+
+        const newCodeElement = {
+          ...codeElement,
+          props: {
+            ...codeElement.props,
+            dangerouslySetInnerHTML: { __html: highlightedHtml },
+            children: null,
+          },
+        };
+
+        return (
+          <CodeBlockRenderer code={rawCode} language={language}>
+            {newCodeElement as ReactElement}
+          </CodeBlockRenderer>
+        );
       }
-
+      return <pre {...props}>{children}</pre>;
+    },
+    abbr({ children, title, ...props }) {
       return (
-        <code className={className} {...props}>
+        <abbr title={title} {...props}>
           {children}
-        </code>
+        </abbr>
       );
     },
     a({ href, children, ...props }) {
@@ -104,7 +150,7 @@ export const UnifiedMarkdownRenderer = ({
             type="checkbox"
             checked={checked}
             disabled
-            className="mr-2 cursor-default"
+            className="cursor-default"
             {...props}
           />
         );

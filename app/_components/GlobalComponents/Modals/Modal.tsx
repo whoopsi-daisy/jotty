@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "../Buttons/Button";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
   isOpen: boolean;
@@ -22,6 +23,21 @@ export const Modal = ({
   titleIcon,
 }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    let portalRoot = document.getElementById("modal-portal-root");
+    if (!portalRoot) {
+      portalRoot = document.createElement("div");
+      portalRoot.id = "modal-portal-root";
+      portalRoot.style.position = "fixed";
+      portalRoot.style.top = "0";
+      portalRoot.style.left = "0";
+      portalRoot.style.zIndex = "9999";
+      document.body.appendChild(portalRoot);
+    }
+    setPortalElement(portalRoot);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -33,16 +49,28 @@ export const Modal = ({
       }
     }
 
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
     }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !portalElement) {
+    return null;
+  }
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 bg-black/50 flex lg:items-center lg:justify-center items-end z-50">
       <div
         ref={modalRef}
@@ -78,4 +106,6 @@ export const Modal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, portalElement);
 };
