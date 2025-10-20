@@ -55,11 +55,10 @@ export const ToolbarDropdown = ({
     <>
       {isOpen && (
         <div
-          className="fixed bg-background border border-border rounded-md shadow-lg min-w-[200px] max-h-[400px] overflow-hidden flex flex-col"
+          className="fixed bg-background border border-border rounded-md shadow-lg min-w-[200px] max-w-[200px] max-h-[300px] overflow-hidden flex flex-col"
           style={{
-            top: `${
-              (triggerRef.current?.getBoundingClientRect().bottom || 0) + 4
-            }px`,
+            top: `${(triggerRef.current?.getBoundingClientRect().bottom || 0) + 4
+              }px`,
             left: `${triggerRef.current?.getBoundingClientRect().left || 0}px`,
             pointerEvents: "auto",
           }}

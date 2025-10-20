@@ -6,6 +6,52 @@
 @layer base {
     :root {
         --background: 255 255 255;
+        --background-secondary: 249 248 252;
+        --foreground: 20 20 20;
+        --card: 255 255 255;
+        --card-foreground: 20 20 20;
+        --popover: 255 255 255;
+        --popover-foreground: 20 20 20;
+        --primary: 109 40 217;
+        --primary-foreground: 255 255 255;
+        --secondary: 243 240 249;
+        --secondary-foreground: 20 20 20;
+        --muted: 243 240 249;
+        --muted-foreground: 107 99 139;
+        --accent: 243 240 249;
+        --accent-foreground: 20 20 20;
+        --destructive: 239 68 68;
+        --destructive-foreground: 255 255 255;
+        --border: 228 223 240;
+        --input: 228 223 240;
+        --ring: 109 40 217;
+    }
+
+    .dark {
+        --background: 17 24 39;
+        --background-secondary: 31 41 55;
+        --foreground: 243 244 246;
+        --card: 17 24 39;
+        --card-foreground: 243 244 246;
+        --popover: 17 24 39;
+        --popover-foreground: 243 244 246;
+        --primary: 126 34 206;
+        --primary-foreground: 243 244 246;
+        --secondary: 31 41 55;
+        --secondary-foreground: 243 244 246;
+        --muted: 31 41 55;
+        --muted-foreground: 163 156 175;
+        --accent: 31 41 55;
+        --accent-foreground: 243 244 246;
+        --destructive: 239 68 68;
+        --destructive-foreground: 243 244 246;
+        --border: 38 47 63;
+        --input: 38 47 63;
+        --ring: 126 34 206;
+    }
+
+    .rwmarkable-light {
+        --background: 255 255 255;
         --background-secondary: 249 250 251;
         --foreground: 20 20 20;
         --card: 255 255 255;
@@ -27,7 +73,7 @@
         --ring: 37 99 235;
     }
 
-    .dark {
+    .rwmarkable-dark {
         --background: 17 24 39;
         --background-secondary: 31 41 55;
         --foreground: 243 244 246;
@@ -48,6 +94,52 @@
         --border: 38 47 63;
         --input: 38 47 63;
         --ring: 59 130 246;
+    }
+
+    .magenta {
+        --background: 255 255 255;
+        --background-secondary: 253 244 251;
+        --foreground: 20 20 20;
+        --card: 255 255 255;
+        --card-foreground: 20 20 20;
+        --popover: 255 255 255;
+        --popover-foreground: 20 20 20;
+        --primary: 192 38 211;
+        --primary-foreground: 255 255 255;
+        --secondary: 250 232 248;
+        --secondary-foreground: 20 20 20;
+        --muted: 250 232 248;
+        --muted-foreground: 134 25 143;
+        --accent: 250 232 248;
+        --accent-foreground: 20 20 20;
+        --destructive: 239 68 68;
+        --destructive-foreground: 255 255 255;
+        --border: 245 208 244;
+        --input: 245 208 244;
+        --ring: 192 38 211;
+    }
+
+    .magenta-dark {
+        --background: 20 18 30;
+        --background-secondary: 35 30 45;
+        --foreground: 253 242 252;
+        --card: 20 18 30;
+        --card-foreground: 253 242 252;
+        --popover: 20 18 30;
+        --popover-foreground: 253 242 252;
+        --primary: 217 70 239;
+        --primary-foreground: 253 242 252;
+        --secondary: 35 30 45;
+        --secondary-foreground: 253 242 252;
+        --muted: 35 30 45;
+        --muted-foreground: 232 121 249;
+        --accent: 35 30 45;
+        --accent-foreground: 253 242 252;
+        --destructive: 239 68 68;
+        --destructive-foreground: 253 242 252;
+        --border: 45 38 55;
+        --input: 45 38 55;
+        --ring: 217 70 239;
     }
 
     .sunset {
@@ -337,6 +429,14 @@
 
 .fill-current {
     fill: rgb(var(--primary));
+}
+
+.fill-rwmarkable {
+    fill: rgb(var(--foreground));
+}
+
+.stroke-rwmarkable {
+    stroke: rgb(var(--background));
 }
 
 @layer base {
