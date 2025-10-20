@@ -1,5 +1,0 @@
-# Lorem Dolor
-
-@testtttt
-
-<table class="border-collapse w-full my-4" style="min-width: 75px;"><colgroup><col style="min-width: 25px;"><col style="min-width: 25px;"><col style="min-width: 25px;"></colgroup><tbody><tr class="border-0"><th class="border border-border px-3 py-2 bg-muted font-semibold" colspan="1" rowspan="1"><p>test</p></th><th class="border border-border px-3 py-2 bg-muted font-semibold" colspan="1" rowspan="1"><p>test</p></th><th class="border border-border px-3 py-2 bg-muted font-semibold" colspan="1" rowspan="1"><p>test</p></th></tr><tr class="border-0"><td class="border border-border px-3 py-2" colspan="1" rowspan="1"><p>test</p></td><td class="border border-border px-3 py-2" colspan="1" rowspan="1"><p>table</p></td><td class="border border-border px-3 py-2" colspan="1" rowspan="1"><p>content</p></td></tr><tr class="border-0"><td class="border border-border px-3 py-2" colspan="1" rowspan="1"><p></p></td><td class="border border-border px-3 py-2" colspan="1" rowspan="1"><p></p></td><td class="border border-border px-3 py-2" colspan="1" rowspan="1"><p></p></td></tr></tbody></table>

@@ -37,7 +37,7 @@ export default function LoginForm() {
         {process.env.NEXT_PUBLIC_IS_DEMO && (
           <div className="bg-muted p-4">
             <strong>username: </strong>demo <br />
-            <strong>password: </strong>demo
+            <strong>password: </strong>demodemo
           </div>
         )}
       </div>
