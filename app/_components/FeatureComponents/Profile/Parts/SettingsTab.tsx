@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Key, Copy, Eye, EyeOff } from "lucide-react";
 import { generateApiKey, getApiKey } from "@/app/_server/actions/api";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 interface SettingsTabProps {
   setShowDeleteModal: (show: boolean) => void;
@@ -13,7 +14,7 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const isDemoMode = Boolean(process.env.NEXT_PUBLIC_IS_DEMO);
+  const { isDemoMode } = useAppMode();
 
   useEffect(() => {
     loadApiKey();
@@ -122,8 +123,8 @@ export const SettingsTab = ({ setShowDeleteModal }: SettingsTabProps) => {
                   {isGenerating
                     ? "Generating..."
                     : apiKey
-                    ? "Regenerate"
-                    : "Generate"}
+                      ? "Regenerate"
+                      : "Generate"}
                 </Button>
               )}
             </div>

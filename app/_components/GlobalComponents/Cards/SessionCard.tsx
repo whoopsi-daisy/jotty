@@ -5,6 +5,7 @@ import { formatTimeAgo } from "@/app/_utils/date-utils";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { Loader2, Trash2 } from "lucide-react";
 import { MapPin, Clock } from "lucide-react";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 interface SessionCardProps {
   session: Session;
@@ -17,15 +18,13 @@ export const SessionCard = ({
   onTerminate,
   isTerminating,
 }: SessionCardProps) => {
-  const isDemoMode = Boolean(process.env.NEXT_PUBLIC_IS_DEMO);
-
+  const { isDemoMode } = useAppMode();
   return (
     <div
-      className={`flex items-start justify-between p-4 rounded-lg border ${
-        session.isCurrent
-          ? "bg-primary/5 border-primary/20"
-          : "bg-background border-border"
-      }`}
+      className={`flex items-start justify-between p-4 rounded-lg border ${session.isCurrent
+        ? "bg-primary/5 border-primary/20"
+        : "bg-background border-border"
+        }`}
     >
       <div className="flex items-start gap-4 flex-1 min-w-0">
         <div className="p-2 bg-muted rounded-lg flex-shrink-0">
@@ -64,7 +63,7 @@ export const SessionCard = ({
           )}
         </div>
       </div>
-      {!session.isCurrent && (
+      {!session.isCurrent && !isDemoMode && (
         <Button
           variant="ghost"
           size="sm"

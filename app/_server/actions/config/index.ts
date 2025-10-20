@@ -140,14 +140,13 @@ export const getSettings = async () => {
     }
   } catch (error) {
     return {
-      appName: process.env.NEXT_PUBLIC_IWANTRWMARKABLE
-        ? "rwMarkable"
-        : "jotty·page",
-      appDescription:
-        "A simple, fast, and lightweight checklist and notes application",
-      "16x16Icon": "/app-icons/favicon-16x16.png",
-      "32x32Icon": "/app-icons/favicon-32x32.png",
-      "180x180Icon": "/app-icons/apple-touch-icon.png",
+      appName: "",
+      appDescription: "",
+      "16x16Icon": "",
+      "32x32Icon": "",
+      "180x180Icon": "",
+      isRwMarkable: false,
+      isDemo: false,
     };
   }
 };

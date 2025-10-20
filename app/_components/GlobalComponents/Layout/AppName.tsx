@@ -10,9 +10,7 @@ interface AppNameProps {
 
 export const AppName = ({
   className,
-  fallback = process.env.NEXT_PUBLIC_IWANTRWMARKABLE
-    ? "rwMarkable"
-    : "jotty·page",
+  fallback = "jotty·page",
 }: AppNameProps) => {
   const [appName, setAppName] = useState<string>(fallback);
   const [loading, setLoading] = useState(true);

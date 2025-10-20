@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { Download, X } from "lucide-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const { isRwMarkable } = useAppMode();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -75,7 +77,7 @@ export const InstallPrompt = () => {
           <div>
             <h3 className="font-medium text-foreground hover:underline">
               Install{" "}
-              {process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+              {isRwMarkable
                 ? "rwMarkable"
                 : "jotty·page"}
             </h3>

@@ -23,6 +23,7 @@ import { NavigationGlobalIcon } from "../Navigation/Parts/NavigationGlobalIcon";
 import { NavigationLogoutIcon } from "../Navigation/Parts/NavigationLogoutIcon";
 import { UserAvatar } from "../../GlobalComponents/User/UserAvatar";
 import { NavigationHelpIcon } from "../Navigation/Parts/NavigationHelpIcon";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 export const Sidebar = (props: SidebarProps) => {
   const {
@@ -39,6 +40,7 @@ export const Sidebar = (props: SidebarProps) => {
 
   const { checkNavigation } = useNavigationGuard();
   const router = useRouter();
+  const { isDemoMode, isRwMarkable } = useAppMode();
 
   const sidebar = useSidebar(props);
 
@@ -81,7 +83,14 @@ export const Sidebar = (props: SidebarProps) => {
             <div className="flex items-center justify-between">
               <a href="/" className="flex items-center gap-3">
                 <DynamicLogo className="h-8 w-8" size="32x32" />
-                <AppName className="text-xl font-bold text-foreground" />
+                <div className="flex items-center gap-2">
+                  <AppName className="text-xl font-bold text-foreground" fallback={isRwMarkable ? "rwMarkable" : "jotty·page"} />
+                  {isDemoMode && (
+                    <span className="text-sm text-muted-foreground font-medium">
+                      (demo)
+                    </span>
+                  )}
+                </div>
               </a>
             </div>
           </div>

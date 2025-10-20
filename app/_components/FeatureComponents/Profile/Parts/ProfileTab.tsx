@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { logout } from "@/app/_server/actions/auth";
 import { useRouter } from "next/navigation";
 import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 interface ProfileTabProps {
   user: UserType | null;
@@ -38,6 +39,7 @@ export const ProfileTab = ({
     user?.avatarUrl
   );
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const { isDemoMode } = useAppMode();
 
   useEffect(() => {
     setEditedUsername(user?.username || "");
@@ -145,7 +147,6 @@ export const ProfileTab = ({
     }
   };
 
-  const isDemoMode = Boolean(process.env.NEXT_PUBLIC_IS_DEMO);
   const isUsernameDisabled = isLoading || isSsoUser || isDemoMode;
   const isSaveButtonDisabled = isLoading || isUploadingAvatar || isDemoMode;
   const isAvatarDisabled = isUploadingAvatar || isLoading || isDemoMode;

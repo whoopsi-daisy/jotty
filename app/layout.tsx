@@ -19,7 +19,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const settings = await getSettings();
-  const ogName = process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+  const ogName = settings?.isRwMarkable
     ? "rwMarkable"
     : "jotty·page";
   const appName = settings?.appName || ogName;
@@ -102,8 +102,8 @@ export default async function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider>
-          <AppModeProvider>
+        <AppModeProvider isDemoMode={settings?.isDemo || false} isRwMarkable={settings?.rwmarkable || false}>
+          <ThemeProvider>
             <ChecklistProvider>
               <NavigationGuardProvider>
                 <ToastProvider>
@@ -121,8 +121,8 @@ export default async function RootLayout({
                 </ToastProvider>
               </NavigationGuardProvider>
             </ChecklistProvider>
-          </AppModeProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </AppModeProvider>
       </body>
     </html>
   );

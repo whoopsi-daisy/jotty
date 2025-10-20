@@ -2,13 +2,15 @@
 
 import { useCallback } from "react";
 import { getSettings } from "@/app/_server/actions/config";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 export const useFaviconUpdate = () => {
+  const { isRwMarkable } = useAppMode();
   const updateFavicons = useCallback(async () => {
     try {
       const settings = await getSettings();
 
-      if (process.env.NEXT_PUBLIC_IWANTRWMARKABLE) {
+      if (isRwMarkable) {
         let mainFavicon = document.querySelector(
           'link[rel="icon"]:not([sizes])'
         ) as HTMLLinkElement;

@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { register } from "@/app/_server/actions/auth";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 export default function SetupForm() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const { isRwMarkable } = useAppMode();
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
@@ -26,7 +28,7 @@ export default function SetupForm() {
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Welcome to{" "}
-          {process.env.NEXT_PUBLIC_IWANTRWMARKABLE
+          {isRwMarkable
             ? "rwMarkable"
             : "jotty·page"}
         </h1>
