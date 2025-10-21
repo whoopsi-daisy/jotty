@@ -5,10 +5,12 @@ import {
   CheckForNeedsMigration,
 } from "@/app/_server/actions/note";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
-import { isAdmin, getUsername, getCurrentUser } from "@/app/_server/actions/users";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
 import { Modes } from "@/app/_types/enums";
 import { getCategories } from "@/app/_server/actions/category";
+import type { Metadata, ResolvingMetadata } from "next";
+import { getMedatadaTitle } from "@/app/_server/actions/config";
 
 interface NotePageProps {
   params: {
@@ -17,6 +19,14 @@ interface NotePageProps {
 }
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: NotePageProps): Promise<Metadata> {
+  const { id } = params;
+
+  return getMedatadaTitle(Modes.NOTES, id);
+}
 
 export default async function NotePage({ params }: NotePageProps) {
   const { id } = params;

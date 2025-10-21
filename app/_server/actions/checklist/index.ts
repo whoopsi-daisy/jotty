@@ -154,7 +154,10 @@ export const getLists = async (username?: string) => {
   }
 };
 
-export const getListById = async (id: string, username?: string) => {
+export const getListById = async (
+  id: string,
+  username?: string
+): Promise<Checklist | undefined> => {
   const lists = await (username ? getLists(username) : getAllLists());
   if (!lists.success || !lists.data) {
     throw new Error(lists.error || "Failed to fetch lists");

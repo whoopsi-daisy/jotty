@@ -147,6 +147,14 @@ const _checkForDocsFolder = async (): Promise<boolean> => {
   }
 };
 
+export const getNoteById = async (id: string): Promise<Note | undefined> => {
+  const docs = await getNotes();
+  if (!docs.success || !docs.data) {
+    return undefined;
+  }
+  return docs.data.find((d) => d.id === id);
+};
+
 export const getNotes = async (username?: string) => {
   try {
     let userDir: string;

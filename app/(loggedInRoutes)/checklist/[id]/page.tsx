@@ -3,9 +3,11 @@ import { getLists } from "@/app/_server/actions/checklist";
 import { getCategories } from "@/app/_server/actions/category";
 import { getAllLists } from "@/app/_server/actions/checklist";
 import { getAllSharingStatuses } from "@/app/_server/actions/sharing";
-import { isAdmin, getUsername, getCurrentUser } from "@/app/_server/actions/users";
+import { getCurrentUser } from "@/app/_server/actions/users";
 import { ChecklistClient } from "@/app/_components/FeatureComponents/Checklists/Parts/ChecklistClient";
 import { Modes } from "@/app/_types/enums";
+import type { Metadata, ResolvingMetadata } from "next";
+import { getMedatadaTitle, getSettings } from "@/app/_server/actions/config";
 
 interface ChecklistPageProps {
   params: {
@@ -14,6 +16,14 @@ interface ChecklistPageProps {
 }
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: ChecklistPageProps): Promise<Metadata> {
+  const { id } = params;
+
+  return getMedatadaTitle(Modes.CHECKLISTS, id);
+}
 
 export default async function ChecklistPage({ params }: ChecklistPageProps) {
   const { id } = params;

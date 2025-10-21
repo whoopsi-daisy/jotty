@@ -4,9 +4,13 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import path from "path";
 import fs from "fs/promises";
-import { Result } from "@/app/_types";
-import { isAdmin } from "../users";
+import { Checklist, Note, Result } from "@/app/_types";
+import { getCurrentUser, isAdmin } from "../users";
 import { revalidatePath } from "next/cache";
+import { getAllLists, getListById, getLists } from "../checklist";
+import { Metadata, ResolvingMetadata } from "next";
+import { Modes } from "@/app/_types/enums";
+import { getNoteById, getNotes } from "../note";
 
 interface AppSettings {
   appName: string;
@@ -283,4 +287,25 @@ export const uploadAppIcon = async (
     console.error("Error uploading app icon:", error);
     return { success: false, error: "Failed to upload icon" };
   }
+};
+
+export const getMedatadaTitle = async (
+  appMode: Modes,
+  id: string
+): Promise<Metadata> => {
+  const user = await getCurrentUser();
+  const settings = await getSettings();
+  const defaultTitle = appMode === Modes.CHECKLISTS ? "Checklist" : "Note";
+
+  const ogName = settings?.isRwMarkable ? "rwMarkable" : "jotty·page";
+  const appName = settings?.appName || ogName;
+
+  const item =
+    appMode === Modes.CHECKLISTS
+      ? await getListById(id)
+      : await getNoteById(id);
+
+  return {
+    title: `${item?.title || defaultTitle} - ${appName}`,
+  };
 };
