@@ -51,7 +51,7 @@ export const NoteCard = ({ note, onSelect }: NoteCardProps) => {
       className="bg-card border border-border rounded-xl cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/50 group flex flex-col overflow-hidden"
     >
       <div className="px-5 py-4 border-b border-border/70">
-        <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors truncate">
+        <h3 className="font-bold text-lg text-foreground group-hover:text-foreground/80 transition-colors truncate">
           {note.title}
         </h3>
       </div>
