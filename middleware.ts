@@ -25,8 +25,10 @@ export const middleware = async (request: NextRequest) => {
       : "session";
   const sessionId = request.cookies.get(cookieName)?.value;
 
-  console.log("sessionId:", sessionId);
-  console.log("cookies:", request.cookies.getAll());
+  if (process.env.DEBUGGER) {
+    console.log("MIDDLEWARE - sessionId:", sessionId);
+    console.log("MIDDLEWARE - cookies:", request.cookies.getAll());
+  }
 
   const loginUrl = new URL("/auth/login", request.url);
 
@@ -39,8 +41,6 @@ export const middleware = async (request: NextRequest) => {
       ? process.env.APP_URL.replace(/\/$/, "")
       : new URL(request.url).origin;
 
-    console.log("baseUrl:", baseUrl);
-
     const sessionCheckUrl = new URL(`${baseUrl}/api/auth/check-session`);
     const sessionCheck = await fetch(sessionCheckUrl, {
       headers: {
@@ -49,12 +49,19 @@ export const middleware = async (request: NextRequest) => {
       cache: "no-store",
     });
 
-    console.log("sessionCheck:", sessionCheck);
+    if (process.env.DEBUGGER) {
+      console.log("MIDDLEWARE - baseUrl:", baseUrl);
+      console.log("MIDDLEWARE - sessionCheck:", sessionCheck);
+    }
 
     if (!sessionCheck.ok) {
-      console.log("session is not ok");
       const redirectResponse = NextResponse.redirect(loginUrl);
       redirectResponse.cookies.delete(cookieName);
+
+      if (process.env.DEBUGGER) {
+        console.log("MIDDLEWARE - session is not ok");
+      }
+
       return redirectResponse;
     }
   } catch (error) {

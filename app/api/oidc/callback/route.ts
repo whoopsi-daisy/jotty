@@ -161,6 +161,11 @@ export async function GET(request: NextRequest) {
   const sub = claims.sub as string | undefined;
   let username =
     preferred || (email ? email.split("@")[0] : undefined) || sub || "";
+
+  if (process.env.DEBUGGER) {
+    console.log("SSO CALLBACK - claims", claims);
+  }
+
   if (!username) {
     return NextResponse.redirect(`${appUrl}/auth/login`);
   }
