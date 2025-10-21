@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withApiAuth, findItemByIndex } from "@/app/_utils/api-utils";
+import { withApiAuth } from "@/app/_utils/api-utils";
 import { updateItem } from "@/app/_server/actions/checklist-item";
 import { getLists } from "@/app/_server/actions/checklist";
 
@@ -19,7 +19,6 @@ export async function PUT(
         );
       }
 
-      // Get the list to determine its category
       const lists = await getLists(user.username);
       if (!lists.success || !lists.data) {
         return NextResponse.json(
@@ -33,18 +32,20 @@ export async function PUT(
         return NextResponse.json({ error: "List not found" }, { status: 404 });
       }
 
-      const item = await findItemByIndex(
-        params.listId,
-        itemIndex,
-        user.username,
-        list.category
-      );
+      if (itemIndex >= list.items.length) {
+        return NextResponse.json(
+          { error: "Item index out of range" },
+          { status: 400 }
+        );
+      }
+
+      const item = list.items[itemIndex];
 
       const formData = new FormData();
       formData.append("listId", params.listId);
       formData.append("itemId", item.id);
       formData.append("completed", "false");
-      formData.append("category", item.category || "Uncategorized");
+      formData.append("category", list.category || "Uncategorized");
 
       const result = await updateItem(formData, user.username, true);
 
