@@ -35,7 +35,7 @@ jobs:
         with:
           images: |
             ghcr.io/${{ steps.repo.outputs.name }}
-            ghcr.io/fccview/jotty
+            ghcr.io/fccview/rwmarkable
           tags: |
             type=ref,event=branch,suffix=${{ inputs.suffix }}
             type=ref,event=tag,suffix=${{ inputs.suffix }}

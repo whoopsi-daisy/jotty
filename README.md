@@ -1,15 +1,13 @@
-# Jotty
-
 <p align="center">
+  <img src="public/app-icons/logos/logo-variation.svg" alt="Buy me a coffee" width="60"> 
   <br />
-  <a href="https://www.buymeacoffee.com/fccview">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
-  </a>
+  <span style="font-size: 4em">jotty·page</span><br/>
+  <i>ex rwMarkable</i>
 </p>
 
 A simple, self-hosted app for your checklists and notes.
 
-Tired of bloated, cloud-based to-do apps? `jotty·page` is a lightweight alternative for managing your personal checklists and notes. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
+Tired of bloated, cloud-based to-do apps? [jotty·page](https://jotty.page) is a lightweight alternative for managing your personal checklists and notes. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
 
 <br />
 
@@ -32,17 +30,12 @@ Tired of bloated, cloud-based to-do apps? `jotty·page` is a lightweight alterna
   <p align="center">
     <em>Clean, intuitive interface for managing your checklists and tasks.</em>
   </p>
-  <img src="public/app-screenshots/checklist-home.png" alt="Checklist Home View" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  <img src="public/app-screenshots/checklists-home-dark.png" alt="Checklist Home View" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
 
   <p align="center">
-    <em>Heavily customisable themes.</em>
+    <em>Rich text editor for notes.</em>
   </p>
-  <img src="public/app-screenshots/checklist-theme.png" alt="Checklist with Theme" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
-
-  <p align="center">
-    <em>Rich text editor for notes and beautiful theme customization.</em>
-  </p>
-  <img src="public/app-screenshots/document-view.png" alt="Note Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
+  <img src="public/app-screenshots/note-view-light.png" alt="Note Editor" width="400" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 8px;">
 </div>
 
 ## Quick nav
@@ -61,6 +54,13 @@ Tired of bloated, cloud-based to-do apps? `jotty·page` is a lightweight alterna
 - [Shortcuts](#shortcuts)
 - [Single Sign-On (SSO) with OIDC](#single-sign-on-sso-with-oidc)
 - [Custom Themes and Emojis](#custom-themes-and-emojis)
+
+<p align="center">
+  <br />
+  <a href="https://www.buymeacoffee.com/fccview">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="150">
+  </a>
+</p>
 
 <a id="features"></a>
 

@@ -93,6 +93,7 @@ environment:
 
 - `- NODE_ENV=production` Sets the Node.js environment to production mode for optimal performance and security.
 - `- HTTPS=true` Optional. Enables HTTPS mode for secure connections.
+- `- APP_URL=https://your-jotty-domain.com` Base URL of your jotty·page instance. Required for secure session (https) and SSO.
 - `- SERVE_PUBLIC_IMAGES=yes` Optional. Allows public access to uploaded images via direct URLs.
 - `- SERVE_PUBLIC_FILES=yes` Optional. Allows public access to uploaded files via direct URLs.
 
@@ -101,7 +102,6 @@ environment:
 - `- SSO_MODE=oidc` Enables OIDC (OpenID Connect) single sign-on authentication.
 - `- OIDC_ISSUER=<YOUR_SSO_ISSUER>` URL of your OIDC provider (e.g., Authentik, Auth0, Keycloak).
 - `- OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>` Client ID from your OIDC provider configuration.
-- `- APP_URL=https://your-jotty-domain.com` Base URL of your jotty·page instance. Required for proper SSO redirects.
 - `- OIDC_CLIENT_SECRET=your_client_secret` Optional. Client secret for confidential OIDC client authentication.
 - `- SSO_FALLBACK_LOCAL=true` Optional. Allows both SSO and local authentication methods.
 - `- OIDC_ADMIN_GROUPS=admins` Optional. Comma-separated list of OIDC groups that should have admin privileges.
