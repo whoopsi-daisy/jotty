@@ -20,7 +20,7 @@ import { TaskStatusLabels } from "@/app/_types/enums";
 interface ChecklistHomeProps {
   lists: Checklist[];
   onCreateModal: () => void;
-  onSelectChecklist?: (id: string) => void;
+  onSelectChecklist?: (list: Checklist) => void;
 }
 
 export const ChecklistHome = ({

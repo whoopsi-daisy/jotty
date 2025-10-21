@@ -10,7 +10,7 @@ import { UnifiedMarkdownRenderer } from "../../FeatureComponents/Notes/Parts/Uni
 
 interface NoteCardProps {
   note: Note;
-  onSelect: (id: string) => void;
+  onSelect: (note: Note) => void;
 }
 
 export const NoteCard = ({ note, onSelect }: NoteCardProps) => {
@@ -47,7 +47,7 @@ export const NoteCard = ({ note, onSelect }: NoteCardProps) => {
 
   return (
     <div
-      onClick={() => onSelect(note.id)}
+      onClick={() => onSelect(note)}
       className="bg-card border border-border rounded-xl cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/50 group flex flex-col overflow-hidden"
     >
       <div className="px-5 py-4 border-b border-border/70">

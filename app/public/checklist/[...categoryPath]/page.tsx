@@ -7,10 +7,11 @@ import { getUserByUsername } from "@/app/_server/actions/users";
 import type { Metadata, ResolvingMetadata } from "next";
 import { Modes } from "@/app/_types/enums";
 import { getMedatadaTitle } from "@/app/_server/actions/config";
+import { decodeCategoryPath } from "@/app/_utils/global-utils";
 
 interface PublicChecklistPageProps {
   params: {
-    id: string;
+    categoryPath: string[];
   };
 }
 
@@ -19,15 +20,27 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: PublicChecklistPageProps): Promise<Metadata> {
-  const { id } = params;
+  const { categoryPath } = params;
+  const id = categoryPath[categoryPath.length - 1];
+  const encodedCategoryPath = categoryPath.slice(0, -1).join("/");
+  const category =
+    categoryPath.length === 1
+      ? "Uncategorized"
+      : decodeCategoryPath(encodedCategoryPath);
 
-  return getMedatadaTitle(Modes.CHECKLISTS, id);
+  return getMedatadaTitle(Modes.CHECKLISTS, id, category);
 }
 
 export default async function PublicChecklistPage({
   params,
 }: PublicChecklistPageProps) {
-  const { id } = params;
+  const { categoryPath } = params;
+  const id = categoryPath[categoryPath.length - 1];
+  const encodedCategoryPath = categoryPath.slice(0, -1).join("/");
+  const category =
+    categoryPath.length === 1
+      ? "Uncategorized"
+      : decodeCategoryPath(encodedCategoryPath);
 
   await CheckForNeedsMigration();
 
@@ -36,7 +49,20 @@ export default async function PublicChecklistPage({
     redirect("/");
   }
 
-  const checklist = listsResult.data.find((list) => list.id === id);
+  let checklist = listsResult.data.find(
+    (list) => list.id === id && list.category === category
+  );
+
+  if (!checklist && categoryPath.length === 1) {
+    checklist = listsResult.data.find(
+      (list) => list.id === id && list.category === "Uncategorized"
+    );
+
+    if (!checklist) {
+      checklist = listsResult.data.find((list) => list.id === id);
+    }
+  }
+
   if (!checklist) {
     redirect("/");
   }

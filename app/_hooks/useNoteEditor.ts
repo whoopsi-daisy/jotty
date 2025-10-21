@@ -8,6 +8,7 @@ import {
 import { useSettings } from "@/app/_utils/settings-store";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { deleteNote, updateNote } from "@/app/_server/actions/note";
+import { buildCategoryPath } from "@/app/_utils/global-utils";
 import { Note } from "@/app/_types";
 
 interface UseNoteEditorProps {
@@ -95,7 +96,11 @@ export const useNoteEditor = ({
         onUpdate(result.data);
         setIsEditing(false);
         if (result.data.id !== note.id) {
-          router.push(`/note/${result.data.id}`);
+          const categoryPath = buildCategoryPath(
+            category || "Uncategorized",
+            result.data.id
+          );
+          router.push(`/note/${categoryPath}`);
         }
       }
     },

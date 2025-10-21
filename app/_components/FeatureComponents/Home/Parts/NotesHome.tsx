@@ -12,7 +12,7 @@ interface NotesHomeProps {
   notes: Note[];
   categories: Category[];
   onCreateModal: () => void;
-  onSelectNote: (id: string) => void;
+  onSelectNote: (note: Note) => void;
 }
 
 export const NotesHome = ({

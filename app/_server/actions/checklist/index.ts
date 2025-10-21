@@ -29,6 +29,7 @@ import {
   removeSharedItem,
   updateSharedItem,
 } from "@/app/_server/actions/sharing";
+import { buildCategoryPath } from "@/app/_utils/global-utils";
 
 const readListsRecursively = async (
   dir: string,
@@ -156,13 +157,16 @@ export const getLists = async (username?: string) => {
 
 export const getListById = async (
   id: string,
-  username?: string
+  username?: string,
+  category?: string
 ): Promise<Checklist | undefined> => {
   const lists = await (username ? getLists(username) : getAllLists());
   if (!lists.success || !lists.data) {
     throw new Error(lists.error || "Failed to fetch lists");
   }
-  return lists.data.find((list) => list.id === id);
+  return lists.data.find(
+    (list) => list.id === id && (!category || list.category === category)
+  );
 };
 
 export const getAllLists = async () => {
@@ -354,9 +358,19 @@ export const updateList = async (formData: FormData) => {
 
     try {
       revalidatePath("/");
-      revalidatePath(`/checklist/${id}`);
-      if (newId !== id) {
-        revalidatePath(`/checklist/${newId}`);
+      const oldCategoryPath = buildCategoryPath(
+        currentList.category || "Uncategorized",
+        id
+      );
+      const newCategoryPath = buildCategoryPath(
+        updatedList.category || "Uncategorized",
+        newId !== id ? newId : id
+      );
+
+      revalidatePath(`/checklist/${oldCategoryPath}`);
+
+      if (newId !== id || currentList.category !== updatedList.category) {
+        revalidatePath(`/checklist/${newCategoryPath}`);
       }
     } catch (error) {
       console.warn(
@@ -419,7 +433,11 @@ export const deleteList = async (formData: FormData) => {
 
     try {
       revalidatePath("/");
-      revalidatePath(`/checklist/${id}`);
+      const categoryPath = buildCategoryPath(
+        list.category || "Uncategorized",
+        id
+      );
+      revalidatePath(`/checklist/${categoryPath}`);
     } catch (error) {
       console.warn(
         "Cache revalidation failed, but data was saved successfully:",

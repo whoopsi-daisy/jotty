@@ -291,7 +291,8 @@ export const uploadAppIcon = async (
 
 export const getMedatadaTitle = async (
   appMode: Modes,
-  id: string
+  id: string,
+  category?: string
 ): Promise<Metadata> => {
   const user = await getCurrentUser();
   const settings = await getSettings();
@@ -302,8 +303,8 @@ export const getMedatadaTitle = async (
 
   const item =
     appMode === Modes.CHECKLISTS
-      ? await getListById(id)
-      : await getNoteById(id);
+      ? await getListById(id, undefined, category)
+      : await getNoteById(id, category);
 
   return {
     title: `${item?.title || defaultTitle} - ${appName}`,

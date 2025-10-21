@@ -30,6 +30,7 @@ import { USERS_FILE } from "@/app/_consts/files";
 import { Modes } from "@/app/_types/enums";
 import { serverReadFile } from "@/app/_server/actions/file";
 import { sanitizeMarkdown } from "@/app/_utils/markdown-utils";
+import { buildCategoryPath } from "@/app/_utils/global-utils";
 
 const USER_NOTES_DIR = (username: string) =>
   path.join(process.cwd(), "data", NOTES_FOLDER, username);
@@ -148,12 +149,17 @@ const _checkForDocsFolder = async (): Promise<boolean> => {
   }
 };
 
-export const getNoteById = async (id: string): Promise<Note | undefined> => {
+export const getNoteById = async (
+  id: string,
+  category?: string
+): Promise<Note | undefined> => {
   const docs = await getNotes();
   if (!docs.success || !docs.data) {
     return undefined;
   }
-  return docs.data.find((d) => d.id === id);
+  return docs.data.find(
+    (d) => d.id === id && (!category || d.category === category)
+  );
 };
 
 export const getNotes = async (username?: string) => {
@@ -374,10 +380,19 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
     try {
       if (!autosaveNotes) {
         revalidatePath("/");
-        revalidatePath(`/note/${id}`);
+        const oldCategoryPath = buildCategoryPath(
+          doc.category || "Uncategorized",
+          id
+        );
+        const newCategoryPath = buildCategoryPath(
+          updatedDoc.category || "Uncategorized",
+          newId !== id ? newId : id
+        );
 
-        if (newId !== id) {
-          revalidatePath(`/note/${newId}`);
+        revalidatePath(`/note/${oldCategoryPath}`);
+
+        if (newId !== id || doc.category !== updatedDoc.category) {
+          revalidatePath(`/note/${newCategoryPath}`);
         }
       }
     } catch (error) {
@@ -436,7 +451,11 @@ export const deleteNote = async (formData: FormData) => {
 
     try {
       revalidatePath("/");
-      revalidatePath(`/note/${id}`);
+      const categoryPath = buildCategoryPath(
+        doc.category || "Uncategorized",
+        id
+      );
+      revalidatePath(`/note/${categoryPath}`);
     } catch (error) {
       console.warn(
         "Cache revalidation failed, but data was saved successfully:",

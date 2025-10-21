@@ -6,10 +6,11 @@ import { getUserByUsername } from "@/app/_server/actions/users";
 import type { Metadata, ResolvingMetadata } from "next";
 import { getMedatadaTitle } from "@/app/_server/actions/config";
 import { Modes } from "@/app/_types/enums";
+import { decodeCategoryPath } from "@/app/_utils/global-utils";
 
 interface PublicNotePageProps {
   params: {
-    id: string;
+    categoryPath: string[];
   };
 }
 
@@ -18,20 +19,45 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: PublicNotePageProps): Promise<Metadata> {
-  const { id } = params;
+  const { categoryPath } = params;
+  const id = categoryPath[categoryPath.length - 1];
+  const encodedCategoryPath = categoryPath.slice(0, -1).join("/");
+  const category =
+    categoryPath.length === 1
+      ? "Uncategorized"
+      : decodeCategoryPath(encodedCategoryPath);
 
-  return getMedatadaTitle(Modes.NOTES, id);
+  return getMedatadaTitle(Modes.NOTES, id, category);
 }
 
 export default async function PublicNotePage({ params }: PublicNotePageProps) {
-  const { id } = params;
+  const { categoryPath } = params;
+  const id = categoryPath[categoryPath.length - 1];
+  const encodedCategoryPath = categoryPath.slice(0, -1).join("/");
+  const category =
+    categoryPath.length === 1
+      ? "Uncategorized"
+      : decodeCategoryPath(encodedCategoryPath);
 
   const docsResult = await getAllNotes();
   if (!docsResult.success || !docsResult.data) {
     redirect("/");
   }
 
-  const note = docsResult.data.find((doc) => doc.id === id);
+  let note = docsResult.data.find(
+    (doc) => doc.id === id && doc.category === category
+  );
+
+  if (!note && categoryPath.length === 1) {
+    note = docsResult.data.find(
+      (doc) => doc.id === id && doc.category === "Uncategorized"
+    );
+
+    if (!note) {
+      note = docsResult.data.find((doc) => doc.id === id);
+    }
+  }
+
   if (!note) {
     redirect("/");
   }
