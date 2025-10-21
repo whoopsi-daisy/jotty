@@ -1,15 +1,14 @@
 <p align="center">
-  <img src="public/app-icons/logos/logo-variation.svg" alt="Buy me a coffee" width="60"> 
+  <img src="public/app-icons/logos/logo-variation.svg" alt="Jotty Logo" width="100"> 
   <br />
-  <span style="font-size: 4em">jotty·page</span><br/>
-  <i>ex rwMarkable</i>
+  <h1 align="center">jotty·page</h1><br/>
 </p>
 
 A simple, self-hosted app for your checklists and notes.
 
 Tired of bloated, cloud-based to-do apps? [jotty·page](https://jotty.page) is a lightweight alternative for managing your personal checklists and notes. It's built with Next.js 14, is easy to deploy, and keeps all your data on your own server.
 
-<br />
+  <p align="center"><i>ex rwMarkable</i></p>
 
 ---
 
