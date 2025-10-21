@@ -342,4 +342,4 @@ For issues and questions, please open an issue on the GitHub repository.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=fccview/jotty&type=Date)](https://www.star-history.com/#fccview/jotty&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=fccview/jotty&type=date&legend=top-left)](https://www.star-history.com/#fccview/jotty&type=date&legend=top-left)
