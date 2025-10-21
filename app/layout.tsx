@@ -36,7 +36,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
   return {
     title: appName,
     description: appDescription,
-    manifest: "/app-icons/site.webmanifest",
+    manifest: "/site.webmanifest",
     icons: {
       icon: [
         {
@@ -83,14 +83,6 @@ export default async function RootLayout({
   const noteCategories = await getCategories(Modes.NOTES);
   const checklistCategories = await getCategories(Modes.CHECKLISTS);
   const user = await getCurrentUser();
-
-  try {
-    redirectGuards();
-  } catch (error) {
-    // This catch block prevents the redirect error from bubbling up and causing
-    // "Objects are not valid as a React child" error during render.
-    // Next.js handles the redirect internally.
-  }
 
   return (
     <html lang="en" suppressHydrationWarning>

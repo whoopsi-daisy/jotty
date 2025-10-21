@@ -90,9 +90,15 @@ export const register = async (formData: FormData) => {
 
   await writeSessions(sessions);
 
-  cookies().set("__Host-session", sessionId, {
+  const cookieName =
+    process.env.NODE_ENV === "production" && process.env.HTTPS === "true"
+      ? "__Host-session"
+      : "session";
+
+  cookies().set(cookieName, sessionId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
+    secure:
+      process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
@@ -147,9 +153,15 @@ export const login = async (formData: FormData) => {
 
   await createSession(sessionId, user.username, "local");
 
-  cookies().set("__Host-session", sessionId, {
+  const cookieName =
+    process.env.NODE_ENV === "production" && process.env.HTTPS === "true"
+      ? "__Host-session"
+      : "session";
+
+  cookies().set(cookieName, sessionId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
+    secure:
+      process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
@@ -159,7 +171,12 @@ export const login = async (formData: FormData) => {
 };
 
 export const logout = async () => {
-  const sessionId = cookies().get("__Host-session")?.value;
+  const cookieName =
+    process.env.NODE_ENV === "production" && process.env.HTTPS === "true"
+      ? "__Host-session"
+      : "session";
+
+  const sessionId = cookies().get(cookieName)?.value;
 
   if (sessionId) {
     const sessions = await readSessionData();
@@ -170,9 +187,9 @@ export const logout = async () => {
       await writeSessionData(sessions);
       await removeSession(sessionId);
 
-      cookies().delete("__Host-session");
+      cookies().delete(cookieName);
     } catch (error) {
-      cookies().delete("__Host-session");
+      cookies().delete(cookieName);
     }
   }
 

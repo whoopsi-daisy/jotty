@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export const middleware = async (request: NextRequest) => {
-  const { pathname, origin } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
   if (
     pathname.startsWith("/api/auth/check-session") ||
@@ -19,26 +19,46 @@ export const middleware = async (request: NextRequest) => {
     return NextResponse.next();
   }
 
-  const sessionId = request.cookies.get("__Host-session")?.value;
+  const cookieName =
+    process.env.NODE_ENV === "production" && process.env.HTTPS === "true"
+      ? "__Host-session"
+      : "session";
+  const sessionId = request.cookies.get(cookieName)?.value;
+
+  console.log("sessionId:", sessionId);
+  console.log("cookies:", request.cookies.getAll());
+
   const loginUrl = new URL("/auth/login", request.url);
 
   if (!sessionId) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const sessionCheckUrl = new URL("/api/auth/check-session", origin);
+  try {
+    const baseUrl = process.env.APP_URL
+      ? process.env.APP_URL.replace(/\/$/, "")
+      : new URL(request.url).origin;
 
-  const sessionCheck = await fetch(sessionCheckUrl, {
-    headers: {
-      'Cookie': request.headers.get('Cookie') || '',
-    },
-    cache: 'no-store',
-  });
+    console.log("baseUrl:", baseUrl);
 
-  if (!sessionCheck.ok) {
-    const redirectResponse = NextResponse.redirect(loginUrl);
-    redirectResponse.cookies.delete('__Host-session');
-    return redirectResponse;
+    const sessionCheckUrl = new URL(`${baseUrl}/api/auth/check-session`);
+    const sessionCheck = await fetch(sessionCheckUrl, {
+      headers: {
+        Cookie: request.headers.get("Cookie") || "",
+      },
+      cache: "no-store",
+    });
+
+    console.log("sessionCheck:", sessionCheck);
+
+    if (!sessionCheck.ok) {
+      console.log("session is not ok");
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      redirectResponse.cookies.delete(cookieName);
+      return redirectResponse;
+    }
+  } catch (error) {
+    console.error("Session check error:", error);
   }
 
   const response = NextResponse.next();

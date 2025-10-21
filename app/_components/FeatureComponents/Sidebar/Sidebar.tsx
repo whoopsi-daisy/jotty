@@ -84,7 +84,10 @@ export const Sidebar = (props: SidebarProps) => {
               <a href="/" className="flex items-center gap-3">
                 <DynamicLogo className="h-8 w-8" size="32x32" />
                 <div className="flex items-center gap-2">
-                  <AppName className="text-xl font-bold text-foreground" fallback={isRwMarkable ? "rwMarkable" : "jotty·page"} />
+                  <AppName
+                    className="text-xl font-bold text-foreground"
+                    fallback={isRwMarkable ? "rwMarkable" : "jotty·page"}
+                  />
                   {isDemoMode && (
                     <span className="text-sm text-muted-foreground font-medium">
                       (demo)
@@ -158,7 +161,12 @@ export const Sidebar = (props: SidebarProps) => {
               }}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <UserAvatar username={user?.username || ""} avatarUrl={user?.avatarUrl} size="sm" className="mr-2" />
+              <UserAvatar
+                username={user?.username || ""}
+                avatarUrl={user?.avatarUrl}
+                size="sm"
+                className="mr-1"
+              />
               <span className="truncate">{user?.username}</span>
               {user?.isAdmin && (
                 <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded">
