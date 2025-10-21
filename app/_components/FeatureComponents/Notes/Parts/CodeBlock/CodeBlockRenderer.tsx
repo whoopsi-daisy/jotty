@@ -21,13 +21,18 @@ export const CodeBlockRenderer = ({
 }: CodeBlockRendererProps) => {
   const [copied, setCopied] = useState(false);
 
-  const language =
-    langProp ||
-    children.props.className?.replace("language-", "") ||
-    "plaintext";
+  let language =
+    langProp || children.props.className?.replace("language-", "") || "text";
 
-  const showHeader = language !== "plaintext";
+  if (language === "plaintext") {
+    language = "text";
+  }
+
   const languageObj = getLanguageByValue(language.replace("hljs ", ""));
+
+  const isPlainText = language === "text" || !languageObj;
+
+  const showHeader = !isPlainText;
   const languageIcon = languageObj?.icon || <Code className="h-4 w-4" />;
   const displayLanguage = languageObj?.label || language.replace("hljs ", "");
 
@@ -85,7 +90,7 @@ export const CodeBlockRenderer = ({
       )}
 
       <pre className="hljs !bg-transparent !p-4 !m-0 overflow-x-auto text-sm">
-        {children}
+        {isPlainText ? <code>{code}</code> : children}
       </pre>
     </div>
   );

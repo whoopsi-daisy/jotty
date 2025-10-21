@@ -246,7 +246,9 @@ export const updateList = async (formData: FormData) => {
       throw new Error(lists.error || "Failed to fetch lists");
     }
 
-    const currentList = lists.data.find((list) => list.id === id);
+    const currentList = lists.data.find(
+      (list) => list.id === id && list.category === category
+    );
     if (!currentList) {
       throw new Error("List not found");
     }
@@ -401,7 +403,7 @@ export const deleteList = async (formData: FormData) => {
       return { error: "Failed to fetch lists" };
     }
 
-    const list = lists.data.find((l) => l.id === id);
+    const list = lists.data.find((l) => l.id === id && l.category === category);
     if (!list) {
       return { error: "List not found" };
     }
@@ -454,6 +456,7 @@ export const convertChecklistType = async (formData: FormData) => {
   try {
     const listId = formData.get("listId") as string;
     const newType = formData.get("newType") as ChecklistType;
+    const category = formData.get("category") as string;
 
     if (!listId || !newType) {
       return { error: "List ID and type are required" };
@@ -464,7 +467,9 @@ export const convertChecklistType = async (formData: FormData) => {
       throw new Error(lists.error || "Failed to fetch lists");
     }
 
-    const list = lists.data.find((l) => l.id === listId);
+    const list = lists.data.find(
+      (l) => l.id === listId && l.category === category
+    );
     if (!list) {
       throw new Error("List not found");
     }

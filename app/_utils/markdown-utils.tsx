@@ -22,7 +22,6 @@ export const createTurndownService = () => {
     codeBlockStyle: "fenced",
     emDelimiter: "*",
     bulletListMarker: "-",
-    // br: "  \n",
   });
 
   service.addRule("taskItem", {

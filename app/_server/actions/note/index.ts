@@ -275,7 +275,7 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
       throw new Error(docs.error || "Failed to fetch notes");
     }
 
-    const doc = docs.data.find((d) => d.id === id);
+    const doc = docs.data.find((d) => d.id === id && d.category === category);
     if (!doc) {
       throw new Error("Note not found");
     }
@@ -283,12 +283,11 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
     const updatedDoc = {
       ...doc,
       title,
-      content, // Now using sanitized content
+      content,
       category: category || doc.category,
       updatedAt: new Date().toISOString(),
     };
 
-    // ... rest of your updateNote function remains the same
     const ownerDir = USER_NOTES_DIR(doc.owner!);
     const categoryDir = path.join(
       ownerDir,
@@ -424,7 +423,7 @@ export const deleteNote = async (formData: FormData) => {
       return { error: "Failed to fetch documents" };
     }
 
-    const doc = docs.data.find((d) => d.id === id);
+    const doc = docs.data.find((d) => d.id === id && d.category === category);
     if (!doc) {
       return { error: "Document not found" };
     }
