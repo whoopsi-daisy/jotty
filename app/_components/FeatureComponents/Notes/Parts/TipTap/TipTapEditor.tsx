@@ -120,30 +120,30 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         },
       }),
       Table.extend({
-        content: 'tableRow+',
+        content: "tableRow+",
       }).configure({
         resizable: true,
       }),
       TableRow.extend({
-        content: '(tableHeader | tableCell)*',
+        content: "(tableHeader | tableCell)*",
       }),
       TableHeader.extend({
-        content: 'block+',
+        content: "block+",
       }),
       TableCell.extend({
-        content: 'block+',
+        content: "block+",
       }),
       ListItem.extend({
-        content: 'block+',
+        content: "block+",
       }),
       TaskList,
       TaskItem.extend({
         nested: true,
-        content: 'block+',
+        content: "block+",
       }),
       BulletList.extend({
-        content: 'listItem+',
-      })
+        content: "listItem+",
+      }),
     ],
     content: "",
     onUpdate: ({ editor }) => {
@@ -203,8 +203,8 @@ export const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
                     line.startsWith("    ")
                       ? line.substring(4)
                       : line.startsWith("\t")
-                        ? line.substring(1)
-                        : line
+                      ? line.substring(1)
+                      : line
                   )
                   .join("\n");
                 editor

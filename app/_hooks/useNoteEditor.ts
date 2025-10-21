@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import {
   convertMarkdownToHtml,
   convertHtmlToMarkdownUnified,
+  processMarkdownContent,
 } from "@/app/_utils/markdown-utils";
 import { useSettings } from "@/app/_utils/settings-store";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
@@ -48,7 +49,7 @@ export const useNoteEditor = ({
   const derivedMarkdownContent = useMemo(
     () =>
       isMarkdownMode
-        ? editorContent
+        ? processMarkdownContent(editorContent)
         : convertHtmlToMarkdownUnified(editorContent),
     [editorContent, isMarkdownMode]
   );

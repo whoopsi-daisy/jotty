@@ -29,6 +29,7 @@ import { readJsonFile } from "../file";
 import { USERS_FILE } from "@/app/_consts/files";
 import { Modes } from "@/app/_types/enums";
 import { serverReadFile } from "@/app/_server/actions/file";
+import { sanitizeMarkdown } from "@/app/_utils/markdown-utils";
 
 const USER_NOTES_DIR = (username: string) =>
   path.join(process.cwd(), "data", NOTES_FOLDER, username);
@@ -218,7 +219,9 @@ export const createNote = async (formData: FormData) => {
   try {
     const title = formData.get("title") as string;
     const category = (formData.get("category") as string) || "Uncategorized";
-    const content = (formData.get("content") as string) || "";
+    const rawContent = (formData.get("content") as string) || "";
+
+    const content = sanitizeMarkdown(rawContent);
 
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -255,8 +258,10 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
   try {
     const id = formData.get("id") as string;
     const title = formData.get("title") as string;
-    const content = formData.get("content") as string;
+    const rawContent = formData.get("content") as string;
     const category = formData.get("category") as string;
+
+    const content = sanitizeMarkdown(rawContent);
 
     const isAdminUser = await isAdmin();
     const docs = await (isAdminUser ? getAllNotes() : getNotes());
@@ -272,11 +277,12 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
     const updatedDoc = {
       ...doc,
       title,
-      content,
+      content, // Now using sanitized content
       category: category || doc.category,
       updatedAt: new Date().toISOString(),
     };
 
+    // ... rest of your updateNote function remains the same
     const ownerDir = USER_NOTES_DIR(doc.owner!);
     const categoryDir = path.join(
       ownerDir,

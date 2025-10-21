@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/app/_server/actions/users";
 import { NoteClient } from "@/app/_components/FeatureComponents/Notes/NoteClient";
 import { Modes } from "@/app/_types/enums";
 import { getCategories } from "@/app/_server/actions/category";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import { getMedatadaTitle } from "@/app/_server/actions/config";
 
 interface NotePageProps {

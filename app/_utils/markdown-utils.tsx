@@ -27,8 +27,7 @@ export const createTurndownService = () => {
 
   service.addRule("taskItem", {
     filter: (node) =>
-      node.nodeName === "LI" &&
-      node.getAttribute("data-type") === "taskItem",
+      node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem",
 
     replacement: function (content, node) {
       const element = node as HTMLElement;
@@ -42,23 +41,25 @@ export const createTurndownService = () => {
 
   service.addRule("paragraphInLi", {
     filter: (node) => {
-      if (node.nodeName !== 'P') return false;
+      if (node.nodeName !== "P") return false;
       const parent = node.parentNode;
       if (!parent) return false;
       const isElement = (n: ParentNode): n is HTMLElement => n.nodeType === 1;
 
-      if (parent.nodeName === 'LI') {
+      if (parent.nodeName === "LI") {
         const elementChildren = Array.from(parent.children).filter(
           (child) => child.nodeType === 1
         );
         return elementChildren.length === 1;
       }
-      if (parent.nodeName === 'DIV' &&
+      if (
+        parent.nodeName === "DIV" &&
         parent.parentNode &&
         isElement(parent.parentNode) &&
-        parent.parentNode.nodeName === 'LI') {
+        parent.parentNode.nodeName === "LI"
+      ) {
         const li = parent.parentNode;
-        if (li.getAttribute('data-type') !== 'taskItem') return false;
+        if (li.getAttribute("data-type") !== "taskItem") return false;
         const elementChildren = Array.from(parent.children).filter(
           (child) => child.nodeType === 1
         );
@@ -68,7 +69,7 @@ export const createTurndownService = () => {
     },
     replacement: function (content) {
       return content;
-    }
+    },
   });
 
   service.use(turndownPluginGfm.gfm);
@@ -240,4 +241,11 @@ export const getMarkdownPreviewContent = (
   } else {
     return convertHtmlToMarkdownUnified(content);
   }
+};
+
+export const sanitizeMarkdown = (markdown: string): string => {
+  if (!markdown || typeof markdown !== "string") return "";
+
+  const sanitizedHtml = convertMarkdownToHtml(markdown);
+  return convertHtmlToMarkdown(sanitizedHtml);
 };
