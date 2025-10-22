@@ -148,7 +148,7 @@ The application will be available at `http://localhost:1122`.
 
 ### Initial Setup
 
-On your first visit, you'll be redirected to `/auth/setup` to create your admin account if SSO is disabled, otherwise you'll be prompted to sign in via your choosen SSO provider.
+On your first visit, you'll be redirected to `/auth/setup` to create your admin account if SSO is disabled, otherwise you'll be prompted to sign in via your chosen SSO provider.
 
 Once that's done, you're ready to go! First user will be admin by default.
 
